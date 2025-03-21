@@ -1,26 +1,40 @@
 
 import React from 'react';
-import { Clock, Database, BarChart3, Sliders } from 'lucide-react';
+import { Clock, Database, BarChart3, Sliders, GitBranch } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface BenefitProps {
   icon: React.ReactNode;
   title: string;
   description: string;
   delay: number;
+  link?: string;
 }
 
-const BenefitCard = ({ icon, title, description, delay }: BenefitProps) => (
-  <div 
-    className="p-6 rounded-2xl bg-secondary/30 hover:bg-secondary/50 border border-border smooth-transition group"
-    style={{ animationDelay: `${delay}ms` }}
-  >
-    <div className="h-12 w-12 rounded-xl bg-success/10 flex items-center justify-center mb-6 group-hover:-translate-y-1 smooth-transition">
-      {icon}
+const BenefitCard = ({ icon, title, description, delay, link }: BenefitProps) => {
+  const content = (
+    <div 
+      className="p-6 rounded-2xl bg-secondary/30 hover:bg-secondary/50 border border-border smooth-transition group h-full"
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      <div className="h-12 w-12 rounded-xl bg-success/10 flex items-center justify-center mb-6 group-hover:-translate-y-1 smooth-transition">
+        {icon}
+      </div>
+      <h3 className="text-xl font-semibold mb-3">{title}</h3>
+      <p className="text-foreground/70">{description}</p>
     </div>
-    <h3 className="text-xl font-semibold mb-3">{title}</h3>
-    <p className="text-foreground/70">{description}</p>
-  </div>
-);
+  );
+
+  if (link) {
+    return (
+      <Link to={link} className="block h-full">
+        {content}
+      </Link>
+    );
+  }
+
+  return content;
+};
 
 const Benefits = () => {
   const benefits = [
@@ -47,6 +61,13 @@ const Benefits = () => {
       title: "Points System",
       description: "Purchase points to extend your trading capabilities and access premium features.",
       delay: 400
+    },
+    {
+      icon: <GitBranch className="h-6 w-6 text-success" />,
+      title: "Strategy Builder",
+      description: "Create complex trading strategies with our no-code, node-based visual editor.",
+      delay: 500,
+      link: "/strategy-builder"
     }
   ];
 
@@ -62,9 +83,9 @@ const Benefits = () => {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 md:gap-8">
           {benefits.map((benefit, index) => (
-            <div key={index} className="animate-slide-up">
+            <div key={index} className="animate-slide-up h-full">
               <BenefitCard {...benefit} />
             </div>
           ))}

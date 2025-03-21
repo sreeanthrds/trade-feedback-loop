@@ -1,0 +1,92 @@
+
+.strategy-flow-container {
+  height: 100%;
+  width: 100%;
+  background-color: var(--background);
+}
+
+/* Node styling */
+.react-flow__node {
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  min-width: 150px;
+  font-size: 12px;
+  transition: box-shadow 0.2s;
+}
+
+.react-flow__node.selected {
+  box-shadow: 0 0 0 2px #ff9800;
+}
+
+/* Node type specific styles */
+.react-flow__node-startNode {
+  background-color: rgba(76, 175, 80, 0.1);
+  border: 1px solid #4CAF50;
+}
+
+.react-flow__node-signalNode {
+  background-color: rgba(33, 150, 243, 0.1);
+  border: 1px solid #2196F3;
+}
+
+.react-flow__node-actionNode {
+  background-color: rgba(255, 152, 0, 0.1);
+  border: 1px solid #FF9800;
+}
+
+.react-flow__node-endNode {
+  background-color: rgba(244, 67, 54, 0.1);
+  border: 1px solid #F44336;
+}
+
+/* Handle styling */
+.react-flow__handle {
+  width: 8px;
+  height: 8px;
+  background-color: #fff;
+  border: 1px solid #888;
+}
+
+.react-flow__handle-top {
+  top: -4px;
+}
+
+.react-flow__handle-bottom {
+  bottom: -4px;
+}
+
+.react-flow__handle-left {
+  left: -4px;
+}
+
+.react-flow__handle-right {
+  right: -4px;
+}
+
+/* Edge styling */
+.react-flow__edge-path {
+  stroke-width: 2;
+}
+
+.react-flow__edge.animated path {
+  stroke-dasharray: 5;
+  animation: dashdraw 0.5s linear infinite;
+}
+
+@keyframes dashdraw {
+  from {
+    stroke-dashoffset: 10;
+  }
+}
+
+/* Controls styling */
+.react-flow__controls {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+/* Minimap styling */
+.react-flow__minimap {
+  border-radius: 8px;
+  overflow: hidden;
+}
