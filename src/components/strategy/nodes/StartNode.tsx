@@ -3,7 +3,13 @@ import React, { memo } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import { Play } from 'lucide-react';
 
-const StartNode = ({ data }: { data: any }) => {
+interface StartNodeProps {
+  data: {
+    label?: string;
+  };
+}
+
+const StartNode = ({ data }: StartNodeProps) => {
   return (
     <div className="px-4 py-2 rounded-md">
       <div className="flex items-center">

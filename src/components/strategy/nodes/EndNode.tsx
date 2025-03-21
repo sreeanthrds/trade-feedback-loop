@@ -3,7 +3,13 @@ import React, { memo } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import { StopCircle } from 'lucide-react';
 
-const EndNode = ({ data }: { data: any }) => {
+interface EndNodeProps {
+  data: {
+    label?: string;
+  };
+}
+
+const EndNode = ({ data }: EndNodeProps) => {
   return (
     <div className="px-4 py-2 rounded-md">
       <Handle
