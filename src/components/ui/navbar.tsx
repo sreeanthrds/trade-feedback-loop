@@ -1,0 +1,199 @@
+
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Menu, X, Moon, Sun } from 'lucide-react';
+
+const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const location = useLocation();
+
+  // Toggle mobile menu
+  const toggleMenu = () => setIsOpen(!isOpen);
+  
+  // Toggle dark/light mode
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+    document.documentElement.classList.toggle('dark');
+  };
+  
+  // Check if current route is active
+  const isActive = (path: string) => location.pathname === path;
+  
+  // Handle scroll event for navbar background
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 20) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return (
+    <header 
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+        isScrolled ? 'bg-background/80 backdrop-blur-md shadow-sm' : 'bg-transparent'
+      }`}
+    >
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="flex items-center justify-between h-16 md:h-20">
+          {/* Logo */}
+          <Link 
+            to="/" 
+            className="flex items-center space-x-2 smooth-transition hover:opacity-80"
+            onClick={() => setIsOpen(false)}
+          >
+            <span className="text-xl md:text-2xl font-bold bg-gradient-to-r from-success to-success/80 bg-clip-text text-transparent">
+              TradeBack Pro
+            </span>
+          </Link>
+          
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-8">
+            <Link 
+              to="/" 
+              className={`smooth-transition ${isActive('/') 
+                ? 'text-success font-medium' 
+                : 'text-foreground/80 hover:text-foreground'}`}
+            >
+              Home
+            </Link>
+            <Link 
+              to="/features" 
+              className={`smooth-transition ${isActive('/features') 
+                ? 'text-success font-medium' 
+                : 'text-foreground/80 hover:text-foreground'}`}
+            >
+              Features
+            </Link>
+            <Link 
+              to="/pricing" 
+              className={`smooth-transition ${isActive('/pricing') 
+                ? 'text-success font-medium' 
+                : 'text-foreground/80 hover:text-foreground'}`}
+            >
+              Pricing
+            </Link>
+            <Link 
+              to="/blog" 
+              className={`smooth-transition ${isActive('/blog') 
+                ? 'text-success font-medium' 
+                : 'text-foreground/80 hover:text-foreground'}`}
+            >
+              Blog
+            </Link>
+            <div className="flex items-center space-x-3">
+              <Link 
+                to="/login" 
+                className="text-foreground/80 hover:text-foreground smooth-transition"
+              >
+                Login
+              </Link>
+              <Link 
+                to="/signup" 
+                className="btn-primary"
+              >
+                Sign Up
+              </Link>
+            </div>
+          </nav>
+          
+          {/* Theme Toggle & Mobile Menu Button */}
+          <div className="flex items-center space-x-4">
+            <button 
+              onClick={toggleTheme}
+              className="p-2 rounded-full bg-secondary/50 hover:bg-secondary smooth-transition"
+              aria-label="Toggle theme"
+            >
+              {isDarkMode ? (
+                <Sun className="h-5 w-5 text-yellow-400" />
+              ) : (
+                <Moon className="h-5 w-5 text-gray-700" />
+              )}
+            </button>
+            
+            <button 
+              onClick={toggleMenu}
+              className="md:hidden p-2 rounded-lg bg-secondary/50 hover:bg-secondary smooth-transition"
+              aria-label="Toggle menu"
+            >
+              {isOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      {/* Mobile Navigation */}
+      {isOpen && (
+        <div className="md:hidden bg-background/95 backdrop-blur-lg border-b border-border animate-fade-in">
+          <nav className="container mx-auto px-4 py-4 flex flex-col space-y-4">
+            <Link 
+              to="/" 
+              className={`py-2 ${isActive('/') 
+                ? 'text-success font-medium' 
+                : 'text-foreground/80'}`}
+              onClick={toggleMenu}
+            >
+              Home
+            </Link>
+            <Link 
+              to="/features" 
+              className={`py-2 ${isActive('/features') 
+                ? 'text-success font-medium' 
+                : 'text-foreground/80'}`}
+              onClick={toggleMenu}
+            >
+              Features
+            </Link>
+            <Link 
+              to="/pricing" 
+              className={`py-2 ${isActive('/pricing') 
+                ? 'text-success font-medium' 
+                : 'text-foreground/80'}`}
+              onClick={toggleMenu}
+            >
+              Pricing
+            </Link>
+            <Link 
+              to="/blog" 
+              className={`py-2 ${isActive('/blog') 
+                ? 'text-success font-medium' 
+                : 'text-foreground/80'}`}
+              onClick={toggleMenu}
+            >
+              Blog
+            </Link>
+            <div className="flex flex-col space-y-3 pt-2">
+              <Link 
+                to="/login" 
+                className="py-2 text-foreground/80"
+                onClick={toggleMenu}
+              >
+                Login
+              </Link>
+              <Link 
+                to="/signup" 
+                className="btn-primary text-center"
+                onClick={toggleMenu}
+              >
+                Sign Up
+              </Link>
+            </div>
+          </nav>
+        </div>
+      )}
+    </header>
+  );
+};
+
+export default Navbar;
