@@ -20,7 +20,7 @@ const EndNodeEditor = ({ node, updateNodeData }: EndNodeEditorProps) => {
         <Label htmlFor="node-label">Node Label</Label>
         <Input
           id="node-label"
-          value={node.data.label || 'End'}
+          value={node.data?.label || 'End'}
           onChange={handleLabelChange}
           placeholder="Enter node label"
         />

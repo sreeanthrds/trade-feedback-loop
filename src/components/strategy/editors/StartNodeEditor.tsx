@@ -3,7 +3,6 @@ import React from 'react';
 import { Node } from '@xyflow/react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 
 interface StartNodeEditorProps {
   node: Node;
@@ -21,7 +20,7 @@ const StartNodeEditor = ({ node, updateNodeData }: StartNodeEditorProps) => {
         <Label htmlFor="node-label">Node Label</Label>
         <Input
           id="node-label"
-          value={node.data.label || 'Start'}
+          value={node.data?.label || 'Start'}
           onChange={handleLabelChange}
           placeholder="Enter node label"
         />

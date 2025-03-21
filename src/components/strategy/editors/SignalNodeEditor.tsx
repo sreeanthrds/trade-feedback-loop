@@ -14,7 +14,7 @@ interface SignalNodeEditorProps {
 
 const SignalNodeEditor = ({ node, updateNodeData }: SignalNodeEditorProps) => {
   const [newCondition, setNewCondition] = useState('');
-  const conditions = node.data.conditions || [];
+  const conditions = Array.isArray(node.data?.conditions) ? node.data.conditions : [];
 
   const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateNodeData(node.id, { label: e.target.value });
@@ -46,7 +46,7 @@ const SignalNodeEditor = ({ node, updateNodeData }: SignalNodeEditorProps) => {
         <Label htmlFor="node-label">Node Label</Label>
         <Input
           id="node-label"
-          value={node.data.label || 'Signal'}
+          value={node.data?.label || 'Signal'}
           onChange={handleLabelChange}
           placeholder="Enter node label"
         />

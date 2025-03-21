@@ -3,7 +3,6 @@ import React from 'react';
 import { Node } from '@xyflow/react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator'; 
 import {
   Select,
@@ -37,7 +36,7 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
         <Label htmlFor="node-label">Node Label</Label>
         <Input
           id="node-label"
-          value={node.data.label || 'Action'}
+          value={node.data?.label || 'Action'}
           onChange={handleLabelChange}
           placeholder="Enter node label"
         />
@@ -48,7 +47,7 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
       <div>
         <Label htmlFor="action-type">Action Type</Label>
         <Select
-          value={node.data.action || ''}
+          value={node.data?.action || ''}
           onValueChange={handleActionChange}
         >
           <SelectTrigger>
@@ -65,7 +64,7 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
       <div>
         <Label htmlFor="instrument">Instrument</Label>
         <Select
-          value={node.data.instrument || ''}
+          value={node.data?.instrument || ''}
           onValueChange={handleInstrumentChange}
         >
           <SelectTrigger>

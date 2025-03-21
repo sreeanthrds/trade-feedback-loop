@@ -14,7 +14,7 @@ import {
   Connection,
   NodeTypes
 } from '@xyflow/react';
-import { AlertCircle, Plus, Play, FloppyDisk, RotateCcw } from 'lucide-react';
+import { AlertCircle, Plus, Play, Save, RotateCcw } from 'lucide-react';
 import NodePanel from './NodePanel';
 import StartNode from './nodes/StartNode';
 import SignalNode from './nodes/SignalNode';
@@ -159,7 +159,7 @@ const StrategyFlow = () => {
         <Panel position="bottom-left">
           <div className="flex gap-2">
             <Button variant="secondary">
-              <FloppyDisk className="mr-1 h-4 w-4" />
+              <Save className="mr-1 h-4 w-4" />
               Save
             </Button>
             <Button variant="secondary">
