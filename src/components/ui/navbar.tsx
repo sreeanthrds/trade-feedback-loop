@@ -50,7 +50,7 @@ const Navbar = () => {
             onClick={() => setIsOpen(false)}
           >
             <span className="text-xl md:text-2xl font-bold bg-gradient-to-r from-success to-success/80 bg-clip-text text-transparent">
-              TradeBack Pro
+              Trady
             </span>
           </Link>
           

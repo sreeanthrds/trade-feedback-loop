@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Check, AlertCircle } from 'lucide-react';
+import { Check, AlertCircle, Coins } from 'lucide-react';
 
 interface PlanFeature {
   title: string;
@@ -11,23 +11,23 @@ interface PlanFeature {
 interface PricingPlanProps {
   title: string;
   price: string;
-  yearlyPrice?: string;
   description: string;
   features: PlanFeature[];
   ctaText: string;
   ctaLink: string;
   popular?: boolean;
+  isPoints?: boolean;
 }
 
 const PricingPlan = ({ 
   title, 
   price, 
-  yearlyPrice,
   description, 
   features, 
   ctaText, 
   ctaLink, 
-  popular = false 
+  popular = false,
+  isPoints = false
 }: PricingPlanProps) => {
   return (
     <div 
@@ -48,10 +48,10 @@ const PricingPlan = ({
         <p className="text-foreground/70 mb-6">{description}</p>
         
         <div className="mb-6">
-          <div className="text-3xl font-bold">{price}</div>
-          {yearlyPrice && (
-            <div className="text-foreground/70 text-sm">{yearlyPrice}</div>
-          )}
+          <div className="text-3xl font-bold flex items-center">
+            {isPoints && <Coins className="h-5 w-5 mr-2 text-yellow-500" />}
+            {price}
+          </div>
         </div>
         
         <ul className="space-y-3 mb-8">
@@ -83,68 +83,78 @@ const PricingPlan = ({
 };
 
 const Pricing = () => {
-  const [isAnnual, setIsAnnual] = useState(true);
-  
-  const toggleBilling = () => {
-    setIsAnnual(!isAnnual);
+  const freePlan = {
+    title: "Free Trial",
+    price: "₹0",
+    description: "Perfect for exploring trading simulation.",
+    features: [
+      { title: "1-day trading simulator access", included: true },
+      { title: "Limited historical data (1 month)", included: true },
+      { title: "Basic performance metrics", included: true },
+      { title: "Community support", included: true },
+      { title: "Advanced analytics", included: false },
+      { title: "Extended backtesting", included: false },
+      { title: "Priority support", included: false },
+    ],
+    ctaText: "Start Free",
+    ctaLink: "/signup",
+    popular: false,
   };
 
-  const plans = [
+  const pointsPlans = [
     {
-      title: "Free Tier",
-      price: "$0",
-      description: "Perfect for beginners exploring strategy testing.",
+      title: "Starter Pack",
+      price: "500 Points - ₹999",
+      description: "For casual traders just getting started.",
       features: [
-        { title: "Basic backtesting tools", included: true },
-        { title: "Limited historical data (1 year)", included: true },
-        { title: "5 tests per day", included: true },
-        { title: "Basic performance metrics", included: true },
-        { title: "Community support", included: true },
-        { title: "Advanced analytics", included: false },
-        { title: "Unlimited tests", included: false },
+        { title: "5 backtesting sessions", included: true },
+        { title: "3 months historical data", included: true },
+        { title: "Basic technical indicators", included: true },
+        { title: "Equity curve analysis", included: true },
+        { title: "Export reports (PDF)", included: true },
+        { title: "Advanced strategy tools", included: false },
         { title: "Priority support", included: false },
       ],
-      ctaText: "Start Free",
-      ctaLink: "/signup",
+      ctaText: "Buy Points",
+      ctaLink: "/signup?plan=starter",
       popular: false,
+      isPoints: true,
     },
     {
-      title: "Pro Tier",
-      price: isAnnual ? "$29/month" : "$35/month",
-      yearlyPrice: isAnnual ? "billed annually ($290/year)" : null,
+      title: "Pro Trader",
+      price: "1500 Points - ₹2499",
       description: "For serious traders seeking an edge.",
       features: [
-        { title: "All Free features", included: true },
-        { title: "Unlimited backtesting", included: true },
-        { title: "Full historical data access", included: true },
-        { title: "Advanced analytics dashboard", included: true },
-        { title: "Technical indicator library", included: true },
+        { title: "20 backtesting sessions", included: true },
+        { title: "Full 3 months historical data", included: true },
+        { title: "Advanced technical indicators", included: true },
         { title: "Strategy optimization tools", included: true },
+        { title: "Export reports (all formats)", included: true },
         { title: "Email support", included: true },
-        { title: "API access", included: false },
+        { title: "Multi-timeframe analysis", included: true },
       ],
-      ctaText: "Go Pro",
+      ctaText: "Get Pro Pack",
       ctaLink: "/signup?plan=pro",
       popular: true,
+      isPoints: true,
     },
     {
-      title: "Elite Tier",
-      price: isAnnual ? "$79/month" : "$99/month",
-      yearlyPrice: isAnnual ? "billed annually ($790/year)" : null,
+      title: "Institutional",
+      price: "5000 Points - ₹7999",
       description: "For professionals and institutions.",
       features: [
-        { title: "All Pro features", included: true },
-        { title: "Custom data imports", included: true },
-        { title: "API access", included: true },
-        { title: "White-label reports", included: true },
+        { title: "Unlimited backtesting sessions", included: true },
+        { title: "Full historical data access", included: true },
         { title: "Custom indicator development", included: true },
         { title: "Multi-user accounts", included: true },
         { title: "Priority support", included: true },
         { title: "Strategy consulting session", included: true },
+        { title: "API access", included: true },
       ],
-      ctaText: "Get Elite",
-      ctaLink: "/signup?plan=elite",
+      ctaText: "Get Institutional",
+      ctaLink: "/signup?plan=institutional",
       popular: false,
+      isPoints: true,
     },
   ];
 
@@ -153,42 +163,51 @@ const Pricing = () => {
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-12 animate-slide-up">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Simple Pricing for Every Trader
+            Simple Points-Based Pricing
           </h2>
           <p className="text-lg text-foreground/70 max-w-2xl mx-auto mb-8">
-            Choose the plan that fits your trading style. All plans include a 14-day trial.
+            Buy points to access premium features and extend your trading capabilities.
           </p>
-          
-          {/* Billing Toggle */}
-          <div className="flex items-center justify-center mb-6">
-            <span className={`mr-3 ${!isAnnual ? 'text-foreground' : 'text-foreground/70'}`}>
-              Monthly
-            </span>
-            <button 
-              onClick={toggleBilling}
-              className="relative w-14 h-7 bg-secondary rounded-full p-1 transition-colors"
-            >
-              <span 
-                className={`absolute top-1 w-5 h-5 rounded-full bg-success transition-transform ${
-                  isAnnual ? 'translate-x-7' : 'translate-x-0'
-                }`}
-              />
-            </button>
-            <span className={`ml-3 ${isAnnual ? 'text-foreground' : 'text-foreground/70'}`}>
-              Annually
-            </span>
-            <span className="ml-2 text-xs font-medium text-success bg-success/10 py-1 px-2 rounded-full">
-              Save 15%
-            </span>
-          </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {plans.map((plan, index) => (
-            <div key={index} className="animate-slide-up" style={{ animationDelay: `${index * 100}ms` }}>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="animate-slide-up">
+            <PricingPlan {...freePlan} />
+          </div>
+          
+          {pointsPlans.map((plan, index) => (
+            <div key={index} className="animate-slide-up" style={{ animationDelay: `${(index + 1) * 100}ms` }}>
               <PricingPlan {...plan} />
             </div>
           ))}
+        </div>
+        
+        <div className="mt-16 p-6 bg-secondary/20 rounded-xl max-w-3xl mx-auto">
+          <h3 className="text-xl font-bold mb-4 text-center">How Points Work</h3>
+          <p className="text-foreground/70 mb-4">
+            Points are the currency within Trady that allow you to access premium features:
+          </p>
+          <ul className="space-y-2 mb-4">
+            <li className="flex items-start">
+              <Check className="h-5 w-5 text-success shrink-0 mr-3 mt-0.5" />
+              <span>1 backtesting session = 100 points</span>
+            </li>
+            <li className="flex items-start">
+              <Check className="h-5 w-5 text-success shrink-0 mr-3 mt-0.5" />
+              <span>Advanced indicator access = 50 points per indicator</span>
+            </li>
+            <li className="flex items-start">
+              <Check className="h-5 w-5 text-success shrink-0 mr-3 mt-0.5" />
+              <span>Report exports = 25 points per report</span>
+            </li>
+            <li className="flex items-start">
+              <Check className="h-5 w-5 text-success shrink-0 mr-3 mt-0.5" />
+              <span>Points never expire - use them at your convenience</span>
+            </li>
+          </ul>
+          <p className="text-foreground/70 text-center text-sm">
+            All prices are inclusive of applicable taxes. GST invoice will be provided.
+          </p>
         </div>
       </div>
     </section>

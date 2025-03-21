@@ -16,10 +16,10 @@ const PricingPage = () => {
       <main className="flex-grow pt-28">
         <section className="container mx-auto px-4 md:px-6 text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-bold mb-6 animate-slide-down">
-            Simple Pricing for Every Trader
+            Points-Based Pricing for Indian Traders
           </h1>
           <p className="text-xl text-foreground/70 max-w-2xl mx-auto animate-slide-up">
-            Choose the plan that fits your trading needs. All plans come with a 14-day trial.
+            Purchase points to access premium features and extend your trading capabilities.
           </p>
         </section>
         
@@ -31,44 +31,44 @@ const PricingPage = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <div className="bg-secondary/20 rounded-xl p-6 animate-slide-up">
-              <h3 className="text-xl font-semibold mb-3">Can I cancel anytime?</h3>
+              <h3 className="text-xl font-semibold mb-3">How do points work?</h3>
               <p className="text-foreground/70">
-                Yes, you can cancel your subscription at any time. You'll continue to have access until the end of your billing period.
+                Points are Trady's in-platform currency. You can use them to access premium features like backtesting sessions, advanced indicators, and report exports.
               </p>
             </div>
             
             <div className="bg-secondary/20 rounded-xl p-6 animate-slide-up">
-              <h3 className="text-xl font-semibold mb-3">Is there a free trial?</h3>
+              <h3 className="text-xl font-semibold mb-3">Do points expire?</h3>
               <p className="text-foreground/70">
-                Absolutely! All paid plans include a 14-day free trial, so you can test all features before committing.
+                No, your purchased points never expire. You can use them at your convenience whenever you need them.
               </p>
             </div>
             
             <div className="bg-secondary/20 rounded-xl p-6 animate-slide-up">
               <h3 className="text-xl font-semibold mb-3">What payment methods do you accept?</h3>
               <p className="text-foreground/70">
-                We accept all major credit cards, PayPal, and selected cryptocurrencies for payment.
+                We accept all major credit/debit cards, UPI, net banking, and selected wallets for payments in INR.
               </p>
             </div>
             
             <div className="bg-secondary/20 rounded-xl p-6 animate-slide-up">
-              <h3 className="text-xl font-semibold mb-3">Can I upgrade or downgrade my plan?</h3>
+              <h3 className="text-xl font-semibold mb-3">Can I get a refund for unused points?</h3>
               <p className="text-foreground/70">
-                Yes, you can change your plan at any time. When upgrading, you'll be charged the prorated difference. When downgrading, the new rate applies to your next billing cycle.
+                Points are non-refundable once purchased. However, if you face any technical issues while using our services, please contact our support team.
               </p>
             </div>
             
             <div className="bg-secondary/20 rounded-xl p-6 animate-slide-up">
               <h3 className="text-xl font-semibold mb-3">Is my data secure?</h3>
               <p className="text-foreground/70">
-                We take security seriously. All data is encrypted both in transit and at rest, and we never share your information with third parties.
+                Yes, we take security seriously. All data is encrypted and we never share your information with third parties.
               </p>
             </div>
             
             <div className="bg-secondary/20 rounded-xl p-6 animate-slide-up">
-              <h3 className="text-xl font-semibold mb-3">Do you offer refunds?</h3>
+              <h3 className="text-xl font-semibold mb-3">Which Indian markets do you cover?</h3>
               <p className="text-foreground/70">
-                We offer a 30-day money-back guarantee if you're not satisfied with our service. Just contact our support team within 30 days of your purchase.
+                We cover NSE, BSE, and major Indian commodity exchanges. Our data includes stocks, indices, futures, and options available on these exchanges.
               </p>
             </div>
           </div>

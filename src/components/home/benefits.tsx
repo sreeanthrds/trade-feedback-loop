@@ -26,26 +26,26 @@ const Benefits = () => {
   const benefits = [
     {
       icon: <Clock className="h-6 w-6 text-success" />,
-      title: "Fast & Simple",
-      description: "Run backtests in minutes with our intuitive interface. No coding required.",
+      title: "One-Day Simulator",
+      description: "Test your strategies with our realistic trading simulator for a full day experience.",
       delay: 100
     },
     {
       icon: <Database className="h-6 w-6 text-success" />,
-      title: "Real Data",
-      description: "Access years of historical data across stocks, forex, and crypto markets.",
+      title: "Indian Market Data",
+      description: "Access 3 months of historical data for NSE, BSE, and other Indian exchanges.",
       delay: 200
     },
     {
       icon: <BarChart3 className="h-6 w-6 text-success" />,
       title: "Actionable Insights",
-      description: "Analyze performance with detailed metrics and visualization tools.",
+      description: "Analyze performance with detailed metrics tailored for Indian market conditions.",
       delay: 300
     },
     {
       icon: <Sliders className="h-6 w-6 text-success" />,
-      title: "Custom Parameters",
-      description: "Fine-tune your strategies with adjustable variables and conditions.",
+      title: "Points System",
+      description: "Purchase points to extend your trading capabilities and access premium features.",
       delay: 400
     }
   ];
@@ -55,10 +55,10 @@ const Benefits = () => {
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-16 animate-slide-up">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Master Your Trading Edge
+            Master Trading in Indian Markets
           </h2>
           <p className="text-lg text-foreground/70 max-w-2xl mx-auto">
-            Our platform provides everything you need to refine and validate your trading strategies.
+            Our platform provides everything you need to refine and validate your trading strategies for Indian stocks, indices, and derivatives.
           </p>
         </div>
         

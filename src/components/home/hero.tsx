@@ -12,7 +12,7 @@ const Hero = () => {
           <div className="lg:col-span-6 animate-slide-up">
             <div className="inline-flex items-center px-3 py-1 mb-6 rounded-full bg-success/10 border border-success/20 text-success text-sm font-medium">
               <TrendingUp className="h-4 w-4 mr-2" />
-              <span>Master trading without the risk</span>
+              <span>Master trading in Indian markets</span>
             </div>
             
             <h1 className="text-4xl md:text-5xl xl:text-6xl font-bold tracking-tight mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
@@ -20,12 +20,12 @@ const Hero = () => {
             </h1>
             
             <p className="text-lg md:text-xl text-foreground/80 mb-8 max-w-2xl">
-              Build, test, and optimize strategies without risking a dime. Find what works before committing real capital. Start for free today.
+              Build, test, and optimize strategies for the Indian market without risking capital. Try our simulator today.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
               <Link to="/signup" className="btn-primary flex items-center justify-center group">
-                Get Started Free
+                Start Free Trial
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Link>
               
@@ -48,14 +48,14 @@ const Hero = () => {
                     <div className="h-3 w-3 rounded-full bg-yellow-400"></div>
                     <div className="h-3 w-3 rounded-full bg-success"></div>
                   </div>
-                  <div className="text-xs text-white/70">Backtest Results - Strategy #1</div>
+                  <div className="text-xs text-white/70">Backtest Results - Nifty50 Strategy</div>
                 </div>
                 
                 <div className="p-4 bg-dark text-white">
                   <div className="grid grid-cols-2 gap-4 mb-4">
                     <div className="bg-dark-subtle p-3 rounded-lg">
                       <div className="text-xs text-white/70 mb-1">Net Profit</div>
-                      <div className="text-lg font-semibold text-success">+$8,245.32</div>
+                      <div className="text-lg font-semibold text-success">+₹82,245</div>
                     </div>
                     <div className="bg-dark-subtle p-3 rounded-lg">
                       <div className="text-xs text-white/70 mb-1">Win Rate</div>
@@ -85,7 +85,7 @@ const Hero = () => {
                     </div>
                     <div className="bg-dark-subtle p-2 rounded-lg text-center">
                       <div className="text-xs text-white/70">Period</div>
-                      <div className="text-sm font-medium">6M</div>
+                      <div className="text-sm font-medium">1M</div>
                     </div>
                     <div className="bg-dark-subtle p-2 rounded-lg text-center">
                       <div className="text-xs text-white/70">Drawdown</div>

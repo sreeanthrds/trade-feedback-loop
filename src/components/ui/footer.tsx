@@ -12,11 +12,11 @@ const Footer = () => {
           <div className="md:col-span-1">
             <Link to="/" className="inline-block mb-4">
               <span className="text-xl font-bold bg-gradient-to-r from-success to-success/80 bg-clip-text text-transparent">
-                TradeBack Pro
+                Trady
               </span>
             </Link>
             <p className="text-foreground/70 mb-4 max-w-xs">
-              The trading backtesting platform built by traders, for traders.
+              The trading backtesting platform built for Indian market traders.
             </p>
             <div className="flex space-x-4">
               <a 
@@ -131,7 +131,7 @@ const Footer = () => {
         
         <div className="border-t border-border mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-foreground/60 text-sm mb-4 md:mb-0">
-            © {new Date().getFullYear()} TradeBack Pro. Built by Traders, for Traders.
+            © {new Date().getFullYear()} Trady. Built for Indian Market Traders.
           </p>
           <div className="text-foreground/60 text-sm">
             All trading involves risk. Performance results are not guaranteed.
