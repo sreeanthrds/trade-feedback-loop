@@ -29,21 +29,20 @@ const NodeControls: React.FC<NodeControlsProps> = ({
   const targetNode = nodes.find(node => node.id === nodeId);
   
   // Find the node's position in the viewport
-  const nodeCenter = useStore((store) => {
+  const nodePosition = useStore((store) => {
     const node = store.nodeLookup.get(nodeId);
     if (!node) return null;
     
     const width = node.width || 150;
-    const height = node.height || 50;
     
-    // Return the center-right position of the node
+    // Return the right edge position of the node
     return {
-      x: node.position.x + width,
-      y: node.position.y - 10 // Position slightly above the node
+      x: node.position.x + width + 5, // 5px to the right of node edge
+      y: node.position.y + 10 // align with node top section
     };
   });
 
-  if (!targetNode || !nodeCenter) return null;
+  if (!targetNode || !nodePosition) return null;
 
   const isStartNode = targetNode.type === 'startNode';
   const isEndOrForceEndNode = targetNode.type === 'endNode' || targetNode.type === 'forceEndNode';
@@ -69,12 +68,12 @@ const NodeControls: React.FC<NodeControlsProps> = ({
     <div 
       className="absolute pointer-events-auto"
       style={{
-        left: nodeCenter.x,
-        top: nodeCenter.y,
+        left: nodePosition.x,
+        top: nodePosition.y,
         zIndex: 10
       }}
     >
-      <div className="flex space-x-2">
+      <div className="flex flex-col space-y-2">
         {!isEndOrForceEndNode && (
           <HoverCard open={showNodeOptions} onOpenChange={setShowNodeOptions}>
             <HoverCardTrigger asChild>
