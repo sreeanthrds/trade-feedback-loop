@@ -14,6 +14,7 @@ import Blog from "./pages/Blog";
 import StrategyBuilder from "./pages/StrategyBuilder";
 import NotFound from "./pages/NotFound";
 
+// Create the query client outside of the component
 const queryClient = new QueryClient();
 
 // Animation and page transitions observer
@@ -25,27 +26,30 @@ const AppObserver = () => {
   return null;
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
+// Change from arrow function to regular function component
+function App() {
+  return (
     <ThemeProvider>
       <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AppObserver />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/features" element={<Features />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/strategy-builder" element={<StrategyBuilder />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <QueryClientProvider client={queryClient}>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AppObserver />
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/features" element={<Features />} />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/strategy-builder" element={<StrategyBuilder />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </QueryClientProvider>
       </TooltipProvider>
     </ThemeProvider>
-  </QueryClientProvider>
-);
+  );
+}
 
 export default App;
