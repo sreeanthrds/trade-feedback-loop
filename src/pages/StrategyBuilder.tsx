@@ -9,9 +9,9 @@ const StrategyBuilder = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-grow">
+      <main className="flex-grow pt-16 md:pt-20">
         <div className="container mx-auto px-4 py-6">
-          <div className="mb-6">
+          <div className="mb-6 pt-4">
             <h1 className="text-3xl font-bold mb-2">Strategy Builder</h1>
             <p className="text-foreground/70">
               Build complex trading strategies with our no-code node-based visual editor

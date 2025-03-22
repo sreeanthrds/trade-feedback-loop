@@ -35,6 +35,9 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Check if we're on the strategy builder page to hide the logo
+  const isStrategyBuilderPage = location.pathname === '/strategy-builder';
+
   return (
     <header 
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
@@ -43,19 +46,21 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between h-16 md:h-20">
-          {/* Logo */}
-          <Link 
-            to="/" 
-            className="flex items-center space-x-2 smooth-transition hover:opacity-80"
-            onClick={() => setIsOpen(false)}
-          >
-            <span className="text-xl md:text-2xl font-serif font-bold text-primary">
-              Trady
-            </span>
-          </Link>
+          {/* Logo - Hidden on Strategy Builder page */}
+          {!isStrategyBuilderPage && (
+            <Link 
+              to="/" 
+              className="flex items-center space-x-2 smooth-transition hover:opacity-80"
+              onClick={() => setIsOpen(false)}
+            >
+              <span className="text-xl md:text-2xl font-serif font-bold text-primary">
+                Trady
+              </span>
+            </Link>
+          )}
           
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className={`hidden md:flex items-center space-x-8 ${isStrategyBuilderPage ? 'ml-0' : 'ml-auto mr-auto'}`}>
             <Link 
               to="/" 
               className={`smooth-transition ${isActive('/') 
@@ -114,7 +119,7 @@ const Navbar = () => {
           </nav>
           
           {/* Theme Toggle & Mobile Menu Button */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 ml-auto">
             <button 
               onClick={toggleTheme}
               className="p-2 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 smooth-transition"
