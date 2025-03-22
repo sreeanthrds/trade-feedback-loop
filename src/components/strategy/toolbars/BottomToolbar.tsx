@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { Panel } from '@xyflow/react';
 import { Save, Download, Upload, RotateCcw, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -16,9 +16,14 @@ interface BottomToolbarProps {
 
 const BottomToolbar: React.FC<BottomToolbarProps> = ({ resetStrategy }) => {
   const { nodes, edges, setNodes, setEdges, addHistoryItem, resetHistory } = useStrategyStore();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
     importStrategyFromEvent(event, setNodes, setEdges, addHistoryItem, resetHistory);
+    // Reset the input value so the same file can be imported again if needed
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleSave = () => {
@@ -27,6 +32,12 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({ resetStrategy }) => {
 
   const handleExport = () => {
     exportStrategyToFile(nodes, edges);
+  };
+
+  const triggerFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
   };
 
   return (
@@ -40,21 +51,17 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({ resetStrategy }) => {
           <Download className="mr-1 h-4 w-4" />
           Export
         </Button>
-        <div className="relative">
-          <Button variant="secondary">
-            <Upload className="mr-1 h-4 w-4" />
-            Import
-          </Button>
-          <label htmlFor="import-strategy" className="absolute inset-0 cursor-pointer">
-            <input
-              id="import-strategy"
-              type="file"
-              accept=".json"
-              className="hidden"
-              onChange={handleImport}
-            />
-          </label>
-        </div>
+        <Button variant="secondary" onClick={triggerFileInput}>
+          <Upload className="mr-1 h-4 w-4" />
+          Import
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json"
+            className="hidden"
+            onChange={handleImport}
+          />
+        </Button>
         <Button variant="secondary" onClick={resetStrategy}>
           <RotateCcw className="mr-1 h-4 w-4" />
           Reset
