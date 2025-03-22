@@ -6,6 +6,8 @@ import { AlertTriangle } from 'lucide-react';
 interface ForceEndNodeProps {
   data: {
     label?: string;
+    closeAll?: boolean;
+    message?: string;
   };
 }
 
