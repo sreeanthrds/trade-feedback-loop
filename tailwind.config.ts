@@ -60,7 +60,7 @@ export default {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))'
         },
-        success: '#00C853',
+        success: '#10B981',
         danger: '#FF5252',
         dark: '#1A1A1A',
         'dark-subtle': '#2A2A2A',
