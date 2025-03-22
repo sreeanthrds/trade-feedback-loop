@@ -14,7 +14,7 @@ interface BenefitProps {
 const BenefitCard = ({ icon, title, description, delay, link }: BenefitProps) => {
   const content = (
     <div 
-      className="p-6 rounded-xl bg-white dark:bg-gray-800 shadow-md border border-gray-100 dark:border-gray-700 smooth-transition group h-full"
+      className="p-6 rounded-xl bg-white dark:bg-gray-800 hover:shadow-lg border border-gray-100 dark:border-gray-700 smooth-transition group h-full"
       style={{ animationDelay: `${delay}ms` }}
     >
       <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:-translate-y-1 smooth-transition">
@@ -72,10 +72,10 @@ const Benefits = () => {
   ];
 
   return (
-    <section className="py-16 md:py-24 overflow-hidden bg-primary/5">
+    <section className="py-16 md:py-24 overflow-hidden bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="text-center mb-16 animate-fade-in">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+        <div className="text-center mb-16 animate-slide-up">
+          <h2 className="text-3xl md:text-4xl font-serif font-bold mb-4">
             Master Trading in Indian Markets
           </h2>
           <p className="text-lg text-foreground/70 max-w-2xl mx-auto">
@@ -85,7 +85,7 @@ const Benefits = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 md:gap-8">
           {benefits.map((benefit, index) => (
-            <div key={index} className="animate-fade-in h-full">
+            <div key={index} className="animate-slide-up h-full">
               <BenefitCard {...benefit} />
             </div>
           ))}
@@ -96,4 +96,3 @@ const Benefits = () => {
 };
 
 export default Benefits;
-
