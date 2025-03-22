@@ -35,10 +35,10 @@ const NodeControls: React.FC<NodeControlsProps> = ({
     
     const width = node.width || 150;
     
-    // Return the right edge position of the node
+    // Return the position on the right edge of the node
     return {
-      x: node.position.x + width + 5, // 5px to the right of node edge
-      y: node.position.y + 10 // align with node top section
+      x: node.position.x + width, // directly at the edge without any gap
+      y: node.position.y // align with node top
     };
   });
 
