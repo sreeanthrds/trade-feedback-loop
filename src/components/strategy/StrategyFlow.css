@@ -8,35 +8,39 @@
 /* Node styling */
 .react-flow__node {
   border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   min-width: 150px;
   font-size: 12px;
-  transition: box-shadow 0.2s;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.react-flow__node:hover {
+  transform: translateY(-2px);
 }
 
 .react-flow__node.selected {
-  box-shadow: 0 0 0 2px #ff9800;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
 }
 
 /* Node type specific styles */
 .react-flow__node-startNode {
-  background-color: rgba(76, 175, 80, 0.1);
-  border: 1px solid #4CAF50;
+  background-color: rgba(59, 130, 246, 0.1);
+  border: 1px solid #3B82F6;
 }
 
 .react-flow__node-signalNode {
-  background-color: rgba(33, 150, 243, 0.1);
-  border: 1px solid #2196F3;
+  background-color: rgba(79, 70, 229, 0.1);
+  border: 1px solid #4F46E5;
 }
 
 .react-flow__node-actionNode {
-  background-color: rgba(255, 152, 0, 0.1);
-  border: 1px solid #FF9800;
+  background-color: rgba(245, 158, 11, 0.1);
+  border: 1px solid #F59E0B;
 }
 
 .react-flow__node-endNode {
-  background-color: rgba(244, 67, 54, 0.1);
-  border: 1px solid #F44336;
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid #EF4444;
 }
 
 /* Handle styling */
@@ -44,7 +48,7 @@
   width: 8px;
   height: 8px;
   background-color: #fff;
-  border: 1px solid #888;
+  border: 1px solid rgba(0, 0, 0, 0.3);
 }
 
 .react-flow__handle-top {
@@ -81,12 +85,14 @@
 
 /* Controls styling */
 .react-flow__controls {
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
+  overflow: hidden;
 }
 
 /* Minimap styling */
 .react-flow__minimap {
   border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }

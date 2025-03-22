@@ -12,9 +12,15 @@ interface SignalNodeEditorProps {
   updateNodeData: (id: string, data: any) => void;
 }
 
+interface NodeData {
+  label?: string;
+  conditions?: string[];
+}
+
 const SignalNodeEditor = ({ node, updateNodeData }: SignalNodeEditorProps) => {
   const [newCondition, setNewCondition] = useState('');
-  const conditions = Array.isArray(node.data?.conditions) ? node.data.conditions : [];
+  const nodeData = node.data as NodeData | undefined;
+  const conditions = Array.isArray(nodeData?.conditions) ? nodeData.conditions : [];
 
   const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateNodeData(node.id, { label: e.target.value });
@@ -46,7 +52,7 @@ const SignalNodeEditor = ({ node, updateNodeData }: SignalNodeEditorProps) => {
         <Label htmlFor="node-label">Node Label</Label>
         <Input
           id="node-label"
-          value={node.data?.label || 'Signal'}
+          value={nodeData?.label || 'Signal'}
           onChange={handleLabelChange}
           placeholder="Enter node label"
         />
@@ -64,7 +70,7 @@ const SignalNodeEditor = ({ node, updateNodeData }: SignalNodeEditorProps) => {
           {conditions.length > 0 ? (
             conditions.map((condition: string, index: number) => (
               <div key={index} className="flex items-center">
-                <div className="flex-grow bg-secondary/30 px-3 py-2 rounded-md text-sm">
+                <div className="flex-grow bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded-md text-sm">
                   {condition}
                 </div>
                 <Button
@@ -99,7 +105,7 @@ const SignalNodeEditor = ({ node, updateNodeData }: SignalNodeEditorProps) => {
         </div>
       </div>
       
-      <div className="bg-secondary/30 rounded-md p-4">
+      <div className="bg-gray-50 dark:bg-gray-800 rounded-md p-4">
         <p className="text-sm text-foreground/70">
           Signal nodes detect specific market conditions to trigger actions in your strategy.
         </p>

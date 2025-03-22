@@ -1,5 +1,6 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -16,7 +17,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 142 100% 39%;
+    --primary: 230 75% 55%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 210 40% 96.1%;
@@ -33,7 +34,7 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 142 100% 39%;
+    --ring: 230 75% 55%;
 
     --radius: 0.5rem;
   }
@@ -48,7 +49,7 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 142 100% 39%;
+    --primary: 230 75% 55%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 217.2 32.6% 17.5%;
@@ -65,7 +66,7 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 142 100% 39%;
+    --ring: 230 75% 55%;
   }
 }
 
@@ -79,13 +80,13 @@
 
   /* Typography Scale */
   h1 {
-    @apply text-4xl md:text-5xl xl:text-6xl font-bold tracking-tight;
+    @apply text-4xl md:text-5xl xl:text-6xl font-serif font-bold tracking-tight;
   }
   h2 {
-    @apply text-3xl md:text-4xl font-bold tracking-tight;
+    @apply text-3xl md:text-4xl font-serif font-bold tracking-tight;
   }
   h3 {
-    @apply text-2xl md:text-3xl font-semibold;
+    @apply text-2xl md:text-3xl font-serif font-semibold;
   }
   h4 {
     @apply text-xl md:text-2xl font-semibold;
@@ -110,11 +111,11 @@
   }
   
   .hero-gradient {
-    background: linear-gradient(135deg, rgba(0,200,83,0.1) 0%, rgba(0,0,0,0) 100%);
+    background: linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(0,0,0,0) 100%);
   }
   
   .btn-primary {
-    @apply bg-success hover:bg-success/90 text-white px-6 py-3 rounded-lg font-medium smooth-transition;
+    @apply bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg font-medium smooth-transition;
   }
   
   .btn-secondary {

@@ -38,7 +38,7 @@ const Navbar = () => {
   return (
     <header 
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-background/80 backdrop-blur-md shadow-sm' : 'bg-transparent'
+        isScrolled ? 'bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-sm' : 'bg-transparent'
       }`}
     >
       <div className="container mx-auto px-4 md:px-6">
@@ -49,7 +49,7 @@ const Navbar = () => {
             className="flex items-center space-x-2 smooth-transition hover:opacity-80"
             onClick={() => setIsOpen(false)}
           >
-            <span className="text-xl md:text-2xl font-bold bg-gradient-to-r from-success to-success/80 bg-clip-text text-transparent">
+            <span className="text-xl md:text-2xl font-serif font-bold text-primary">
               Trady
             </span>
           </Link>
@@ -59,7 +59,7 @@ const Navbar = () => {
             <Link 
               to="/" 
               className={`smooth-transition ${isActive('/') 
-                ? 'text-success font-medium' 
+                ? 'text-primary font-medium' 
                 : 'text-foreground/80 hover:text-foreground'}`}
             >
               Home
@@ -67,7 +67,7 @@ const Navbar = () => {
             <Link 
               to="/features" 
               className={`smooth-transition ${isActive('/features') 
-                ? 'text-success font-medium' 
+                ? 'text-primary font-medium' 
                 : 'text-foreground/80 hover:text-foreground'}`}
             >
               Features
@@ -75,7 +75,7 @@ const Navbar = () => {
             <Link 
               to="/pricing" 
               className={`smooth-transition ${isActive('/pricing') 
-                ? 'text-success font-medium' 
+                ? 'text-primary font-medium' 
                 : 'text-foreground/80 hover:text-foreground'}`}
             >
               Pricing
@@ -83,7 +83,7 @@ const Navbar = () => {
             <Link 
               to="/blog" 
               className={`smooth-transition ${isActive('/blog') 
-                ? 'text-success font-medium' 
+                ? 'text-primary font-medium' 
                 : 'text-foreground/80 hover:text-foreground'}`}
             >
               Blog
@@ -108,7 +108,7 @@ const Navbar = () => {
           <div className="flex items-center space-x-4">
             <button 
               onClick={toggleTheme}
-              className="p-2 rounded-full bg-secondary/50 hover:bg-secondary smooth-transition"
+              className="p-2 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 smooth-transition"
               aria-label="Toggle theme"
             >
               {isDarkMode ? (
@@ -120,7 +120,7 @@ const Navbar = () => {
             
             <button 
               onClick={toggleMenu}
-              className="md:hidden p-2 rounded-lg bg-secondary/50 hover:bg-secondary smooth-transition"
+              className="md:hidden p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 smooth-transition"
               aria-label="Toggle menu"
             >
               {isOpen ? (
@@ -135,12 +135,12 @@ const Navbar = () => {
       
       {/* Mobile Navigation */}
       {isOpen && (
-        <div className="md:hidden bg-background/95 backdrop-blur-lg border-b border-border animate-fade-in">
+        <div className="md:hidden bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg border-b border-gray-200 dark:border-gray-700 animate-fade-in">
           <nav className="container mx-auto px-4 py-4 flex flex-col space-y-4">
             <Link 
               to="/" 
               className={`py-2 ${isActive('/') 
-                ? 'text-success font-medium' 
+                ? 'text-primary font-medium' 
                 : 'text-foreground/80'}`}
               onClick={toggleMenu}
             >
@@ -149,7 +149,7 @@ const Navbar = () => {
             <Link 
               to="/features" 
               className={`py-2 ${isActive('/features') 
-                ? 'text-success font-medium' 
+                ? 'text-primary font-medium' 
                 : 'text-foreground/80'}`}
               onClick={toggleMenu}
             >
@@ -158,7 +158,7 @@ const Navbar = () => {
             <Link 
               to="/pricing" 
               className={`py-2 ${isActive('/pricing') 
-                ? 'text-success font-medium' 
+                ? 'text-primary font-medium' 
                 : 'text-foreground/80'}`}
               onClick={toggleMenu}
             >
@@ -167,7 +167,7 @@ const Navbar = () => {
             <Link 
               to="/blog" 
               className={`py-2 ${isActive('/blog') 
-                ? 'text-success font-medium' 
+                ? 'text-primary font-medium' 
                 : 'text-foreground/80'}`}
               onClick={toggleMenu}
             >

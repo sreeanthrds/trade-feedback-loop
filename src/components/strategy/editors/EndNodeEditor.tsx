@@ -9,7 +9,13 @@ interface EndNodeEditorProps {
   updateNodeData: (id: string, data: any) => void;
 }
 
+interface NodeData {
+  label?: string;
+}
+
 const EndNodeEditor = ({ node, updateNodeData }: EndNodeEditorProps) => {
+  const nodeData = node.data as NodeData | undefined;
+  
   const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateNodeData(node.id, { label: e.target.value });
   };
@@ -20,13 +26,13 @@ const EndNodeEditor = ({ node, updateNodeData }: EndNodeEditorProps) => {
         <Label htmlFor="node-label">Node Label</Label>
         <Input
           id="node-label"
-          value={node.data?.label || 'End'}
+          value={nodeData?.label || 'End'}
           onChange={handleLabelChange}
           placeholder="Enter node label"
         />
       </div>
       
-      <div className="bg-secondary/30 rounded-md p-4">
+      <div className="bg-gray-50 dark:bg-gray-800 rounded-md p-4">
         <p className="text-sm text-foreground/70 mb-2">
           The End Node represents the final state of your strategy. Any path that reaches this node will terminate.
         </p>

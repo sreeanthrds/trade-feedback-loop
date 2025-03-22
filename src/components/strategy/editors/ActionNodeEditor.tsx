@@ -17,7 +17,15 @@ interface ActionNodeEditorProps {
   updateNodeData: (id: string, data: any) => void;
 }
 
+interface NodeData {
+  label?: string;
+  action?: string;
+  instrument?: string;
+}
+
 const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
+  const nodeData = node.data as NodeData | undefined;
+  
   const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateNodeData(node.id, { label: e.target.value });
   };
@@ -36,7 +44,7 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
         <Label htmlFor="node-label">Node Label</Label>
         <Input
           id="node-label"
-          value={node.data?.label || 'Action'}
+          value={nodeData?.label || 'Action'}
           onChange={handleLabelChange}
           placeholder="Enter node label"
         />
@@ -47,7 +55,7 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
       <div>
         <Label htmlFor="action-type">Action Type</Label>
         <Select
-          value={node.data?.action || ''}
+          value={nodeData?.action || ''}
           onValueChange={handleActionChange}
         >
           <SelectTrigger>
@@ -64,7 +72,7 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
       <div>
         <Label htmlFor="instrument">Instrument</Label>
         <Select
-          value={node.data?.instrument || ''}
+          value={nodeData?.instrument || ''}
           onValueChange={handleInstrumentChange}
         >
           <SelectTrigger>
@@ -80,7 +88,7 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
         </Select>
       </div>
       
-      <div className="bg-secondary/30 rounded-md p-4">
+      <div className="bg-gray-50 dark:bg-gray-800 rounded-md p-4">
         <p className="text-sm text-foreground/70">
           Action nodes execute trades based on signals. Configure the action type and instrument to trade.
         </p>
