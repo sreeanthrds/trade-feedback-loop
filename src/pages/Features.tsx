@@ -9,67 +9,33 @@ import {
   Database, 
   BarChart, 
   Sliders, 
-  Users,
-  CheckCircle2
+  Users
 } from 'lucide-react';
-import { 
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselPrevious,
-  CarouselNext,
-} from "@/components/ui/carousel";
-
-interface FeatureCardProps { 
-  title: string; 
-  description: string; 
-  icon: React.ReactNode; 
-}
-
-const FeatureCard = ({ title, description, icon }: FeatureCardProps) => (
-  <div className="flex flex-col p-6 rounded-xl bg-white dark:bg-gray-800 shadow-md border border-gray-100 dark:border-gray-700 h-full">
-    <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mb-5">
-      {icon}
-    </div>
-    <h3 className="text-xl font-semibold mb-3">{title}</h3>
-    <p className="text-foreground/70 mt-auto">{description}</p>
-  </div>
-);
-
-const FeaturePoint = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex items-start gap-3 mb-4">
-    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-    <p className="text-foreground/80">{children}</p>
-  </div>
-);
 
 const FeatureSection = ({ 
   title, 
   description, 
+  icon, 
   image, 
-  points,
   reversed = false 
 }: { 
   title: string; 
   description: string; 
+  icon: React.ReactNode; 
   image: React.ReactNode;
-  points: string[];
   reversed?: boolean;
 }) => {
   return (
     <div className={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-center py-16 md:py-24`}>
-      <div className={`${reversed ? 'lg:order-2' : ''} animate-fade-in`}>
+      <div className={`${reversed ? 'lg:order-2' : ''} animate-slide-up`}>
+        <div className="inline-flex items-center px-3 py-1 mb-6 rounded-full bg-success/10 border border-success/20">
+          {icon}
+          <span className="ml-2 text-sm font-medium text-success">{title}</span>
+        </div>
         <h2 className="text-3xl md:text-4xl font-bold mb-6">{title}</h2>
         <p className="text-lg text-foreground/70 mb-6">{description}</p>
-        
-        <div className="mb-8">
-          {points.map((point, index) => (
-            <FeaturePoint key={index}>{point}</FeaturePoint>
-          ))}
-        </div>
-        
-        <Link to="/signup" className="bg-primary hover:bg-primary/90 text-white font-medium px-6 py-3 rounded-lg inline-flex items-center group transition-all">
-          Get Started
+        <Link to="/signup" className="btn-outlined inline-flex items-center group">
+          Try It Free
           <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
         </Link>
       </div>
@@ -86,218 +52,277 @@ const Features = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  const coreFeatures = [
-    {
-      icon: <MousePointer className="h-6 w-6 text-primary" />,
-      title: "Intuitive Interface",
-      description: "Navigate our platform with ease - designed for both novice and expert traders."
-    },
-    {
-      icon: <Database className="h-6 w-6 text-primary" />,
-      title: "Premium Data Access",
-      description: "Access high-quality, real-time market data from Indian exchanges."
-    },
-    {
-      icon: <BarChart className="h-6 w-6 text-primary" />,
-      title: "Advanced Analytics",
-      description: "Comprehensive metrics and visual analytics to evaluate your trading performance."
-    },
-    {
-      icon: <Sliders className="h-6 w-6 text-primary" />,
-      title: "Customizable Strategies",
-      description: "Build and adjust your trading strategies to match your risk profile."
-    },
-  ];
-
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow pt-24">
         {/* Hero Section */}
-        <section className="py-16 md:py-24 bg-gradient-to-b from-background to-primary/5">
+        <section className="py-16 md:py-24 bg-gradient-to-b from-background to-secondary/10">
           <div className="container mx-auto px-4 md:px-6 text-center">
-            <h1 className="text-4xl md:text-5xl xl:text-6xl font-bold mb-6 animate-fade-in">
-              Powerful Features for Indian Traders
+            <h1 className="text-4xl md:text-5xl xl:text-6xl font-bold mb-6 animate-slide-down">
+              Everything You Need to Master Your Trades
             </h1>
-            <p className="text-xl text-foreground/70 max-w-3xl mx-auto mb-8 animate-fade-in">
-              Discover the tools that give you an edge in the market
+            <p className="text-xl text-foreground/70 max-w-3xl mx-auto mb-8 animate-slide-up">
+              Our comprehensive set of tools empowers traders at every level to refine strategies, minimize risk, and maximize potential returns.
             </p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-16">
-              {coreFeatures.map((feature, index) => (
-                <FeatureCard 
-                  key={index}
-                  icon={feature.icon}
-                  title={feature.title}
-                  description={feature.description}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-        
-        {/* Testimonials Carousel */}
-        <section className="py-16 bg-gray-50 dark:bg-gray-800/50">
-          <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-3xl font-bold text-center mb-12">What Our Users Say</h2>
-            
-            <Carousel className="w-full max-w-4xl mx-auto">
-              <CarouselContent>
-                <CarouselItem>
-                  <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md mx-4">
-                    <p className="text-lg mb-6 italic text-foreground/80">
-                      "TradeBack Pro has completely transformed my approach to the market. The no-code strategy builder saved me countless hours."
-                    </p>
-                    <div className="flex items-center">
-                      <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center mr-3">
-                        <span className="text-sm font-semibold">MK</span>
-                      </div>
-                      <div>
-                        <div className="font-medium">Michael K.</div>
-                        <div className="text-sm text-foreground/70">Day Trader</div>
-                      </div>
-                    </div>
-                  </div>
-                </CarouselItem>
-                <CarouselItem>
-                  <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md mx-4">
-                    <p className="text-lg mb-6 italic text-foreground/80">
-                      "The detailed analytics helped me identify weaknesses in my approach. My win rate has improved by 15% since using the platform."
-                    </p>
-                    <div className="flex items-center">
-                      <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center mr-3">
-                        <span className="text-sm font-semibold">SJ</span>
-                      </div>
-                      <div>
-                        <div className="font-medium">Sarah J.</div>
-                        <div className="text-sm text-foreground/70">Swing Trader</div>
-                      </div>
-                    </div>
-                  </div>
-                </CarouselItem>
-                <CarouselItem>
-                  <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md mx-4">
-                    <p className="text-lg mb-6 italic text-foreground/80">
-                      "As someone intimidated by coding, this platform has been a game-changer. The visual interface makes strategy testing so accessible."
-                    </p>
-                    <div className="flex items-center">
-                      <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center mr-3">
-                        <span className="text-sm font-semibold">RL</span>
-                      </div>
-                      <div>
-                        <div className="font-medium">Robert L.</div>
-                        <div className="text-sm text-foreground/70">Crypto Investor</div>
-                      </div>
-                    </div>
-                  </div>
-                </CarouselItem>
-              </CarouselContent>
-              <CarouselPrevious className="left-2 lg:-left-12" />
-              <CarouselNext className="right-2 lg:-right-12" />
-            </Carousel>
           </div>
         </section>
         
         {/* Feature Sections */}
         <section className="container mx-auto px-4 md:px-6">
-          {/* Strategy Builder */}
+          {/* No-Code Backtesting */}
           <FeatureSection
-            title="Visual Strategy Builder"
-            description="Create complex trading strategies with our no-code, node-based visual editor, designed specifically for Indian markets."
+            title="No-Code Backtesting"
+            description="Our intuitive drag-and-drop interface makes it simple to test trading strategies without writing a single line of code. Build complex conditions, set entry and exit rules, and analyze results — all with a few clicks."
+            icon={<MousePointer className="h-4 w-4 text-success" />}
             image={
-              <div className="rounded-xl overflow-hidden shadow-xl border border-gray-200 dark:border-gray-700">
-                <img 
-                  src="https://images.unsplash.com/photo-1488590528505-98d2b5aba04b" 
-                  alt="Strategy Builder Interface" 
-                  className="w-full h-auto object-cover"
-                />
+              <div className="glass-card dark:glass-card-dark p-6 rounded-2xl shadow-lg animate-float">
+                <div className="bg-dark-subtle p-4 rounded-xl mb-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <div className="text-sm font-medium text-white">Strategy Builder</div>
+                    <div className="flex space-x-2">
+                      <div className="h-2 w-2 rounded-full bg-danger"></div>
+                      <div className="h-2 w-2 rounded-full bg-yellow-400"></div>
+                      <div className="h-2 w-2 rounded-full bg-success"></div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-dark p-3 rounded-lg">
+                      <div className="text-xs text-white/70 mb-1">Entry Condition</div>
+                      <div className="flex items-center text-sm text-white">
+                        <div className="h-4 w-4 bg-success/20 rounded mr-2"></div>
+                        RSI &lt; 30
+                      </div>
+                    </div>
+                    <div className="bg-dark p-3 rounded-lg">
+                      <div className="text-xs text-white/70 mb-1">Exit Condition</div>
+                      <div className="flex items-center text-sm text-white">
+                        <div className="h-4 w-4 bg-danger/20 rounded mr-2"></div>
+                        RSI &gt; 70
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-sm text-foreground/70 mb-4">Drag & Drop Components</div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="bg-secondary/50 p-2 rounded-lg text-center text-sm">Indicators</div>
+                  <div className="bg-secondary/50 p-2 rounded-lg text-center text-sm">Conditions</div>
+                  <div className="bg-secondary/50 p-2 rounded-lg text-center text-sm">Actions</div>
+                </div>
               </div>
             }
-            points={[
-              "Drag-and-drop nodes to create your strategy logic",
-              "Pre-built indicators and conditions for Indian markets",
-              "Backtest your strategy against historical data",
-              "No programming knowledge required"
-            ]}
           />
           
-          {/* Market Data */}
+          {/* Historical Data */}
           <FeatureSection
-            title="Comprehensive Market Data"
-            description="Access clean, reliable data from all major Indian exchanges to power your strategy testing."
+            title="Historical Data"
+            description="Backtest with years of accurate tick-by-tick data across multiple markets. Our comprehensive database covers stocks, forex, futures, and cryptocurrencies with clean, split-adjusted data you can trust."
+            icon={<Database className="h-4 w-4 text-success" />}
             image={
-              <div className="rounded-xl overflow-hidden shadow-xl border border-gray-200 dark:border-gray-700">
-                <img 
-                  src="https://images.unsplash.com/photo-1518770660439-4636190af475" 
-                  alt="Market Data Visualization" 
-                  className="w-full h-auto object-cover"
-                />
+              <div className="glass-card dark:glass-card-dark p-6 rounded-2xl shadow-lg animate-float">
+                <div className="bg-dark-subtle p-4 rounded-xl mb-4">
+                  <div className="text-sm font-medium text-white mb-3">Data Coverage</div>
+                  <div className="h-6 w-full bg-dark rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-success to-success/70 w-4/5"></div>
+                  </div>
+                  <div className="flex justify-between text-xs text-white/70 mt-1">
+                    <span>2010</span>
+                    <span>2015</span>
+                    <span>2020</span>
+                    <span>2025</span>
+                  </div>
+                </div>
+                <div className="text-sm text-foreground/70 mb-4">Markets Covered</div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-secondary/50 p-3 rounded-lg">
+                    <div className="flex justify-between">
+                      <span className="text-sm">Stocks</span>
+                      <span className="text-xs text-success">10,000+ symbols</span>
+                    </div>
+                  </div>
+                  <div className="bg-secondary/50 p-3 rounded-lg">
+                    <div className="flex justify-between">
+                      <span className="text-sm">Forex</span>
+                      <span className="text-xs text-success">28 pairs</span>
+                    </div>
+                  </div>
+                  <div className="bg-secondary/50 p-3 rounded-lg">
+                    <div className="flex justify-between">
+                      <span className="text-sm">Crypto</span>
+                      <span className="text-xs text-success">50+ coins</span>
+                    </div>
+                  </div>
+                  <div className="bg-secondary/50 p-3 rounded-lg">
+                    <div className="flex justify-between">
+                      <span className="text-sm">Futures</span>
+                      <span className="text-xs text-success">All major</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             }
-            points={[
-              "NSE, BSE, and MCX data coverage",
-              "Tick-by-tick historical data",
-              "Corporate actions adjusted",
-              "Seamless data integration with strategy builder"
-            ]}
             reversed
           />
           
           {/* Performance Analytics */}
           <FeatureSection
-            title="Advanced Performance Metrics"
-            description="Analyze every aspect of your trading strategy with detailed metrics and visualizations."
+            title="Performance Analytics"
+            description="Dive deep into your strategy's performance metrics. Analyze win rates, profit factors, drawdowns, and more. Our visualization tools make it easy to identify strengths and weaknesses in your approach."
+            icon={<BarChart className="h-4 w-4 text-success" />}
             image={
-              <div className="rounded-xl overflow-hidden shadow-xl border border-gray-200 dark:border-gray-700">
-                <img 
-                  src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6" 
-                  alt="Performance Analytics Dashboard" 
-                  className="w-full h-auto object-cover"
-                />
+              <div className="glass-card dark:glass-card-dark p-6 rounded-2xl shadow-lg animate-float">
+                <div className="bg-dark-subtle p-4 rounded-xl mb-4">
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="bg-dark p-3 rounded-lg">
+                      <div className="text-xs text-white/70 mb-1">Win Rate</div>
+                      <div className="text-lg font-semibold text-white">68.5%</div>
+                    </div>
+                    <div className="bg-dark p-3 rounded-lg">
+                      <div className="text-xs text-white/70 mb-1">Profit Factor</div>
+                      <div className="text-lg font-semibold text-white">2.4</div>
+                    </div>
+                  </div>
+                  <div className="h-24 bg-dark rounded-lg p-2">
+                    <svg className="w-full h-full" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M0,50 L20,45 L40,48 L60,35 L80,40 L100,25 L120,30 L140,20 L160,10 L180,15 L200,5" 
+                        stroke="#00C853" strokeWidth="2" className="chart-line" />
+                    </svg>
+                  </div>
+                </div>
+                <div className="text-sm text-foreground/70 mb-4">Key Metrics</div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="bg-secondary/50 p-2 rounded-lg text-center">
+                    <div className="text-xs text-foreground/70">Max DD</div>
+                    <div className="text-sm font-medium text-danger">15.2%</div>
+                  </div>
+                  <div className="bg-secondary/50 p-2 rounded-lg text-center">
+                    <div className="text-xs text-foreground/70">Avg Hold</div>
+                    <div className="text-sm font-medium">2.3 days</div>
+                  </div>
+                  <div className="bg-secondary/50 p-2 rounded-lg text-center">
+                    <div className="text-xs text-foreground/70">Sharpe</div>
+                    <div className="text-sm font-medium text-success">1.8</div>
+                  </div>
+                </div>
               </div>
             }
-            points={[
-              "Profit and loss analysis",
-              "Drawdown and volatility metrics",
-              "Risk-adjusted return calculations",
-              "Trade distribution visualizations"
-            ]}
           />
           
-          {/* Community Features */}
+          {/* Custom Strategies */}
           <FeatureSection
-            title="Trader Community"
-            description="Connect with fellow traders, share strategies, and learn from the community."
+            title="Custom Strategies"
+            description="Fine-tune your trading approach with adjustable parameters. Optimize stop-loss levels, take-profit targets, position sizing, and more to find the perfect balance between risk and reward."
+            icon={<Sliders className="h-4 w-4 text-success" />}
             image={
-              <div className="rounded-xl overflow-hidden shadow-xl border border-gray-200 dark:border-gray-700">
-                <img 
-                  src="https://images.unsplash.com/photo-1649972904349-6e44c42644a7" 
-                  alt="Trader Community Interface" 
-                  className="w-full h-auto object-cover"
-                />
+              <div className="glass-card dark:glass-card-dark p-6 rounded-2xl shadow-lg animate-float">
+                <div className="bg-dark-subtle p-4 rounded-xl mb-4">
+                  <div className="text-sm font-medium text-white mb-4">Strategy Parameters</div>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between text-xs text-white/70 mb-1">
+                        <span>Stop Loss</span>
+                        <span>2.5%</span>
+                      </div>
+                      <div className="h-2 w-full bg-dark rounded-full overflow-hidden">
+                        <div className="h-full bg-danger w-1/4"></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-xs text-white/70 mb-1">
+                        <span>Take Profit</span>
+                        <span>5.0%</span>
+                      </div>
+                      <div className="h-2 w-full bg-dark rounded-full overflow-hidden">
+                        <div className="h-full bg-success w-1/2"></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-xs text-white/70 mb-1">
+                        <span>Position Size</span>
+                        <span>15%</span>
+                      </div>
+                      <div className="h-2 w-full bg-dark rounded-full overflow-hidden">
+                        <div className="h-full bg-yellow-400 w-3/5"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-sm text-foreground/70 mb-4">Optimization Results</div>
+                <div className="bg-secondary/50 p-3 rounded-lg">
+                  <div className="flex items-center space-x-2">
+                    <div className="h-4 w-4 rounded-full bg-success"></div>
+                    <span className="text-sm">Optimal configuration found</span>
+                  </div>
+                  <div className="text-xs text-foreground/70 mt-1">
+                    Expected annual return: 24.8%
+                  </div>
+                </div>
               </div>
             }
-            points={[
-              "Share and discover trading strategies",
-              "Discuss market insights with other traders",
-              "Follow top performers",
-              "Collaborate on strategy development"
-            ]}
             reversed
+          />
+          
+          {/* Community Sharing */}
+          <FeatureSection
+            title="Community Sharing"
+            description="Learn from others or share your winning strategies with our growing community of traders. Explore trending strategies, collaborate with fellow users, and accelerate your trading journey through collective wisdom."
+            icon={<Users className="h-4 w-4 text-success" />}
+            image={
+              <div className="glass-card dark:glass-card-dark p-6 rounded-2xl shadow-lg animate-float">
+                <div className="bg-dark-subtle p-4 rounded-xl mb-4">
+                  <div className="text-sm font-medium text-white mb-3">Popular Strategies</div>
+                  <div className="space-y-3">
+                    <div className="bg-dark p-3 rounded-lg flex justify-between items-center">
+                      <div>
+                        <div className="text-sm text-white">RSI Reversal</div>
+                        <div className="text-xs text-white/70">by Michael K.</div>
+                      </div>
+                      <div className="text-xs text-success bg-success/10 px-2 py-1 rounded">
+                        +32.4%
+                      </div>
+                    </div>
+                    <div className="bg-dark p-3 rounded-lg flex justify-between items-center">
+                      <div>
+                        <div className="text-sm text-white">MACD Cross</div>
+                        <div className="text-xs text-white/70">by Sarah J.</div>
+                      </div>
+                      <div className="text-xs text-success bg-success/10 px-2 py-1 rounded">
+                        +18.7%
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-sm text-foreground/70 mb-4">Community Activity</div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="bg-secondary/50 p-2 rounded-lg text-center">
+                    <div className="text-xs text-foreground/70">Members</div>
+                    <div className="text-sm font-medium">10K+</div>
+                  </div>
+                  <div className="bg-secondary/50 p-2 rounded-lg text-center">
+                    <div className="text-xs text-foreground/70">Strategies</div>
+                    <div className="text-sm font-medium">4.8K</div>
+                  </div>
+                  <div className="bg-secondary/50 p-2 rounded-lg text-center">
+                    <div className="text-xs text-foreground/70">Comments</div>
+                    <div className="text-sm font-medium">12K+</div>
+                  </div>
+                </div>
+              </div>
+            }
           />
         </section>
         
         {/* CTA Section */}
-        <section className="py-16 md:py-24 bg-primary/5">
+        <section className="py-16 md:py-24 bg-gradient-to-b from-secondary/10 to-background">
           <div className="container mx-auto px-4 md:px-6 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 animate-fade-in">
-              Ready to Transform Your Trading?
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 animate-slide-up">
+              Ready to Elevate Your Trading?
             </h2>
-            <p className="text-lg text-foreground/70 max-w-2xl mx-auto mb-8 animate-fade-in">
-              Join thousands of Indian traders who have discovered their edge using our platform.
+            <p className="text-lg text-foreground/70 max-w-2xl mx-auto mb-8 animate-slide-up">
+              Start backtesting your strategies today and discover what really works.
             </p>
-            <Link to="/signup" className="bg-primary hover:bg-primary/90 text-white font-medium px-8 py-3 rounded-lg inline-flex items-center animate-fade-in">
-              Start Your Free Trial
+            <Link to="/signup" className="btn-primary inline-flex items-center animate-slide-up">
+              Try Free for 14 Days
               <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
           </div>
@@ -309,4 +334,3 @@ const Features = () => {
 };
 
 export default Features;
-
