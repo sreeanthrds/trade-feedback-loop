@@ -27,18 +27,23 @@ const NodeControls: React.FC<NodeControlsProps> = ({
 }) => {
   const [showNodeOptions, setShowNodeOptions] = useState(false);
   const targetNode = nodes.find(node => node.id === nodeId);
-  const { screenToFlowPosition } = useReactFlow();
   
   // Find the node's position in the viewport
-  const nodePosition = useStore((store) => {
+  const nodeCenter = useStore((store) => {
     const node = store.nodeLookup.get(nodeId);
     if (!node) return null;
     
-    // Use the node's actual position
-    return node.position;
+    const width = node.width || 150;
+    const height = node.height || 50;
+    
+    // Return the center-right position of the node
+    return {
+      x: node.position.x + width,
+      y: node.position.y - 10 // Position slightly above the node
+    };
   });
 
-  if (!targetNode || !nodePosition) return null;
+  if (!targetNode || !nodeCenter) return null;
 
   const isStartNode = targetNode.type === 'startNode';
   const isEndOrForceEndNode = targetNode.type === 'endNode' || targetNode.type === 'forceEndNode';
@@ -60,16 +65,12 @@ const NodeControls: React.FC<NodeControlsProps> = ({
     setShowNodeOptions(false);
   };
   
-  // Get node dimensions to position buttons correctly
-  const nodeWidth = targetNode.width || 150;
-  const nodeHeight = targetNode.height || 50;
-  
   return (
     <div 
-      className="absolute"
+      className="absolute pointer-events-auto"
       style={{
-        top: nodePosition.y - 30,
-        left: nodePosition.x + (nodeWidth ? nodeWidth / 2 : 75),
+        left: nodeCenter.x,
+        top: nodeCenter.y,
         zIndex: 10
       }}
     >

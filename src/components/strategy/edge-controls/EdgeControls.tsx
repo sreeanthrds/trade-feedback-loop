@@ -9,8 +9,6 @@ interface EdgeControlsProps {
 }
 
 const EdgeControls: React.FC<EdgeControlsProps> = ({ edgeId, onDeleteEdge }) => {
-  const { screenToFlowPosition } = useReactFlow();
-  
   // Get edge center position
   const edgeCenter = useStore((store) => {
     const edge = store.edges.find(e => e.id === edgeId);
@@ -22,20 +20,23 @@ const EdgeControls: React.FC<EdgeControlsProps> = ({ edgeId, onDeleteEdge }) => 
     
     if (!sourceNode || !targetNode) return null;
     
-    const sourcePos = sourceNode.position;
-    const targetPos = targetNode.position;
+    // Account for node width and height
+    const sourceWidth = sourceNode.width || 150;
+    const sourceHeight = sourceNode.height || 50;
+    const targetWidth = targetNode.width || 150;
+    const targetHeight = targetNode.height || 50;
+    
+    // Use center points of nodes
+    const sourceX = sourceNode.position.x + sourceWidth / 2;
+    const sourceY = sourceNode.position.y + sourceHeight / 2;
+    const targetX = targetNode.position.x + targetWidth / 2;
+    const targetY = targetNode.position.y + targetHeight / 2;
     
     // Calculate middle point between source and target
-    const centerX = (sourcePos.x + targetPos.x) / 2;
-    const centerY = (sourcePos.y + targetPos.y) / 2;
-    
-    // Project to viewport coordinates
-    const point = screenToFlowPosition({
-      x: centerX,
-      y: centerY
-    });
-    
-    return point;
+    return {
+      x: (sourceX + targetX) / 2,
+      y: (sourceY + targetY) / 2
+    };
   });
   
   if (!edgeCenter) return null;
