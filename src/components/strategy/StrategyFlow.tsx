@@ -60,6 +60,7 @@ const StrategyFlow = () => {
   
   const strategyStore = useStrategyStore();
 
+  // Initial load from localStorage
   useEffect(() => {
     const savedStrategy = loadStrategyFromLocalStorage();
     if (savedStrategy) {
@@ -73,6 +74,16 @@ const StrategyFlow = () => {
       strategyStore.addHistoryItem(initialNodes, []);
     }
   }, []);
+
+  // Sync nodes and edges from store to ReactFlow
+  useEffect(() => {
+    if (strategyStore.nodes.length > 0) {
+      setNodes(strategyStore.nodes);
+    }
+    if (strategyStore.edges.length > 0 || strategyStore.edges.length === 0) {
+      setEdges(strategyStore.edges);
+    }
+  }, [strategyStore.nodes, strategyStore.edges, setNodes, setEdges]);
 
   const onConnect: OnConnect = useCallback(
     (params: Connection) => {
@@ -135,6 +146,15 @@ const StrategyFlow = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
+  const handleImportSuccess = () => {
+    // Force a layout update after import
+    setTimeout(() => {
+      if (reactFlowInstance) {
+        reactFlowInstance.fitView({ padding: 0.2 });
+      }
+    }, 100);
+  };
+
   return (
     <div className="strategy-flow-container h-full">
       <ResizablePanelGroup direction="horizontal" className="h-full">
@@ -185,7 +205,10 @@ const StrategyFlow = () => {
               />
               
               <TopToolbar toggleTheme={toggleTheme} />
-              <BottomToolbar resetStrategy={resetStrategy} />
+              <BottomToolbar 
+                resetStrategy={resetStrategy} 
+                onImportSuccess={handleImportSuccess}
+              />
             </ReactFlow>
           </div>
         </ResizablePanel>

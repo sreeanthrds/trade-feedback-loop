@@ -12,17 +12,23 @@ import { useStrategyStore } from '@/hooks/use-strategy-store';
 
 interface BottomToolbarProps {
   resetStrategy: () => void;
+  onImportSuccess?: () => void;
 }
 
-const BottomToolbar: React.FC<BottomToolbarProps> = ({ resetStrategy }) => {
+const BottomToolbar: React.FC<BottomToolbarProps> = ({ resetStrategy, onImportSuccess }) => {
   const { nodes, edges, setNodes, setEdges, addHistoryItem, resetHistory } = useStrategyStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
-    importStrategyFromEvent(event, setNodes, setEdges, addHistoryItem, resetHistory);
+    const success = importStrategyFromEvent(event, setNodes, setEdges, addHistoryItem, resetHistory);
     // Reset the input value so the same file can be imported again if needed
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
+    }
+    
+    // Notify parent component that import was successful
+    if (success && onImportSuccess) {
+      onImportSuccess();
     }
   };
 
