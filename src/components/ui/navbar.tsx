@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Moon, Sun } from 'lucide-react';
+import { Menu, X, Moon, Sun, Workflow } from 'lucide-react';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -88,6 +88,15 @@ const Navbar = () => {
             >
               Blog
             </Link>
+            <Link 
+              to="/strategy-builder" 
+              className={`smooth-transition flex items-center gap-1 ${isActive('/strategy-builder') 
+                ? 'text-primary font-medium' 
+                : 'text-foreground/80 hover:text-foreground'}`}
+            >
+              <Workflow className="h-4 w-4" />
+              Strategy Builder
+            </Link>
             <div className="flex items-center space-x-3">
               <Link 
                 to="/login" 
@@ -172,6 +181,16 @@ const Navbar = () => {
               onClick={toggleMenu}
             >
               Blog
+            </Link>
+            <Link 
+              to="/strategy-builder" 
+              className={`py-2 flex items-center gap-1 ${isActive('/strategy-builder') 
+                ? 'text-primary font-medium' 
+                : 'text-foreground/80'}`}
+              onClick={toggleMenu}
+            >
+              <Workflow className="h-4 w-4" />
+              Strategy Builder
             </Link>
             <div className="flex flex-col space-y-3 pt-2">
               <Link 
