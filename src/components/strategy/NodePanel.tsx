@@ -8,6 +8,7 @@ import StartNodeEditor from './editors/StartNodeEditor';
 import SignalNodeEditor from './editors/SignalNodeEditor';
 import ActionNodeEditor from './editors/ActionNodeEditor';
 import EndNodeEditor from './editors/EndNodeEditor';
+import ForceEndNodeEditor from './editors/ForceEndNodeEditor';
 
 interface NodePanelProps {
   node: Node;
@@ -26,25 +27,34 @@ const NodePanel = ({ node, updateNodeData, onClose }: NodePanelProps) => {
         return <ActionNodeEditor node={node} updateNodeData={updateNodeData} />;
       case 'endNode':
         return <EndNodeEditor node={node} updateNodeData={updateNodeData} />;
+      case 'forceEndNode':
+        return <ForceEndNodeEditor node={node} updateNodeData={updateNodeData} />;
       default:
         return <div>Unknown node type</div>;
     }
   };
 
+  const getNodeTitle = () => {
+    switch (node.type) {
+      case 'startNode': return 'Start Node';
+      case 'signalNode': return 'Signal Node';
+      case 'actionNode': return 'Action Node';
+      case 'endNode': return 'End Node';
+      case 'forceEndNode': return 'Force End Node';
+      default: return 'Node Settings';
+    }
+  };
+
   return (
-    <div className="fixed inset-y-0 right-0 w-full sm:w-96 bg-background/95 backdrop-blur-sm border-l border-border shadow-lg z-10 overflow-y-auto">
+    <div className="h-full overflow-y-auto">
       <Card className="border-0 rounded-none h-full">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle>
-            {node.type === 'startNode' ? 'Start Node' : 
-             node.type === 'signalNode' ? 'Signal Node' : 
-             node.type === 'actionNode' ? 'Action Node' : 'End Node'} Settings
-          </CardTitle>
+        <CardHeader className="flex flex-row items-center justify-between pb-2 sticky top-0 bg-background z-10 border-b">
+          <CardTitle className="text-lg">{getNodeTitle()}</CardTitle>
           <Button variant="ghost" size="sm" onClick={onClose} className="h-8 w-8 p-0">
             <X className="h-4 w-4" />
           </Button>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-4">
           {renderEditor()}
         </CardContent>
       </Card>
