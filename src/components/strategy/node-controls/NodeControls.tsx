@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useReactFlow, Node, useStore, getNodesBounds, Position } from '@xyflow/react';
+import { useReactFlow, Node, useStore, Position } from '@xyflow/react';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { 
   Plus, 
@@ -27,19 +27,15 @@ const NodeControls: React.FC<NodeControlsProps> = ({
 }) => {
   const [showNodeOptions, setShowNodeOptions] = useState(false);
   const targetNode = nodes.find(node => node.id === nodeId);
-  const reactFlowInstance = useReactFlow();
+  const { screenToFlowPosition } = useReactFlow();
   
   // Find the node's position in the viewport
   const nodePosition = useStore((store) => {
     const node = store.nodeLookup.get(nodeId);
     if (!node) return null;
     
-    const { x, y } = reactFlowInstance.project({
-      x: node.position.x,
-      y: node.position.y
-    });
-    
-    return { x, y };
+    // Use the node's actual position
+    return node.position;
   });
 
   if (!targetNode || !nodePosition) return null;

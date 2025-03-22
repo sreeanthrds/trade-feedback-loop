@@ -9,7 +9,7 @@ interface EdgeControlsProps {
 }
 
 const EdgeControls: React.FC<EdgeControlsProps> = ({ edgeId, onDeleteEdge }) => {
-  const reactFlowInstance = useReactFlow();
+  const { screenToFlowPosition } = useReactFlow();
   
   // Get edge center position
   const edgeCenter = useStore((store) => {
@@ -30,12 +30,12 @@ const EdgeControls: React.FC<EdgeControlsProps> = ({ edgeId, onDeleteEdge }) => 
     const centerY = (sourcePos.y + targetPos.y) / 2;
     
     // Project to viewport coordinates
-    const { x, y } = reactFlowInstance.project({
+    const point = screenToFlowPosition({
       x: centerX,
       y: centerY
     });
     
-    return { x, y };
+    return point;
   });
   
   if (!edgeCenter) return null;
