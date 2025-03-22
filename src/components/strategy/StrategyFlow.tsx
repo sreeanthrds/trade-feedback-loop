@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useRef } from 'react';
 import { 
   ReactFlow, 
@@ -42,7 +41,6 @@ import {
   ResizableHandle 
 } from '@/components/ui/resizable';
 
-// Define the store interface
 interface StrategyStore {
   nodes: Node[];
   edges: Edge[];
@@ -56,7 +54,6 @@ interface StrategyStore {
   resetHistory: () => void;
 }
 
-// Create zustand store
 const useStrategyStore = create<StrategyStore>((set) => ({
   nodes: [],
   edges: [],
@@ -100,7 +97,6 @@ const useStrategyStore = create<StrategyStore>((set) => ({
   }),
 }));
 
-// Initial nodes
 const initialNodes: Node[] = [
   {
     id: 'start-1',
@@ -110,7 +106,6 @@ const initialNodes: Node[] = [
   }
 ];
 
-// Define node types
 const nodeTypes: NodeTypes = {
   startNode: StartNode,
   signalNode: SignalNode,
@@ -130,7 +125,6 @@ const StrategyFlow = () => {
   
   const strategyStore = useStrategyStore();
 
-  // Load from localStorage on component mount
   React.useEffect(() => {
     const savedStrategy = localStorage.getItem('tradyStrategy');
     if (savedStrategy) {
@@ -144,17 +138,14 @@ const StrategyFlow = () => {
         console.error('Failed to load strategy:', error);
       }
     } else {
-      // Initialize with default start node
       strategyStore.setNodes(initialNodes);
       strategyStore.resetHistory();
       strategyStore.addHistoryItem(initialNodes, []);
     }
   }, []);
-  
-  // Handle new connections between nodes
+
   const onConnect: OnConnect = useCallback(
     (params: Connection) => {
-      // Validate connection
       const sourceNode = nodes.find(node => node.id === params.source);
       const targetNode = nodes.find(node => node.id === params.target);
       
@@ -176,18 +167,18 @@ const StrategyFlow = () => {
     [nodes, edges, setEdges, strategyStore]
   );
 
-  // Handle node selection
   const onNodeClick: NodeMouseHandler = useCallback((_, node: Node) => {
     setSelectedNode(node);
     setIsPanelOpen(true);
   }, []);
 
-  // Add a new node
   const addNode = (type: string) => {
-    const position = reactFlowInstance.project({
-      x: (reactFlowWrapper.current?.clientWidth || 800) / 2,
-      y: (reactFlowWrapper.current?.clientHeight || 600) / 2,
-    });
+    const position = reactFlowInstance.getViewport 
+      ? reactFlowInstance.screenToFlowPosition({
+          x: (reactFlowWrapper.current?.clientWidth || 800) / 2,
+          y: (reactFlowWrapper.current?.clientHeight || 600) / 2,
+        })
+      : { x: 250, y: 250 };
     
     const newNode: Node = {
       id: `${type}-${Date.now()}`,
@@ -212,7 +203,6 @@ const StrategyFlow = () => {
     strategyStore.addHistoryItem(newNodes, edges);
   };
 
-  // Update node data
   const updateNodeData = (id: string, data: any) => {
     const updatedNodes = nodes.map((node) => {
       if (node.id === id) {
@@ -226,14 +216,12 @@ const StrategyFlow = () => {
     strategyStore.addHistoryItem(updatedNodes, edges);
   };
 
-  // Save strategy to localStorage
   const saveStrategy = () => {
     const strategy = { nodes, edges };
     localStorage.setItem('tradyStrategy', JSON.stringify(strategy));
     toast.success("Strategy saved successfully");
   };
 
-  // Export strategy as JSON
   const exportStrategy = () => {
     const strategy = { nodes, edges };
     const blob = new Blob([JSON.stringify(strategy, null, 2)], { type: 'application/json' });
@@ -248,7 +236,6 @@ const StrategyFlow = () => {
     toast.success("Strategy exported successfully");
   };
 
-  // Import strategy from JSON
   const importStrategy = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -276,7 +263,6 @@ const StrategyFlow = () => {
     }
   };
 
-  // Reset strategy
   const resetStrategy = () => {
     if (window.confirm("Are you sure you want to reset the strategy? All changes will be lost.")) {
       setNodes(initialNodes);
@@ -291,13 +277,11 @@ const StrategyFlow = () => {
     }
   };
 
-  // Close the edit panel
   const closePanel = () => {
     setIsPanelOpen(false);
     setSelectedNode(null);
   };
 
-  // Toggle theme
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
@@ -305,14 +289,12 @@ const StrategyFlow = () => {
   return (
     <div className="strategy-flow-container h-full">
       <ResizablePanelGroup direction="horizontal" className="h-full">
-        {/* Left sidebar with nodes */}
         <ResizablePanel defaultSize={15} minSize={12} maxSize={20} className="bg-secondary/30">
           <NodeSidebar onAddNode={addNode} />
         </ResizablePanel>
         
         <ResizableHandle withHandle />
         
-        {/* Main flow area */}
         <ResizablePanel defaultSize={isPanelOpen ? 65 : 85}>
           <div className="h-full w-full" ref={reactFlowWrapper}>
             <ReactFlow
@@ -353,7 +335,6 @@ const StrategyFlow = () => {
                 }}
               />
               
-              {/* Top toolbar */}
               <Panel position="top-center">
                 <div className="flex gap-2 bg-background/90 p-2 rounded-md shadow-md">
                   <Button 
@@ -381,7 +362,6 @@ const StrategyFlow = () => {
                 </div>
               </Panel>
               
-              {/* Bottom toolbar */}
               <Panel position="bottom-center">
                 <div className="flex gap-2 bg-background/90 p-2 rounded-md shadow-md">
                   <Button variant="secondary" onClick={saveStrategy}>
@@ -392,9 +372,11 @@ const StrategyFlow = () => {
                     <Download className="mr-1 h-4 w-4" />
                     Export
                   </Button>
-                  <Button variant="secondary" as="label" htmlFor="import-strategy">
-                    <Upload className="mr-1 h-4 w-4" />
-                    Import
+                  <label htmlFor="import-strategy" className="cursor-pointer">
+                    <Button variant="secondary" className="w-full">
+                      <Upload className="mr-1 h-4 w-4" />
+                      Import
+                    </Button>
                     <input
                       id="import-strategy"
                       type="file"
@@ -402,7 +384,7 @@ const StrategyFlow = () => {
                       className="hidden"
                       onChange={importStrategy}
                     />
-                  </Button>
+                  </label>
                   <Button variant="secondary" onClick={resetStrategy}>
                     <RotateCcw className="mr-1 h-4 w-4" />
                     Reset
@@ -417,7 +399,6 @@ const StrategyFlow = () => {
           </div>
         </ResizablePanel>
         
-        {/* Right panel for node configuration */}
         {isPanelOpen && selectedNode && (
           <ResizablePanel defaultSize={20} minSize={20} maxSize={35}>
             <NodePanel 
