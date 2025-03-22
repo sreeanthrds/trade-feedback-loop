@@ -36,18 +36,14 @@ const NodeControls: React.FC<NodeControlsProps> = ({
     const width = node.width || 150;
     const height = node.height || 80;
     
-    // Return the positions for the buttons on the right edge
+    // Return the positions for the buttons directly on the node
     return {
       topRight: {
         x: node.position.x + width,
         y: node.position.y
       },
-      middleRight: {
-        x: node.position.x + width,
-        y: node.position.y + height * 0.5
-      },
-      bottomRight: {
-        x: node.position.x + width * 0.5,
+      bottomCenter: {
+        x: node.position.x + (width / 2),
         y: node.position.y + height
       }
     };
@@ -82,8 +78,8 @@ const NodeControls: React.FC<NodeControlsProps> = ({
         <div 
           className="absolute pointer-events-auto"
           style={{
-            left: nodePosition.bottomRight.x - 16,
-            top: nodePosition.bottomRight.y - 8,
+            left: nodePosition.bottomCenter.x - 14,
+            top: nodePosition.bottomCenter.y - 14,
             zIndex: 10
           }}
         >
@@ -151,12 +147,12 @@ const NodeControls: React.FC<NodeControlsProps> = ({
         </div>
       )}
       
-      {/* Delete Button - positioned at the right edge of the node */}
+      {/* Delete Button - positioned at the top right corner of the node */}
       <div 
         className="absolute pointer-events-auto"
         style={{
-          left: nodePosition.topRight.x - 8,
-          top: nodePosition.topRight.y - 8,
+          left: nodePosition.topRight.x - 14,
+          top: nodePosition.topRight.y - 4,
           zIndex: 10
         }}
       >
