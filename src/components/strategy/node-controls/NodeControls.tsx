@@ -34,11 +34,22 @@ const NodeControls: React.FC<NodeControlsProps> = ({
     if (!node) return null;
     
     const width = node.width || 150;
+    const height = node.height || 80;
     
-    // Return the position on the right edge of the node
+    // Return the positions for the buttons on the right edge
     return {
-      x: node.position.x + width, // directly at the edge without any gap
-      y: node.position.y // align with node top
+      topRight: {
+        x: node.position.x + width,
+        y: node.position.y
+      },
+      middleRight: {
+        x: node.position.x + width,
+        y: node.position.y + height * 0.5
+      },
+      bottomRight: {
+        x: node.position.x + width * 0.5,
+        y: node.position.y + height
+      }
     };
   });
 
@@ -65,16 +76,17 @@ const NodeControls: React.FC<NodeControlsProps> = ({
   };
   
   return (
-    <div 
-      className="absolute pointer-events-auto"
-      style={{
-        left: nodePosition.x,
-        top: nodePosition.y,
-        zIndex: 10
-      }}
-    >
-      <div className="flex flex-col space-y-2">
-        {!isEndOrForceEndNode && (
+    <>
+      {/* Add Node Button - positioned at the bottom center of the node */}
+      {!isEndOrForceEndNode && (
+        <div 
+          className="absolute pointer-events-auto"
+          style={{
+            left: nodePosition.bottomRight.x - 16,
+            top: nodePosition.bottomRight.y - 8,
+            zIndex: 10
+          }}
+        >
           <HoverCard open={showNodeOptions} onOpenChange={setShowNodeOptions}>
             <HoverCardTrigger asChild>
               <button
@@ -136,8 +148,18 @@ const NodeControls: React.FC<NodeControlsProps> = ({
               </div>
             </HoverCardContent>
           </HoverCard>
-        )}
-        
+        </div>
+      )}
+      
+      {/* Delete Button - positioned at the right edge of the node */}
+      <div 
+        className="absolute pointer-events-auto"
+        style={{
+          left: nodePosition.topRight.x - 8,
+          top: nodePosition.topRight.y - 8,
+          zIndex: 10
+        }}
+      >
         <button
           className="flex items-center justify-center h-8 w-8 rounded-full bg-destructive text-destructive-foreground shadow hover:bg-destructive/90 transition-colors"
           onClick={handleDelete}
@@ -146,7 +168,7 @@ const NodeControls: React.FC<NodeControlsProps> = ({
           <Trash2 size={16} />
         </button>
       </div>
-    </div>
+    </>
   );
 };
 
