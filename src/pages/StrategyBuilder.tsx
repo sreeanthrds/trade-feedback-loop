@@ -3,7 +3,6 @@ import React from 'react';
 import Navbar from '@/components/ui/navbar';
 import Footer from '@/components/ui/footer';
 import StrategyFlow from '@/components/strategy/StrategyFlow';
-import { ReactFlowProvider } from '@xyflow/react';
 
 const StrategyBuilder = () => {
   return (
@@ -19,9 +18,7 @@ const StrategyBuilder = () => {
           </div>
           
           <div className="h-[calc(100vh-250px)] min-h-[600px] rounded-xl border border-border overflow-hidden">
-            <ReactFlowProvider>
-              <StrategyFlow />
-            </ReactFlowProvider>
+            <StrategyFlow />
           </div>
         </div>
       </main>
