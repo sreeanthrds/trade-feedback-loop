@@ -7,11 +7,6 @@ import {
   TooltipProvider,
   TooltipTrigger 
 } from '@/components/ui/tooltip';
-import { 
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger 
-} from '@/components/ui/hover-card';
 
 interface NodeSidebarProps {
   onAddNode: (type: string) => void;
@@ -70,10 +65,8 @@ const NodeSidebar = ({ onAddNode }: NodeSidebarProps) => {
   };
 
   return (
-    <div className="h-full overflow-auto py-4 flex flex-col items-center">
-      <h3 className="font-medium text-xs uppercase tracking-wider mb-4 text-center text-muted-foreground">Nodes</h3>
-      
-      <div className="space-y-4">
+    <div className="h-full overflow-auto py-6 flex flex-col items-center">
+      <div className="space-y-6">
         <TooltipProvider delayDuration={200}>
           {nodeTypes.map((nodeType) => (
             <Tooltip key={nodeType.type}>
