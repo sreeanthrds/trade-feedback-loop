@@ -194,3 +194,13 @@
 .react-flow__node .dropdown-menu-item:hover {
   background-color: var(--accent);
 }
+
+/* Override z-index for dropdown menus to ensure they appear above nodes */
+.react-flow__node .react-flow__node-dropdown {
+  z-index: 9999 !important;
+}
+
+/* Fix for dropdown portals to be visible */
+[data-radix-popper-content-wrapper] {
+  z-index: 9999 !important;
+}

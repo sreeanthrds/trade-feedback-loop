@@ -92,23 +92,9 @@ interface ReactFlowCanvasProps {
   onAddNode: (type: string) => void;
 }
 
-const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
-  flowRef,
-  nodes,
-  edges,
-  onNodesChange,
-  onEdgesChange,
-  onConnect,
-  onNodeClick,
-  toggleTheme,
-  resetStrategy,
-  onImportSuccess,
-  onDeleteNode,
-  onDeleteEdge,
-  onAddNode
-}) => {
-  // Create node types with delete functionality
-  const nodeTypes: NodeTypes = {
+// Create node types with delete functionality
+const createNodeTypes = (onDeleteNode: (id: string) => void, onAddNode: (type: string) => void): NodeTypes => {
+  return {
     startNode: (nodeProps) => (
       <div className="group">
         <StartNode {...nodeProps} />
@@ -142,6 +128,28 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
       </div>
     )
   };
+};
+
+const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
+  flowRef,
+  nodes,
+  edges,
+  onNodesChange,
+  onEdgesChange,
+  onConnect,
+  onNodeClick,
+  toggleTheme,
+  resetStrategy,
+  onImportSuccess,
+  onDeleteNode,
+  onDeleteEdge,
+  onAddNode
+}) => {
+  // Create memoized node types to prevent React Flow warnings
+  const nodeTypes = React.useMemo(
+    () => createNodeTypes(onDeleteNode, onAddNode),
+    [onDeleteNode, onAddNode]
+  );
 
   // Create edges with delete buttons
   const edgesWithDeleteButtons = edges.map((edge: Edge) => ({
@@ -151,6 +159,14 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
       onDelete: onDeleteEdge
     }
   }));
+
+  // Memoize the edge types to prevent React Flow warnings
+  const edgeTypes = React.useMemo(
+    () => ({
+      default: (props: any) => <ButtonEdge {...props} onDelete={onDeleteEdge} />
+    }),
+    [onDeleteEdge]
+  );
 
   return (
     <div className="h-full w-full" ref={flowRef}>
@@ -162,9 +178,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
         onConnect={onConnect}
         onNodeClick={onNodeClick}
         nodeTypes={nodeTypes}
-        edgeTypes={{
-          default: (props) => <ButtonEdge {...props} onDelete={onDeleteEdge} />
-        }}
+        edgeTypes={edgeTypes}
         fitView
         deleteKeyCode="Delete"
         snapToGrid
