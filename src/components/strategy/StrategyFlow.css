@@ -1,3 +1,4 @@
+
 .strategy-flow-container {
   height: 100%;
   width: 100%;
@@ -156,4 +157,10 @@
 /* Edge Controls */
 .edge-controls {
   cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+/* Group hover for elements inside nodes */
+.group:hover .opacity-0 {
+  opacity: 1;
 }

@@ -47,13 +47,14 @@ const ButtonEdge = ({
         strokeWidth={selected ? 3 : 2}
       />
       
-      {/* Add a delete button */}
+      {/* Add a delete button with hover state */}
       <foreignObject
         width={20}
         height={20}
         x={(sourceX + targetX) / 2 - 10}
         y={(sourceY + targetY) / 2 - 10}
         requiredExtensions="http://www.w3.org/1999/xhtml"
+        className="edge-controls opacity-0 hover:opacity-100 transition-opacity duration-200"
       >
         <div className="flex items-center justify-center h-full">
           <Button
@@ -107,28 +108,28 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   const nodeTypes: NodeTypes = {
     startNode: StartNode,
     signalNode: (nodeProps) => (
-      <>
+      <div className="group">
         <SignalNode {...nodeProps} />
         <NodeControls node={nodeProps} onDelete={onDeleteNode} />
-      </>
+      </div>
     ),
     actionNode: (nodeProps) => (
-      <>
+      <div className="group">
         <ActionNode {...nodeProps} />
         <NodeControls node={nodeProps} onDelete={onDeleteNode} />
-      </>
+      </div>
     ),
     endNode: (nodeProps) => (
-      <>
+      <div className="group">
         <EndNode {...nodeProps} />
         <NodeControls node={nodeProps} onDelete={onDeleteNode} />
-      </>
+      </div>
     ),
     forceEndNode: (nodeProps) => (
-      <>
+      <div className="group">
         <ForceEndNode {...nodeProps} />
         <NodeControls node={nodeProps} onDelete={onDeleteNode} />
-      </>
+      </div>
     )
   };
 

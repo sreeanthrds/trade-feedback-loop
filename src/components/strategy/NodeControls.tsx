@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Node } from '@xyflow/react';
 import { Trash2 } from 'lucide-react';
+import { HoverCard, HoverCardTrigger, HoverCardContent } from '@/components/ui/hover-card';
 
 interface NodeControlsProps {
   node: any; // Using any to avoid TypeScript errors with position property
@@ -16,7 +16,7 @@ const NodeControls: React.FC<NodeControlsProps> = ({ node, onDelete }) => {
   }
 
   return (
-    <div className="absolute right-0 top-0 -mt-6 -mr-2 z-10">
+    <div className="absolute right-0 top-0 -mt-6 -mr-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
       <Button
         variant="destructive"
         size="icon"
