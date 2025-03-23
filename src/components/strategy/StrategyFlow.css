@@ -164,3 +164,13 @@
 .group:hover .opacity-0 {
   opacity: 1;
 }
+
+/* Node Connect Controls */
+.group .dropdown-trigger {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.group:hover .dropdown-trigger {
+  opacity: 1;
+}

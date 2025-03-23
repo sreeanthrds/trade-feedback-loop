@@ -126,6 +126,7 @@ const StrategyFlowContent = () => {
         onImportSuccess={handleImportSuccess}
         onDeleteNode={handleDeleteNode}
         onDeleteEdge={handleDeleteEdge}
+        onAddNode={handleAddNode}
       />
     </FlowLayout>
   );

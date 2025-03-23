@@ -17,6 +17,7 @@ import ActionNode from './nodes/ActionNode';
 import EndNode from './nodes/EndNode';
 import ForceEndNode from './nodes/ForceEndNode';
 import NodeControls from './NodeControls';
+import NodeConnectControls from './NodeConnectControls';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 
@@ -88,6 +89,7 @@ interface ReactFlowCanvasProps {
   onImportSuccess: () => void;
   onDeleteNode: (id: string) => void;
   onDeleteEdge: (id: string) => void;
+  onAddNode: (type: string) => void;
 }
 
 const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
@@ -102,21 +104,29 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   resetStrategy,
   onImportSuccess,
   onDeleteNode,
-  onDeleteEdge
+  onDeleteEdge,
+  onAddNode
 }) => {
   // Create node types with delete functionality
   const nodeTypes: NodeTypes = {
-    startNode: StartNode,
+    startNode: (nodeProps) => (
+      <div className="group">
+        <StartNode {...nodeProps} />
+        <NodeConnectControls showOn="start" onAddNode={onAddNode} />
+      </div>
+    ),
     signalNode: (nodeProps) => (
       <div className="group">
         <SignalNode {...nodeProps} />
         <NodeControls node={nodeProps} onDelete={onDeleteNode} />
+        <NodeConnectControls showOn="signal" onAddNode={onAddNode} />
       </div>
     ),
     actionNode: (nodeProps) => (
       <div className="group">
         <ActionNode {...nodeProps} />
         <NodeControls node={nodeProps} onDelete={onDeleteNode} />
+        <NodeConnectControls showOn="action" onAddNode={onAddNode} />
       </div>
     ),
     endNode: (nodeProps) => (
