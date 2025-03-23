@@ -23,7 +23,6 @@ const FlowLayout: React.FC<FlowLayoutProps> = ({
   isPanelOpen,
   selectedNode,
   onAddNode,
-  updateNodeData,
   onClosePanel,
   nodePanelComponent
 }) => {
@@ -36,32 +35,30 @@ const FlowLayout: React.FC<FlowLayoutProps> = ({
           minSize={6} 
           maxSize={6} 
           className="bg-secondary/30"
-          id="sidebar-panel"
         >
           <NodeSidebar onAddNode={onAddNode} />
         </ResizablePanel>
         
+        {/* Main content panel */}
         <ResizablePanel 
           defaultSize={isPanelOpen ? 65 : 94} 
           minSize={isPanelOpen ? 45 : 85}
-          id="content-panel"
         >
           {children}
         </ResizablePanel>
         
+        {/* Config panel with resize handle */}
         {isPanelOpen && selectedNode && (
           <>
             <ResizableHandle 
               withHandle
               id="config-panel-handle"
-              className="bg-primary/10 hover:bg-primary/20 active:bg-primary/30"
             />
             <ResizablePanel 
               defaultSize={29} 
               minSize={20} 
               maxSize={45} 
               className="overflow-y-auto border-l border-border"
-              id="config-panel"
             >
               {nodePanelComponent}
             </ResizablePanel>
