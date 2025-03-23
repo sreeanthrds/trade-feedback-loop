@@ -37,7 +37,12 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
     // Find the start node
     const startNode = strategyStore.nodes.find(node => node.type === 'startNode');
     if (startNode && startNode.data.indicators) {
-      setAvailableIndicators(startNode.data.indicators);
+      // Ensure we're dealing with a string array
+      const indicators = Array.isArray(startNode.data.indicators) 
+        ? startNode.data.indicators.filter(ind => typeof ind === 'string')
+        : [];
+      
+      setAvailableIndicators(indicators);
     } else {
       setAvailableIndicators([]);
     }
