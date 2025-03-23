@@ -22,7 +22,7 @@ export function useFlowState() {
   
   const strategyStore = useStrategyStore();
 
-  // Initial load from localStorage
+  // Initial load from localStorage - only run once
   useEffect(() => {
     const savedStrategy = loadStrategyFromLocalStorage();
     if (savedStrategy) {
@@ -37,15 +37,21 @@ export function useFlowState() {
     }
   }, []);
 
-  // Sync nodes and edges from store to ReactFlow
+  // Sync nodes from store to ReactFlow, but prevent infinite updates by checking for changes
   useEffect(() => {
-    if (strategyStore.nodes.length > 0) {
-      setNodes(strategyStore.nodes);
+    const storeNodes = strategyStore.nodes;
+    if (storeNodes.length > 0 && JSON.stringify(storeNodes) !== JSON.stringify(nodes)) {
+      setNodes(storeNodes);
     }
-    if (strategyStore.edges.length > 0 || strategyStore.edges.length === 0) {
-      setEdges(strategyStore.edges);
+  }, [strategyStore.nodes]);
+
+  // Sync edges from store to ReactFlow, but prevent infinite updates by checking for changes
+  useEffect(() => {
+    const storeEdges = strategyStore.edges;
+    if (JSON.stringify(storeEdges) !== JSON.stringify(edges)) {
+      setEdges(storeEdges);
     }
-  }, [strategyStore.nodes, strategyStore.edges, setNodes, setEdges]);
+  }, [strategyStore.edges]);
 
   const onConnect = useCallback(
     (params: Connection) => {

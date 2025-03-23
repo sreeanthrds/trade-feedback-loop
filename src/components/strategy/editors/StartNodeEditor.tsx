@@ -35,7 +35,7 @@ const StartNodeEditor = ({ node, updateNodeData }: StartNodeEditorProps) => {
     indicatorParameters: nodeData?.indicatorParameters || {}
   });
   
-  // Update form data when node data changes
+  // Load initial data from node - run only once when node changes
   useEffect(() => {
     setFormData({
       label: nodeData?.label || 'Start',
@@ -45,26 +45,41 @@ const StartNodeEditor = ({ node, updateNodeData }: StartNodeEditorProps) => {
       indicators: nodeData?.indicators || [],
       indicatorParameters: nodeData?.indicatorParameters || {}
     });
-  }, [nodeData]);
+  }, [node.id]); // Only when node.id changes, not when nodeData changes
   
-  // Update node data when form data changes
-  useEffect(() => {
+  // Update node data when form data changes, but avoid infinite loops
+  const handleFormSubmit = () => {
     updateNodeData(node.id, formData);
-  }, [formData, node.id, updateNodeData]);
+  };
   
   const handleInputChange = (field: keyof NodeData, value: any) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
+    
+    // Use a timeout to avoid multiple rapid updates
+    setTimeout(() => {
+      updateNodeData(node.id, {
+        ...formData,
+        [field]: value
+      });
+    }, 100);
   };
   
   const handleIndicatorsChange = (indicatorParams: Record<string, Record<string, any>>) => {
-    setFormData(prev => ({
-      ...prev,
+    const updatedFormData = {
+      ...formData,
       indicatorParameters: indicatorParams,
       indicators: Object.keys(indicatorParams)
-    }));
+    };
+    
+    setFormData(updatedFormData);
+    
+    // Use a timeout to avoid multiple rapid updates
+    setTimeout(() => {
+      updateNodeData(node.id, updatedFormData);
+    }, 100);
   };
   
   return (
