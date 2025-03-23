@@ -51,7 +51,10 @@ const FlowLayout: React.FC<FlowLayoutProps> = ({
         
         {isPanelOpen && selectedNode && (
           <>
-            <ResizableHandle withHandle />
+            <ResizableHandle 
+              withHandle
+              className="config-panel-handle"
+            />
             <ResizablePanel 
               defaultSize={29} 
               minSize={20} 
