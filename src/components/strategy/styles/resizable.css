@@ -4,7 +4,13 @@
   background-color: hsl(var(--border));
   position: relative;
   cursor: col-resize;
-  width: 5px !important;
+  width: 8px !important; /* Increased from 5px to 8px for better visibility */
+  transition: background-color 0.2s ease;
+}
+
+.strategy-flow-container .react-resizable-panels-handle:hover,
+.strategy-flow-container .react-resizable-panels-handle:active {
+  background-color: hsl(var(--primary) / 0.3);
 }
 
 .strategy-flow-container .react-resizable-panels-handle:hover::before,
@@ -15,12 +21,23 @@
   left: 50%;
   transform: translate(-50%, -50%);
   width: 4px;
-  height: 24px;
-  background-color: hsl(var(--primary) / 0.5);
+  height: 36px; /* Increased from 24px to 36px for better visibility */
+  background-color: hsl(var(--primary) / 0.7); /* Increased opacity for better visibility */
   border-radius: 2px;
 }
 
 /* Make sure handle is visible and draggable */
 .strategy-flow-container [data-panel-resize-handle-id] {
   cursor: col-resize !important;
+  touch-action: none !important; /* Prevents touch events from causing page scrolling */
+  z-index: 20; /* Ensure the handle is above other elements */
+}
+
+/* Add visual indication for active resizing */
+.strategy-flow-container .react-resizable-panels-handle[data-resize-active="true"] {
+  background-color: hsl(var(--primary) / 0.4);
+}
+
+.strategy-flow-container .react-resizable-panels-handle[data-resize-active="true"]::before {
+  background-color: hsl(var(--primary));
 }
