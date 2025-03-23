@@ -1,8 +1,6 @@
-
 import React, { memo } from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { Play, Calendar, Building, BarChart, TrendingUp } from 'lucide-react';
-import { TradingInstrumentData } from '../editors/form-components/TradingInstrumentSelector';
+import { Play, Calendar, Building, BarChart } from 'lucide-react';
 
 interface StartNodeProps {
   data: {
@@ -12,7 +10,6 @@ interface StartNodeProps {
     symbol?: string;
     indicators?: string[];
     indicatorParameters?: Record<string, Record<string, any>>;
-    tradingInstrument?: TradingInstrumentData;
   };
 }
 
@@ -37,25 +34,6 @@ const StartNode = ({ data }: StartNodeProps) => {
     return key;
   };
 
-  // Helper to format the display of the trading instrument
-  const getTradingInstrumentDisplay = () => {
-    if (!data.tradingInstrument || !data.tradingInstrument.tradingType) {
-      return data.symbol || 'Not specified';
-    }
-
-    const { tradingType, underlying, symbol } = data.tradingInstrument;
-    
-    if (!symbol) {
-      return `${tradingType.charAt(0).toUpperCase() + tradingType.slice(1)} (Not specified)`;
-    }
-    
-    if (tradingType === 'options' && underlying) {
-      return `${symbol} ${underlying.charAt(0).toUpperCase() + underlying.slice(1)} Options`;
-    }
-    
-    return `${symbol} ${tradingType.charAt(0).toUpperCase() + tradingType.slice(1)}`;
-  };
-
   return (
     <div className="px-4 py-3 rounded-md border border-primary/20 bg-background shadow-sm">
       <div className="space-y-2">
@@ -67,28 +45,29 @@ const StartNode = ({ data }: StartNodeProps) => {
           </div>
         </div>
         
-        <div className="border-t border-border pt-2 mt-2 space-y-1.5">
-          {data.tradingInstrument?.tradingType && (
-            <div className="flex items-center gap-2 text-xs">
-              <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />
-              <span>{getTradingInstrumentDisplay()}</span>
-            </div>
-          )}
-          
-          {data.timeframe && (
-            <div className="flex items-center gap-2 text-xs">
-              <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-              <span>{data.timeframe}</span>
-            </div>
-          )}
-          
-          {data.exchange && (
-            <div className="flex items-center gap-2 text-xs">
-              <Building className="h-3.5 w-3.5 text-muted-foreground" />
-              <span>{data.exchange}</span>
-            </div>
-          )}
-        </div>
+        {(data.timeframe || data.exchange || data.symbol) && (
+          <div className="border-t border-border pt-2 mt-2 space-y-1.5">
+            {data.timeframe && (
+              <div className="flex items-center gap-2 text-xs">
+                <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                <span>{data.timeframe}</span>
+              </div>
+            )}
+            
+            {data.exchange && (
+              <div className="flex items-center gap-2 text-xs">
+                <Building className="h-3.5 w-3.5 text-muted-foreground" />
+                <span>{data.exchange}</span>
+              </div>
+            )}
+            
+            {data.symbol && (
+              <div className="flex items-center gap-2 text-xs font-medium">
+                <span>{data.symbol}</span>
+              </div>
+            )}
+          </div>
+        )}
         
         {data.indicators && data.indicators.length > 0 && (
           <div className="border-t border-border pt-2 mt-2">

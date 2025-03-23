@@ -8,7 +8,6 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import IndicatorSelector from './IndicatorSelector';
 import { timeframeOptions, exchangeOptions } from '../utils/indicatorConfig';
-import TradingInstrumentSelector, { TradingInstrumentData } from './form-components/TradingInstrumentSelector';
 
 interface StartNodeEditorProps {
   node: Node;
@@ -22,7 +21,6 @@ interface NodeData {
   symbol?: string;
   indicators?: string[];
   indicatorParameters?: Record<string, Record<string, any>>;
-  tradingInstrument?: TradingInstrumentData;
 }
 
 const StartNodeEditor = ({ node, updateNodeData }: StartNodeEditorProps) => {
@@ -34,8 +32,7 @@ const StartNodeEditor = ({ node, updateNodeData }: StartNodeEditorProps) => {
     exchange: nodeData?.exchange || '',
     symbol: nodeData?.symbol || '',
     indicators: nodeData?.indicators || [],
-    indicatorParameters: nodeData?.indicatorParameters || {},
-    tradingInstrument: nodeData?.tradingInstrument || { tradingType: '' }
+    indicatorParameters: nodeData?.indicatorParameters || {}
   });
   
   // Load initial data from node - run only once when node changes
@@ -46,8 +43,7 @@ const StartNodeEditor = ({ node, updateNodeData }: StartNodeEditorProps) => {
       exchange: nodeData?.exchange || '',
       symbol: nodeData?.symbol || '',
       indicators: nodeData?.indicators || [],
-      indicatorParameters: nodeData?.indicatorParameters || {},
-      tradingInstrument: nodeData?.tradingInstrument || { tradingType: '' }
+      indicatorParameters: nodeData?.indicatorParameters || {}
     });
   }, [node.id]); // Only when node.id changes, not when nodeData changes
   
@@ -68,22 +64,6 @@ const StartNodeEditor = ({ node, updateNodeData }: StartNodeEditorProps) => {
         ...formData,
         [field]: value
       });
-    }, 100);
-  };
-  
-  const handleTradingInstrumentChange = (tradingInstrument: TradingInstrumentData) => {
-    const updatedFormData = {
-      ...formData,
-      tradingInstrument,
-      // Also update the symbol field for backwards compatibility
-      symbol: tradingInstrument.symbol || ''
-    };
-    
-    setFormData(updatedFormData);
-    
-    // Use a timeout to avoid multiple rapid updates
-    setTimeout(() => {
-      updateNodeData(node.id, updatedFormData);
     }, 100);
   };
   
@@ -117,14 +97,6 @@ const StartNodeEditor = ({ node, updateNodeData }: StartNodeEditorProps) => {
             value={formData.label}
             onChange={(e) => handleInputChange('label', e.target.value)}
             placeholder="Enter strategy name"
-          />
-        </div>
-        
-        <div className="bg-muted/10 border border-border/50 rounded-md p-4">
-          <h3 className="text-sm font-semibold mb-3">Trading Instrument</h3>
-          <TradingInstrumentSelector 
-            value={formData.tradingInstrument || { tradingType: '' }}
-            onChange={handleTradingInstrumentChange}
           />
         </div>
         
@@ -166,9 +138,19 @@ const StartNodeEditor = ({ node, updateNodeData }: StartNodeEditorProps) => {
           </Select>
         </div>
         
+        <div>
+          <Label htmlFor="node-symbol">Symbol</Label>
+          <Input
+            id="node-symbol"
+            value={formData.symbol}
+            onChange={(e) => handleInputChange('symbol', e.target.value)}
+            placeholder="e.g., BANKNIFTY, RELIANCE"
+          />
+        </div>
+        
         <div className="bg-muted/30 rounded-md p-4 mt-4">
           <p className="text-sm text-muted-foreground">
-            The Start Node is the entry point of your strategy. Configure the trading instrument, timeframe, and exchange here. Add technical indicators in the Indicators tab.
+            The Start Node is the entry point of your strategy. Configure basic settings here and add technical indicators in the Indicators tab.
           </p>
         </div>
       </TabsContent>
