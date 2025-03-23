@@ -128,10 +128,15 @@ const TradingInstrumentSelector: React.FC<TradingInstrumentSelectorProps> = ({
   };
 
   // Filter symbols based on search input
-  const filteredSymbols = getSymbolList().filter(
+  const symbols = getSymbolList();
+  const filteredSymbols = symbols.filter(
     item => 
-      item.symbol.toLowerCase().includes(searchValue.toLowerCase()) ||
-      item.name.toLowerCase().includes(searchValue.toLowerCase())
+      item && 
+      typeof item === 'object' && 
+      item.symbol && 
+      item.name &&
+      (item.symbol.toLowerCase().includes(searchValue.toLowerCase()) ||
+      item.name.toLowerCase().includes(searchValue.toLowerCase()))
   );
 
   return (
@@ -194,7 +199,7 @@ const TradingInstrumentSelector: React.FC<TradingInstrumentSelectorProps> = ({
                 )}
               >
                 {value.symbol ? 
-                  getSymbolList().find(item => item.symbol === value.symbol)?.symbol || value.symbol :
+                  symbols.find(item => item.symbol === value.symbol)?.symbol || value.symbol :
                   "Search for a symbol..."}
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </button>
@@ -208,7 +213,7 @@ const TradingInstrumentSelector: React.FC<TradingInstrumentSelectorProps> = ({
                 />
                 <CommandEmpty>No symbol found.</CommandEmpty>
                 <CommandGroup className="max-h-60 overflow-auto">
-                  {filteredSymbols.map((item) => (
+                  {filteredSymbols && filteredSymbols.length > 0 ? filteredSymbols.map((item) => (
                     <CommandItem
                       key={item.symbol}
                       value={item.symbol}
@@ -223,7 +228,11 @@ const TradingInstrumentSelector: React.FC<TradingInstrumentSelectorProps> = ({
                       <span className="font-medium">{item.symbol}</span>
                       <span className="ml-2 text-muted-foreground text-xs">{item.name}</span>
                     </CommandItem>
-                  ))}
+                  )) : (
+                    <div className="py-2 text-sm text-center text-muted-foreground">
+                      No symbols available
+                    </div>
+                  )}
                 </CommandGroup>
               </Command>
             </PopoverContent>
