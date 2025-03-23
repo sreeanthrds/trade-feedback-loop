@@ -1,5 +1,4 @@
-
-import { NodeMouseHandler, Node, ReactFlowInstance } from '@xyflow/react';
+import { NodeMouseHandler, Node, ReactFlowInstance, Edge } from '@xyflow/react';
 import { toast } from 'sonner';
 import { addNode } from './flowUtils';
 
@@ -45,6 +44,49 @@ export const createUpdateNodeDataHandler = (
     setNodes(updatedNodes);
     strategyStore.setNodes(updatedNodes);
     strategyStore.addHistoryItem(updatedNodes, strategyStore.edges);
+  };
+};
+
+export const createDeleteNodeHandler = (
+  nodes: Node[],
+  edges: Edge[],
+  setNodes: (nodes: Node[]) => void,
+  setEdges: (edges: Edge[]) => void,
+  strategyStore: any
+) => {
+  return (nodeId: string) => {
+    // Remove the node
+    const newNodes = nodes.filter(node => node.id !== nodeId);
+    
+    // Remove any connected edges
+    const newEdges = edges.filter(
+      edge => edge.source !== nodeId && edge.target !== nodeId
+    );
+    
+    setNodes(newNodes);
+    setEdges(newEdges);
+    strategyStore.setNodes(newNodes);
+    strategyStore.setEdges(newEdges);
+    strategyStore.addHistoryItem(newNodes, newEdges);
+    
+    toast.success("Node deleted");
+  };
+};
+
+export const createDeleteEdgeHandler = (
+  edges: Edge[],
+  setEdges: (edges: Edge[]) => void,
+  strategyStore: any,
+  nodes: Node[]
+) => {
+  return (edgeId: string) => {
+    const newEdges = edges.filter(edge => edge.id !== edgeId);
+    
+    setEdges(newEdges);
+    strategyStore.setEdges(newEdges);
+    strategyStore.addHistoryItem(nodes, newEdges);
+    
+    toast.success("Connection deleted");
   };
 };
 

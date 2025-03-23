@@ -6,6 +6,7 @@ import {
   Controls, 
   MiniMap,
   NodeTypes,
+  EdgeProps
 } from '@xyflow/react';
 import TopToolbar from './toolbars/TopToolbar';
 import BottomToolbar from './toolbars/BottomToolbar';
@@ -14,13 +15,44 @@ import SignalNode from './nodes/SignalNode';
 import ActionNode from './nodes/ActionNode';
 import EndNode from './nodes/EndNode';
 import ForceEndNode from './nodes/ForceEndNode';
+import NodeControls from './NodeControls';
+import { Button } from '@/components/ui/button';
+import { Trash2 } from 'lucide-react';
 
-const nodeTypes: NodeTypes = {
-  startNode: StartNode,
-  signalNode: SignalNode,
-  actionNode: ActionNode,
-  endNode: EndNode,
-  forceEndNode: ForceEndNode
+// Custom edge with delete button
+const ButtonEdge = ({ id, ...props }: EdgeProps & { id: string; onDelete: (id: string) => void }) => {
+  const { onDelete } = props;
+  
+  return (
+    <>
+      {/* Use the default edge */}
+      <props.defaultEdgeComponent {...props} />
+      
+      {/* Add a delete button */}
+      <foreignObject
+        width={20}
+        height={20}
+        x={(props.sourceX + props.targetX) / 2 - 10}
+        y={(props.sourceY + props.targetY) / 2 - 10}
+        requiredExtensions="http://www.w3.org/1999/xhtml"
+      >
+        <div className="flex items-center justify-center h-full">
+          <Button
+            variant="destructive"
+            size="icon"
+            className="h-5 w-5 rounded-full"
+            onClick={(event) => {
+              event.stopPropagation();
+              onDelete(id);
+            }}
+            title="Delete connection"
+          >
+            <Trash2 className="h-3 w-3" />
+          </Button>
+        </div>
+      </foreignObject>
+    </>
+  );
 };
 
 interface ReactFlowCanvasProps {
@@ -34,6 +66,8 @@ interface ReactFlowCanvasProps {
   toggleTheme: () => void;
   resetStrategy: () => void;
   onImportSuccess: () => void;
+  onDeleteNode: (id: string) => void;
+  onDeleteEdge: (id: string) => void;
 }
 
 const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
@@ -46,18 +80,61 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   onNodeClick,
   toggleTheme,
   resetStrategy,
-  onImportSuccess
+  onImportSuccess,
+  onDeleteNode,
+  onDeleteEdge
 }) => {
+  // Create node types with delete functionality
+  const nodeTypes: NodeTypes = {
+    startNode: (props) => <StartNode {...props} />,
+    signalNode: (props) => (
+      <>
+        <SignalNode {...props} />
+        <NodeControls node={props} onDelete={onDeleteNode} />
+      </>
+    ),
+    actionNode: (props) => (
+      <>
+        <ActionNode {...props} />
+        <NodeControls node={props} onDelete={onDeleteNode} />
+      </>
+    ),
+    endNode: (props) => (
+      <>
+        <EndNode {...props} />
+        <NodeControls node={props} onDelete={onDeleteNode} />
+      </>
+    ),
+    forceEndNode: (props) => (
+      <>
+        <ForceEndNode {...props} />
+        <NodeControls node={props} onDelete={onDeleteNode} />
+      </>
+    )
+  };
+
+  // Create edges with delete buttons
+  const edgesWithDeleteButtons = edges.map(edge => ({
+    ...edge,
+    data: {
+      ...edge.data,
+      onDelete: onDeleteEdge
+    }
+  }));
+
   return (
     <div className="h-full w-full" ref={flowRef}>
       <ReactFlow
         nodes={nodes}
-        edges={edges}
+        edges={edgesWithDeleteButtons}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onNodeClick={onNodeClick}
         nodeTypes={nodeTypes}
+        edgeTypes={{
+          default: (props) => <ButtonEdge {...props} onDelete={onDeleteEdge} />
+        }}
         fitView
         deleteKeyCode="Delete"
         snapToGrid

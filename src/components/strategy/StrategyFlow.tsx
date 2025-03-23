@@ -9,7 +9,9 @@ import {
   createAddNodeHandler, 
   createUpdateNodeDataHandler, 
   createResetStrategyHandler,
-  createImportSuccessHandler
+  createImportSuccessHandler,
+  createDeleteNodeHandler,
+  createDeleteEdgeHandler
 } from './utils/eventHandlers';
 import FlowLayout from './layout/FlowLayout';
 import ReactFlowCanvas from './ReactFlowCanvas';
@@ -55,6 +57,21 @@ const StrategyFlowContent = () => {
     nodes,
     setNodes,
     strategyStore
+  );
+  
+  const handleDeleteNode = createDeleteNodeHandler(
+    nodes,
+    edges,
+    setNodes,
+    setEdges,
+    strategyStore
+  );
+  
+  const handleDeleteEdge = createDeleteEdgeHandler(
+    edges,
+    setEdges,
+    strategyStore,
+    nodes
   );
 
   const closePanel = () => {
@@ -107,6 +124,8 @@ const StrategyFlowContent = () => {
         toggleTheme={toggleTheme}
         resetStrategy={resetStrategy}
         onImportSuccess={handleImportSuccess}
+        onDeleteNode={handleDeleteNode}
+        onDeleteEdge={handleDeleteEdge}
       />
     </FlowLayout>
   );
