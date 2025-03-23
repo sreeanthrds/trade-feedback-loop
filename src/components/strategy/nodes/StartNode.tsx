@@ -1,23 +1,72 @@
 
 import React, { memo } from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { Play } from 'lucide-react';
+import { Play, Calendar, Building, BarChart } from 'lucide-react';
 
 interface StartNodeProps {
   data: {
     label?: string;
+    timeframe?: string;
+    exchange?: string;
+    symbol?: string;
+    indicators?: string[];
   };
 }
 
 const StartNode = ({ data }: StartNodeProps) => {
   return (
-    <div className="px-4 py-2 rounded-md">
-      <div className="flex items-center">
-        <Play className="h-5 w-5 text-success mr-2" />
-        <div>
-          <div className="font-medium">{data.label || "Start"}</div>
-          <div className="text-xs text-foreground/60">Strategy Entry Point</div>
+    <div className="px-4 py-3 rounded-md border border-primary/20 bg-background shadow-sm">
+      <div className="space-y-2">
+        <div className="flex items-center">
+          <Play className="h-5 w-5 text-success mr-2 shrink-0" />
+          <div>
+            <div className="font-medium">{data.label || "Start"}</div>
+            <div className="text-xs text-foreground/60">Strategy Entry Point</div>
+          </div>
         </div>
+        
+        {(data.timeframe || data.exchange || data.symbol) && (
+          <div className="border-t border-border pt-2 mt-2 space-y-1.5">
+            {data.timeframe && (
+              <div className="flex items-center gap-2 text-xs">
+                <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                <span>{data.timeframe}</span>
+              </div>
+            )}
+            
+            {data.exchange && (
+              <div className="flex items-center gap-2 text-xs">
+                <Building className="h-3.5 w-3.5 text-muted-foreground" />
+                <span>{data.exchange}</span>
+              </div>
+            )}
+            
+            {data.symbol && (
+              <div className="flex items-center gap-2 text-xs font-medium">
+                <span>{data.symbol}</span>
+              </div>
+            )}
+          </div>
+        )}
+        
+        {data.indicators && data.indicators.length > 0 && (
+          <div className="border-t border-border pt-2 mt-2">
+            <div className="flex items-center gap-2 text-xs mb-1">
+              <BarChart className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="font-medium">Indicators</span>
+            </div>
+            <div className="flex flex-wrap gap-1 mt-1">
+              {data.indicators.map((indicator, index) => (
+                <span
+                  key={index}
+                  className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-primary/10 text-primary-foreground"
+                >
+                  {indicator}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
       
       <Handle
