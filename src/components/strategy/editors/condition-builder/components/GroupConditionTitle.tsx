@@ -1,0 +1,69 @@
+
+import React from 'react';
+import { Group } from 'lucide-react';
+import { GroupCondition } from '../../../utils/conditionTypes';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Trash2 } from 'lucide-react';
+
+interface GroupConditionTitleProps {
+  rootCondition: GroupCondition;
+  level: number;
+  allowRemove: boolean;
+  updateGroupLogic: (value: string) => void;
+  removeGroup: () => void;
+}
+
+const GroupConditionTitle: React.FC<GroupConditionTitleProps> = ({
+  rootCondition,
+  level,
+  allowRemove,
+  updateGroupLogic,
+  removeGroup,
+}) => {
+  return (
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        {level > 0 && (
+          <Group className="h-4 w-4 text-muted-foreground" />
+        )}
+        <Select
+          value={rootCondition.groupLogic}
+          onValueChange={updateGroupLogic}
+        >
+          <SelectTrigger className="w-24 h-8">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="AND">AND</SelectItem>
+            <SelectItem value="OR">OR</SelectItem>
+          </SelectContent>
+        </Select>
+        <span className="text-xs text-muted-foreground">
+          Group with {rootCondition.conditions.length} condition(s)
+        </span>
+      </div>
+
+      <div className="flex items-center gap-1">
+        {allowRemove && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={removeGroup}
+            className="h-8 w-8 p-0"
+          >
+            <Trash2 className="h-4 w-4 text-destructive" />
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default GroupConditionTitle;
