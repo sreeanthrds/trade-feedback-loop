@@ -1,54 +1,46 @@
 
-/* Resizable panels */
-.strategy-flow-container .react-resizable-panels-handle {
-  background-color: hsl(var(--primary) / 0.2);
-  position: relative;
-  cursor: col-resize;
-  width: 12px !important; /* Increased width for easier grabbing */
+/* Resizable panels - custom styling for the strategy flow */
+.strategy-flow-container [data-panel-resize-handle-id] {
+  touch-action: none !important;
+  user-select: none !important;
+  z-index: 50 !important;
+}
+
+.strategy-flow-container #config-panel-handle {
+  width: 8px !important;
+  cursor: col-resize !important;
+}
+
+.strategy-flow-container #config-panel-handle > div {
+  width: 6px;
+  height: 40px;
+  background-color: hsl(var(--primary) / 0.1);
   transition: background-color 0.2s ease;
 }
 
-.strategy-flow-container .react-resizable-panels-handle:hover,
-.strategy-flow-container .react-resizable-panels-handle:active {
-  background-color: hsl(var(--primary) / 0.4);
+.strategy-flow-container #config-panel-handle:hover > div {
+  background-color: hsl(var(--primary) / 0.3);
 }
 
-.strategy-flow-container .react-resizable-panels-handle::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 4px;
-  height: 50px; /* Increased height for better visibility */
+.strategy-flow-container #config-panel-handle:active > div {
   background-color: hsl(var(--primary) / 0.5);
-  border-radius: 2px;
 }
 
-.strategy-flow-container .react-resizable-panels-handle:hover::before,
-.strategy-flow-container .react-resizable-panels-handle:active::before {
-  background-color: hsl(var(--primary) / 0.8);
-}
-
-/* Make handle always visible and draggable */
-.strategy-flow-container [data-panel-resize-handle-id] {
-  cursor: col-resize !important;
-  touch-action: none !important;
-  z-index: 40 !important; /* Higher z-index to ensure it's above other elements */
-  user-select: none !important;
-}
-
-/* Add visual indication for active resizing */
-.strategy-flow-container .react-resizable-panels-handle[data-resize-active="true"] {
-  background-color: hsl(var(--primary) / 0.5) !important;
-}
-
-.strategy-flow-container .react-resizable-panels-handle[data-resize-active="true"]::before {
-  background-color: hsl(var(--primary)) !important;
-}
-
-/* Force the handle to be visible even if some overlay is present */
-.strategy-flow-container .react-resizable-panels-panel {
+/* Ensure the handle always takes precedence */
+.strategy-flow-container #config-panel-handle {
   position: relative;
-  z-index: 0;
+  z-index: 999;
+  pointer-events: auto !important;
+}
+
+/* Override any potential blocking elements */
+.strategy-flow-container .react-flow__pane {
+  z-index: auto !important;
+}
+
+/* Ensure panels don't cover the handle */
+.strategy-flow-container [data-panel-id="content-panel"],
+.strategy-flow-container [data-panel-id="config-panel"] {
+  position: relative;
+  z-index: 1;
 }

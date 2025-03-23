@@ -53,13 +53,14 @@ const FlowLayout: React.FC<FlowLayoutProps> = ({
           <>
             <ResizableHandle 
               withHandle
-              className="config-panel-handle"
+              id="config-panel-handle"
+              className="bg-primary/10 hover:bg-primary/20 active:bg-primary/30"
             />
             <ResizablePanel 
               defaultSize={29} 
               minSize={20} 
               maxSize={45} 
-              className="overflow-y-auto"
+              className="overflow-y-auto border-l border-border"
               id="config-panel"
             >
               {nodePanelComponent}
