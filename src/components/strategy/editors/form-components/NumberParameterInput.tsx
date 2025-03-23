@@ -1,0 +1,55 @@
+
+import React from 'react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { HelpCircle } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { IndicatorParameter } from '../../utils/indicatorConfig';
+
+interface NumberParameterInputProps {
+  param: IndicatorParameter;
+  value: number;
+  onChange: (value: number) => void;
+}
+
+const NumberParameterInput: React.FC<NumberParameterInputProps> = ({
+  param,
+  value,
+  onChange
+}) => {
+  return (
+    <div className="space-y-2" key={param.name}>
+      <div className="flex items-center gap-2">
+        <Label htmlFor={`param-${param.name}`} className="text-sm">
+          {param.label}
+        </Label>
+        {param.description && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="max-w-xs text-xs">{param.description}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+      </div>
+      <Input
+        id={`param-${param.name}`}
+        type="number"
+        value={value}
+        onChange={(e) => onChange(parseFloat(e.target.value))}
+        className="h-8"
+      />
+    </div>
+  );
+};
+
+export default NumberParameterInput;
