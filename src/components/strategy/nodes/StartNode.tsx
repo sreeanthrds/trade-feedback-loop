@@ -1,4 +1,3 @@
-
 import React, { memo } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import { Play, Calendar, Building, BarChart } from 'lucide-react';
@@ -26,10 +25,8 @@ const StartNode = ({ data }: StartNodeProps) => {
     if (data.indicatorParameters[key]) {
       const params = data.indicatorParameters[key];
       
-      // Format all parameters into a single, readable string
-      const paramList = Object.entries(params)
-        .map(([paramName, value]) => `${paramName.includes('period') ? '' : paramName + ':'}${value}`)
-        .join(',');
+      // Format all parameters into a single, readable string - only values
+      const paramList = Object.values(params).join(',');
       
       return `${baseName}(${paramList})`;
     }

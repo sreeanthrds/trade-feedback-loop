@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { 
   Expression, 
@@ -32,12 +31,9 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
 
   const indicatorExpr = expression as IndicatorExpression;
   
-  // Get available indicators from the start node
   useEffect(() => {
-    // Find the start node
     const startNode = strategyStore.nodes.find(node => node.type === 'startNode');
     if (startNode && startNode.data.indicatorParameters) {
-      // Get the keys from the indicatorParameters object
       const indicators = Object.keys(startNode.data.indicatorParameters || {});
       setAvailableIndicators(indicators);
     } else {
@@ -45,16 +41,14 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
     }
   }, [strategyStore.nodes]);
   
-  // Update the indicator name
   const updateIndicatorName = (value: string) => {
     updateExpression({
       ...indicatorExpr,
       name: value,
-      parameter: undefined // Clear parameter when changing indicator
+      parameter: undefined
     });
   };
   
-  // Update indicator parameter (for multi-output indicators)
   const updateParameter = (value: string) => {
     updateExpression({
       ...indicatorExpr,
@@ -62,13 +56,9 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
     });
   };
   
-  // Check if the selected indicator has multiple outputs
   const hasMultipleOutputs = (indicator: string): boolean => {
     if (!indicator) return false;
-    // Extract base indicator name (before any underscore or numeric suffix)
     const baseIndicator = indicator.split('_')[0];
-    
-    // Known indicators with multiple outputs
     const multiOutputIndicators = [
       'BollingerBands',
       'MACD',
@@ -76,18 +66,14 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
       'ADX',
       'Ichimoku'
     ];
-    
     return multiOutputIndicators.includes(baseIndicator);
   };
 
-  // Get parameter options for the selected indicator
   const getParameterOptions = (indicator: string): string[] => {
     if (!indicator) return [];
     
-    // Extract base indicator name
     const baseIndicator = indicator.split('_')[0];
     
-    // Output parameters for different indicators
     const outputParameters: Record<string, string[]> = {
       'BollingerBands': ['UpperBand', 'MiddleBand', 'LowerBand'],
       'MACD': ['MACD', 'Signal', 'Histogram'],
@@ -99,23 +85,16 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
     return outputParameters[baseIndicator] || [];
   };
   
-  // Helper to get display name for an indicator
   const getIndicatorDisplayName = (key: string) => {
-    // Find the start node
     const startNode = strategyStore.nodes.find(node => node.type === 'startNode');
     if (!startNode || !startNode.data.indicatorParameters) return key;
     
-    // Extract base indicator name (before any underscore)
     const baseName = key.split('_')[0];
     
-    // If we have parameters for this indicator
     if (startNode.data.indicatorParameters[key]) {
       const params = startNode.data.indicatorParameters[key];
       
-      // Format parameter string by joining all parameters
-      const paramList = Object.entries(params)
-        .map(([paramName, value]) => `${paramName.includes('period') ? '' : paramName + ':'}${value}`)
-        .join(',');
+      const paramList = Object.values(params).join(',');
       
       return `${baseName} (${paramList})`;
     }

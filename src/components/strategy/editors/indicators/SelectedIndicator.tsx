@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { X, ChevronDown, ChevronUp } from 'lucide-react';
@@ -27,9 +26,8 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
     const baseName = name.split('_')[0];
     
     if (values && baseName in indicatorConfig) {
-      const paramList = Object.entries(values)
-        .map(([paramName, value]) => `${paramName.includes('period') ? '' : paramName + ':'}${value}`)
-        .join(',');
+      // Just join all parameter values with commas, no parameter names
+      const paramList = Object.values(values).join(',');
       
       return `${baseName} (${paramList})`;
     }
