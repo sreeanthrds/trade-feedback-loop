@@ -6,7 +6,6 @@ import {
   ResizableHandle 
 } from '@/components/ui/resizable';
 import NodeSidebar from '../NodeSidebar';
-import NodePanel from '../NodePanel';
 import { Node } from '@xyflow/react';
 
 interface FlowLayoutProps {
@@ -16,6 +15,7 @@ interface FlowLayoutProps {
   onAddNode: (type: string) => void;
   updateNodeData: (id: string, data: any) => void;
   onClosePanel: () => void;
+  nodePanelComponent?: React.ReactNode;
 }
 
 const FlowLayout: React.FC<FlowLayoutProps> = ({
@@ -24,7 +24,8 @@ const FlowLayout: React.FC<FlowLayoutProps> = ({
   selectedNode,
   onAddNode,
   updateNodeData,
-  onClosePanel
+  onClosePanel,
+  nodePanelComponent
 }) => {
   return (
     <div className="strategy-flow-container h-full">
@@ -41,11 +42,7 @@ const FlowLayout: React.FC<FlowLayoutProps> = ({
         
         {isPanelOpen && selectedNode && (
           <ResizablePanel defaultSize={20} minSize={20} maxSize={35}>
-            <NodePanel 
-              node={selectedNode} 
-              updateNodeData={updateNodeData} 
-              onClose={onClosePanel} 
-            />
+            {nodePanelComponent}
           </ResizablePanel>
         )}
       </ResizablePanelGroup>

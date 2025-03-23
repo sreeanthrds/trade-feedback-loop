@@ -1,5 +1,5 @@
 
-import React, { useCallback } from 'react';
+import React, { useCallback, lazy, Suspense } from 'react';
 import { ReactFlowProvider, useReactFlow } from '@xyflow/react';
 import { useTheme } from '@/hooks/use-theme';
 import { initialNodes } from './utils/flowUtils';
@@ -15,6 +15,9 @@ import FlowLayout from './layout/FlowLayout';
 import ReactFlowCanvas from './ReactFlowCanvas';
 import '@xyflow/react/dist/style.css';
 import './StrategyFlow.css';
+
+// Lazy load the NodePanel component
+const NodePanel = lazy(() => import('./NodePanel'));
 
 const StrategyFlowContent = () => {
   const { theme, setTheme } = useTheme();
@@ -73,6 +76,17 @@ const StrategyFlowContent = () => {
 
   const handleImportSuccess = createImportSuccessHandler(reactFlowInstance);
 
+  // Create a NodePanel component that uses Suspense
+  const LazyNodePanel = isPanelOpen && selectedNode ? (
+    <Suspense fallback={<div className="p-4">Loading panel...</div>}>
+      <NodePanel
+        node={selectedNode}
+        updateNodeData={updateNodeData}
+        onClose={closePanel}
+      />
+    </Suspense>
+  ) : null;
+
   return (
     <FlowLayout
       isPanelOpen={isPanelOpen}
@@ -80,6 +94,7 @@ const StrategyFlowContent = () => {
       onAddNode={handleAddNode}
       updateNodeData={updateNodeData}
       onClosePanel={closePanel}
+      nodePanelComponent={LazyNodePanel}
     >
       <ReactFlowCanvas
         flowRef={reactFlowWrapper}
