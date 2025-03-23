@@ -1,0 +1,62 @@
+
+/* Node styling */
+.react-flow__node {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  min-width: 180px;
+  font-size: 12px;
+  transition: box-shadow 0.2s;
+}
+
+.react-flow__node.selected {
+  box-shadow: 0 0 0 2px hsl(var(--primary) / 0.8);
+}
+
+/* Node type specific styles */
+.react-flow__node-startNode {
+  background-color: rgba(76, 175, 80, 0.1);
+  border: 1px solid #4CAF50;
+}
+
+.react-flow__node-signalNode {
+  background-color: rgba(33, 150, 243, 0.1);
+  border: 1px solid #2196F3;
+}
+
+.react-flow__node-actionNode {
+  background-color: rgba(255, 152, 0, 0.1);
+  border: 1px solid #FF9800;
+}
+
+.react-flow__node-endNode {
+  background-color: rgba(244, 67, 54, 0.1);
+  border: 1px solid #F44336;
+}
+
+.react-flow__node-forceEndNode {
+  background-color: rgba(156, 39, 176, 0.1);
+  border: 1px solid #9C27B0;
+}
+
+/* Node Controls */
+.node-controls {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  z-index: 10;
+}
+
+/* Group hover for elements inside nodes */
+.group:hover .opacity-0 {
+  opacity: 1;
+}
+
+/* Node Connect Controls */
+.group .dropdown-trigger {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.group:hover .dropdown-trigger {
+  opacity: 1;
+}

@@ -1,0 +1,26 @@
+
+/* Resizable panels */
+.strategy-flow-container .react-resizable-panels-handle {
+  background-color: hsl(var(--border));
+  position: relative;
+  cursor: col-resize;
+  width: 5px !important;
+}
+
+.strategy-flow-container .react-resizable-panels-handle:hover::before,
+.strategy-flow-container .react-resizable-panels-handle:active::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 4px;
+  height: 24px;
+  background-color: hsl(var(--primary) / 0.5);
+  border-radius: 2px;
+}
+
+/* Make sure handle is visible and draggable */
+.strategy-flow-container [data-panel-resize-handle-id] {
+  cursor: col-resize !important;
+}

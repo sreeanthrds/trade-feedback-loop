@@ -1,0 +1,33 @@
+
+/* Controls styling */
+.react-flow__controls {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Minimap styling */
+.react-flow__minimap {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark mode adjustments */
+.dark .react-flow__node {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.dark .react-flow__controls {
+  background-color: hsl(var(--card));
+}
+
+.dark .react-flow__controls-button {
+  border-color: hsl(var(--border));
+  background-color: hsl(var(--card));
+  fill: hsl(var(--foreground));
+}
+
+.dark .react-flow__minimap {
+  background-color: hsl(var(--card));
+}

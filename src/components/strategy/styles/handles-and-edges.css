@@ -1,0 +1,37 @@
+
+/* Handle styling */
+.react-flow__handle {
+  width: 8px;
+  height: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+.react-flow__handle-top {
+  top: -4px;
+}
+
+.react-flow__handle-bottom {
+  bottom: -4px;
+}
+
+/* Edge styling */
+.react-flow__edge-path {
+  stroke-width: 2;
+}
+
+.react-flow__edge.animated path {
+  stroke-dasharray: 5;
+  animation: dashdraw 0.5s linear infinite;
+}
+
+@keyframes dashdraw {
+  from {
+    stroke-dashoffset: 10;
+  }
+}
+
+/* Edge Controls */
+.edge-controls {
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
