@@ -17,10 +17,18 @@ const TradingInstrumentSelector: React.FC<TradingInstrumentSelectorProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
+  // Initialize value with default properties if not provided
+  const safeValue: TradingInstrumentData = {
+    tradingType: value?.tradingType || '',
+    underlying: value?.underlying,
+    symbol: value?.symbol,
+    isLoading: value?.isLoading || false
+  };
+
   // Simulate loading when trading type or underlying changes
   useEffect(() => {
-    if (value.tradingType === '' || 
-        (value.tradingType === 'options' && !value.underlying)) {
+    if (safeValue.tradingType === '' || 
+        (safeValue.tradingType === 'options' && !safeValue.underlying)) {
       return;
     }
     
@@ -32,7 +40,7 @@ const TradingInstrumentSelector: React.FC<TradingInstrumentSelectorProps> = ({
     }, 1000);
     
     return () => clearTimeout(timer);
-  }, [value.tradingType, value.underlying]);
+  }, [safeValue.tradingType, safeValue.underlying]);
 
   const handleTradingTypeChange = (tradingType: 'stock' | 'futures' | 'options') => {
     // Reset relevant fields when trading type changes
@@ -55,7 +63,7 @@ const TradingInstrumentSelector: React.FC<TradingInstrumentSelectorProps> = ({
 
   const handleUnderlyingChange = (underlying: 'index' | 'indexFuture' | 'stock') => {
     onChange({
-      ...value,
+      ...safeValue,
       underlying,
       symbol: undefined, // Reset symbol when underlying changes
       isLoading: true
@@ -64,35 +72,35 @@ const TradingInstrumentSelector: React.FC<TradingInstrumentSelectorProps> = ({
 
   const handleSymbolChange = (symbol: string) => {
     onChange({
-      ...value,
+      ...safeValue,
       symbol,
       isLoading: false
     });
   };
 
   // Get the appropriate symbols list based on current selection
-  const symbolsList = getSymbolList(value) || [];
+  const symbolsList = getSymbolList(safeValue);
 
   return (
     <div className="space-y-4">
       <TradingTypeSelector 
-        value={value.tradingType} 
+        value={safeValue.tradingType} 
         onChange={handleTradingTypeChange} 
       />
 
       {/* Show underlying selection only for Options */}
-      {value.tradingType === 'options' && (
+      {safeValue.tradingType === 'options' && (
         <UnderlyingTypeSelector 
-          value={value.underlying || ''} 
+          value={safeValue.underlying || ''} 
           onChange={handleUnderlyingChange} 
         />
       )}
 
       {/* Show symbol selection when appropriate */}
-      {((value.tradingType === 'stock' || value.tradingType === 'futures') || 
-        (value.tradingType === 'options' && value.underlying)) && (
+      {((safeValue.tradingType === 'stock' || safeValue.tradingType === 'futures') || 
+        (safeValue.tradingType === 'options' && safeValue.underlying)) && (
           <SymbolSelector 
-            value={value.symbol} 
+            value={safeValue.symbol} 
             symbols={symbolsList}
             onChange={handleSymbolChange}
             isLoading={isLoading}

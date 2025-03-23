@@ -8,18 +8,24 @@ export const getSymbolList = (instrumentData: TradingInstrumentData): Instrument
     return [];
   }
 
+  // Make sure our mock data lists are arrays
+  const stocks = Array.isArray(stocksList) ? stocksList : [];
+  const indices = Array.isArray(indexList) ? indexList : [];
+  const indexFutures = Array.isArray(indexFuturesList) ? indexFuturesList : [];
+  const fnoStocks = Array.isArray(fnoStocksList) ? fnoStocksList : [];
+
   if (instrumentData.tradingType === 'stock') {
-    return stocksList || [];
+    return stocks;
   } else if (instrumentData.tradingType === 'futures') {
-    return indexFuturesList || [];
+    return indexFutures;
   } else if (instrumentData.tradingType === 'options') {
     switch (instrumentData.underlying) {
       case 'index':
-        return indexList || [];
+        return indices;
       case 'indexFuture':
-        return indexFuturesList || [];
+        return indexFutures;
       case 'stock':
-        return fnoStocksList || [];
+        return fnoStocks;
       default:
         return [];
     }

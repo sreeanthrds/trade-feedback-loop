@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import {
   Command,
@@ -37,12 +37,14 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
   // Ensure symbols is always an array
   const safeSymbols = Array.isArray(symbols) ? symbols : [];
 
-  // Filter symbols based on search input
-  const filteredSymbols = safeSymbols.filter(
-    item => 
-      item.symbol.toLowerCase().includes(searchValue.toLowerCase()) ||
-      item.name.toLowerCase().includes(searchValue.toLowerCase())
-  );
+  // Filter symbols based on search input, but only if we have a search value
+  const filteredSymbols = searchValue
+    ? safeSymbols.filter(
+        item => 
+          item.symbol.toLowerCase().includes(searchValue.toLowerCase()) ||
+          item.name.toLowerCase().includes(searchValue.toLowerCase())
+      )
+    : safeSymbols;
 
   const handleSymbolSelect = (symbol: string) => {
     onChange(symbol);
@@ -76,46 +78,44 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
           </button>
         </PopoverTrigger>
         <PopoverContent className="w-full p-0" align="start">
-          <Command>
-            <CommandInput 
-              placeholder="Search for a symbol..." 
-              value={searchValue}
-              onValueChange={setSearchValue}
-            />
-            {isLoading ? (
-              <div className="py-6 px-2">
-                <Skeleton className="h-8 w-full mb-2" />
-                <Skeleton className="h-8 w-full mb-2" />
-                <Skeleton className="h-8 w-full" />
-              </div>
-            ) : (
-              <>
-                <CommandEmpty>No symbol found.</CommandEmpty>
-                {filteredSymbols && filteredSymbols.length > 0 ? (
-                  <CommandGroup>
-                    {filteredSymbols.map((item) => (
-                      <CommandItem
-                        key={item.symbol}
-                        value={item.symbol}
-                        onSelect={() => handleSymbolSelect(item.symbol)}
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            value === item.symbol ? "opacity-100" : "opacity-0"
-                          )}
-                        />
-                        <span className="font-medium">{item.symbol}</span>
-                        <span className="ml-2 text-muted-foreground text-xs">{item.name}</span>
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
+          {isLoading ? (
+            <div className="py-6 px-2">
+              <Skeleton className="h-8 w-full mb-2" />
+              <Skeleton className="h-8 w-full mb-2" />
+              <Skeleton className="h-8 w-full" />
+            </div>
+          ) : (
+            <Command>
+              <CommandInput 
+                placeholder="Search for a symbol..." 
+                value={searchValue}
+                onValueChange={setSearchValue}
+              />
+              <CommandEmpty>No symbol found.</CommandEmpty>
+              <CommandGroup>
+                {filteredSymbols.length > 0 ? (
+                  filteredSymbols.map((item) => (
+                    <CommandItem
+                      key={item.symbol}
+                      value={item.symbol}
+                      onSelect={() => handleSymbolSelect(item.symbol)}
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          value === item.symbol ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      <span className="font-medium">{item.symbol}</span>
+                      <span className="ml-2 text-muted-foreground text-xs">{item.name}</span>
+                    </CommandItem>
+                  ))
                 ) : (
                   <div className="py-6 text-center text-sm">No items to display</div>
                 )}
-              </>
-            )}
-          </Command>
+              </CommandGroup>
+            </Command>
+          )}
         </PopoverContent>
       </Popover>
     </div>
