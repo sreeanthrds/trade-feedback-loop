@@ -13,20 +13,23 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { Check, ChevronsUpDown } from 'lucide-react';
+import { Check, ChevronsUpDown, Loader } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { InstrumentSymbol } from './types';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface SymbolSelectorProps {
   value: string | undefined;
   symbols: InstrumentSymbol[];
   onChange: (symbol: string) => void;
+  isLoading?: boolean;
 }
 
 const SymbolSelector: React.FC<SymbolSelectorProps> = ({
   value,
   symbols,
-  onChange
+  onChange,
+  isLoading = false
 }) => {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
@@ -58,7 +61,12 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
               !value && "text-muted-foreground"
             )}
           >
-            {value ? 
+            {isLoading ? (
+              <div className="flex items-center">
+                <Loader className="h-4 w-4 mr-2 animate-spin" />
+                <span>Loading symbols...</span>
+              </div>
+            ) : value ? 
               selectedSymbol?.symbol || value :
               "Search for a symbol..."}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -71,28 +79,38 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
               value={searchValue}
               onValueChange={setSearchValue}
             />
-            <CommandEmpty>No symbol found.</CommandEmpty>
-            {filteredSymbols && filteredSymbols.length > 0 ? (
-              <CommandGroup>
-                {filteredSymbols.map((item) => (
-                  <CommandItem
-                    key={item.symbol}
-                    value={item.symbol}
-                    onSelect={() => handleSymbolSelect(item.symbol)}
-                  >
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        value === item.symbol ? "opacity-100" : "opacity-0"
-                      )}
-                    />
-                    <span className="font-medium">{item.symbol}</span>
-                    <span className="ml-2 text-muted-foreground text-xs">{item.name}</span>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
+            {isLoading ? (
+              <div className="py-6 px-2">
+                <Skeleton className="h-8 w-full mb-2" />
+                <Skeleton className="h-8 w-full mb-2" />
+                <Skeleton className="h-8 w-full" />
+              </div>
             ) : (
-              <div className="py-6 text-center text-sm">No items to display</div>
+              <>
+                <CommandEmpty>No symbol found.</CommandEmpty>
+                {filteredSymbols && filteredSymbols.length > 0 ? (
+                  <CommandGroup>
+                    {filteredSymbols.map((item) => (
+                      <CommandItem
+                        key={item.symbol}
+                        value={item.symbol}
+                        onSelect={() => handleSymbolSelect(item.symbol)}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            value === item.symbol ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        <span className="font-medium">{item.symbol}</span>
+                        <span className="ml-2 text-muted-foreground text-xs">{item.name}</span>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                ) : (
+                  <div className="py-6 text-center text-sm">No items to display</div>
+                )}
+              </>
             )}
           </Command>
         </PopoverContent>

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import TradingTypeSelector from './trading-instrument/TradingTypeSelector';
 import UnderlyingTypeSelector from './trading-instrument/UnderlyingTypeSelector';
 import SymbolSelector from './trading-instrument/SymbolSelector';
@@ -15,11 +15,31 @@ const TradingInstrumentSelector: React.FC<TradingInstrumentSelectorProps> = ({
   value,
   onChange
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Simulate loading when trading type or underlying changes
+  useEffect(() => {
+    if (value.tradingType === '' || 
+        (value.tradingType === 'options' && !value.underlying)) {
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    // Simulate API request delay
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, [value.tradingType, value.underlying]);
+
   const handleTradingTypeChange = (tradingType: 'stock' | 'futures' | 'options') => {
     // Reset relevant fields when trading type changes
     const newData: TradingInstrumentData = {
       tradingType,
-      symbol: undefined
+      symbol: undefined,
+      isLoading: true
     };
     
     // If options selected, set underlying but no symbol yet
@@ -37,14 +57,16 @@ const TradingInstrumentSelector: React.FC<TradingInstrumentSelectorProps> = ({
     onChange({
       ...value,
       underlying,
-      symbol: undefined // Reset symbol when underlying changes
+      symbol: undefined, // Reset symbol when underlying changes
+      isLoading: true
     });
   };
 
   const handleSymbolChange = (symbol: string) => {
     onChange({
       ...value,
-      symbol
+      symbol,
+      isLoading: false
     });
   };
 
@@ -68,12 +90,12 @@ const TradingInstrumentSelector: React.FC<TradingInstrumentSelectorProps> = ({
 
       {/* Show symbol selection when appropriate */}
       {((value.tradingType === 'stock' || value.tradingType === 'futures') || 
-        (value.tradingType === 'options' && value.underlying)) && 
-        symbolsList.length > 0 && (
+        (value.tradingType === 'options' && value.underlying)) && (
           <SymbolSelector 
             value={value.symbol} 
             symbols={symbolsList}
-            onChange={handleSymbolChange} 
+            onChange={handleSymbolChange}
+            isLoading={isLoading}
           />
       )}
     </div>
