@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import { Handle, Position } from '@xyflow/react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -57,7 +56,7 @@ const NodeConnectControls: React.FC<NodeConnectControlsProps> = ({ showOn, onAdd
         </DropdownMenuTrigger>
         <DropdownMenuContent 
           align="end" 
-          className="w-48 bg-popover shadow-lg z-[9999]"
+          className="w-48 bg-background border border-border shadow-lg"
           sideOffset={10}
           forceMount
         >

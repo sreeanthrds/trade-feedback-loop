@@ -16,33 +16,33 @@ export const createNodeTypes = (
 ): NodeTypes => {
   return {
     startNode: (nodeProps) => (
-      <div className="group">
+      <div className="group relative">
         <StartNode {...nodeProps} />
-        <NodeConnectControls showOn="start" onAddNode={onAddNode} />
+        <NodeConnectControls showOn="start" onAddNode={(type) => onAddNode(type)} />
       </div>
     ),
     signalNode: (nodeProps) => (
-      <div className="group">
+      <div className="group relative">
         <SignalNode {...nodeProps} />
         <NodeControls node={nodeProps} onDelete={onDeleteNode} />
-        <NodeConnectControls showOn="signal" onAddNode={onAddNode} />
+        <NodeConnectControls showOn="signal" onAddNode={(type) => onAddNode(type)} />
       </div>
     ),
     actionNode: (nodeProps) => (
-      <div className="group">
+      <div className="group relative">
         <ActionNode {...nodeProps} />
         <NodeControls node={nodeProps} onDelete={onDeleteNode} />
-        <NodeConnectControls showOn="action" onAddNode={onAddNode} />
+        <NodeConnectControls showOn="action" onAddNode={(type) => onAddNode(type)} />
       </div>
     ),
     endNode: (nodeProps) => (
-      <div className="group">
+      <div className="group relative">
         <EndNode {...nodeProps} />
         <NodeControls node={nodeProps} onDelete={onDeleteNode} />
       </div>
     ),
     forceEndNode: (nodeProps) => (
-      <div className="group">
+      <div className="group relative">
         <ForceEndNode {...nodeProps} />
         <NodeControls node={nodeProps} onDelete={onDeleteNode} />
       </div>

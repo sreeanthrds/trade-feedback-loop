@@ -204,3 +204,33 @@
 [data-radix-popper-content-wrapper] {
   z-index: 9999 !important;
 }
+
+/* Ensure dropdown content has a background and is visible */
+.dropdown-menu-content {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 9999 !important;
+}
+
+/* Position the dropdown properly */
+.react-flow__node .group {
+  position: relative;
+}
+
+/* Make dropdown menu items clearly visible */
+.dropdown-menu-item {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dropdown-menu-item:hover {
+  background-color: var(--accent);
+}
+
+/* Fixed z-index for all radix portals */
+div[data-radix-popper-content-wrapper] {
+  z-index: 9999 !important;
+}
