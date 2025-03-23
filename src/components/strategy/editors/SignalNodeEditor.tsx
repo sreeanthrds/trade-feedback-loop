@@ -25,28 +25,18 @@ interface NodeData {
 }
 
 const SignalNodeEditor = ({ node, updateNodeData }: SignalNodeEditorProps) => {
-  // Ensure node.data exists and has the right shape
-  const nodeData: NodeData = node.data || {};
+  const nodeData = node.data as NodeData | undefined;
 
-  // Initialize conditions with a valid default if it doesn't exist
-  const defaultCondition: GroupCondition = {
-    id: 'root',
-    groupLogic: 'AND',
-    conditions: []
-  };
-
-  // Initialize with either the existing conditions or a default
+  // Initialize complex conditions data structure if it doesn't exist
   const [conditions, setConditions] = useState<GroupCondition[]>(
-    nodeData.conditions && nodeData.conditions.length > 0 
-      ? nodeData.conditions 
-      : [defaultCondition]
+    nodeData?.conditions || [
+      {
+        id: 'root',
+        groupLogic: 'AND',
+        conditions: []
+      }
+    ]
   );
-
-  // Log for debugging
-  useEffect(() => {
-    console.log('SignalNodeEditor - node:', node);
-    console.log('SignalNodeEditor - conditions:', conditions);
-  }, [node, conditions]);
 
   // Update node data when conditions change (with delay to prevent loops)
   useEffect(() => {
@@ -58,13 +48,10 @@ const SignalNodeEditor = ({ node, updateNodeData }: SignalNodeEditorProps) => {
     }, 300);
     
     return () => clearTimeout(timer);
-  }, [conditions, node.id, updateNodeData, nodeData]);
+  }, [conditions]);
 
   const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    updateNodeData(node.id, { 
-      ...nodeData,
-      label: e.target.value 
-    });
+    updateNodeData(node.id, { label: e.target.value });
   };
 
   // Advanced condition handlers
@@ -103,18 +90,12 @@ const SignalNodeEditor = ({ node, updateNodeData }: SignalNodeEditorProps) => {
           </TooltipProvider>
         </div>
         
-        {conditions && conditions[0] ? (
-          <ConditionBuilder 
-            rootCondition={conditions[0]} 
-            updateConditions={(updatedRoot) => {
-              updateConditions([updatedRoot]);
-            }}
-          />
-        ) : (
-          <div className="text-sm text-muted-foreground">
-            Loading conditions...
-          </div>
-        )}
+        <ConditionBuilder 
+          rootCondition={conditions[0]} 
+          updateConditions={(updatedRoot) => {
+            updateConditions([updatedRoot]);
+          }}
+        />
       </div>
       
       <div className="bg-muted/40 rounded-md p-4">

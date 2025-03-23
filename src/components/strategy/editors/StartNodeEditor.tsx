@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Node } from '@xyflow/react';
 import { Input } from '@/components/ui/input';
@@ -7,8 +8,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import IndicatorSelector from './IndicatorSelector';
 import { timeframeOptions, exchangeOptions } from '../utils/indicatorConfig';
-import TradingInstrumentSelector from './form-components/TradingInstrumentSelector';
-import { TradingInstrumentData } from './form-components/trading-instrument/types';
+import TradingInstrumentSelector, { TradingInstrumentData } from './form-components/TradingInstrumentSelector';
 
 interface StartNodeEditorProps {
   node: Node;
@@ -38,6 +38,7 @@ const StartNodeEditor = ({ node, updateNodeData }: StartNodeEditorProps) => {
     tradingInstrument: nodeData?.tradingInstrument || { tradingType: '' }
   });
   
+  // Load initial data from node - run only once when node changes
   useEffect(() => {
     setFormData({
       label: nodeData?.label || 'Start',
@@ -48,8 +49,9 @@ const StartNodeEditor = ({ node, updateNodeData }: StartNodeEditorProps) => {
       indicatorParameters: nodeData?.indicatorParameters || {},
       tradingInstrument: nodeData?.tradingInstrument || { tradingType: '' }
     });
-  }, [node.id]);
+  }, [node.id]); // Only when node.id changes, not when nodeData changes
   
+  // Update node data when form data changes, but avoid infinite loops
   const handleFormSubmit = () => {
     updateNodeData(node.id, formData);
   };
@@ -60,6 +62,7 @@ const StartNodeEditor = ({ node, updateNodeData }: StartNodeEditorProps) => {
       [field]: value
     }));
     
+    // Use a timeout to avoid multiple rapid updates
     setTimeout(() => {
       updateNodeData(node.id, {
         ...formData,
@@ -72,11 +75,13 @@ const StartNodeEditor = ({ node, updateNodeData }: StartNodeEditorProps) => {
     const updatedFormData = {
       ...formData,
       tradingInstrument,
+      // Also update the symbol field for backwards compatibility
       symbol: tradingInstrument.symbol || ''
     };
     
     setFormData(updatedFormData);
     
+    // Use a timeout to avoid multiple rapid updates
     setTimeout(() => {
       updateNodeData(node.id, updatedFormData);
     }, 100);
@@ -91,6 +96,7 @@ const StartNodeEditor = ({ node, updateNodeData }: StartNodeEditorProps) => {
     
     setFormData(updatedFormData);
     
+    // Use a timeout to avoid multiple rapid updates
     setTimeout(() => {
       updateNodeData(node.id, updatedFormData);
     }, 100);

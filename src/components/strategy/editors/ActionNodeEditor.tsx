@@ -27,24 +27,15 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
   const nodeData = node.data as NodeData | undefined;
   
   const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    updateNodeData(node.id, { 
-      ...nodeData,
-      label: e.target.value 
-    });
+    updateNodeData(node.id, { label: e.target.value });
   };
 
   const handleActionChange = (value: string) => {
-    updateNodeData(node.id, { 
-      ...nodeData,
-      action: value 
-    });
+    updateNodeData(node.id, { action: value });
   };
 
   const handleInstrumentChange = (value: string) => {
-    updateNodeData(node.id, { 
-      ...nodeData,
-      instrument: value 
-    });
+    updateNodeData(node.id, { instrument: value });
   };
 
   return (

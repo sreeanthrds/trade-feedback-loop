@@ -1,7 +1,8 @@
+
 import React, { memo } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import { Play, Calendar, Building, BarChart, TrendingUp } from 'lucide-react';
-import { TradingInstrumentData } from '../editors/form-components/trading-instrument/types';
+import { TradingInstrumentData } from '../editors/form-components/TradingInstrumentSelector';
 
 interface StartNodeProps {
   data: {
