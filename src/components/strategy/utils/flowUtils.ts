@@ -1,4 +1,5 @@
-import { Node, Edge, Connection, ReactFlowInstance, Position, XYPosition } from '@xyflow/react';
+
+import { Node, Edge, Connection, ReactFlowInstance } from '@xyflow/react';
 import { toast } from 'sonner';
 
 export const initialNodes: Node[] = [
@@ -16,11 +17,10 @@ export const addNode = (
   reactFlowWrapper: React.RefObject<HTMLDivElement>,
   nodes: Node[]
 ): Node => {
-  const position = findOptimalPosition(
-    nodes,
-    reactFlowInstance,
-    reactFlowWrapper
-  );
+  const position = reactFlowInstance.screenToFlowPosition({
+    x: (reactFlowWrapper.current?.clientWidth || 800) / 2,
+    y: (reactFlowWrapper.current?.clientHeight || 600) / 2,
+  });
   
   return {
     id: `${type}-${Date.now()}`,
@@ -38,118 +38,6 @@ export const addNode = (
               : 'Action'
     }
   };
-};
-
-export const addNodeFromConnection = (
-  sourceNodeId: string,
-  nodeType: string,
-  reactFlowInstance: ReactFlowInstance,
-  nodes: Node[],
-  edges: Edge[]
-): { newNode: Node, newEdge: Edge } => {
-  const sourceNode = nodes.find(n => n.id === sourceNodeId);
-  if (!sourceNode) {
-    throw new Error('Source node not found');
-  }
-  
-  const sourcePos = sourceNode.position;
-  const nodesBelowSource = nodes.filter(n => 
-    n.position.y > sourcePos.y && 
-    Math.abs(n.position.x - sourcePos.x) < 200
-  );
-  
-  const verticalSpacing = 100;
-  const horizontalOffset = 0;
-  
-  let lowestY = sourcePos.y;
-  nodesBelowSource.forEach(n => {
-    if (n.position.y > lowestY) {
-      lowestY = n.position.y;
-    }
-  });
-  
-  const newPos: XYPosition = {
-    x: sourcePos.x + horizontalOffset,
-    y: lowestY + verticalSpacing
-  };
-  
-  const newNode: Node = {
-    id: `${nodeType}-${Date.now()}`,
-    type: nodeType as any,
-    position: newPos,
-    data: { 
-      label: nodeType === 'startNode' 
-        ? 'Start' 
-        : nodeType === 'endNode' 
-          ? 'End' 
-          : nodeType === 'forceEndNode'
-            ? 'Force End'
-            : nodeType === 'signalNode' 
-              ? 'Signal' 
-              : 'Action'
-    }
-  };
-  
-  const newEdge: Edge = {
-    id: `e-${sourceNodeId}-${newNode.id}`,
-    source: sourceNodeId,
-    target: newNode.id,
-    type: 'default',
-    animated: nodeType === 'signalNode'
-  };
-  
-  return { newNode, newEdge };
-};
-
-export const findOptimalPosition = (
-  nodes: Node[],
-  reactFlowInstance: ReactFlowInstance,
-  reactFlowWrapper: React.RefObject<HTMLDivElement>
-): XYPosition => {
-  if (nodes.length === 0) {
-    return reactFlowInstance.screenToFlowPosition({
-      x: (reactFlowWrapper.current?.clientWidth || 800) / 2,
-      y: (reactFlowWrapper.current?.clientHeight || 600) / 2,
-    });
-  }
-  
-  const nodePositions = nodes.map(n => n.position);
-  
-  const avgX = nodePositions.reduce((sum, pos) => sum + pos.x, 0) / nodePositions.length;
-  const avgY = nodePositions.reduce((sum, pos) => sum + pos.y, 0) / nodePositions.length;
-  
-  const gridSize = 150;
-  
-  const gridOffsets = [
-    { x: 0, y: -gridSize },
-    { x: gridSize, y: 0 },
-    { x: 0, y: gridSize },
-    { x: -gridSize, y: 0 },
-    { x: gridSize, y: -gridSize },
-    { x: gridSize, y: gridSize },
-    { x: -gridSize, y: gridSize },
-    { x: -gridSize, y: -gridSize }
-  ];
-  
-  for (const offset of gridOffsets) {
-    const testPos = { x: avgX + offset.x, y: avgY + offset.y };
-    
-    const isOccupied = nodes.some(node => {
-      const nodeWidth = node.width || 150;
-      const nodeHeight = node.height || 50;
-      
-      return (
-        Math.abs(testPos.x - node.position.x) < nodeWidth &&
-        Math.abs(testPos.y - node.position.y) < nodeHeight
-      );
-    });
-    
-    if (!isOccupied) {
-      return testPos;
-    }
-  }
-  
-  return { x: avgX + gridSize * 2, y: avgY + gridSize * 2 };
 };
 
 export const validateConnection = (
@@ -170,48 +58,6 @@ export const validateConnection = (
   }
   
   return true;
-};
-
-export const cleanupOrphanedEdges = (
-  nodes: Node[],
-  edges: Edge[]
-): Edge[] => {
-  const validNodeIds = new Set(nodes.map(node => node.id));
-  
-  return edges.filter(edge => {
-    const isSourceValid = validNodeIds.has(edge.source);
-    const isTargetValid = validNodeIds.has(edge.target);
-    
-    return isSourceValid && isTargetValid;
-  });
-};
-
-export const ensureStartNode = (nodes: Node[]): Node[] => {
-  if (nodes.length === 0) {
-    return [
-      {
-        id: `startNode-${Date.now()}`,
-        type: 'startNode',
-        position: { x: 250, y: 50 },
-        data: { label: 'Start' }
-      }
-    ];
-  }
-  
-  const hasStartNode = nodes.some(node => node.type === 'startNode');
-  if (hasStartNode) {
-    return nodes;
-  }
-  
-  return [
-    ...nodes,
-    {
-      id: `startNode-${Date.now()}`,
-      type: 'startNode',
-      position: { x: 250, y: 50 },
-      data: { label: 'Start' }
-    }
-  ];
 };
 
 export const saveStrategyToLocalStorage = (nodes: Node[], edges: Edge[]) => {
@@ -272,9 +118,11 @@ export const importStrategyFromEvent = (
       
       const imported = JSON.parse(result);
       if (imported && imported.nodes && imported.edges) {
+        // Make a deep copy to ensure we're not importing references
         const nodes = JSON.parse(JSON.stringify(imported.nodes));
         const edges = JSON.parse(JSON.stringify(imported.edges));
         
+        // Ensure each node has appropriate properties
         const validatedNodes = nodes.map((node: Node) => ({
           ...node,
           id: node.id || `node-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -283,6 +131,7 @@ export const importStrategyFromEvent = (
           data: node.data || {}
         }));
         
+        // Ensure each edge has appropriate properties
         const validatedEdges = edges.map((edge: Edge) => ({
           ...edge,
           id: edge.id || `edge-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -290,15 +139,17 @@ export const importStrategyFromEvent = (
           target: edge.target || ''
         }));
         
-        const validNodeIds = new Set(validatedNodes.map((node: Node) => node.id));
-        const cleanedEdges = validatedEdges.filter((edge: Edge) => {
-          return validNodeIds.has(edge.source) && validNodeIds.has(edge.target);
-        });
+        // Only proceed if we have valid connections
+        if (validatedEdges.some((edge: Edge) => !edge.source || !edge.target)) {
+          toast.error("Invalid edge connections in imported file");
+          return;
+        }
         
+        // Apply the changes
         setNodes(validatedNodes);
-        setEdges(cleanedEdges);
+        setEdges(validatedEdges);
         resetHistory();
-        addHistoryItem(validatedNodes, cleanedEdges);
+        addHistoryItem(validatedNodes, validatedEdges);
         toast.success("Strategy imported successfully");
         success = true;
       } else {

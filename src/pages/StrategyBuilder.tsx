@@ -14,7 +14,7 @@ const StrategyBuilder = () => {
           <div className="mb-6 pt-4">
             <h1 className="text-3xl font-bold mb-2">Strategy Builder</h1>
             <p className="text-foreground/70">
-              Build complex trading strategies with our node-based visual editor
+              Build complex trading strategies with our no-code node-based visual editor
             </p>
           </div>
           

@@ -10,12 +10,7 @@ import {
   useReactFlow
 } from '@xyflow/react';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
-import { 
-  initialNodes, 
-  validateConnection, 
-  loadStrategyFromLocalStorage, 
-  ensureStartNode 
-} from '../utils/flowUtils';
+import { initialNodes, validateConnection, loadStrategyFromLocalStorage } from '../utils/flowUtils';
 
 export function useFlowState() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -36,12 +31,9 @@ export function useFlowState() {
       strategyStore.setNodes(savedStrategy.nodes);
       strategyStore.setEdges(savedStrategy.edges);
     } else {
-      // Ensure we have a start node
-      const nodesWithStart = ensureStartNode(initialNodes);
-      setNodes(nodesWithStart);
-      strategyStore.setNodes(nodesWithStart);
+      strategyStore.setNodes(initialNodes);
       strategyStore.resetHistory();
-      strategyStore.addHistoryItem(nodesWithStart, []);
+      strategyStore.addHistoryItem(initialNodes, []);
     }
   }, []);
 
