@@ -13,11 +13,13 @@ const SignalNode = ({ data }: { data: SignalNodeData }) => {
   const conditions = Array.isArray(data.conditions) ? data.conditions : [];
   
   // Determine if we have any conditions to display
-  const hasConditions = conditions.length > 0;
+  const hasConditions = conditions.length > 0 && 
+    conditions[0].conditions && 
+    conditions[0].conditions.length > 0;
   
   // Format complex conditions for display
   const getConditionsDisplay = () => {
-    if (conditions.length === 0) return null;
+    if (!hasConditions) return null;
     
     try {
       return groupConditionToString(conditions[0]);

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { 
   Expression, 
@@ -33,9 +34,8 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
   
   useEffect(() => {
     const startNode = strategyStore.nodes.find(node => node.type === 'startNode');
-    if (startNode && startNode.data.indicatorParameters) {
-      const indicators = Object.keys(startNode.data.indicatorParameters || {});
-      setAvailableIndicators(indicators);
+    if (startNode && startNode.data.indicators && startNode.data.indicators.length > 0) {
+      setAvailableIndicators(startNode.data.indicators);
     } else {
       setAvailableIndicators([]);
     }
@@ -107,6 +107,7 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
       <Select 
         value={indicatorExpr.name} 
         onValueChange={updateIndicatorName}
+        disabled={availableIndicators.length === 0}
       >
         <SelectTrigger className="h-8">
           <SelectValue placeholder="Select indicator">
@@ -164,9 +165,9 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
         </Select>
       )}
       
-      {(!indicatorExpr.name || availableIndicators.length === 0) && (
+      {availableIndicators.length === 0 && (
         <div className="text-xs text-muted-foreground mt-1">
-          Configure indicators in the Start Node first
+          No indicators selected. Configure indicators in the Start Node first.
         </div>
       )}
     </div>

@@ -52,6 +52,9 @@ const StartNode = ({ data }: StartNodeProps) => {
     return type.charAt(0).toUpperCase() + type.slice(1);
   };
 
+  // Check if there are any indicators
+  const hasIndicators = data.indicators && data.indicators.length > 0;
+
   return (
     <div className="px-4 py-3 rounded-md border border-primary/20 bg-background shadow-sm">
       <div className="space-y-2">
@@ -94,7 +97,7 @@ const StartNode = ({ data }: StartNodeProps) => {
           </div>
         )}
         
-        {data.indicators && data.indicators.length > 0 && (
+        {hasIndicators ? (
           <div className="border-t border-border pt-2 mt-2">
             <div className="flex items-center gap-2 text-xs mb-1">
               <BarChart className="h-3.5 w-3.5 text-muted-foreground" />
@@ -109,6 +112,13 @@ const StartNode = ({ data }: StartNodeProps) => {
                   {getIndicatorDisplayName(indicator)}
                 </span>
               ))}
+            </div>
+          </div>
+        ) : (
+          <div className="border-t border-border pt-2 mt-2">
+            <div className="flex items-center gap-2 text-xs">
+              <BarChart className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-muted-foreground">No indicators configured</span>
             </div>
           </div>
         )}
