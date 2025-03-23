@@ -34,7 +34,7 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
   
   useEffect(() => {
     const startNode = strategyStore.nodes.find(node => node.type === 'startNode');
-    if (startNode && startNode.data.indicators && startNode.data.indicators.length > 0) {
+    if (startNode && startNode.data && startNode.data.indicators && Array.isArray(startNode.data.indicators) && startNode.data.indicators.length > 0) {
       setAvailableIndicators(startNode.data.indicators);
     } else {
       setAvailableIndicators([]);
@@ -87,7 +87,7 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
   
   const getIndicatorDisplayName = (key: string) => {
     const startNode = strategyStore.nodes.find(node => node.type === 'startNode');
-    if (!startNode || !startNode.data.indicatorParameters) return key;
+    if (!startNode || !startNode.data || !startNode.data.indicatorParameters) return key;
     
     const baseName = key.split('_')[0];
     
