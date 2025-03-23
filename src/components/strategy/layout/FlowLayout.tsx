@@ -30,13 +30,13 @@ const FlowLayout: React.FC<FlowLayoutProps> = ({
   return (
     <div className="strategy-flow-container h-full">
       <ResizablePanelGroup direction="horizontal" className="h-full">
-        <ResizablePanel defaultSize={15} minSize={12} maxSize={20} className="bg-secondary/30">
+        <ResizablePanel defaultSize={8} minSize={8} maxSize={12} className="bg-secondary/30">
           <NodeSidebar onAddNode={onAddNode} />
         </ResizablePanel>
         
         <ResizableHandle withHandle />
         
-        <ResizablePanel defaultSize={isPanelOpen ? 60 : 85} minSize={isPanelOpen ? 45 : 85}>
+        <ResizablePanel defaultSize={isPanelOpen ? 60 : 92} minSize={isPanelOpen ? 45 : 85}>
           {children}
         </ResizablePanel>
         

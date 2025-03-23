@@ -1,7 +1,17 @@
 
 import React from 'react';
 import { Play, Activity, SlidersHorizontal, StopCircle, AlertTriangle } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger 
+} from '@/components/ui/tooltip';
+import { 
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger 
+} from '@/components/ui/hover-card';
 
 interface NodeSidebarProps {
   onAddNode: (type: string) => void;
@@ -60,32 +70,32 @@ const NodeSidebar = ({ onAddNode }: NodeSidebarProps) => {
   };
 
   return (
-    <div className="h-full p-4 overflow-auto">
-      <h3 className="font-medium text-base mb-3">Strategy Nodes</h3>
-      <p className="text-sm text-foreground/70 mb-4">
-        Drag and drop nodes to build your trading strategy
-      </p>
+    <div className="h-full overflow-auto py-4 flex flex-col items-center">
+      <h3 className="font-medium text-xs uppercase tracking-wider mb-4 text-center text-muted-foreground">Nodes</h3>
       
-      <div className="space-y-3">
-        {nodeTypes.map((nodeType) => (
-          <Card 
-            key={nodeType.type}
-            className={`border ${nodeType.color} cursor-grab transition-shadow hover:shadow-md`}
-            draggable
-            onDragStart={(e) => handleDragStart(e, nodeType.type)}
-            onClick={() => onAddNode(nodeType.type)}
-          >
-            <CardContent className="p-3">
-              <div className="flex items-center">
-                <div className="mr-3">{nodeType.icon}</div>
-                <div>
-                  <h4 className="text-sm font-medium">{nodeType.label}</h4>
-                  <p className="text-xs text-foreground/70">{nodeType.description}</p>
+      <div className="space-y-4">
+        <TooltipProvider delayDuration={200}>
+          {nodeTypes.map((nodeType) => (
+            <Tooltip key={nodeType.type}>
+              <TooltipTrigger asChild>
+                <div
+                  className={`flex justify-center items-center w-10 h-10 rounded-full ${nodeType.color} cursor-grab transition-all hover:scale-105 hover:shadow-md`}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, nodeType.type)}
+                  onClick={() => onAddNode(nodeType.type)}
+                >
+                  {nodeType.icon}
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <div className="space-y-1">
+                  <p className="font-medium text-sm">{nodeType.label}</p>
+                  <p className="text-xs text-muted-foreground">{nodeType.description}</p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          ))}
+        </TooltipProvider>
       </div>
     </div>
   );
