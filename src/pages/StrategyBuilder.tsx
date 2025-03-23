@@ -9,7 +9,7 @@ const StrategyBuilder = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow pt-16 md:pt-20">
-        <div className="container mx-auto px-4 py-6">
+        <div className="container mx-auto px-4 py-6 max-w-full">
           <div className="mb-6 pt-4">
             <h1 className="text-3xl font-bold mb-2">Strategy Builder</h1>
             <p className="text-foreground/70">
@@ -17,7 +17,7 @@ const StrategyBuilder = () => {
             </p>
           </div>
           
-          <div className="h-[calc(100vh-250px)] min-h-[600px] rounded-xl border border-border overflow-hidden">
+          <div className="h-[calc(100vh-250px)] min-h-[650px] rounded-xl border border-border overflow-hidden">
             <StrategyFlow />
           </div>
         </div>

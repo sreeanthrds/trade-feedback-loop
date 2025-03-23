@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { X, ChevronDown, ChevronUp } from 'lucide-react';
@@ -36,14 +37,15 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
   };
 
   return (
-    <div className="border rounded-md">
+    <div className="border rounded-md w-full">
       <Collapsible
         open={isOpen}
         onOpenChange={onToggle}
+        className="w-full"
       >
         <div className="flex items-center justify-between p-3">
-          <div className="font-medium">{getIndicatorDisplayName()}</div>
-          <div className="flex items-center gap-1">
+          <div className="font-medium truncate max-w-[calc(100%-80px)]">{getIndicatorDisplayName()}</div>
+          <div className="flex items-center gap-1 flex-shrink-0">
             <CollapsibleTrigger asChild>
               <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                 {isOpen ? (

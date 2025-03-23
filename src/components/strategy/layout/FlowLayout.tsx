@@ -36,12 +36,12 @@ const FlowLayout: React.FC<FlowLayoutProps> = ({
         
         <ResizableHandle withHandle />
         
-        <ResizablePanel defaultSize={isPanelOpen ? 65 : 85}>
+        <ResizablePanel defaultSize={isPanelOpen ? 60 : 85} minSize={isPanelOpen ? 45 : 85}>
           {children}
         </ResizablePanel>
         
         {isPanelOpen && selectedNode && (
-          <ResizablePanel defaultSize={20} minSize={20} maxSize={35}>
+          <ResizablePanel defaultSize={25} minSize={20} maxSize={45}>
             {nodePanelComponent}
           </ResizablePanel>
         )}
