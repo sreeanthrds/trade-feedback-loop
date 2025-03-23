@@ -56,9 +56,7 @@ const NodeConnectControls: React.FC<NodeConnectControlsProps> = ({ showOn, onAdd
         </DropdownMenuTrigger>
         <DropdownMenuContent 
           align="end" 
-          className="w-48 bg-background border border-border shadow-lg"
           sideOffset={10}
-          forceMount
         >
           {getNodeOptions().map((option) => (
             <DropdownMenuItem 
