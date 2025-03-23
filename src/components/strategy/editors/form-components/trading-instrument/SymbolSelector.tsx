@@ -27,15 +27,18 @@ interface SymbolSelectorProps {
 
 const SymbolSelector: React.FC<SymbolSelectorProps> = ({
   value,
-  symbols,
+  symbols = [], // Provide default empty array
   onChange,
   isLoading = false
 }) => {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
 
+  // Ensure symbols is always an array
+  const safeSymbols = Array.isArray(symbols) ? symbols : [];
+
   // Filter symbols based on search input
-  const filteredSymbols = symbols.filter(
+  const filteredSymbols = safeSymbols.filter(
     item => 
       item.symbol.toLowerCase().includes(searchValue.toLowerCase()) ||
       item.name.toLowerCase().includes(searchValue.toLowerCase())
@@ -46,7 +49,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
     setOpen(false);
   };
 
-  const selectedSymbol = symbols.find(item => item.symbol === value);
+  const selectedSymbol = safeSymbols.find(item => item.symbol === value);
 
   return (
     <div>

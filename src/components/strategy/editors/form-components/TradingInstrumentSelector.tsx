@@ -71,7 +71,7 @@ const TradingInstrumentSelector: React.FC<TradingInstrumentSelectorProps> = ({
   };
 
   // Get the appropriate symbols list based on current selection
-  const symbolsList = getSymbolList(value);
+  const symbolsList = getSymbolList(value) || [];
 
   return (
     <div className="space-y-4">
