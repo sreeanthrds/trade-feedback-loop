@@ -101,7 +101,7 @@ const TradingInstrumentSelector: React.FC<TradingInstrumentSelectorProps> = ({
         (safeValue.tradingType === 'options' && safeValue.underlying)) && (
           <SymbolSelector 
             value={safeValue.symbol} 
-            symbols={symbolsList}
+            symbols={symbolsList || []}
             onChange={handleSymbolChange}
             isLoading={isLoading}
           />

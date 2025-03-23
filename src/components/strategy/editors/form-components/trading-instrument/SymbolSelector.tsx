@@ -41,8 +41,8 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
   const filteredSymbols = searchValue
     ? safeSymbols.filter(
         item => 
-          item.symbol.toLowerCase().includes(searchValue.toLowerCase()) ||
-          item.name.toLowerCase().includes(searchValue.toLowerCase())
+          item && item.symbol && item.symbol.toLowerCase().includes(searchValue.toLowerCase()) ||
+          item && item.name && item.name.toLowerCase().includes(searchValue.toLowerCase())
       )
     : safeSymbols;
 
@@ -51,7 +51,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
     setOpen(false);
   };
 
-  const selectedSymbol = safeSymbols.find(item => item.symbol === value);
+  const selectedSymbol = safeSymbols.find(item => item && item.symbol === value);
 
   return (
     <div>
@@ -93,22 +93,24 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
               />
               <CommandEmpty>No symbol found.</CommandEmpty>
               <CommandGroup>
-                {filteredSymbols.length > 0 ? (
-                  filteredSymbols.map((item) => (
-                    <CommandItem
-                      key={item.symbol}
-                      value={item.symbol}
-                      onSelect={() => handleSymbolSelect(item.symbol)}
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          value === item.symbol ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      <span className="font-medium">{item.symbol}</span>
-                      <span className="ml-2 text-muted-foreground text-xs">{item.name}</span>
-                    </CommandItem>
+                {filteredSymbols && filteredSymbols.length > 0 ? (
+                  filteredSymbols.map((item, index) => (
+                    item && item.symbol ? (
+                      <CommandItem
+                        key={item.symbol || index}
+                        value={item.symbol}
+                        onSelect={() => handleSymbolSelect(item.symbol)}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            value === item.symbol ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        <span className="font-medium">{item.symbol}</span>
+                        <span className="ml-2 text-muted-foreground text-xs">{item.name}</span>
+                      </CommandItem>
+                    ) : null
                   ))
                 ) : (
                   <div className="py-6 text-center text-sm">No items to display</div>
