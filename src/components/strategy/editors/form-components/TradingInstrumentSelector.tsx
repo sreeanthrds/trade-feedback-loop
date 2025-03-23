@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
@@ -207,7 +207,7 @@ const TradingInstrumentSelector: React.FC<TradingInstrumentSelectorProps> = ({
                   onValueChange={setSearchValue}
                 />
                 <CommandEmpty>No symbol found.</CommandEmpty>
-                <CommandGroup className="max-h-60 overflow-auto">
+                <CommandGroup>
                   {filteredSymbols.map((item) => (
                     <CommandItem
                       key={item.symbol}
