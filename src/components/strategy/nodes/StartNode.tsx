@@ -26,27 +26,12 @@ const StartNode = ({ data }: StartNodeProps) => {
     if (data.indicatorParameters[key]) {
       const params = data.indicatorParameters[key];
       
-      // Handle different indicator types
-      if (baseName === 'MACD' && params.fastperiod && params.slowperiod && params.signalperiod) {
-        return `${baseName}(${params.fastperiod},${params.slowperiod},${params.signalperiod})`;
-      }
+      // Format all parameters into a single, readable string
+      const paramList = Object.entries(params)
+        .map(([paramName, value]) => `${paramName.includes('period') ? '' : paramName + ':'}${value}`)
+        .join(',');
       
-      if (baseName === 'BollingerBands' && params.timeperiod && params.nbdevup) {
-        return `${baseName}(${params.timeperiod},${params.nbdevup})`;
-      }
-      
-      // For indicators with timeperiod
-      if (params.timeperiod) {
-        // Check if there are additional parameters beyond timeperiod
-        const additionalParams = Object.entries(params)
-          .filter(([paramName]) => paramName !== 'timeperiod')
-          .map(([paramName, value]) => `${paramName}:${value}`)
-          .join(',');
-          
-        return additionalParams 
-          ? `${baseName}(${params.timeperiod},${additionalParams})`
-          : `${baseName}(${params.timeperiod})`;
-      }
+      return `${baseName}(${paramList})`;
     }
     
     return key;

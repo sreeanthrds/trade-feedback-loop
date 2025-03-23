@@ -102,6 +102,44 @@ export const indicatorConfig: IndicatorConfig = {
       }
     ]
   },
+  "Stochastic": {
+    "function_name": "STOCH",
+    "parameters": [
+      {
+        "name": "fastk_period",
+        "type": "number",
+        "label": "FastK Period",
+        "default": 5,
+        "description": "Time period for %K line"
+      },
+      {
+        "name": "slowk_period",
+        "type": "number",
+        "label": "SlowK Period",
+        "default": 3,
+        "description": "Smoothing for %K line"
+      },
+      {
+        "name": "slowd_period",
+        "type": "number",
+        "label": "SlowD Period",
+        "default": 3,
+        "description": "Smoothing for %D line"
+      }
+    ]
+  },
+  "ADX": {
+    "function_name": "ADX",
+    "parameters": [
+      {
+        "name": "timeperiod",
+        "type": "number",
+        "label": "Time Period",
+        "default": 14,
+        "description": "Number of periods for ADX calculation"
+      }
+    ]
+  },
   "PivotPoints": {
     "function_name": "custom_pivot_points",
     "parameters": [

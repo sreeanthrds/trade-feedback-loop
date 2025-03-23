@@ -89,27 +89,11 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
     const baseName = key.split('_')[0];
     
     if (selectedIndicators[key] && baseName in indicatorConfig) {
-      const timeperiod = selectedIndicators[key]['timeperiod'];
-      if (timeperiod) {
-        return `${baseName} (${timeperiod})`;
-      }
+      const paramList = Object.entries(selectedIndicators[key])
+        .map(([paramName, value]) => `${paramName.includes('period') ? '' : paramName + ':'}${value}`)
+        .join(',');
       
-      if (baseName === 'MACD') {
-        const fast = selectedIndicators[key]['fastperiod'];
-        const slow = selectedIndicators[key]['slowperiod'];
-        const signal = selectedIndicators[key]['signalperiod'];
-        if (fast && slow && signal) {
-          return `${baseName} (${fast},${slow},${signal})`;
-        }
-      }
-      
-      if (baseName === 'BollingerBands') {
-        const period = selectedIndicators[key]['timeperiod'];
-        const devUp = selectedIndicators[key]['nbdevup'];
-        if (period && devUp) {
-          return `${baseName} (${period},${devUp})`;
-        }
-      }
+      return `${baseName} (${paramList})`;
     }
     
     return key;

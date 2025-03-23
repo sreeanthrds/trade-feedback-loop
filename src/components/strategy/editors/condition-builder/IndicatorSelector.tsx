@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
+import ExpressionIcon from './components/ExpressionIcon';
 
 interface IndicatorSelectorProps {
   expression: Expression;
@@ -63,24 +64,39 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
   
   // Check if the selected indicator has multiple outputs
   const hasMultipleOutputs = (indicator: string): boolean => {
+    if (!indicator) return false;
     // Extract base indicator name (before any underscore or numeric suffix)
     const baseIndicator = indicator.split('_')[0];
-    if (baseIndicator === 'BollingerBands') return true;
-    if (baseIndicator === 'MACD') return true;
-    return false;
+    
+    // Known indicators with multiple outputs
+    const multiOutputIndicators = [
+      'BollingerBands',
+      'MACD',
+      'Stochastic',
+      'ADX',
+      'Ichimoku'
+    ];
+    
+    return multiOutputIndicators.includes(baseIndicator);
   };
 
   // Get parameter options for the selected indicator
   const getParameterOptions = (indicator: string): string[] => {
+    if (!indicator) return [];
+    
     // Extract base indicator name
     const baseIndicator = indicator.split('_')[0];
-    if (baseIndicator === 'BollingerBands') {
-      return ['UpperBand', 'MiddleBand', 'LowerBand'];
-    }
-    if (baseIndicator === 'MACD') {
-      return ['MACD', 'Signal', 'Histogram'];
-    }
-    return [];
+    
+    // Output parameters for different indicators
+    const outputParameters: Record<string, string[]> = {
+      'BollingerBands': ['UpperBand', 'MiddleBand', 'LowerBand'],
+      'MACD': ['MACD', 'Signal', 'Histogram'],
+      'Stochastic': ['SlowK', 'SlowD'],
+      'ADX': ['ADX', 'PlusDI', 'MinusDI'],
+      'Ichimoku': ['Tenkan', 'Kijun', 'SenkouA', 'SenkouB', 'Chikou']
+    };
+    
+    return outputParameters[baseIndicator] || [];
   };
   
   // Helper to get display name for an indicator
@@ -96,28 +112,12 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
     if (startNode.data.indicatorParameters[key]) {
       const params = startNode.data.indicatorParameters[key];
       
-      // MACD has special display format with all 3 parameters
-      if (baseName === 'MACD' && params.fastperiod && params.slowperiod && params.signalperiod) {
-        return `${baseName} (${params.fastperiod},${params.slowperiod},${params.signalperiod})`;
-      }
+      // Format parameter string by joining all parameters
+      const paramList = Object.entries(params)
+        .map(([paramName, value]) => `${paramName.includes('period') ? '' : paramName + ':'}${value}`)
+        .join(',');
       
-      // Bollinger Bands shows timeperiod and standard deviation
-      if (baseName === 'BollingerBands' && params.timeperiod && params.nbdevup) {
-        return `${baseName} (${params.timeperiod},${params.nbdevup})`;
-      }
-      
-      // For indicators with timeperiod
-      if (params.timeperiod) {
-        // Check if there are additional parameters beyond timeperiod
-        const additionalParams = Object.entries(params)
-          .filter(([paramName]) => paramName !== 'timeperiod')
-          .map(([paramName, value]) => `${paramName}:${value}`)
-          .join(',');
-          
-        return additionalParams 
-          ? `${baseName} (${params.timeperiod},${additionalParams})`
-          : `${baseName} (${params.timeperiod})`;
-      }
+      return `${baseName} (${paramList})`;
     }
     
     return key;
@@ -130,13 +130,23 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
         onValueChange={updateIndicatorName}
       >
         <SelectTrigger className="h-8">
-          <SelectValue placeholder="Select indicator" />
+          <SelectValue placeholder="Select indicator">
+            {indicatorExpr.name && (
+              <div className="flex items-center gap-2">
+                <ExpressionIcon type="indicator" subType={indicatorExpr.parameter} />
+                <span>{getIndicatorDisplayName(indicatorExpr.name)}</span>
+              </div>
+            )}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           {availableIndicators.length > 0 ? (
             availableIndicators.map((indicator) => (
               <SelectItem key={indicator} value={indicator}>
-                {getIndicatorDisplayName(indicator)}
+                <div className="flex items-center gap-2">
+                  <ExpressionIcon type="indicator" />
+                  <span>{getIndicatorDisplayName(indicator)}</span>
+                </div>
               </SelectItem>
             ))
           ) : (
@@ -153,12 +163,22 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
           onValueChange={updateParameter}
         >
           <SelectTrigger className="h-8">
-            <SelectValue placeholder="Select output" />
+            <SelectValue placeholder="Select output">
+              {indicatorExpr.parameter && (
+                <div className="flex items-center gap-2">
+                  <ExpressionIcon type="indicator" subType={indicatorExpr.parameter} />
+                  <span>{indicatorExpr.parameter}</span>
+                </div>
+              )}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {getParameterOptions(indicatorExpr.name).map((param) => (
               <SelectItem key={param} value={param}>
-                {param}
+                <div className="flex items-center gap-2">
+                  <ExpressionIcon type="indicator" subType={param} />
+                  <span>{param}</span>
+                </div>
               </SelectItem>
             ))}
           </SelectContent>
