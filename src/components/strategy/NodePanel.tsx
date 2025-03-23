@@ -22,6 +22,9 @@ const NodePanel = ({ node, updateNodeData, onClose }: NodePanelProps) => {
     return null;
   }
 
+  // Ensure node.data exists
+  const nodeData = node.data || {};
+
   const renderEditor = () => {
     switch (node.type) {
       case 'startNode':

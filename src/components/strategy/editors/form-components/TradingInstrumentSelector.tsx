@@ -207,7 +207,7 @@ const TradingInstrumentSelector: React.FC<TradingInstrumentSelectorProps> = ({
                   onValueChange={setSearchValue}
                 />
                 <CommandEmpty>No symbol found.</CommandEmpty>
-                {filteredSymbols.length > 0 && (
+                {filteredSymbols && filteredSymbols.length > 0 ? (
                   <CommandGroup>
                     {filteredSymbols.map((item) => (
                       <CommandItem
@@ -226,7 +226,7 @@ const TradingInstrumentSelector: React.FC<TradingInstrumentSelectorProps> = ({
                       </CommandItem>
                     ))}
                   </CommandGroup>
-                )}
+                ) : null}
               </Command>
             </PopoverContent>
           </Popover>

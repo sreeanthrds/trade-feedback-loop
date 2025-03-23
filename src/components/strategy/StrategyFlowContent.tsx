@@ -58,7 +58,7 @@ const StrategyFlowContent = () => {
   // Create a NodePanel component with fallback that uses Suspense
   const LazyNodePanel = isPanelOpen && selectedNode ? (
     <Suspense fallback={<div className="p-4">Loading panel...</div>}>
-      {/* Only render NodePanel when a node is selected */}
+      {/* Only render NodePanel when a node is selected and valid */}
       <NodePanel
         node={selectedNode}
         updateNodeData={updateNodeData}
