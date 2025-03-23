@@ -1,24 +1,16 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   Expression, 
   ExpressionType,
   createDefaultExpression
 } from '../../utils/conditionTypes';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Activity, Calculator, Clock, LineChart, Hash } from 'lucide-react';
 import MarketDataSelector from './MarketDataSelector';
 import IndicatorSelector from './IndicatorSelector';
 import TimeSelector from './TimeSelector';
 import ComplexExpressionEditor from './ComplexExpressionEditor';
+import ExpressionTypeSelector from './components/ExpressionTypeSelector';
+import ConstantValueEditor from './components/ConstantValueEditor';
 
 interface ExpressionEditorProps {
   expression: Expression;
@@ -34,36 +26,6 @@ const ExpressionEditor: React.FC<ExpressionEditorProps> = ({
     const newExpr = createDefaultExpression(type);
     newExpr.id = expression.id; // Keep the same ID
     updateExpression(newExpr);
-  };
-
-  // Get the icon for the expression type
-  const getExpressionIcon = () => {
-    switch (expression.type) {
-      case 'indicator':
-        return <Activity className="h-4 w-4" />;
-      case 'market_data':
-        return <LineChart className="h-4 w-4" />;
-      case 'constant':
-        return <Hash className="h-4 w-4" />;
-      case 'time_function':
-        return <Clock className="h-4 w-4" />;
-      case 'expression':
-        return <Calculator className="h-4 w-4" />;
-      default:
-        return null;
-    }
-  };
-
-  // Update constant value
-  const updateConstantValue = (value: string) => {
-    if (expression.type === 'constant') {
-      // Try to convert to number if possible
-      const numValue = !isNaN(Number(value)) ? Number(value) : value;
-      updateExpression({
-        ...expression,
-        value: numValue
-      });
-    }
   };
 
   // Render the appropriate editor based on expression type
@@ -85,10 +47,9 @@ const ExpressionEditor: React.FC<ExpressionEditorProps> = ({
         );
       case 'constant':
         return (
-          <Input
-            value={expression.value.toString()}
-            onChange={(e) => updateConstantValue(e.target.value)}
-            className="h-8"
+          <ConstantValueEditor
+            expression={expression}
+            updateExpression={updateExpression}
           />
         );
       case 'time_function':
@@ -113,51 +74,10 @@ const ExpressionEditor: React.FC<ExpressionEditorProps> = ({
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
-        <Select 
-          value={expression.type} 
-          onValueChange={(v) => changeExpressionType(v as ExpressionType)}
-        >
-          <SelectTrigger className="h-8">
-            <SelectValue>
-              <div className="flex items-center gap-2">
-                {getExpressionIcon()}
-                <span>{expression.type}</span>
-              </div>
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="indicator">
-              <div className="flex items-center gap-2">
-                <Activity className="h-4 w-4" />
-                <span>Indicator</span>
-              </div>
-            </SelectItem>
-            <SelectItem value="market_data">
-              <div className="flex items-center gap-2">
-                <LineChart className="h-4 w-4" />
-                <span>Market Data</span>
-              </div>
-            </SelectItem>
-            <SelectItem value="constant">
-              <div className="flex items-center gap-2">
-                <Hash className="h-4 w-4" />
-                <span>Constant</span>
-              </div>
-            </SelectItem>
-            <SelectItem value="time_function">
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4" />
-                <span>Time Function</span>
-              </div>
-            </SelectItem>
-            <SelectItem value="expression">
-              <div className="flex items-center gap-2">
-                <Calculator className="h-4 w-4" />
-                <span>Expression</span>
-              </div>
-            </SelectItem>
-          </SelectContent>
-        </Select>
+        <ExpressionTypeSelector
+          type={expression.type}
+          onTypeChange={changeExpressionType}
+        />
       </div>
       
       {renderExpressionEditor()}
