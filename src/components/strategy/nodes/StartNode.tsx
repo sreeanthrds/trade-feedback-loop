@@ -1,6 +1,7 @@
+
 import React, { memo } from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { Play, Calendar, Building, BarChart } from 'lucide-react';
+import { Play, Calendar, Building, BarChart, LineChart } from 'lucide-react';
 
 interface StartNodeProps {
   data: {
@@ -8,6 +9,10 @@ interface StartNodeProps {
     timeframe?: string;
     exchange?: string;
     symbol?: string;
+    tradingInstrument?: {
+      type: 'stock' | 'futures' | 'options';
+      underlyingType?: 'index' | 'indexFuture' | 'stock';
+    };
     indicators?: string[];
     indicatorParameters?: Record<string, Record<string, any>>;
   };
@@ -34,6 +39,19 @@ const StartNode = ({ data }: StartNodeProps) => {
     return key;
   };
 
+  // Helper to generate instrument display text
+  const getInstrumentDisplay = () => {
+    if (!data.tradingInstrument) return null;
+    
+    const { type, underlyingType } = data.tradingInstrument;
+    
+    if (type === 'options' && underlyingType) {
+      return `${underlyingType.charAt(0).toUpperCase() + underlyingType.slice(1)} Options`;
+    }
+    
+    return type.charAt(0).toUpperCase() + type.slice(1);
+  };
+
   return (
     <div className="px-4 py-3 rounded-md border border-primary/20 bg-background shadow-sm">
       <div className="space-y-2">
@@ -45,8 +63,15 @@ const StartNode = ({ data }: StartNodeProps) => {
           </div>
         </div>
         
-        {(data.timeframe || data.exchange || data.symbol) && (
+        {(data.timeframe || data.exchange || data.symbol || data.tradingInstrument) && (
           <div className="border-t border-border pt-2 mt-2 space-y-1.5">
+            {data.tradingInstrument && (
+              <div className="flex items-center gap-2 text-xs">
+                <LineChart className="h-3.5 w-3.5 text-muted-foreground" />
+                <span>{getInstrumentDisplay()}</span>
+              </div>
+            )}
+            
             {data.timeframe && (
               <div className="flex items-center gap-2 text-xs">
                 <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
