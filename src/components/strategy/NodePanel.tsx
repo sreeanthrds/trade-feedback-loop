@@ -4,11 +4,9 @@ import { Node } from '@xyflow/react';
 import { X } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import StartNodeEditor from './editors/StartNodeEditor';
-import SignalNodeEditor from './editors/SignalNodeEditor';
-import ActionNodeEditor from './editors/ActionNodeEditor';
-import EndNodeEditor from './editors/EndNodeEditor';
-import ForceEndNodeEditor from './editors/ForceEndNodeEditor';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { toast } from '@/components/ui/use-toast';
+import { getNodeEditor } from './utils/nodeEditorUtils';
 
 interface NodePanelProps {
   node: Node;
@@ -31,23 +29,8 @@ const NodePanel = ({ node, updateNodeData, onClose }: NodePanelProps) => {
     console.log('Node data:', nodeData);
   }, [node, nodeData]);
 
-  const renderEditor = () => {
-    switch (node.type) {
-      case 'startNode':
-        return <StartNodeEditor node={node} updateNodeData={updateNodeData} />;
-      case 'signalNode':
-        return <SignalNodeEditor node={node} updateNodeData={updateNodeData} />;
-      case 'actionNode':
-        return <ActionNodeEditor node={node} updateNodeData={updateNodeData} />;
-      case 'endNode':
-        return <EndNodeEditor node={node} updateNodeData={updateNodeData} />;
-      case 'forceEndNode':
-        return <ForceEndNodeEditor node={node} updateNodeData={updateNodeData} />;
-      default:
-        return <div>Unknown node type</div>;
-    }
-  };
-
+  const EditorComponent = getNodeEditor(node.type);
+  
   const getNodeTitle = () => {
     switch (node.type) {
       case 'startNode': return 'Start Node';
@@ -69,7 +52,15 @@ const NodePanel = ({ node, updateNodeData, onClose }: NodePanelProps) => {
           </Button>
         </CardHeader>
         <CardContent className="pt-4 px-4 sm:px-6 overflow-y-auto max-h-[calc(100vh-120px)]">
-          {renderEditor()}
+          {EditorComponent ? (
+            <EditorComponent node={node} updateNodeData={updateNodeData} />
+          ) : (
+            <Alert variant="destructive">
+              <AlertDescription>
+                Unknown node type: {node.type}. Editor not available.
+              </AlertDescription>
+            </Alert>
+          )}
         </CardContent>
       </Card>
     </div>
