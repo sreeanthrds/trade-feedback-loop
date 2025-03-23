@@ -36,12 +36,9 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
   useEffect(() => {
     // Find the start node
     const startNode = strategyStore.nodes.find(node => node.type === 'startNode');
-    if (startNode && startNode.data.indicators) {
-      // Ensure we're dealing with a string array
-      const indicators = Array.isArray(startNode.data.indicators) 
-        ? startNode.data.indicators.filter(ind => typeof ind === 'string')
-        : [];
-      
+    if (startNode && startNode.data.indicatorParameters) {
+      // Get the keys from the indicatorParameters object
+      const indicators = Object.keys(startNode.data.indicatorParameters || {});
       setAvailableIndicators(indicators);
     } else {
       setAvailableIndicators([]);
@@ -50,10 +47,6 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
   
   // Update the indicator name
   const updateIndicatorName = (value: string) => {
-    // Extract timeperiod from indicator name if available (e.g., EMA_21 -> 21)
-    const nameParts = value.split('_');
-    const parameter = nameParts.length > 1 ? nameParts[1] : undefined;
-    
     updateExpression({
       ...indicatorExpr,
       name: value,
@@ -71,22 +64,54 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
   
   // Check if the selected indicator has multiple outputs
   const hasMultipleOutputs = (indicator: string): boolean => {
+    // Extract base indicator name (before any underscore or numeric suffix)
     const baseIndicator = indicator.split('_')[0];
-    if (baseIndicator === 'BBANDS') return true;
+    if (baseIndicator === 'BollingerBands') return true;
     if (baseIndicator === 'MACD') return true;
     return false;
   };
 
   // Get parameter options for the selected indicator
   const getParameterOptions = (indicator: string): string[] => {
+    // Extract base indicator name
     const baseIndicator = indicator.split('_')[0];
-    if (baseIndicator === 'BBANDS') {
+    if (baseIndicator === 'BollingerBands') {
       return ['UpperBand', 'MiddleBand', 'LowerBand'];
     }
     if (baseIndicator === 'MACD') {
       return ['MACD', 'Signal', 'Histogram'];
     }
     return [];
+  };
+  
+  // Helper to get display name for an indicator
+  const getIndicatorDisplayName = (key: string) => {
+    // Find the start node
+    const startNode = strategyStore.nodes.find(node => node.type === 'startNode');
+    if (!startNode || !startNode.data.indicatorParameters) return key;
+    
+    // Extract base indicator name (before any underscore)
+    const baseName = key.split('_')[0];
+    
+    // If we have parameters for this indicator
+    if (startNode.data.indicatorParameters[key]) {
+      const params = startNode.data.indicatorParameters[key];
+      
+      // Handle different indicator types
+      if (params.timeperiod) {
+        return `${baseName} (${params.timeperiod})`;
+      }
+      
+      if (baseName === 'MACD' && params.fastperiod && params.slowperiod && params.signalperiod) {
+        return `${baseName} (${params.fastperiod},${params.slowperiod},${params.signalperiod})`;
+      }
+      
+      if (baseName === 'BollingerBands' && params.timeperiod && params.nbdevup) {
+        return `${baseName} (${params.timeperiod},${params.nbdevup})`;
+      }
+    }
+    
+    return key;
   };
   
   return (
@@ -102,7 +127,7 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
           {availableIndicators.length > 0 ? (
             availableIndicators.map((indicator) => (
               <SelectItem key={indicator} value={indicator}>
-                {indicator}
+                {getIndicatorDisplayName(indicator)}
               </SelectItem>
             ))
           ) : (

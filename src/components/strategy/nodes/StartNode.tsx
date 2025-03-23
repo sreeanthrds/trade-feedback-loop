@@ -10,10 +10,39 @@ interface StartNodeProps {
     exchange?: string;
     symbol?: string;
     indicators?: string[];
+    indicatorParameters?: Record<string, Record<string, any>>;
   };
 }
 
 const StartNode = ({ data }: StartNodeProps) => {
+  // Helper to get a readable display name for an indicator
+  const getIndicatorDisplayName = (key: string) => {
+    if (!data.indicatorParameters) return key;
+    
+    // Extract base indicator name (before any underscore)
+    const baseName = key.split('_')[0];
+    
+    // If we have parameters for this indicator
+    if (data.indicatorParameters[key]) {
+      const params = data.indicatorParameters[key];
+      
+      // Handle different indicator types
+      if (params.timeperiod) {
+        return `${baseName}(${params.timeperiod})`;
+      }
+      
+      if (baseName === 'MACD' && params.fastperiod && params.slowperiod && params.signalperiod) {
+        return `${baseName}(${params.fastperiod},${params.slowperiod},${params.signalperiod})`;
+      }
+      
+      if (baseName === 'BollingerBands' && params.timeperiod && params.nbdevup) {
+        return `${baseName}(${params.timeperiod},${params.nbdevup})`;
+      }
+    }
+    
+    return key;
+  };
+
   return (
     <div className="px-4 py-3 rounded-md border border-primary/20 bg-background shadow-sm">
       <div className="space-y-2">
@@ -61,7 +90,7 @@ const StartNode = ({ data }: StartNodeProps) => {
                   key={index}
                   className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-primary/10 text-primary-foreground"
                 >
-                  {indicator}
+                  {getIndicatorDisplayName(indicator)}
                 </span>
               ))}
             </div>

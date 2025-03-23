@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { indicatorConfig, Indicator } from '../utils/indicatorConfig';
 import { Label } from '@/components/ui/label';
@@ -26,36 +25,39 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
   const [selectedIndicator, setSelectedIndicator] = useState<string>("");
   const [openStates, setOpenStates] = useState<Record<string, boolean>>({});
   
-  const indicatorOptions = Object.keys(indicatorConfig).filter(
-    (ind) => !Object.keys(selectedIndicators).includes(ind)
-  );
+  const allIndicatorOptions = Object.keys(indicatorConfig);
   
   const handleAddIndicator = () => {
     if (!selectedIndicator) return;
     
     const newIndicator = indicatorConfig[selectedIndicator];
     
-    // Generate default values for the indicator parameters
     const defaultValues = newIndicator.parameters.reduce((acc, param) => {
       acc[param.name] = param.default;
       return acc;
     }, {} as Record<string, any>);
     
-    // Update selected indicators
+    const baseIndicatorName = selectedIndicator;
+    let uniqueKey = baseIndicatorName;
+    let counter = 1;
+    
+    while (selectedIndicators[uniqueKey]) {
+      uniqueKey = `${baseIndicatorName}_${counter}`;
+      counter++;
+    }
+    
     const updatedIndicators = {
       ...selectedIndicators,
-      [selectedIndicator]: defaultValues
+      [uniqueKey]: defaultValues
     };
     
     onChange(updatedIndicators);
     
-    // Open the newly added indicator
     setOpenStates({
       ...openStates,
-      [selectedIndicator]: true
+      [uniqueKey]: true
     });
     
-    // Reset selection
     setSelectedIndicator("");
   };
   
@@ -83,6 +85,36 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
     });
   };
   
+  const getIndicatorDisplayName = (key: string) => {
+    const baseName = key.split('_')[0];
+    
+    if (selectedIndicators[key] && baseName in indicatorConfig) {
+      const timeperiod = selectedIndicators[key]['timeperiod'];
+      if (timeperiod) {
+        return `${baseName} (${timeperiod})`;
+      }
+      
+      if (baseName === 'MACD') {
+        const fast = selectedIndicators[key]['fastperiod'];
+        const slow = selectedIndicators[key]['slowperiod'];
+        const signal = selectedIndicators[key]['signalperiod'];
+        if (fast && slow && signal) {
+          return `${baseName} (${fast},${slow},${signal})`;
+        }
+      }
+      
+      if (baseName === 'BollingerBands') {
+        const period = selectedIndicators[key]['timeperiod'];
+        const devUp = selectedIndicators[key]['nbdevup'];
+        if (period && devUp) {
+          return `${baseName} (${period},${devUp})`;
+        }
+      }
+    }
+    
+    return key;
+  };
+  
   return (
     <div className="space-y-4">
       <div className="flex items-end gap-2">
@@ -98,7 +130,7 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
               <SelectValue placeholder="Select indicator" />
             </SelectTrigger>
             <SelectContent>
-              {indicatorOptions.map((name) => (
+              {allIndicatorOptions.map((name) => (
                 <SelectItem key={name} value={name}>
                   {name}
                 </SelectItem>
@@ -126,7 +158,7 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
                 onOpenChange={() => toggleOpen(name)}
               >
                 <div className="flex items-center justify-between p-3">
-                  <div className="font-medium">{name}</div>
+                  <div className="font-medium">{getIndicatorDisplayName(name)}</div>
                   <div className="flex items-center gap-1">
                     <CollapsibleTrigger asChild>
                       <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -150,7 +182,7 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
                 <CollapsibleContent>
                   <div className="px-3 pb-3">
                     <IndicatorForm
-                      indicator={indicatorConfig[name]}
+                      indicator={indicatorConfig[name.split('_')[0]]}
                       values={selectedIndicators[name]}
                       onChange={(paramName, value) => 
                         handleParameterChange(name, paramName, value)
