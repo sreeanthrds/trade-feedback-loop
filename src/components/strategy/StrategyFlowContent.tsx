@@ -1,5 +1,5 @@
 
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useState, useEffect } from 'react';
 import { useTheme } from '@/hooks/use-theme';
 import { useFlowState } from './hooks/useFlowState';
 import { useFlowHandlers } from './hooks/useFlowHandlers';
@@ -55,26 +55,47 @@ const StrategyFlowContent = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
+  // Debug state management
+  useEffect(() => {
+    console.log('StrategyFlowContent - selectedNode:', selectedNode);
+    console.log('StrategyFlowContent - isPanelOpen:', isPanelOpen);
+  }, [selectedNode, isPanelOpen]);
+
+  // Safe wrapper for updateNodeData that preserves existing data
+  const safeUpdateNodeData = (id: string, newData: any) => {
+    const node = nodes.find(n => n.id === id);
+    if (node) {
+      const updatedData = { ...node.data, ...newData };
+      updateNodeData(id, updatedData);
+    }
+  };
+
   // Create a NodePanel component with fallback that uses Suspense
-  const LazyNodePanel = isPanelOpen && selectedNode ? (
-    <Suspense fallback={<div className="p-4">Loading panel...</div>}>
-      {/* Only render NodePanel when a node is selected and valid */}
-      <NodePanel
-        node={selectedNode}
-        updateNodeData={updateNodeData}
-        onClose={closePanel}
-      />
-    </Suspense>
-  ) : null;
+  // Only render when selectedNode is valid and panel is open
+  const renderNodePanel = () => {
+    if (!isPanelOpen || !selectedNode) {
+      return null;
+    }
+
+    return (
+      <Suspense fallback={<div className="p-4">Loading panel...</div>}>
+        <NodePanel
+          node={selectedNode}
+          updateNodeData={safeUpdateNodeData}
+          onClose={closePanel}
+        />
+      </Suspense>
+    );
+  };
 
   return (
     <FlowLayout
       isPanelOpen={isPanelOpen}
       selectedNode={selectedNode}
       onAddNode={handleAddNode}
-      updateNodeData={updateNodeData}
+      updateNodeData={safeUpdateNodeData}
       onClosePanel={closePanel}
-      nodePanelComponent={LazyNodePanel}
+      nodePanelComponent={renderNodePanel()}
     >
       <ReactFlowCanvas
         flowRef={reactFlowWrapper}

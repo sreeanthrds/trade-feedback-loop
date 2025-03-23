@@ -226,7 +226,9 @@ const TradingInstrumentSelector: React.FC<TradingInstrumentSelectorProps> = ({
                       </CommandItem>
                     ))}
                   </CommandGroup>
-                ) : null}
+                ) : (
+                  <div className="py-6 text-center text-sm">No items to display</div>
+                )}
               </Command>
             </PopoverContent>
           </Popover>

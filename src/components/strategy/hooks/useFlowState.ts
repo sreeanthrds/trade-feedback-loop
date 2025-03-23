@@ -26,14 +26,26 @@ export function useFlowState() {
   useEffect(() => {
     const savedStrategy = loadStrategyFromLocalStorage();
     if (savedStrategy) {
-      setNodes(savedStrategy.nodes);
+      // Ensure nodes have valid data property
+      const validNodes = savedStrategy.nodes.map(node => ({
+        ...node,
+        data: node.data || {} // Ensure data is at least an empty object
+      }));
+      
+      setNodes(validNodes);
       setEdges(savedStrategy.edges);
-      strategyStore.setNodes(savedStrategy.nodes);
+      strategyStore.setNodes(validNodes);
       strategyStore.setEdges(savedStrategy.edges);
     } else {
-      strategyStore.setNodes(initialNodes);
+      // Ensure initialNodes have valid data property
+      const validInitialNodes = initialNodes.map(node => ({
+        ...node,
+        data: node.data || {} // Ensure data is at least an empty object
+      }));
+      
+      strategyStore.setNodes(validInitialNodes);
       strategyStore.resetHistory();
-      strategyStore.addHistoryItem(initialNodes, []);
+      strategyStore.addHistoryItem(validInitialNodes, []);
     }
   }, []);
 
@@ -41,9 +53,23 @@ export function useFlowState() {
   useEffect(() => {
     const storeNodes = strategyStore.nodes;
     if (storeNodes.length > 0 && JSON.stringify(storeNodes) !== JSON.stringify(nodes)) {
-      setNodes(storeNodes);
+      // Ensure all nodes have valid data property
+      const validNodes = storeNodes.map(node => ({
+        ...node,
+        data: node.data || {} // Ensure data is at least an empty object
+      }));
+      
+      setNodes(validNodes);
+      
+      // Update selectedNode if it's in the nodes list
+      if (selectedNode) {
+        const updatedSelectedNode = validNodes.find(node => node.id === selectedNode.id);
+        if (updatedSelectedNode && JSON.stringify(updatedSelectedNode) !== JSON.stringify(selectedNode)) {
+          setSelectedNode(updatedSelectedNode);
+        }
+      }
     }
-  }, [strategyStore.nodes]);
+  }, [strategyStore.nodes, nodes, selectedNode]);
 
   // Sync edges from store to ReactFlow, but prevent infinite updates by checking for changes
   useEffect(() => {
@@ -51,7 +77,7 @@ export function useFlowState() {
     if (JSON.stringify(storeEdges) !== JSON.stringify(edges)) {
       setEdges(storeEdges);
     }
-  }, [strategyStore.edges]);
+  }, [strategyStore.edges, edges]);
 
   const onConnect = useCallback(
     (params: Connection) => {

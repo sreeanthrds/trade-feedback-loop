@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { 
   Expression, 
@@ -33,7 +34,7 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
   
   useEffect(() => {
     const startNode = strategyStore.nodes.find(node => node.type === 'startNode');
-    if (startNode && startNode.data.indicatorParameters) {
+    if (startNode && startNode.data && startNode.data.indicatorParameters) {
       const indicators = Object.keys(startNode.data.indicatorParameters || {});
       setAvailableIndicators(indicators);
     } else {
@@ -87,7 +88,7 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
   
   const getIndicatorDisplayName = (key: string) => {
     const startNode = strategyStore.nodes.find(node => node.type === 'startNode');
-    if (!startNode || !startNode.data.indicatorParameters) return key;
+    if (!startNode || !startNode.data || !startNode.data.indicatorParameters) return key;
     
     const baseName = key.split('_')[0];
     

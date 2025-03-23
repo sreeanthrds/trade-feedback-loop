@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Node } from '@xyflow/react';
 import { X } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -24,6 +24,12 @@ const NodePanel = ({ node, updateNodeData, onClose }: NodePanelProps) => {
 
   // Ensure node.data exists
   const nodeData = node.data || {};
+
+  // Add effect to log node data for debugging
+  useEffect(() => {
+    console.log('NodePanel rendering with node:', node);
+    console.log('Node data:', nodeData);
+  }, [node, nodeData]);
 
   const renderEditor = () => {
     switch (node.type) {

@@ -25,18 +25,28 @@ interface NodeData {
 }
 
 const SignalNodeEditor = ({ node, updateNodeData }: SignalNodeEditorProps) => {
-  const nodeData = node.data as NodeData | undefined || {};
+  // Ensure node.data exists and has the right shape
+  const nodeData: NodeData = node.data || {};
 
-  // Initialize complex conditions data structure if it doesn't exist
+  // Initialize conditions with a valid default if it doesn't exist
+  const defaultCondition: GroupCondition = {
+    id: 'root',
+    groupLogic: 'AND',
+    conditions: []
+  };
+
+  // Initialize with either the existing conditions or a default
   const [conditions, setConditions] = useState<GroupCondition[]>(
-    nodeData?.conditions || [
-      {
-        id: 'root',
-        groupLogic: 'AND',
-        conditions: []
-      }
-    ]
+    nodeData.conditions && nodeData.conditions.length > 0 
+      ? nodeData.conditions 
+      : [defaultCondition]
   );
+
+  // Log for debugging
+  useEffect(() => {
+    console.log('SignalNodeEditor - node:', node);
+    console.log('SignalNodeEditor - conditions:', conditions);
+  }, [node, conditions]);
 
   // Update node data when conditions change (with delay to prevent loops)
   useEffect(() => {
@@ -93,12 +103,18 @@ const SignalNodeEditor = ({ node, updateNodeData }: SignalNodeEditorProps) => {
           </TooltipProvider>
         </div>
         
-        <ConditionBuilder 
-          rootCondition={conditions[0]} 
-          updateConditions={(updatedRoot) => {
-            updateConditions([updatedRoot]);
-          }}
-        />
+        {conditions && conditions[0] ? (
+          <ConditionBuilder 
+            rootCondition={conditions[0]} 
+            updateConditions={(updatedRoot) => {
+              updateConditions([updatedRoot]);
+            }}
+          />
+        ) : (
+          <div className="text-sm text-muted-foreground">
+            Loading conditions...
+          </div>
+        )}
       </div>
       
       <div className="bg-muted/40 rounded-md p-4">
