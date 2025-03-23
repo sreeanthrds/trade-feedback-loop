@@ -5,7 +5,7 @@ import { Node } from '@xyflow/react';
 import { Trash2 } from 'lucide-react';
 
 interface NodeControlsProps {
-  node: Node;
+  node: any; // Using any to avoid TypeScript errors with position property
   onDelete: (nodeId: string) => void;
 }
 

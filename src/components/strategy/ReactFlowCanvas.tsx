@@ -6,7 +6,8 @@ import {
   Controls, 
   MiniMap,
   NodeTypes,
-  EdgeProps
+  EdgeProps,
+  Edge
 } from '@xyflow/react';
 import TopToolbar from './toolbars/TopToolbar';
 import BottomToolbar from './toolbars/BottomToolbar';
@@ -20,20 +21,38 @@ import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 
 // Custom edge with delete button
-const ButtonEdge = ({ id, ...props }: EdgeProps & { id: string; onDelete: (id: string) => void }) => {
+const ButtonEdge = ({ 
+  id, 
+  sourceX, 
+  sourceY, 
+  targetX, 
+  targetY, 
+  source, 
+  target,
+  style,
+  selected,
+  animated,
+  ...props 
+}: EdgeProps & { id: string; onDelete: (id: string) => void }) => {
   const { onDelete } = props;
   
   return (
     <>
-      {/* Use the default edge */}
-      <props.defaultEdgeComponent {...props} />
+      {/* Draw a simple bezier edge */}
+      <path
+        id={id}
+        className={`react-flow__edge-path ${animated ? 'animated' : ''}`}
+        d={`M ${sourceX},${sourceY} C ${sourceX + 50},${sourceY} ${targetX - 50},${targetY} ${targetX},${targetY}`}
+        style={style}
+        strokeWidth={selected ? 3 : 2}
+      />
       
       {/* Add a delete button */}
       <foreignObject
         width={20}
         height={20}
-        x={(props.sourceX + props.targetX) / 2 - 10}
-        y={(props.sourceY + props.targetY) / 2 - 10}
+        x={(sourceX + targetX) / 2 - 10}
+        y={(sourceY + targetY) / 2 - 10}
         requiredExtensions="http://www.w3.org/1999/xhtml"
       >
         <div className="flex items-center justify-center h-full">
@@ -86,35 +105,35 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
 }) => {
   // Create node types with delete functionality
   const nodeTypes: NodeTypes = {
-    startNode: (props) => <StartNode {...props} />,
-    signalNode: (props) => (
+    startNode: StartNode,
+    signalNode: (nodeProps) => (
       <>
-        <SignalNode {...props} />
-        <NodeControls node={props} onDelete={onDeleteNode} />
+        <SignalNode {...nodeProps} />
+        <NodeControls node={nodeProps} onDelete={onDeleteNode} />
       </>
     ),
-    actionNode: (props) => (
+    actionNode: (nodeProps) => (
       <>
-        <ActionNode {...props} />
-        <NodeControls node={props} onDelete={onDeleteNode} />
+        <ActionNode {...nodeProps} />
+        <NodeControls node={nodeProps} onDelete={onDeleteNode} />
       </>
     ),
-    endNode: (props) => (
+    endNode: (nodeProps) => (
       <>
-        <EndNode {...props} />
-        <NodeControls node={props} onDelete={onDeleteNode} />
+        <EndNode {...nodeProps} />
+        <NodeControls node={nodeProps} onDelete={onDeleteNode} />
       </>
     ),
-    forceEndNode: (props) => (
+    forceEndNode: (nodeProps) => (
       <>
-        <ForceEndNode {...props} />
-        <NodeControls node={props} onDelete={onDeleteNode} />
+        <ForceEndNode {...nodeProps} />
+        <NodeControls node={nodeProps} onDelete={onDeleteNode} />
       </>
     )
   };
 
   // Create edges with delete buttons
-  const edgesWithDeleteButtons = edges.map(edge => ({
+  const edgesWithDeleteButtons = edges.map((edge: Edge) => ({
     ...edge,
     data: {
       ...edge.data,
