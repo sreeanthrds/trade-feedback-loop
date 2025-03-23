@@ -31,18 +31,34 @@ const FlowLayout: React.FC<FlowLayoutProps> = ({
     <div className="strategy-flow-container h-full">
       <ResizablePanelGroup direction="horizontal" className="h-full">
         {/* Fixed width node sidebar without a resize handle */}
-        <ResizablePanel defaultSize={6} minSize={6} maxSize={6} className="bg-secondary/30">
+        <ResizablePanel 
+          defaultSize={6} 
+          minSize={6} 
+          maxSize={6} 
+          className="bg-secondary/30"
+          id="sidebar-panel"
+        >
           <NodeSidebar onAddNode={onAddNode} />
         </ResizablePanel>
         
-        <ResizablePanel defaultSize={isPanelOpen ? 65 : 94} minSize={isPanelOpen ? 45 : 85}>
+        <ResizablePanel 
+          defaultSize={isPanelOpen ? 65 : 94} 
+          minSize={isPanelOpen ? 45 : 85}
+          id="content-panel"
+        >
           {children}
         </ResizablePanel>
         
         {isPanelOpen && selectedNode && (
           <>
-            <ResizableHandle withHandle={true} />
-            <ResizablePanel defaultSize={29} minSize={20} maxSize={45} className="overflow-y-auto">
+            <ResizableHandle withHandle />
+            <ResizablePanel 
+              defaultSize={29} 
+              minSize={20} 
+              maxSize={45} 
+              className="overflow-y-auto"
+              id="config-panel"
+            >
               {nodePanelComponent}
             </ResizablePanel>
           </>

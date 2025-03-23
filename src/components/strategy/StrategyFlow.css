@@ -109,13 +109,14 @@
 }
 
 /* Resizable panels */
-.strategy-flow-container .handle {
+.strategy-flow-container .react-resizable-panels-handle {
   background-color: hsl(var(--border));
   position: relative;
+  cursor: col-resize;
 }
 
-.strategy-flow-container .handle:hover::before,
-.strategy-flow-container .handle:active::before {
+.strategy-flow-container .react-resizable-panels-handle:hover::before,
+.strategy-flow-container .react-resizable-panels-handle:active::before {
   content: "";
   position: absolute;
   top: 50%;
@@ -125,6 +126,11 @@
   height: 24px;
   background-color: hsl(var(--primary) / 0.5);
   border-radius: 2px;
+}
+
+/* Make sure handle is visible and draggable */
+.strategy-flow-container [data-panel-resize-handle-id] {
+  cursor: col-resize !important;
 }
 
 /* Custom scrollbar for the sidebars */
