@@ -17,6 +17,11 @@ interface NodePanelProps {
 }
 
 const NodePanel = ({ node, updateNodeData, onClose }: NodePanelProps) => {
+  // Ensure node is valid before attempting to render
+  if (!node) {
+    return null;
+  }
+
   const renderEditor = () => {
     switch (node.type) {
       case 'startNode':

@@ -55,9 +55,10 @@ const StrategyFlowContent = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
-  // Create a NodePanel component that uses Suspense
+  // Create a NodePanel component with fallback that uses Suspense
   const LazyNodePanel = isPanelOpen && selectedNode ? (
     <Suspense fallback={<div className="p-4">Loading panel...</div>}>
+      {/* Only render NodePanel when a node is selected */}
       <NodePanel
         node={selectedNode}
         updateNodeData={updateNodeData}

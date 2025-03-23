@@ -25,7 +25,7 @@ interface NodeData {
 }
 
 const SignalNodeEditor = ({ node, updateNodeData }: SignalNodeEditorProps) => {
-  const nodeData = node.data as NodeData | undefined;
+  const nodeData = node.data as NodeData | undefined || {};
 
   // Initialize complex conditions data structure if it doesn't exist
   const [conditions, setConditions] = useState<GroupCondition[]>(
@@ -48,10 +48,13 @@ const SignalNodeEditor = ({ node, updateNodeData }: SignalNodeEditorProps) => {
     }, 300);
     
     return () => clearTimeout(timer);
-  }, [conditions]);
+  }, [conditions, node.id, updateNodeData, nodeData]);
 
   const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    updateNodeData(node.id, { label: e.target.value });
+    updateNodeData(node.id, { 
+      ...nodeData,
+      label: e.target.value 
+    });
   };
 
   // Advanced condition handlers
