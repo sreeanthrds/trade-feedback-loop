@@ -55,7 +55,7 @@ const NodeConnectControls: React.FC<NodeConnectControlsProps> = ({ showOn, onAdd
             <Plus className="h-5 w-5 text-primary" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuContent align="end" className="w-48 bg-popover">
           {getNodeOptions().map((option) => (
             <DropdownMenuItem 
               key={option.value}

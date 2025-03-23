@@ -173,6 +173,12 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
           animated: true,
           style: { strokeWidth: 2 }
         }}
+        zoomOnScroll={false}
+        zoomOnPinch={true}
+        panOnScroll={true}
+        nodesDraggable={true}
+        elementsSelectable={true}
+        proOptions={{ hideAttribution: true }}
       >
         <Background />
         <Controls />

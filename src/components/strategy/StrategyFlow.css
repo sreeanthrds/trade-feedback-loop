@@ -174,3 +174,23 @@
 .group:hover .dropdown-trigger {
   opacity: 1;
 }
+
+/* Ensure dropdown content is visible */
+.react-flow__node .dropdown-content {
+  z-index: 9999;
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Ensure dropdown menu items are visible and interactive */
+.react-flow__node .dropdown-menu-item {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.react-flow__node .dropdown-menu-item:hover {
+  background-color: var(--accent);
+}
