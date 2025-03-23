@@ -207,24 +207,26 @@ const TradingInstrumentSelector: React.FC<TradingInstrumentSelectorProps> = ({
                   onValueChange={setSearchValue}
                 />
                 <CommandEmpty>No symbol found.</CommandEmpty>
-                <CommandGroup>
-                  {filteredSymbols.map((item) => (
-                    <CommandItem
-                      key={item.symbol}
-                      value={item.symbol}
-                      onSelect={() => handleSymbolChange(item.symbol)}
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          value.symbol === item.symbol ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      <span className="font-medium">{item.symbol}</span>
-                      <span className="ml-2 text-muted-foreground text-xs">{item.name}</span>
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
+                {filteredSymbols.length > 0 && (
+                  <CommandGroup>
+                    {filteredSymbols.map((item) => (
+                      <CommandItem
+                        key={item.symbol}
+                        value={item.symbol}
+                        onSelect={() => handleSymbolChange(item.symbol)}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            value.symbol === item.symbol ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        <span className="font-medium">{item.symbol}</span>
+                        <span className="ml-2 text-muted-foreground text-xs">{item.name}</span>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                )}
               </Command>
             </PopoverContent>
           </Popover>
