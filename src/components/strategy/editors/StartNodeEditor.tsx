@@ -8,6 +8,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import IndicatorSelector from './IndicatorSelector';
 import { timeframeOptions, exchangeOptions } from '../utils/indicatorConfig';
+import SymbolSelector from './form-components/SymbolSelector';
 
 interface StartNodeEditorProps {
   node: Node;
@@ -140,11 +141,11 @@ const StartNodeEditor = ({ node, updateNodeData }: StartNodeEditorProps) => {
         
         <div>
           <Label htmlFor="node-symbol">Symbol</Label>
-          <Input
+          <SymbolSelector
             id="node-symbol"
-            value={formData.symbol}
-            onChange={(e) => handleInputChange('symbol', e.target.value)}
-            placeholder="e.g., BANKNIFTY, RELIANCE"
+            value={formData.symbol || ''}
+            onChange={(value) => handleInputChange('symbol', value)}
+            placeholder="Search for a symbol..."
           />
         </div>
         
