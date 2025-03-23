@@ -6,19 +6,17 @@ import { GroupCondition, groupConditionToString } from '../utils/conditionTypes'
 
 interface SignalNodeData {
   label?: string;
-  simpleConditions?: string[];
   conditions?: GroupCondition[];
 }
 
 const SignalNode = ({ data }: { data: SignalNodeData }) => {
-  const simpleConditions = Array.isArray(data.simpleConditions) ? data.simpleConditions : [];
   const conditions = Array.isArray(data.conditions) ? data.conditions : [];
   
   // Determine if we have any conditions to display
-  const hasConditions = simpleConditions.length > 0 || conditions.length > 0;
+  const hasConditions = conditions.length > 0;
   
   // Format complex conditions for display
-  const getComplexConditionsDisplay = () => {
+  const getConditionsDisplay = () => {
     if (conditions.length === 0) return null;
     
     try {
@@ -28,7 +26,7 @@ const SignalNode = ({ data }: { data: SignalNodeData }) => {
     }
   };
   
-  const complexConditionDisplay = getComplexConditionsDisplay();
+  const conditionDisplay = getConditionsDisplay();
   
   return (
     <div className="px-4 py-3 rounded-md shadow-sm bg-white dark:bg-gray-800 border border-border">
@@ -43,24 +41,11 @@ const SignalNode = ({ data }: { data: SignalNodeData }) => {
         <div className="font-medium">{data.label || "Signal"}</div>
       </div>
       
-      {hasConditions ? (
+      {hasConditions && conditionDisplay ? (
         <div className="text-xs bg-muted/50 p-2 rounded-md mb-2 max-w-[220px] break-words">
-          {/* Show simple conditions */}
-          {simpleConditions.map((condition: string, index: number) => (
-            <div key={`simple-${index}`} className="mb-1 last:mb-0">
-              {condition}
-            </div>
-          ))}
-          
-          {/* Show complex conditions */}
-          {complexConditionDisplay && (
-            <div className={`${simpleConditions.length > 0 ? 'mt-2 pt-2 border-t border-border/30' : ''}`}>
-              <div className="text-[10px] uppercase text-muted-foreground mb-1">Advanced Condition</div>
-              <div className="font-mono">
-                {complexConditionDisplay}
-              </div>
-            </div>
-          )}
+          <div className="font-mono">
+            {conditionDisplay}
+          </div>
         </div>
       ) : (
         <div className="text-xs text-muted-foreground mb-2">
