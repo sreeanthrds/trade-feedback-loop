@@ -1,47 +1,9 @@
 
-/* Split Pane Styles */
-.Resizer {
-  background: var(--border);
-  z-index: 1;
-  box-sizing: border-box;
-  background-clip: padding-box;
-}
-
-.Resizer.horizontal {
-  height: 8px;
-  margin: -3px 0;
-  border-top: 3px solid transparent;
-  border-bottom: 3px solid transparent;
-  cursor: row-resize;
+/* Flow Layout Styles */
+.strategy-flow-container {
+  height: 100%;
   width: 100%;
-}
-
-.Resizer.horizontal:hover,
-.Resizer.horizontal.resizing {
-  border-top: 3px solid var(--primary);
-  border-bottom: 3px solid var(--primary);
-}
-
-.Resizer.vertical {
-  width: 8px;
-  margin: 0 -3px;
-  border-left: 3px solid transparent;
-  border-right: 3px solid transparent;
-  cursor: col-resize;
-}
-
-.Resizer.vertical:hover,
-.Resizer.vertical.resizing {
-  border-left: 3px solid var(--primary);
-  border-right: 3px solid var(--primary);
-}
-
-.Resizer.disabled {
-  cursor: not-allowed;
-}
-
-.Resizer.disabled:hover {
-  border-color: transparent;
+  overflow: hidden;
 }
 
 .flow-main-content {
@@ -49,6 +11,5 @@
   width: 100%;
 }
 
-.Pane {
-  overflow: hidden !important;
-}
+/* Import resizable panel styles */
+@import '../styles/resizable.css';

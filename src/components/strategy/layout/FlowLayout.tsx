@@ -1,8 +1,12 @@
 
 import React from 'react';
-import SplitPane from 'react-split-pane';
-import NodeSidebar from '../NodeSidebar';
 import { Node } from '@xyflow/react';
+import NodeSidebar from '../NodeSidebar';
+import { 
+  ResizablePanelGroup, 
+  ResizablePanel, 
+  ResizableHandle 
+} from '@/components/ui/resizable';
 import './FlowLayout.css';
 
 interface FlowLayoutProps {
@@ -15,9 +19,6 @@ interface FlowLayoutProps {
   nodePanelComponent?: React.ReactNode;
 }
 
-// This is needed to properly type SplitPane from react-split-pane
-const SplitPaneWrapper = SplitPane as any;
-
 const FlowLayout: React.FC<FlowLayoutProps> = ({
   children,
   isPanelOpen,
@@ -28,38 +29,31 @@ const FlowLayout: React.FC<FlowLayoutProps> = ({
 }) => {
   return (
     <div className="strategy-flow-container h-full">
-      <SplitPaneWrapper 
-        split="vertical"
-        minSize={100}
-        defaultSize={100}
-        primary="first"
-        paneStyle={{ overflow: 'auto' }}
-        allowResize={false}
-      >
-        <div className="bg-secondary/30 h-full">
+      <ResizablePanelGroup direction="horizontal" className="h-full w-full">
+        <ResizablePanel defaultSize={10} minSize={8} maxSize={15} className="bg-secondary/30">
           <NodeSidebar onAddNode={onAddNode} />
-        </div>
+        </ResizablePanel>
         
         {isPanelOpen && selectedNode ? (
-          <SplitPaneWrapper
-            split="vertical"
-            primary="second"
-            minSize={250}
-            maxSize={500}
-            defaultSize={350}
-            paneStyle={{ overflow: 'auto' }}
-          >
-            {children}
-            <div className="border-l border-border overflow-y-auto h-full">
+          <>
+            <ResizableHandle withHandle />
+            <ResizablePanel defaultSize={60} minSize={30}>
+              {children}
+            </ResizablePanel>
+            <ResizableHandle withHandle />
+            <ResizablePanel defaultSize={30} minSize={20} maxSize={40} className="border-l border-border">
               {nodePanelComponent}
-            </div>
-          </SplitPaneWrapper>
+            </ResizablePanel>
+          </>
         ) : (
-          <div className="flow-main-content">
-            {children}
-          </div>
+          <>
+            <ResizableHandle withHandle />
+            <ResizablePanel defaultSize={90} className="flow-main-content">
+              {children}
+            </ResizablePanel>
+          </>
         )}
-      </SplitPaneWrapper>
+      </ResizablePanelGroup>
     </div>
   );
 };
