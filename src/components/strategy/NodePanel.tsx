@@ -54,7 +54,7 @@ const NodePanel = ({ node, updateNodeData, onClose }: NodePanelProps) => {
             <X className="h-4 w-4" />
           </Button>
         </CardHeader>
-        <CardContent className="pt-4 px-4 sm:px-6 overflow-y-auto max-h-[calc(100vh-120px)]">
+        <CardContent className="pt-4 px-4 sm:px-6 overflow-y-auto max-h-[calc(100vh-180px)]">
           {renderEditor()}
         </CardContent>
       </Card>
