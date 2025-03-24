@@ -1,97 +1,32 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Node } from '@xyflow/react';
-import { NodeDetailsPanel, InfoBox } from './shared';
-import { Separator } from '@/components/ui/separator';
-import { Info } from 'lucide-react';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import ConditionBuilder from './condition-builder/ConditionBuilder';
-import { GroupCondition } from '../utils/conditionTypes';
+import { NodeDetailsPanel } from './shared';
+import { useSignalNodeForm } from './signal-node/useSignalNodeForm';
+import SignalNodeContent from './signal-node/SignalNodeContent';
 
 interface SignalNodeEditorProps {
   node: Node;
   updateNodeData: (id: string, data: any) => void;
 }
 
-interface NodeData {
-  label?: string;
-  conditions?: GroupCondition[];
-}
-
 const SignalNodeEditor = ({ node, updateNodeData }: SignalNodeEditorProps) => {
-  const nodeData = node.data as NodeData | undefined;
-
-  // Initialize complex conditions data structure if it doesn't exist
-  const [conditions, setConditions] = useState<GroupCondition[]>(
-    nodeData?.conditions || [
-      {
-        id: 'root',
-        groupLogic: 'AND',
-        conditions: []
-      }
-    ]
-  );
-
-  // Update node data when conditions change (with delay to prevent loops)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      updateNodeData(node.id, { 
-        ...nodeData,
-        conditions: conditions
-      });
-    }, 300);
-    
-    return () => clearTimeout(timer);
-  }, [conditions]);
-
-  const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    updateNodeData(node.id, { label: e.target.value });
-  };
-
-  // Advanced condition handlers
-  const updateConditions = (newConditions: GroupCondition[]) => {
-    setConditions(newConditions);
-  };
+  const { 
+    formData, 
+    conditions, 
+    handleLabelChange, 
+    updateConditions 
+  } = useSignalNodeForm({ node, updateNodeData });
 
   return (
     <NodeDetailsPanel
-      nodeLabel={nodeData?.label || 'Signal'}
+      nodeLabel={formData.label}
       onLabelChange={handleLabelChange}
       additionalContent={
-        <div className="space-y-4 pt-2">
-          <div className="flex items-center gap-2 mb-2">
-            <h3 className="text-sm font-medium">Condition Builder</h3>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs">
-                  <p className="text-xs">
-                    Build complex conditions with nested groups, indicators, and operators.
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-          
-          <ConditionBuilder 
-            rootCondition={conditions[0]} 
-            updateConditions={(updatedRoot) => {
-              updateConditions([updatedRoot]);
-            }}
-          />
-          
-          <InfoBox>
-            Signal nodes detect specific market conditions to trigger actions in your strategy.
-            Use groups for complex conditions with AND/OR logic.
-          </InfoBox>
-        </div>
+        <SignalNodeContent
+          conditions={conditions}
+          updateConditions={updateConditions}
+        />
       }
     />
   );
