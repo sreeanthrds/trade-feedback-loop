@@ -17,7 +17,7 @@ const ForceEndNodeSettings: React.FC<ForceEndNodeSettingsProps> = ({
 }) => {
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <SwitchField 
           label="Close all open positions"
           id="close-all" 

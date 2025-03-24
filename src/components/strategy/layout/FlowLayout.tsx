@@ -1,12 +1,9 @@
 
 import React from 'react';
-import { 
-  ResizablePanelGroup, 
-  ResizablePanel, 
-  ResizableHandle 
-} from '@/components/ui/resizable';
+import SplitPane from 'react-split-pane';
 import NodeSidebar from '../NodeSidebar';
 import { Node } from '@xyflow/react';
+import './SplitPaneStyles.css';
 
 interface FlowLayoutProps {
   children: React.ReactNode;
@@ -26,46 +23,43 @@ const FlowLayout: React.FC<FlowLayoutProps> = ({
   onClosePanel,
   nodePanelComponent
 }) => {
+  // Calculate default size for the node panel (bottom panel)
+  const defaultBottomPanelSize = isPanelOpen ? 300 : 0;
+
   return (
     <div className="strategy-flow-container h-full">
-      <ResizablePanelGroup direction="horizontal" className="h-full">
-        {/* Fixed width node sidebar without a resize handle */}
-        <ResizablePanel 
-          defaultSize={6} 
-          minSize={6} 
-          maxSize={6} 
-          className="bg-secondary/30"
-        >
+      {/* Horizontal split for sidebar and main content */}
+      <SplitPane
+        split="vertical"
+        minSize={200}
+        defaultSize={200}
+        primary="first"
+        paneStyle={{ overflow: 'auto' }}
+      >
+        {/* Left sidebar */}
+        <div className="bg-secondary/30 h-full overflow-y-auto">
           <NodeSidebar onAddNode={onAddNode} />
-        </ResizablePanel>
-        
-        {/* Main content panel */}
-        <ResizablePanel defaultSize={94} minSize={60}>
-          <ResizablePanelGroup direction="vertical" className="h-full">
-            <ResizablePanel 
-              defaultSize={isPanelOpen ? 70 : 100} 
-              minSize={isPanelOpen ? 40 : 100}
-            >
-              {children}
-            </ResizablePanel>
-            
-            {/* Config panel with resize handle */}
-            {isPanelOpen && selectedNode && (
-              <>
-                <ResizableHandle withHandle />
-                <ResizablePanel 
-                  defaultSize={30} 
-                  minSize={15} 
-                  maxSize={55} 
-                  className="overflow-y-auto border-t border-border"
-                >
-                  {nodePanelComponent}
-                </ResizablePanel>
-              </>
-            )}
-          </ResizablePanelGroup>
-        </ResizablePanel>
-      </ResizablePanelGroup>
+        </div>
+
+        {/* Main content and bottom panel */}
+        {isPanelOpen && selectedNode ? (
+          <SplitPane
+            split="horizontal"
+            primary="second"
+            minSize={200}
+            maxSize={500}
+            defaultSize={defaultBottomPanelSize}
+            paneStyle={{ overflow: 'auto' }}
+          >
+            <div className="h-full">{children}</div>
+            <div className="overflow-y-auto border-t border-border">
+              {nodePanelComponent}
+            </div>
+          </SplitPane>
+        ) : (
+          <div className="h-full">{children}</div>
+        )}
+      </SplitPane>
     </div>
   );
 };
