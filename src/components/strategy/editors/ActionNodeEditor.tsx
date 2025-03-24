@@ -34,18 +34,28 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
   
   // Get the start node to access its instrument
   useEffect(() => {
-    const nodes = getNodes();
-    const startNode = nodes.find(node => node.type === 'startNode');
-    if (startNode && startNode.data) {
-      const data = startNode.data as StartNodeData;
-      
-      // Check for options trading
-      const optionsEnabled = data.tradingInstrument?.type === 'options';
-      setHasOptionTrading(optionsEnabled || false);
-      
-      // Get and set the instrument from the start node
-      setStartNodeSymbol(data.symbol);
-    }
+    const fetchStartNodeData = () => {
+      const nodes = getNodes();
+      const startNode = nodes.find(node => node.type === 'startNode');
+      if (startNode && startNode.data) {
+        const data = startNode.data as StartNodeData;
+        
+        // Check for options trading
+        const optionsEnabled = data.tradingInstrument?.type === 'options';
+        setHasOptionTrading(optionsEnabled || false);
+        
+        // Get and set the instrument from the start node
+        setStartNodeSymbol(data.symbol);
+      }
+    };
+
+    // Initial fetch
+    fetchStartNodeData();
+
+    // Set up an interval to check for changes
+    const intervalId = setInterval(fetchStartNodeData, 500);
+
+    return () => clearInterval(intervalId);
   }, [getNodes]);
   
   const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
