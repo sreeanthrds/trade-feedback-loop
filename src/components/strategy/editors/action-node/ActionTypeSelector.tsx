@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Label } from '@/components/ui/label';
 import { ArrowUpCircle, X, AlertTriangle } from 'lucide-react';
 import { FormField } from '../shared';
 
