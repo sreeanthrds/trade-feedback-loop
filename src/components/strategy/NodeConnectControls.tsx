@@ -42,27 +42,27 @@ const NodeConnectControls: React.FC<NodeConnectControlsProps> = ({ showOn, onAdd
   };
 
   return (
-    <div className="absolute right-0 top-1/2 -mr-5 -mt-5 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+    <div className="absolute right-0 top-1/2 -mr-4 -mt-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
             size="icon"
-            className="h-10 w-10 rounded-full shadow-md bg-background border-primary"
+            className="h-8 w-8 rounded-full shadow-md bg-background border-primary"
             title="Add connected node"
           >
-            <Plus className="h-5 w-5 text-primary" />
+            <Plus className="h-4 w-4 text-primary" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent 
           align="end" 
-          sideOffset={10}
+          sideOffset={8}
         >
           {getNodeOptions().map((option) => (
             <DropdownMenuItem 
               key={option.value}
               onClick={() => handleAddNode(option.value)}
-              className="cursor-pointer"
+              className="cursor-pointer text-xs py-1.5"
             >
               {option.label}
             </DropdownMenuItem>

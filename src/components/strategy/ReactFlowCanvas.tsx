@@ -82,12 +82,15 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         fitView
-        deleteKeyCode="Delete"
+        minZoom={0.5}
+        maxZoom={2}
+        defaultZoom={0.7}
+        defaultViewport={{ x: 0, y: 0, zoom: 0.7 }}
         snapToGrid
         snapGrid={[15, 15]}
         defaultEdgeOptions={{
           animated: true,
-          style: { strokeWidth: 2 }
+          style: { strokeWidth: 1.5 }
         }}
         zoomOnScroll={false}
         zoomOnPinch={true}

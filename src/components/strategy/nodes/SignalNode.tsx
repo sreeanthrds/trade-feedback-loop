@@ -31,26 +31,26 @@ const SignalNode = ({ data }: { data: SignalNodeData }) => {
   const conditionDisplay = getConditionsDisplay();
   
   return (
-    <div className="px-4 py-3 rounded-md shadow-sm bg-white dark:bg-gray-800 border border-border">
+    <div className="px-3 py-2 rounded-md shadow-sm bg-white dark:bg-gray-800 border border-border">
       <Handle
         type="target"
         position={Position.Top}
         style={{ background: '#2196F3' }}
       />
       
-      <div className="flex items-center mb-2">
-        <Activity className="h-5 w-5 text-primary mr-2" />
-        <div className="font-medium">{data.label || "Signal"}</div>
+      <div className="flex items-center mb-1.5">
+        <Activity className="h-4 w-4 text-primary mr-1.5" />
+        <div className="font-medium text-xs">{data.label || "Signal"}</div>
       </div>
       
       {hasConditions && conditionDisplay ? (
-        <div className="text-xs bg-muted/50 p-2 rounded-md mb-2 max-w-[220px] break-words">
+        <div className="text-[10px] bg-muted/50 p-1.5 rounded-md mb-1.5 max-w-[180px] break-words">
           <div className="font-mono">
             {conditionDisplay}
           </div>
         </div>
       ) : (
-        <div className="text-xs text-muted-foreground mb-2">
+        <div className="text-[10px] text-muted-foreground mb-1.5">
           No conditions set
         </div>
       )}

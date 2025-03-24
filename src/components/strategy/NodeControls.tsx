@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
@@ -43,19 +42,19 @@ const NodeControls: React.FC<NodeControlsProps> = ({ node, onDelete }) => {
   };
 
   return (
-    <div className="absolute right-0 top-0 -mt-6 -mr-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+    <div className="absolute right-0 top-0 -mt-5 -mr-1.5 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
       <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogTrigger asChild>
           <Button
             variant="destructive"
             size="icon"
-            className="h-6 w-6 rounded-full shadow-md"
+            className="h-5 w-5 rounded-full shadow-md"
             onClick={(e) => {
               e.stopPropagation();
             }}
             title="Delete node"
           >
-            <Trash2 className="h-3 w-3" />
+            <Trash2 className="h-2.5 w-2.5" />
           </Button>
         </AlertDialogTrigger>
         <AlertDialogContent>

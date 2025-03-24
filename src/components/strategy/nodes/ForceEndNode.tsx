@@ -13,7 +13,7 @@ interface ForceEndNodeProps {
 
 const ForceEndNode = ({ data }: ForceEndNodeProps) => {
   return (
-    <div className="px-4 py-2 rounded-md">
+    <div className="px-3 py-2 rounded-md">
       <Handle
         type="target"
         position={Position.Top}
@@ -21,10 +21,10 @@ const ForceEndNode = ({ data }: ForceEndNodeProps) => {
       />
       
       <div className="flex items-center">
-        <AlertTriangle className="h-5 w-5 text-purple-500 dark:text-purple-400 mr-2" />
+        <AlertTriangle className="h-4 w-4 text-purple-500 dark:text-purple-400 mr-1.5" />
         <div>
-          <div className="font-medium">{data.label || "Force End"}</div>
-          <div className="text-xs text-foreground/60">Close All Positions</div>
+          <div className="font-medium text-xs">{data.label || "Force End"}</div>
+          <div className="text-[10px] text-foreground/60">Close All Positions</div>
         </div>
       </div>
     </div>
