@@ -31,17 +31,7 @@ const MarketDataSelector: React.FC<MarketDataSelectorProps> = ({
   const updateField = (value: string) => {
     updateExpression({
       ...marketDataExpr,
-      field: value,
-      // Clear sub-indicator when changing field
-      sub_indicator: value === 'PivotPoints' ? 'Pivot' : undefined
-    });
-  };
-  
-  // Update sub-indicator for fields that have them (like PivotPoints)
-  const updateSubIndicator = (value: string) => {
-    updateExpression({
-      ...marketDataExpr,
-      sub_indicator: value
+      field: value
     });
   };
   
@@ -60,29 +50,8 @@ const MarketDataSelector: React.FC<MarketDataSelectorProps> = ({
           <SelectItem value="Low">Low</SelectItem>
           <SelectItem value="Close">Close</SelectItem>
           <SelectItem value="Volume">Volume</SelectItem>
-          <SelectItem value="PivotPoints">Pivot Points</SelectItem>
         </SelectContent>
       </Select>
-      
-      {marketDataExpr.field === 'PivotPoints' && (
-        <Select 
-          value={marketDataExpr.sub_indicator || 'Pivot'} 
-          onValueChange={updateSubIndicator}
-        >
-          <SelectTrigger className="h-8">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Pivot">Pivot</SelectItem>
-            <SelectItem value="R1">Resistance 1</SelectItem>
-            <SelectItem value="R2">Resistance 2</SelectItem>
-            <SelectItem value="R3">Resistance 3</SelectItem>
-            <SelectItem value="S1">Support 1</SelectItem>
-            <SelectItem value="S2">Support 2</SelectItem>
-            <SelectItem value="S3">Support 3</SelectItem>
-          </SelectContent>
-        </Select>
-      )}
     </div>
   );
 };

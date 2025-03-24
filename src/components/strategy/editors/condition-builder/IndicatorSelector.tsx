@@ -34,7 +34,8 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
   
   useEffect(() => {
     const startNode = strategyStore.nodes.find(node => node.type === 'startNode');
-    if (startNode && startNode.data && startNode.data.indicators && Array.isArray(startNode.data.indicators) && startNode.data.indicators.length > 0) {
+    if (startNode && startNode.data && startNode.data.indicators && 
+        Array.isArray(startNode.data.indicators) && startNode.data.indicators.length > 0) {
       setAvailableIndicators(startNode.data.indicators);
     } else {
       setAvailableIndicators([]);
@@ -64,7 +65,8 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
       'MACD',
       'Stochastic',
       'ADX',
-      'Ichimoku'
+      'Ichimoku',
+      'PivotPoints'  // Added PivotPoints to multi-output indicators
     ];
     return multiOutputIndicators.includes(baseIndicator);
   };
@@ -79,7 +81,8 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
       'MACD': ['MACD', 'Signal', 'Histogram'],
       'Stochastic': ['SlowK', 'SlowD'],
       'ADX': ['ADX', 'PlusDI', 'MinusDI'],
-      'Ichimoku': ['Tenkan', 'Kijun', 'SenkouA', 'SenkouB', 'Chikou']
+      'Ichimoku': ['Tenkan', 'Kijun', 'SenkouA', 'SenkouB', 'Chikou'],
+      'PivotPoints': ['Pivot', 'R1', 'R2', 'R3', 'S1', 'S2', 'S3'] // Added PivotPoints parameters
     };
     
     return outputParameters[baseIndicator] || [];
