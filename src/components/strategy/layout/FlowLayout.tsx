@@ -15,24 +15,8 @@ interface FlowLayoutProps {
   nodePanelComponent?: React.ReactNode;
 }
 
-// This interface helps TypeScript understand the props for SplitPane
-interface SplitPaneComponentProps {
-  split?: 'vertical' | 'horizontal';
-  minSize?: number;
-  maxSize?: number;
-  defaultSize?: number;
-  size?: number;
-  primary?: 'first' | 'second';
-  paneStyle?: React.CSSProperties;
-  pane1Style?: React.CSSProperties;
-  pane2Style?: React.CSSProperties;
-  resizerStyle?: React.CSSProperties;
-  onChange?: (size: number) => void;
-  onDragStarted?: () => void;
-  onDragFinished?: () => void;
-  allowResize?: boolean;
-  children: React.ReactNode;
-}
+// This is needed to properly type SplitPane from react-split-pane
+const SplitPaneWrapper: typeof SplitPane = SplitPane as any;
 
 const FlowLayout: React.FC<FlowLayoutProps> = ({
   children,
@@ -44,7 +28,7 @@ const FlowLayout: React.FC<FlowLayoutProps> = ({
 }) => {
   return (
     <div className="strategy-flow-container h-full">
-      <SplitPane 
+      <SplitPaneWrapper 
         split="vertical"
         minSize={100}
         defaultSize={100}
@@ -57,7 +41,7 @@ const FlowLayout: React.FC<FlowLayoutProps> = ({
         </div>
         
         {isPanelOpen && selectedNode ? (
-          <SplitPane
+          <SplitPaneWrapper
             split="horizontal"
             primary="second"
             minSize={200}
@@ -69,13 +53,13 @@ const FlowLayout: React.FC<FlowLayoutProps> = ({
             <div className="border-t border-border overflow-y-auto">
               {nodePanelComponent}
             </div>
-          </SplitPane>
+          </SplitPaneWrapper>
         ) : (
           <div className="flow-main-content">
             {children}
           </div>
         )}
-      </SplitPane>
+      </SplitPaneWrapper>
     </div>
   );
 };
