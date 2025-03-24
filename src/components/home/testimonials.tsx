@@ -42,7 +42,7 @@ const TestimonialCard = ({ quote, author, role }: TestimonialProps) => (
 const Testimonials = () => {
   const testimonials = [
     {
-      quote: "TradeBack Pro saved me hours of manual testing and helped me find the edge I was missing in my strategies.",
+      quote: "Trady saved me hours of manual testing and helped me find the edge I was missing in my strategies.",
       author: "Michael K.",
       role: "Day Trader"
     },
@@ -104,4 +104,3 @@ const Testimonials = () => {
 };
 
 export default Testimonials;
-
