@@ -49,13 +49,20 @@ interface NodeData {
   };
 }
 
+interface StartNodeData {
+  tradingInstrument?: {
+    type?: 'options' | 'futures' | 'stock' | 'index';
+  };
+}
+
 // Check if the start node has options trading enabled
 const isOptionsSelected = (nodes: Node[], currentNodeId: string): boolean => {
   // Find the start node
   const startNode = nodes.find(node => node.type === 'startNode');
-  if (!startNode || !startNode.data.tradingInstrument) return false;
+  if (!startNode || !startNode.data) return false;
   
-  return startNode.data.tradingInstrument.type === 'options';
+  const data = startNode.data as StartNodeData;
+  return data.tradingInstrument?.type === 'options';
 };
 
 const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
