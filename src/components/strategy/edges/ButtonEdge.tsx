@@ -1,8 +1,19 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { EdgeProps } from '@xyflow/react';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 // Custom edge with delete button
 const ButtonEdge = ({ 
@@ -19,6 +30,12 @@ const ButtonEdge = ({
   ...props 
 }: EdgeProps & { id: string; onDelete: (id: string) => void }) => {
   const { onDelete } = props;
+  const [open, setOpen] = useState(false);
+  
+  const handleDelete = () => {
+    onDelete(id);
+    setOpen(false);
+  };
   
   return (
     <>
@@ -41,18 +58,42 @@ const ButtonEdge = ({
         className="edge-controls opacity-0 hover:opacity-100 transition-opacity duration-200"
       >
         <div className="flex items-center justify-center h-full">
-          <Button
-            variant="destructive"
-            size="icon"
-            className="h-5 w-5 rounded-full"
-            onClick={(event) => {
-              event.stopPropagation();
-              onDelete(id);
-            }}
-            title="Delete connection"
-          >
-            <Trash2 className="h-3 w-3" />
-          </Button>
+          <AlertDialog open={open} onOpenChange={setOpen}>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="destructive"
+                size="icon"
+                className="h-5 w-5 rounded-full"
+                onClick={(event) => {
+                  event.stopPropagation();
+                }}
+                title="Delete connection"
+              >
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Connection</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete this connection between nodes? 
+                  This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel onClick={(e) => e.stopPropagation()}>Cancel</AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete();
+                  }}
+                  variant="destructive"
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </foreignObject>
     </>
