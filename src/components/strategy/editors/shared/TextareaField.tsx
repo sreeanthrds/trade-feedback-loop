@@ -14,6 +14,7 @@ interface TextareaFieldProps {
   rows?: number;
   disabled?: boolean;
   readOnly?: boolean;
+  orientation?: 'vertical' | 'horizontal';
 }
 
 const TextareaField: React.FC<TextareaFieldProps> = ({
@@ -27,9 +28,16 @@ const TextareaField: React.FC<TextareaFieldProps> = ({
   rows = 3,
   disabled,
   readOnly,
+  orientation = 'vertical',
 }) => {
   return (
-    <FormField label={label} htmlFor={id} description={description} className={className}>
+    <FormField 
+      label={label} 
+      htmlFor={id} 
+      description={description} 
+      className={className}
+      orientation={orientation}
+    >
       <Textarea
         id={id}
         value={value}
@@ -38,6 +46,7 @@ const TextareaField: React.FC<TextareaFieldProps> = ({
         rows={rows}
         disabled={disabled}
         readOnly={readOnly}
+        className={orientation === 'horizontal' ? 'w-full' : ''}
       />
     </FormField>
   );

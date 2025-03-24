@@ -22,6 +22,7 @@ const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
         value={nodeLabel || ''}
         onChange={onLabelChange}
         placeholder="Enter node label"
+        orientation="horizontal"
       />
       
       {additionalContent && (

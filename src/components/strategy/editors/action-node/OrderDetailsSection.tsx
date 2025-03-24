@@ -30,7 +30,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
   onProductTypeChange
 }) => {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 grid grid-cols-1 gap-4">
       {actionType === 'entry' && (
         <RadioGroupField
           label="Position Type"
@@ -53,6 +53,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
           { value: 'market', label: 'Market' },
           { value: 'limit', label: 'Limit' }
         ]}
+        orientation="horizontal"
       />
       
       {orderType === 'limit' && (
@@ -63,6 +64,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
           value={limitPrice || ''}
           onChange={onLimitPriceChange}
           placeholder="Enter limit price"
+          orientation="horizontal"
         />
       )}
       
@@ -74,6 +76,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
         value={lots || 1}
         onChange={onLotsChange}
         placeholder="Number of lots"
+        orientation="horizontal"
       />
       
       <SelectField
@@ -85,6 +88,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
           { value: 'intraday', label: 'Intraday (MIS)' },
           { value: 'carryForward', label: 'Carry Forward (CNC)' }
         ]}
+        orientation="horizontal"
       />
     </div>
   );

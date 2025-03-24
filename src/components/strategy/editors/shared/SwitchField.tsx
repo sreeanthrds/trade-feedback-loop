@@ -17,6 +17,7 @@ interface SwitchFieldProps {
   id?: string;
   description?: string;
   className?: string;
+  orientation?: 'vertical' | 'horizontal';
 }
 
 const SwitchField: React.FC<SwitchFieldProps> = ({
@@ -26,9 +27,10 @@ const SwitchField: React.FC<SwitchFieldProps> = ({
   id,
   description,
   className = '',
+  orientation = 'horizontal',
 }) => {
   return (
-    <div className={`flex items-center justify-between space-x-2 ${className}`}>
+    <div className={`flex items-center ${orientation === 'horizontal' ? 'justify-between' : 'justify-between'} space-x-2 ${className}`}>
       <div className="flex items-center gap-2">
         <Label htmlFor={id} className="text-sm">
           {label}

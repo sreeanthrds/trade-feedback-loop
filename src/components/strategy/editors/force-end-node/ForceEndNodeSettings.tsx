@@ -22,6 +22,7 @@ const ForceEndNodeSettings: React.FC<ForceEndNodeSettingsProps> = ({
         id="close-all" 
         checked={closeAll}
         onCheckedChange={onCloseAllChange}
+        orientation="horizontal"
       />
       
       <InputField
@@ -30,6 +31,7 @@ const ForceEndNodeSettings: React.FC<ForceEndNodeSettingsProps> = ({
         value={message}
         onChange={onMessageChange}
         placeholder="Message to display when strategy ends"
+        orientation="horizontal"
       />
       
       <InfoBox type="warning" title="Force End Node">
