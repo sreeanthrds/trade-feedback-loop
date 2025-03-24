@@ -130,6 +130,9 @@ const StartNodeEditor = ({ node, updateNodeData }: StartNodeEditorProps) => {
     }, 100);
   };
   
+  // Check if there are any indicators
+  const hasIndicators = formData.indicators && formData.indicators.length > 0;
+  
   return (
     <Tabs defaultValue="basic" className="space-y-4">
       <TabsList className="grid grid-cols-2 w-full">
@@ -252,17 +255,19 @@ const StartNodeEditor = ({ node, updateNodeData }: StartNodeEditorProps) => {
       </TabsContent>
       
       <TabsContent value="indicators">
-        <Accordion type="single" collapsible className="w-full">
-          <AccordionItem value="indicators">
-            <AccordionTrigger>Technical Indicators</AccordionTrigger>
-            <AccordionContent>
-              <IndicatorSelector
-                selectedIndicators={formData.indicatorParameters || {}}
-                onChange={handleIndicatorsChange}
-              />
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+        {/* Always show indicators section, no Accordion needed */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between border-b border-border pb-2">
+            <h3 className="text-sm font-medium text-foreground">Technical Indicators</h3>
+          </div>
+          
+          <div className="pt-1">
+            <IndicatorSelector
+              selectedIndicators={formData.indicatorParameters || {}}
+              onChange={handleIndicatorsChange}
+            />
+          </div>
+        </div>
         
         <div className="bg-muted/30 rounded-md p-4 mt-4">
           <p className="text-sm text-muted-foreground">
