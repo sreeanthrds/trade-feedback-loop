@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { Node } from '@xyflow/react';
+import { Node, useReactFlow } from '@xyflow/react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator'; 
@@ -53,34 +53,38 @@ interface StartNodeData {
   tradingInstrument?: {
     type?: 'options' | 'futures' | 'stock' | 'index';
   };
+  symbol?: string;
 }
 
-// Check if the start node has options trading enabled
-const isOptionsSelected = (nodes: Node[], currentNodeId: string): boolean => {
-  // Find the start node
-  const startNode = nodes.find(node => node.type === 'startNode');
-  if (!startNode || !startNode.data) return false;
-  
-  const data = startNode.data as StartNodeData;
-  return data.tradingInstrument?.type === 'options';
-};
-
 const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
+  const { getNodes } = useReactFlow();
   const nodeData = node.data as NodeData;
   const [showLimitPrice, setShowLimitPrice] = useState(nodeData.orderType === 'limit');
   const [hasOptionTrading, setHasOptionTrading] = useState(false);
+  const [startNodeSymbol, setStartNodeSymbol] = useState<string | undefined>(undefined);
   
-  // Check for options trading when component mounts
+  // Get the start node to access its instrument
   useEffect(() => {
-    // This would typically be accessed from a context or from props
-    // For now, we'll mock this check with a simple function
-    const allNodes = []; // This should come from context/props
-    const optionsEnabled = isOptionsSelected(allNodes, node.id);
-    setHasOptionTrading(optionsEnabled);
-    
-    // For demo purposes, let's assume options are available
-    setHasOptionTrading(true);
-  }, [node.id]);
+    const nodes = getNodes();
+    const startNode = nodes.find(node => node.type === 'startNode');
+    if (startNode && startNode.data) {
+      const data = startNode.data as StartNodeData;
+      
+      // Check for options trading
+      const optionsEnabled = data.tradingInstrument?.type === 'options';
+      setHasOptionTrading(optionsEnabled || false);
+      
+      // Get and set the instrument from the start node
+      setStartNodeSymbol(data.symbol);
+      
+      // If the start node has an instrument, update the action node to use it
+      if (data.symbol && data.symbol !== nodeData.instrument) {
+        updateNodeData(node.id, { 
+          instrument: data.symbol 
+        });
+      }
+    }
+  }, [getNodes, node.id, updateNodeData]);
   
   const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateNodeData(node.id, { label: e.target.value });
@@ -117,10 +121,6 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
   
   const handleProductTypeChange = (value: string) => {
     updateNodeData(node.id, { productType: value });
-  };
-  
-  const handleInstrumentChange = (value: string) => {
-    updateNodeData(node.id, { instrument: value });
   };
   
   const handleExpiryChange = (value: string) => {
@@ -221,7 +221,7 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
                   <div className="space-y-2">
                     <Label>Position Type</Label>
                     <RadioGroup 
-                      defaultValue={nodeData.positionType || 'buy'}
+                      value={nodeData.positionType || 'buy'}
                       onValueChange={handlePositionTypeChange}
                       className="flex gap-4"
                     >
@@ -253,7 +253,7 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
                   </Select>
                 </div>
                 
-                {showLimitPrice && (
+                {nodeData.orderType === 'limit' && (
                   <div className="space-y-2">
                     <Label htmlFor="limit-price">Limit Price</Label>
                     <Input
@@ -303,24 +303,12 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
               <AccordionContent className="space-y-4 py-3">
                 <div className="space-y-2">
                   <Label htmlFor="instrument">Instrument</Label>
-                  <Select
-                    value={nodeData.instrument || ''}
-                    onValueChange={handleInstrumentChange}
-                  >
-                    <SelectTrigger id="instrument">
-                      <SelectValue placeholder="Select instrument" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="NIFTY50">NIFTY 50</SelectItem>
-                      <SelectItem value="BANKNIFTY">BANK NIFTY</SelectItem>
-                      <SelectItem value="FINNIFTY">FIN NIFTY</SelectItem>
-                      <SelectItem value="MIDCPNIFTY">MIDCAP NIFTY</SelectItem>
-                      <SelectItem value="SENSEX">SENSEX</SelectItem>
-                      <SelectItem value="RELIANCE">Reliance Industries</SelectItem>
-                      <SelectItem value="HDFCBANK">HDFC Bank</SelectItem>
-                      <SelectItem value="TCS">TCS</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="p-2 border border-input rounded-md bg-muted/20 text-sm">
+                    {startNodeSymbol || 'No instrument selected in Start Node'}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    This value is inherited from the Start Node
+                  </p>
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -388,7 +376,7 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
                   <div className="space-y-2">
                     <Label>Option Type</Label>
                     <RadioGroup 
-                      defaultValue={nodeData.optionDetails?.optionType || 'CE'}
+                      value={nodeData.optionDetails?.optionType || 'CE'}
                       onValueChange={handleOptionTypeChange}
                       className="flex gap-4"
                     >

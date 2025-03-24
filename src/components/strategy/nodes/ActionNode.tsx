@@ -1,6 +1,6 @@
 
-import React, { memo } from 'react';
-import { Handle, Position } from '@xyflow/react';
+import React, { memo, useEffect, useState } from 'react';
+import { Handle, Position, useReactFlow } from '@xyflow/react';
 import { SlidersHorizontal, AlertTriangle, CircleDollarSign, X, ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
 
 interface ActionNodeData {
@@ -20,7 +20,24 @@ interface ActionNodeData {
   };
 }
 
-const ActionNode = ({ data }: { data: ActionNodeData }) => {
+interface StartNodeData {
+  symbol?: string;
+}
+
+const ActionNode = ({ data, id }: { data: ActionNodeData, id: string }) => {
+  const { getNodes } = useReactFlow();
+  const [startNodeSymbol, setStartNodeSymbol] = useState<string | undefined>(undefined);
+  
+  // Get the start node symbol to display
+  useEffect(() => {
+    const nodes = getNodes();
+    const startNode = nodes.find(node => node.type === 'startNode');
+    if (startNode && startNode.data) {
+      const startData = startNode.data as StartNodeData;
+      setStartNodeSymbol(startData.symbol);
+    }
+  }, [getNodes]);
+  
   const getActionIcon = () => {
     switch (data.actionType) {
       case 'entry': return data.positionType === 'buy' 
@@ -116,10 +133,10 @@ const ActionNode = ({ data }: { data: ActionNodeData }) => {
           </>
         )}
         
-        {data.instrument && (
+        {startNodeSymbol && (
           <div className="flex justify-between">
             <span className="text-foreground/60">Instrument:</span>
-            <span className="font-medium">{data.instrument}</span>
+            <span className="font-medium">{startNodeSymbol}</span>
           </div>
         )}
         

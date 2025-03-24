@@ -13,6 +13,16 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+.react-flow__minimap-mask {
+  fill: rgba(255, 255, 255, 0.1);
+  stroke: var(--primary);
+  stroke-width: 1px;
+}
+
+.react-flow__minimap-node {
+  stroke-width: 1px;
+}
+
 /* Dark mode adjustments */
 .dark .react-flow__node {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
