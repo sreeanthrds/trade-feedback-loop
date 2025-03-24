@@ -73,7 +73,7 @@ const NodeControls: React.FC<NodeControlsProps> = ({ node, onDelete }) => {
                 e.stopPropagation();
                 handleDelete();
               }}
-              variant="destructive"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Delete
             </AlertDialogAction>
