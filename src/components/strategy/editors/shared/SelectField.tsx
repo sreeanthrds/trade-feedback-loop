@@ -47,6 +47,7 @@ const SelectField: React.FC<SelectFieldProps> = ({
       <Select
         value={value}
         onValueChange={onChange}
+        defaultValue={value}
       >
         <SelectTrigger id={id} className={triggerClassName}>
           <SelectValue placeholder={placeholder} />
