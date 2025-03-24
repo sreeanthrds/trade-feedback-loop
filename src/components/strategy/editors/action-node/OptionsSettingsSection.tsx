@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { RadioGroupField, SelectField, InputField } from '../shared';
 
 interface OptionDetailsType {
@@ -24,6 +24,47 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
   onStrikeValueChange,
   onOptionTypeChange
 }) => {
+  const [strikeCategory, setStrikeCategory] = useState<'ATM' | 'ITM' | 'OTM' | 'premium'>('ATM');
+  const [strikeDistance, setStrikeDistance] = useState<string>('');
+
+  // When component mounts or optionDetails changes, set the initial strike category and distance
+  useEffect(() => {
+    if (optionDetails?.strikeType) {
+      if (optionDetails.strikeType === 'ATM' || optionDetails.strikeType === 'premium') {
+        setStrikeCategory(optionDetails.strikeType);
+        setStrikeDistance('');
+      } else if (optionDetails.strikeType.startsWith('ITM')) {
+        setStrikeCategory('ITM');
+        setStrikeDistance(optionDetails.strikeType);
+      } else if (optionDetails.strikeType.startsWith('OTM')) {
+        setStrikeCategory('OTM');
+        setStrikeDistance(optionDetails.strikeType);
+      }
+    }
+  }, [optionDetails?.strikeType]);
+
+  // Handle changes to the strike category
+  const handleStrikeCategoryChange = (value: string) => {
+    setStrikeCategory(value as any);
+    
+    if (value === 'ATM' || value === 'premium') {
+      // For ATM or premium, directly update the strike type
+      onStrikeTypeChange(value);
+      setStrikeDistance('');
+    } else if (value === 'ITM' || value === 'OTM') {
+      // For ITM or OTM, set default to level 1 if not already set
+      const newStrikeType = `${value}1`;
+      onStrikeTypeChange(newStrikeType);
+      setStrikeDistance(newStrikeType);
+    }
+  };
+
+  // Handle changes to the strike distance
+  const handleStrikeDistanceChange = (value: string) => {
+    setStrikeDistance(value);
+    onStrikeTypeChange(value);
+  };
+
   const expiryOptions = [
     { value: 'W0', label: 'Current Week (W0)' },
     { value: 'W1', label: 'Next Week (W1)' },
@@ -39,40 +80,28 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
     { value: 'Y1', label: 'Next Year (Y1)' }
   ];
 
-  const strikeTypeOptions = [
+  const strikeCategoryOptions = [
     { value: 'ATM', label: 'At The Money (ATM)' },
-    { value: 'ITM1', label: 'In The Money 1 Strike (ITM1)' },
-    { value: 'ITM2', label: 'In The Money 2 Strikes (ITM2)' },
-    { value: 'ITM3', label: 'In The Money 3 Strikes (ITM3)' },
-    { value: 'ITM4', label: 'In The Money 4 Strikes (ITM4)' },
-    { value: 'ITM5', label: 'In The Money 5 Strikes (ITM5)' },
-    { value: 'ITM6', label: 'In The Money 6 Strikes (ITM6)' },
-    { value: 'ITM7', label: 'In The Money 7 Strikes (ITM7)' },
-    { value: 'ITM8', label: 'In The Money 8 Strikes (ITM8)' },
-    { value: 'ITM9', label: 'In The Money 9 Strikes (ITM9)' },
-    { value: 'ITM10', label: 'In The Money 10 Strikes (ITM10)' },
-    { value: 'ITM11', label: 'In The Money 11 Strikes (ITM11)' },
-    { value: 'ITM12', label: 'In The Money 12 Strikes (ITM12)' },
-    { value: 'ITM13', label: 'In The Money 13 Strikes (ITM13)' },
-    { value: 'ITM14', label: 'In The Money 14 Strikes (ITM14)' },
-    { value: 'ITM15', label: 'In The Money 15 Strikes (ITM15)' },
-    { value: 'OTM1', label: 'Out The Money 1 Strike (OTM1)' },
-    { value: 'OTM2', label: 'Out The Money 2 Strikes (OTM2)' },
-    { value: 'OTM3', label: 'Out The Money 3 Strikes (OTM3)' },
-    { value: 'OTM4', label: 'Out The Money 4 Strikes (OTM4)' },
-    { value: 'OTM5', label: 'Out The Money 5 Strikes (OTM5)' },
-    { value: 'OTM6', label: 'Out The Money 6 Strikes (OTM6)' },
-    { value: 'OTM7', label: 'Out The Money 7 Strikes (OTM7)' },
-    { value: 'OTM8', label: 'Out The Money 8 Strikes (OTM8)' },
-    { value: 'OTM9', label: 'Out The Money 9 Strikes (OTM9)' },
-    { value: 'OTM10', label: 'Out The Money 10 Strikes (OTM10)' },
-    { value: 'OTM11', label: 'Out The Money 11 Strikes (OTM11)' },
-    { value: 'OTM12', label: 'Out The Money 12 Strikes (OTM12)' },
-    { value: 'OTM13', label: 'Out The Money 13 Strikes (OTM13)' },
-    { value: 'OTM14', label: 'Out The Money 14 Strikes (OTM14)' },
-    { value: 'OTM15', label: 'Out The Money 15 Strikes (OTM15)' },
+    { value: 'ITM', label: 'In The Money (ITM)' },
+    { value: 'OTM', label: 'Out of The Money (OTM)' },
     { value: 'premium', label: 'By Premium' }
   ];
+
+  // Generate options for ITM strike distances
+  const generateStrikeDistanceOptions = () => {
+    if (strikeCategory === 'ITM') {
+      return Array.from({ length: 15 }, (_, i) => ({
+        value: `ITM${i + 1}`,
+        label: `${i + 1} Strike${i > 0 ? 's' : ''} ITM`
+      }));
+    } else if (strikeCategory === 'OTM') {
+      return Array.from({ length: 15 }, (_, i) => ({
+        value: `OTM${i + 1}`,
+        label: `${i + 1} Strike${i > 0 ? 's' : ''} OTM`
+      }));
+    }
+    return [];
+  };
 
   return (
     <div className="space-y-4">
@@ -86,13 +115,23 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
       
       <SelectField
         label="Strike Selection"
-        id="strike-type"
-        value={optionDetails?.strikeType || ''}
-        onChange={onStrikeTypeChange}
-        options={strikeTypeOptions}
+        id="strike-category"
+        value={strikeCategory}
+        onChange={handleStrikeCategoryChange}
+        options={strikeCategoryOptions}
       />
       
-      {optionDetails?.strikeType === 'premium' && (
+      {(strikeCategory === 'ITM' || strikeCategory === 'OTM') && (
+        <SelectField
+          label={`${strikeCategory === 'ITM' ? 'ITM' : 'OTM'} Distance`}
+          id="strike-distance"
+          value={strikeDistance}
+          onChange={handleStrikeDistanceChange}
+          options={generateStrikeDistanceOptions()}
+        />
+      )}
+      
+      {strikeCategory === 'premium' && (
         <InputField
           label="Target Premium (₹)"
           id="premium-value"
