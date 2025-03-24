@@ -5,20 +5,20 @@ import Logo from './logo';
 import DesktopNav from './desktop-nav';
 import MobileNav from './mobile-nav';
 import ThemeToggle from './theme-toggle';
+import { useTheme } from '@/hooks/use-theme';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const location = useLocation();
-
+  const { theme, setTheme } = useTheme();
+  
   // Toggle mobile menu
   const toggleMenu = () => setIsOpen(!isOpen);
   
   // Toggle dark/light mode
   const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-    document.documentElement.classList.toggle('dark');
+    setTheme(theme === 'dark' ? 'light' : 'dark');
   };
   
   // Handle scroll event for navbar background
@@ -58,7 +58,7 @@ const Navbar = () => {
           
           {/* Theme Toggle & Mobile Menu Button */}
           <div className="flex items-center space-x-4 ml-auto">
-            <ThemeToggle isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
+            <ThemeToggle isDarkMode={theme === 'dark'} toggleTheme={toggleTheme} />
             <MobileNav isOpen={isOpen} toggleMenu={toggleMenu} />
           </div>
         </div>
