@@ -50,6 +50,7 @@ const MarketDataSelector: React.FC<MarketDataSelectorProps> = ({
           <SelectItem value="Low">Low</SelectItem>
           <SelectItem value="Close">Close</SelectItem>
           <SelectItem value="Volume">Volume</SelectItem>
+          <SelectItem value="LTP">LTP</SelectItem>
         </SelectContent>
       </Select>
     </div>
