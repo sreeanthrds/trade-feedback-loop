@@ -1,18 +1,19 @@
 
 import React from 'react';
 import { Panel } from '@xyflow/react';
-import { Undo, Redo, Moon, Sun } from 'lucide-react';
+import { Undo, Redo } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/hooks/use-theme';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
+import ThemeToggle from '@/components/ui/theme-toggle';
 
-interface TopToolbarProps {
-  toggleTheme: () => void;
-}
-
-const TopToolbar: React.FC<TopToolbarProps> = ({ toggleTheme }) => {
-  const { theme } = useTheme();
+const TopToolbar: React.FC = () => {
+  const { theme, setTheme } = useTheme();
   const strategyStore = useStrategyStore();
+  
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
   
   return (
     <Panel position="top-center">
@@ -35,14 +36,7 @@ const TopToolbar: React.FC<TopToolbarProps> = ({ toggleTheme }) => {
           <Redo className="h-4 w-4" />
           <span className="sr-only">Redo</span>
         </Button>
-        <Button size="sm" variant="outline" onClick={toggleTheme}>
-          {theme === 'light' ? (
-            <Moon className="h-4 w-4 text-indigo-700" />
-          ) : (
-            <Sun className="h-4 w-4 text-yellow-400" />
-          )}
-          <span className="sr-only">Toggle Theme</span>
-        </Button>
+        <ThemeToggle isDarkMode={theme === 'dark'} toggleTheme={toggleTheme} />
       </div>
     </Panel>
   );

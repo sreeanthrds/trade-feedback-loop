@@ -51,10 +51,6 @@ const StrategyFlowContent = () => {
     strategyStore
   });
 
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
-
   // Create a NodePanel component that uses Suspense
   const LazyNodePanel = isPanelOpen && selectedNode ? (
     <Suspense fallback={<div className="p-4">Loading panel...</div>}>
@@ -83,7 +79,6 @@ const StrategyFlowContent = () => {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onNodeClick={onNodeClick}
-        toggleTheme={toggleTheme}
         resetStrategy={resetStrategy}
         onImportSuccess={handleImportSuccess}
         onDeleteNode={handleDeleteNode}

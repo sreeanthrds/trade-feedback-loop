@@ -22,7 +22,6 @@ interface ReactFlowCanvasProps {
   onEdgesChange: any;
   onConnect: any;
   onNodeClick: any;
-  toggleTheme: () => void;
   resetStrategy: () => void;
   onImportSuccess: () => void;
   onDeleteNode: (id: string) => void;
@@ -38,7 +37,6 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   onEdgesChange,
   onConnect,
   onNodeClick,
-  toggleTheme,
   resetStrategy,
   onImportSuccess,
   onDeleteNode,
@@ -135,7 +133,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
           )}
         </div>
         
-        <TopToolbar toggleTheme={toggleTheme} />
+        <TopToolbar />
         <BottomToolbar 
           resetStrategy={resetStrategy} 
           onImportSuccess={onImportSuccess}
