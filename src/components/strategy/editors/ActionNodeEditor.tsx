@@ -30,7 +30,7 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
   const nodeData = node.data as NodeData;
   const [showLimitPrice, setShowLimitPrice] = useState(nodeData.orderType === 'limit');
   const [hasOptionTrading, setHasOptionTrading] = useState(false);
-  const [startNodeSymbol, setStartNodeSymbol] = useState<string | undefined>(undefined);
+  const [startNodeSymbol, setStartNodeSymbol] = useState<string | undefined>(nodeData.instrument || undefined);
   
   // Get the start node to access its instrument
   useEffect(() => {
@@ -45,18 +45,25 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
         setHasOptionTrading(optionsEnabled || false);
         
         // Get and set the instrument from the start node
-        setStartNodeSymbol(data.symbol);
+        if (data.symbol !== startNodeSymbol) {
+          setStartNodeSymbol(data.symbol);
+          
+          // Also update the node data if the symbol changed
+          if (data.symbol) {
+            updateNodeData(node.id, { instrument: data.symbol });
+          }
+        }
       }
     };
 
     // Initial fetch
     fetchStartNodeData();
 
-    // Set up an interval to check for changes
-    const intervalId = setInterval(fetchStartNodeData, 500);
+    // Set up an interval to check for changes - more frequent updates for better responsiveness
+    const intervalId = setInterval(fetchStartNodeData, 200);
 
     return () => clearInterval(intervalId);
-  }, [getNodes]);
+  }, [getNodes, node.id, startNodeSymbol, updateNodeData]);
   
   const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateNodeData(node.id, { label: e.target.value });

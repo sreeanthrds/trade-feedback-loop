@@ -26,7 +26,7 @@ interface StartNodeData {
 
 const ActionNode = ({ data, id }: { data: ActionNodeData, id: string }) => {
   const { getNodes } = useReactFlow();
-  const [startNodeSymbol, setStartNodeSymbol] = useState<string | undefined>(undefined);
+  const [startNodeSymbol, setStartNodeSymbol] = useState<string | undefined>(data.instrument);
   
   // Get the start node symbol to display
   useEffect(() => {
@@ -35,18 +35,20 @@ const ActionNode = ({ data, id }: { data: ActionNodeData, id: string }) => {
       const startNode = nodes.find(node => node.type === 'startNode');
       if (startNode && startNode.data) {
         const startData = startNode.data as StartNodeData;
-        setStartNodeSymbol(startData.symbol);
+        if (startData.symbol !== startNodeSymbol) {
+          setStartNodeSymbol(startData.symbol);
+        }
       }
     };
 
     // Initial fetch
     fetchStartNodeSymbol();
 
-    // Set up an interval to check for changes
-    const intervalId = setInterval(fetchStartNodeSymbol, 500);
+    // Set up an interval to check for changes - more frequent updates for better responsiveness
+    const intervalId = setInterval(fetchStartNodeSymbol, 200);
 
     return () => clearInterval(intervalId);
-  }, [getNodes]);
+  }, [getNodes, startNodeSymbol]);
   
   const getActionIcon = () => {
     switch (data.actionType) {
