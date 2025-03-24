@@ -16,7 +16,7 @@ interface FlowLayoutProps {
 }
 
 // This is needed to properly type SplitPane from react-split-pane
-const SplitPaneWrapper: typeof SplitPane = SplitPane as any;
+const SplitPaneWrapper = SplitPane as any;
 
 const FlowLayout: React.FC<FlowLayoutProps> = ({
   children,
@@ -42,15 +42,15 @@ const FlowLayout: React.FC<FlowLayoutProps> = ({
         
         {isPanelOpen && selectedNode ? (
           <SplitPaneWrapper
-            split="horizontal"
+            split="vertical"
             primary="second"
-            minSize={200}
+            minSize={250}
             maxSize={500}
-            defaultSize={300}
+            defaultSize={350}
             paneStyle={{ overflow: 'auto' }}
           >
             {children}
-            <div className="border-t border-border overflow-y-auto">
+            <div className="border-l border-border overflow-y-auto h-full">
               {nodePanelComponent}
             </div>
           </SplitPaneWrapper>
