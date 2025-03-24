@@ -13,19 +13,27 @@ interface SignalNodeFormData {
   conditions: GroupCondition[];
 }
 
+interface SignalNodeData {
+  label?: string;
+  conditions?: GroupCondition[];
+}
+
 export const useSignalNodeForm = ({ node, updateNodeData }: UseSignalNodeFormProps) => {
-  const nodeData = node.data || {};
+  // Safely cast node.data with default fallback
+  const nodeData = (node.data || {}) as SignalNodeData;
   
   // Initialize complex conditions data structure if it doesn't exist
-  const [conditions, setConditions] = useState<GroupCondition[]>(
-    nodeData.conditions || [
-      {
-        id: 'root',
-        groupLogic: 'AND',
-        conditions: []
-      }
-    ]
-  );
+  const initialConditions: GroupCondition[] = Array.isArray(nodeData.conditions) 
+    ? nodeData.conditions
+    : [
+        {
+          id: 'root',
+          groupLogic: 'AND',
+          conditions: []
+        }
+      ];
+  
+  const [conditions, setConditions] = useState<GroupCondition[]>(initialConditions);
 
   const [formData, setFormData] = useState<SignalNodeFormData>({
     label: nodeData.label || 'Signal',
@@ -48,19 +56,20 @@ export const useSignalNodeForm = ({ node, updateNodeData }: UseSignalNodeFormPro
     }, 300);
     
     return () => clearTimeout(timer);
-  }, [conditions]);
+  }, [conditions, node.id, nodeData, updateNodeData]);
 
   // Update local state if node data changes externally
   useEffect(() => {
+    const safeNodeData = (node.data || {}) as SignalNodeData;
     setFormData({
-      label: nodeData.label || 'Signal',
-      conditions: nodeData.conditions || conditions
+      label: safeNodeData.label || 'Signal',
+      conditions: conditions
     });
     
-    if (nodeData.conditions) {
-      setConditions(nodeData.conditions);
+    if (Array.isArray(safeNodeData.conditions)) {
+      setConditions(safeNodeData.conditions);
     }
-  }, [nodeData.label]);
+  }, [node.data?.label]);
 
   const updateConditions = (newConditions: GroupCondition[]) => {
     setConditions(newConditions);
