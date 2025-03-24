@@ -3,9 +3,20 @@
 .strategy-flow-container [data-panel-resize-handle-id] {
   touch-action: none;
   user-select: none;
+  width: 2px !important; /* Reduced width */
 }
 
 /* Make sure the react-flow pane doesn't interfere with dragging */
 .strategy-flow-container .react-flow__pane {
   z-index: auto;
+}
+
+/* Style for the handle to make it more visible but smaller */
+.strategy-flow-container [data-panel-resize-handle-id] div {
+  width: 2px !important;
+}
+
+/* Improve grabbing behavior */
+.strategy-flow-container [data-panel-resize-handle-id]:hover {
+  cursor: col-resize;
 }

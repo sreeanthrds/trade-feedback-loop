@@ -42,7 +42,8 @@ const FlowLayout: React.FC<FlowLayoutProps> = ({
         {/* Main content panel */}
         <ResizablePanel 
           defaultSize={isPanelOpen ? 65 : 94} 
-          minSize={isPanelOpen ? 45 : 85}
+          minSize={isPanelOpen ? 40 : 60}
+          maxSize={100}
         >
           {children}
         </ResizablePanel>
@@ -53,8 +54,8 @@ const FlowLayout: React.FC<FlowLayoutProps> = ({
             <ResizableHandle withHandle />
             <ResizablePanel 
               defaultSize={29} 
-              minSize={20} 
-              maxSize={45} 
+              minSize={15} 
+              maxSize={55} 
               className="overflow-y-auto border-l border-border"
             >
               {nodePanelComponent}
