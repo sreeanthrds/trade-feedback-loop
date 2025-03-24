@@ -1,15 +1,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { Node } from '@xyflow/react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import IndicatorSelector from './IndicatorSelector';
 import { timeframeOptions, exchangeOptions } from '../utils/indicatorConfig';
 import SymbolSelector from './form-components/SymbolSelector';
+import { 
+  InputField, 
+  SelectField, 
+  RadioGroupField
+} from './shared';
 
 interface StartNodeEditorProps {
   node: Node;
@@ -130,9 +130,20 @@ const StartNodeEditor = ({ node, updateNodeData }: StartNodeEditorProps) => {
     }, 100);
   };
   
-  // Check if there are any indicators
-  const hasIndicators = formData.indicators && formData.indicators.length > 0;
+  // Define radio options for instrument type
+  const instrumentTypeOptions = [
+    { value: 'stock', label: 'Stock' },
+    { value: 'futures', label: 'Futures' },
+    { value: 'options', label: 'Options' }
+  ];
   
+  // Define radio options for underlying type
+  const underlyingTypeOptions = [
+    { value: 'index', label: 'Index' },
+    { value: 'indexFuture', label: 'Index Future' },
+    { value: 'stock', label: 'Stock' }
+  ];
+
   return (
     <Tabs defaultValue="basic" className="space-y-4">
       <TabsList className="grid grid-cols-2 w-full">
@@ -141,102 +152,50 @@ const StartNodeEditor = ({ node, updateNodeData }: StartNodeEditorProps) => {
       </TabsList>
       
       <TabsContent value="basic" className="space-y-4">
-        <div>
-          <Label htmlFor="node-label">Strategy Name</Label>
-          <Input
-            id="node-label"
-            value={formData.label}
-            onChange={(e) => handleInputChange('label', e.target.value)}
-            placeholder="Enter strategy name"
-          />
-        </div>
+        <InputField
+          label="Strategy Name"
+          id="node-label"
+          value={formData.label || ''}
+          onChange={(e) => handleInputChange('label', e.target.value)}
+          placeholder="Enter strategy name"
+        />
         
-        <div>
-          <Label>Trading Instrument Type</Label>
-          <RadioGroup 
-            value={formData.tradingInstrument?.type || 'stock'} 
-            onValueChange={(value: 'stock' | 'futures' | 'options') => handleTradingInstrumentChange(value)}
-            className="flex flex-col space-y-1 mt-1"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="stock" id="instrument-stock" />
-              <Label htmlFor="instrument-stock" className="cursor-pointer">Stock</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="futures" id="instrument-futures" />
-              <Label htmlFor="instrument-futures" className="cursor-pointer">Futures</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="options" id="instrument-options" />
-              <Label htmlFor="instrument-options" className="cursor-pointer">Options</Label>
-            </div>
-          </RadioGroup>
-        </div>
+        <RadioGroupField
+          label="Trading Instrument Type" 
+          value={formData.tradingInstrument?.type || 'stock'}
+          options={instrumentTypeOptions}
+          onChange={(value) => handleTradingInstrumentChange(value as 'stock' | 'futures' | 'options')}
+        />
         
         {formData.tradingInstrument?.type === 'options' && (
-          <div>
-            <Label>Underlying Type</Label>
-            <RadioGroup 
-              value={formData.tradingInstrument.underlyingType || ''} 
-              onValueChange={(value: 'index' | 'indexFuture' | 'stock') => handleUnderlyingTypeChange(value)}
-              className="flex flex-col space-y-1 mt-1"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="index" id="underlying-index" />
-                <Label htmlFor="underlying-index" className="cursor-pointer">Index</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="indexFuture" id="underlying-indexFuture" />
-                <Label htmlFor="underlying-indexFuture" className="cursor-pointer">Index Future</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="stock" id="underlying-stock" />
-                <Label htmlFor="underlying-stock" className="cursor-pointer">Stock</Label>
-              </div>
-            </RadioGroup>
-          </div>
+          <RadioGroupField
+            label="Underlying Type" 
+            value={formData.tradingInstrument.underlyingType || ''}
+            options={underlyingTypeOptions}
+            onChange={(value) => handleUnderlyingTypeChange(value as 'index' | 'indexFuture' | 'stock')}
+          />
         )}
         
-        <div>
-          <Label htmlFor="node-timeframe">Timeframe</Label>
-          <Select
-            value={formData.timeframe}
-            onValueChange={(value) => handleInputChange('timeframe', value)}
-          >
-            <SelectTrigger id="node-timeframe">
-              <SelectValue placeholder="Select timeframe" />
-            </SelectTrigger>
-            <SelectContent>
-              {timeframeOptions.map((option) => (
-                <SelectItem key={option} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <SelectField
+          label="Timeframe"
+          id="node-timeframe"
+          value={formData.timeframe || ''}
+          options={timeframeOptions}
+          onChange={(value) => handleInputChange('timeframe', value)}
+          placeholder="Select timeframe"
+        />
         
-        <div>
-          <Label htmlFor="node-exchange">Exchange</Label>
-          <Select
-            value={formData.exchange}
-            onValueChange={(value) => handleInputChange('exchange', value)}
-          >
-            <SelectTrigger id="node-exchange">
-              <SelectValue placeholder="Select exchange" />
-            </SelectTrigger>
-            <SelectContent>
-              {exchangeOptions.map((option) => (
-                <SelectItem key={option} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <SelectField
+          label="Exchange"
+          id="node-exchange"
+          value={formData.exchange || ''}
+          options={exchangeOptions}
+          onChange={(value) => handleInputChange('exchange', value)}
+          placeholder="Select exchange"
+        />
         
-        <div>
-          <Label htmlFor="node-symbol">Symbol</Label>
+        <div className="space-y-2">
+          <label className="text-sm font-medium" htmlFor="node-symbol">Symbol</label>
           <SymbolSelector
             id="node-symbol"
             value={formData.symbol || ''}
@@ -255,7 +214,6 @@ const StartNodeEditor = ({ node, updateNodeData }: StartNodeEditorProps) => {
       </TabsContent>
       
       <TabsContent value="indicators">
-        {/* Always show indicators section, no Accordion needed */}
         <div className="space-y-4">
           <div className="flex items-center justify-between border-b border-border pb-2">
             <h3 className="text-sm font-medium text-foreground">Technical Indicators</h3>
