@@ -4,7 +4,7 @@ import { RadioGroupField, SelectField, InputField } from '../shared';
 
 interface OptionDetailsType {
   expiry?: string;
-  strikeType?: 'ATM' | 'ITM' | 'OTM' | 'premium';
+  strikeType?: 'ATM' | 'ITM1' | 'ITM2' | 'ITM3' | 'ITM4' | 'ITM5' | 'OTM1' | 'OTM2' | 'OTM3' | 'OTM4' | 'OTM5' | 'premium';
   strikeValue?: number;
   optionType?: 'CE' | 'PE';
 }
@@ -41,8 +41,16 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
 
   const strikeTypeOptions = [
     { value: 'ATM', label: 'At The Money (ATM)' },
-    { value: 'ITM', label: 'In The Money (ITM)' },
-    { value: 'OTM', label: 'Out The Money (OTM)' },
+    { value: 'ITM1', label: 'In The Money 1 Strike (ITM1)' },
+    { value: 'ITM2', label: 'In The Money 2 Strikes (ITM2)' },
+    { value: 'ITM3', label: 'In The Money 3 Strikes (ITM3)' },
+    { value: 'ITM4', label: 'In The Money 4 Strikes (ITM4)' },
+    { value: 'ITM5', label: 'In The Money 5 Strikes (ITM5)' },
+    { value: 'OTM1', label: 'Out The Money 1 Strike (OTM1)' },
+    { value: 'OTM2', label: 'Out The Money 2 Strikes (OTM2)' },
+    { value: 'OTM3', label: 'Out The Money 3 Strikes (OTM3)' },
+    { value: 'OTM4', label: 'Out The Money 4 Strikes (OTM4)' },
+    { value: 'OTM5', label: 'Out The Money 5 Strikes (OTM5)' },
     { value: 'premium', label: 'By Premium' }
   ];
 

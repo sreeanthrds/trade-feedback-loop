@@ -14,7 +14,7 @@ interface ActionNodeData {
   instrument?: string;
   optionDetails?: {
     expiry?: string;
-    strikeType?: 'ATM' | 'ITM' | 'OTM' | 'premium';
+    strikeType?: 'ATM' | 'ITM1' | 'ITM2' | 'ITM3' | 'ITM4' | 'ITM5' | 'OTM1' | 'OTM2' | 'OTM3' | 'OTM4' | 'OTM5' | 'premium';
     strikeValue?: number;
     optionType?: 'CE' | 'PE';
   };
