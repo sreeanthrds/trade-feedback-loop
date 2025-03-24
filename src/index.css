@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
 
@@ -94,7 +95,7 @@
 
 @layer components {
   .glass-card {
-    @apply bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-lg;
+    @apply bg-white/20 backdrop-blur-lg border border-white/30 rounded-2xl shadow-lg;
   }
   
   .glass-card-dark {
@@ -118,11 +119,21 @@
   }
   
   .btn-secondary {
-    @apply bg-secondary/70 hover:bg-secondary/90 text-secondary-foreground px-5 py-2.5 rounded-lg font-medium smooth-transition;
+    @apply bg-secondary/90 hover:bg-secondary text-secondary-foreground px-5 py-2.5 rounded-lg font-medium smooth-transition;
   }
   
   .btn-outlined {
     @apply bg-transparent border border-primary text-primary hover:bg-primary/10 px-5 py-2.5 rounded-lg font-medium smooth-transition;
+  }
+  
+  /* Light mode card styles */
+  .card-light {
+    @apply bg-gradient-to-br from-white to-gray-50 border border-gray-100 shadow-sm;
+  }
+  
+  /* Light mode subtle accent */
+  .accent-light {
+    @apply bg-gradient-to-r from-blue-50 to-green-50;
   }
 }
 
