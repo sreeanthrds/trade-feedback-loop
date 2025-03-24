@@ -16,14 +16,16 @@ const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
 }) => {
   return (
     <div className="space-y-4">
-      <InputField
-        label="Node Label"
-        id="node-label"
-        value={nodeLabel || ''}
-        onChange={onLabelChange}
-        placeholder="Enter node label"
-        orientation="horizontal"
-      />
+      <div className="grid grid-cols-1">
+        <InputField
+          label="Node Label"
+          id="node-label"
+          value={nodeLabel || ''}
+          onChange={onLabelChange}
+          placeholder="Enter node label"
+          orientation="horizontal"
+        />
+      </div>
       
       {additionalContent && (
         <>

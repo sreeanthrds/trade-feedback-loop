@@ -30,18 +30,20 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
   onProductTypeChange
 }) => {
   return (
-    <div className="space-y-4 grid grid-cols-1 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       {actionType === 'entry' && (
-        <RadioGroupField
-          label="Position Type"
-          value={positionType || 'buy'}
-          onChange={onPositionTypeChange}
-          options={[
-            { value: 'buy', label: 'Buy' },
-            { value: 'sell', label: 'Sell' }
-          ]}
-          layout="horizontal"
-        />
+        <div className="col-span-full">
+          <RadioGroupField
+            label="Position Type"
+            value={positionType || 'buy'}
+            onChange={onPositionTypeChange}
+            options={[
+              { value: 'buy', label: 'Buy' },
+              { value: 'sell', label: 'Sell' }
+            ]}
+            layout="horizontal"
+          />
+        </div>
       )}
       
       <SelectField
