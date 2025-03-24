@@ -27,8 +27,12 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
   const expiryOptions = [
     { value: 'W0', label: 'Current Week (W0)' },
     { value: 'W1', label: 'Next Week (W1)' },
+    { value: 'W2', label: 'Week 2 (W2)' },
+    { value: 'W3', label: 'Week 3 (W3)' },
+    { value: 'W4', label: 'Week 4 (W4)' },
     { value: 'M0', label: 'Current Month (M0)' },
     { value: 'M1', label: 'Next Month (M1)' },
+    { value: 'M2', label: 'Month 2 (M2)' },
     { value: 'Q0', label: 'Current Quarter (Q0)' },
     { value: 'Q1', label: 'Next Quarter (Q1)' },
     { value: 'Y0', label: 'Current Year (Y0)' },
