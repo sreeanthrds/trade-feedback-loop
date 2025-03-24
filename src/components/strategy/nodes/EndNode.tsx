@@ -19,7 +19,7 @@ const EndNode = ({ data }: EndNodeProps) => {
       />
       
       <div className="flex items-center">
-        <StopCircle className="h-5 w-5 text-danger mr-2" />
+        <StopCircle className="h-5 w-5 text-rose-600 dark:text-rose-500 mr-2" />
         <div>
           <div className="font-medium">{data.label || "End"}</div>
           <div className="text-xs text-foreground/60">Strategy End Point</div>

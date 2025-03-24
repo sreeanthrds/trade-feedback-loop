@@ -21,7 +21,7 @@ const ForceEndNode = ({ data }: ForceEndNodeProps) => {
       />
       
       <div className="flex items-center">
-        <AlertTriangle className="h-5 w-5 text-[#9C27B0] mr-2" />
+        <AlertTriangle className="h-5 w-5 text-purple-500 dark:text-purple-400 mr-2" />
         <div>
           <div className="font-medium">{data.label || "Force End"}</div>
           <div className="text-xs text-foreground/60">Close All Positions</div>

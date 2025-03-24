@@ -1,6 +1,7 @@
+
 import React, { memo, useEffect, useState } from 'react';
 import { Handle, Position, useReactFlow } from '@xyflow/react';
-import { SlidersHorizontal, AlertTriangle, CircleDollarSign, X, ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
+import { SlidersHorizontal, AlertTriangle, X, ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
 
 interface ActionNodeData {
   label?: string;
@@ -52,11 +53,11 @@ const ActionNode = ({ data, id }: { data: ActionNodeData, id: string }) => {
   const getActionIcon = () => {
     switch (data.actionType) {
       case 'entry': return data.positionType === 'buy' 
-        ? <ArrowUpCircle className="h-5 w-5 text-success mr-2" /> 
-        : <ArrowDownCircle className="h-5 w-5 text-destructive mr-2" />;
-      case 'exit': return <X className="h-5 w-5 text-warning mr-2" />;
-      case 'alert': return <AlertTriangle className="h-5 w-5 text-amber-500 mr-2" />;
-      default: return <SlidersHorizontal className="h-5 w-5 text-warning mr-2" />;
+        ? <ArrowUpCircle className="h-5 w-5 text-emerald-500 dark:text-emerald-400 mr-2" /> 
+        : <ArrowDownCircle className="h-5 w-5 text-rose-600 dark:text-rose-500 mr-2" />;
+      case 'exit': return <X className="h-5 w-5 text-amber-600 dark:text-amber-500 mr-2" />;
+      case 'alert': return <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 mr-2" />;
+      default: return <SlidersHorizontal className="h-5 w-5 text-blue-600 dark:text-blue-400 mr-2" />;
     }
   };
   
@@ -160,7 +161,7 @@ const ActionNode = ({ data, id }: { data: ActionNodeData, id: string }) => {
         
         {data.actionType === 'alert' && (
           <div className="flex items-center justify-center py-1">
-            <span className="font-medium text-amber-500">Send notification only</span>
+            <span className="font-medium text-amber-500 dark:text-amber-400">Send notification only</span>
           </div>
         )}
       </div>

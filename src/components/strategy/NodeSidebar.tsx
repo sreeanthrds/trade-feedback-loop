@@ -26,36 +26,36 @@ const NodeSidebar = ({ onAddNode }: NodeSidebarProps) => {
       type: 'startNode',
       label: 'Start Node',
       description: 'Entry point of the strategy',
-      icon: <Play className="h-5 w-5 text-success" />,
-      color: 'border-success bg-success/10'
+      icon: <Play className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />,
+      color: 'border-emerald-500 dark:border-emerald-400 bg-emerald-500/10 dark:bg-emerald-400/10'
     },
     {
       type: 'signalNode',
       label: 'Signal Node',
       description: 'Detect market conditions',
-      icon: <Activity className="h-5 w-5 text-primary" />,
-      color: 'border-primary bg-primary/10'
+      icon: <Activity className="h-5 w-5 text-blue-600 dark:text-blue-400" />,
+      color: 'border-blue-600 dark:border-blue-400 bg-blue-600/10 dark:bg-blue-400/10'
     },
     {
       type: 'actionNode',
       label: 'Action Node',
       description: 'Execute trading actions',
-      icon: <SlidersHorizontal className="h-5 w-5 text-warning" />,
-      color: 'border-warning bg-warning/10'
+      icon: <SlidersHorizontal className="h-5 w-5 text-amber-600 dark:text-amber-400" />,
+      color: 'border-amber-600 dark:border-amber-400 bg-amber-600/10 dark:bg-amber-400/10'
     },
     {
       type: 'endNode',
       label: 'End Node',
       description: 'End a strategy branch',
-      icon: <StopCircle className="h-5 w-5 text-danger" />,
-      color: 'border-danger bg-danger/10'
+      icon: <StopCircle className="h-5 w-5 text-rose-600 dark:text-rose-500" />,
+      color: 'border-rose-600 dark:border-rose-500 bg-rose-600/10 dark:bg-rose-500/10'
     },
     {
       type: 'forceEndNode',
       label: 'Force End Node',
       description: 'Close positions and end strategy',
-      icon: <AlertTriangle className="h-5 w-5 text-[#9C27B0]" />,
-      color: 'border-[#9C27B0] bg-[#9C27B0]/10'
+      icon: <AlertTriangle className="h-5 w-5 text-purple-500 dark:text-purple-400" />,
+      color: 'border-purple-500 dark:border-purple-400 bg-purple-500/10 dark:bg-purple-400/10'
     }
   ];
 
