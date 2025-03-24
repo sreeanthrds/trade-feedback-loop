@@ -1,5 +1,4 @@
-
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Node, useReactFlow } from '@xyflow/react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -31,6 +30,7 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
   const [showLimitPrice, setShowLimitPrice] = useState(nodeData.orderType === 'limit');
   const [hasOptionTrading, setHasOptionTrading] = useState(false);
   const [startNodeSymbol, setStartNodeSymbol] = useState<string | undefined>(nodeData.instrument || undefined);
+  const previousSymbolRef = useRef<string | undefined>(startNodeSymbol);
   
   // Get the start node to access its instrument
   useEffect(() => {
@@ -45,8 +45,9 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
         setHasOptionTrading(optionsEnabled || false);
         
         // Get and set the instrument from the start node
-        if (data.symbol !== startNodeSymbol) {
+        if (data.symbol !== previousSymbolRef.current) {
           setStartNodeSymbol(data.symbol);
+          previousSymbolRef.current = data.symbol;
           
           // Also update the node data if the symbol changed
           if (data.symbol) {
@@ -63,7 +64,7 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
     const intervalId = setInterval(fetchStartNodeData, 200);
 
     return () => clearInterval(intervalId);
-  }, [getNodes, node.id, startNodeSymbol, updateNodeData]);
+  }, [getNodes, node.id, updateNodeData]); // Remove startNodeSymbol from dependencies
   
   const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateNodeData(node.id, { label: e.target.value });

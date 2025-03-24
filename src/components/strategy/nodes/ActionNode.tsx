@@ -1,4 +1,3 @@
-
 import React, { memo, useEffect, useState } from 'react';
 import { Handle, Position, useReactFlow } from '@xyflow/react';
 import { SlidersHorizontal, AlertTriangle, CircleDollarSign, X, ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
@@ -44,11 +43,11 @@ const ActionNode = ({ data, id }: { data: ActionNodeData, id: string }) => {
     // Initial fetch
     fetchStartNodeSymbol();
 
-    // Set up an interval to check for changes - more frequent updates for better responsiveness
+    // Set up an interval to check for changes
     const intervalId = setInterval(fetchStartNodeSymbol, 200);
 
     return () => clearInterval(intervalId);
-  }, [getNodes, startNodeSymbol]);
+  }, [getNodes]);
   
   const getActionIcon = () => {
     switch (data.actionType) {
