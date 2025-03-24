@@ -17,7 +17,6 @@ interface InputFieldProps {
   step?: number;
   disabled?: boolean;
   readOnly?: boolean;
-  orientation?: 'vertical' | 'horizontal';
 }
 
 const InputField: React.FC<InputFieldProps> = ({
@@ -34,16 +33,9 @@ const InputField: React.FC<InputFieldProps> = ({
   step,
   disabled,
   readOnly,
-  orientation = 'horizontal',
 }) => {
   return (
-    <FormField 
-      label={label} 
-      htmlFor={id} 
-      description={description} 
-      className={className}
-      orientation={orientation}
-    >
+    <FormField label={label} htmlFor={id} description={description} className={className}>
       <Input
         id={id}
         type={type}
@@ -55,7 +47,6 @@ const InputField: React.FC<InputFieldProps> = ({
         step={step}
         disabled={disabled}
         readOnly={readOnly}
-        className={orientation === 'horizontal' ? 'w-full' : ''}
       />
     </FormField>
   );

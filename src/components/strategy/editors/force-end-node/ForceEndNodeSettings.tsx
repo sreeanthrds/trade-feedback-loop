@@ -17,24 +17,20 @@ const ForceEndNodeSettings: React.FC<ForceEndNodeSettingsProps> = ({
 }) => {
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <SwitchField 
-          label="Close all open positions"
-          id="close-all" 
-          checked={closeAll}
-          onCheckedChange={onCloseAllChange}
-          orientation="horizontal"
-        />
-        
-        <InputField
-          label="End Message"
-          id="end-message"
-          value={message}
-          onChange={onMessageChange}
-          placeholder="Message to display when strategy ends"
-          orientation="horizontal"
-        />
-      </div>
+      <SwitchField 
+        label="Close all open positions"
+        id="close-all" 
+        checked={closeAll}
+        onCheckedChange={onCloseAllChange}
+      />
+      
+      <InputField
+        label="End Message"
+        id="end-message"
+        value={message}
+        onChange={onMessageChange}
+        placeholder="Message to display when strategy ends"
+      />
       
       <InfoBox type="warning" title="Force End Node">
         <p>

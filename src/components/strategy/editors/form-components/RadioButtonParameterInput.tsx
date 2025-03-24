@@ -42,7 +42,7 @@ const RadioButtonParameterInput: React.FC<RadioButtonParameterInputProps> = ({
       <RadioGroup
         value={value}
         onValueChange={onChange}
-        className="flex gap-4"
+        className="flex flex-col space-y-1"
       >
         {param.options?.map((option) => (
           <div key={option} className="flex items-center space-x-2">

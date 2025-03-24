@@ -30,20 +30,18 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
   onProductTypeChange
 }) => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div className="space-y-4">
       {actionType === 'entry' && (
-        <div className="col-span-full">
-          <RadioGroupField
-            label="Position Type"
-            value={positionType || 'buy'}
-            onChange={onPositionTypeChange}
-            options={[
-              { value: 'buy', label: 'Buy' },
-              { value: 'sell', label: 'Sell' }
-            ]}
-            layout="horizontal"
-          />
-        </div>
+        <RadioGroupField
+          label="Position Type"
+          value={positionType || 'buy'}
+          onChange={onPositionTypeChange}
+          options={[
+            { value: 'buy', label: 'Buy' },
+            { value: 'sell', label: 'Sell' }
+          ]}
+          layout="horizontal"
+        />
       )}
       
       <SelectField
@@ -55,7 +53,6 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
           { value: 'market', label: 'Market' },
           { value: 'limit', label: 'Limit' }
         ]}
-        orientation="horizontal"
       />
       
       {orderType === 'limit' && (
@@ -66,7 +63,6 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
           value={limitPrice || ''}
           onChange={onLimitPriceChange}
           placeholder="Enter limit price"
-          orientation="horizontal"
         />
       )}
       
@@ -78,7 +74,6 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
         value={lots || 1}
         onChange={onLotsChange}
         placeholder="Number of lots"
-        orientation="horizontal"
       />
       
       <SelectField
@@ -90,7 +85,6 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
           { value: 'intraday', label: 'Intraday (MIS)' },
           { value: 'carryForward', label: 'Carry Forward (CNC)' }
         ]}
-        orientation="horizontal"
       />
     </div>
   );

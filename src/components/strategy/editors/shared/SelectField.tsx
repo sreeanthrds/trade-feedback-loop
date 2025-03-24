@@ -24,7 +24,6 @@ interface SelectFieldProps {
   placeholder?: string;
   className?: string;
   triggerClassName?: string;
-  orientation?: 'vertical' | 'horizontal';
 }
 
 const SelectField: React.FC<SelectFieldProps> = ({
@@ -37,7 +36,6 @@ const SelectField: React.FC<SelectFieldProps> = ({
   placeholder = 'Select an option',
   className = '',
   triggerClassName = '',
-  orientation = 'horizontal',
 }) => {
   // Normalize options to always be SelectOption objects
   const normalizedOptions: SelectOption[] = options.map(option => 
@@ -45,19 +43,13 @@ const SelectField: React.FC<SelectFieldProps> = ({
   );
 
   return (
-    <FormField 
-      label={label} 
-      htmlFor={id} 
-      description={description} 
-      className={className}
-      orientation={orientation}
-    >
+    <FormField label={label} htmlFor={id} description={description} className={className}>
       <Select
         value={value}
         onValueChange={onChange}
         defaultValue={value}
       >
-        <SelectTrigger id={id} className={`${orientation === 'horizontal' ? 'w-full' : ''} ${triggerClassName}`}>
+        <SelectTrigger id={id} className={triggerClassName}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>

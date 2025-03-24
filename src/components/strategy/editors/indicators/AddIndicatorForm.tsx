@@ -26,7 +26,7 @@ const AddIndicatorForm: React.FC<AddIndicatorFormProps> = ({
   const allIndicatorOptions = Object.keys(indicatorConfig);
   
   return (
-    <div className="flex flex-col sm:flex-row items-end gap-2">
+    <div className="flex items-end gap-2">
       <div className="flex-1">
         <Label htmlFor="indicator-select" className="mb-2 block">
           Add Indicator
@@ -51,7 +51,7 @@ const AddIndicatorForm: React.FC<AddIndicatorFormProps> = ({
         size="sm" 
         onClick={onAddIndicator} 
         disabled={!selectedIndicator}
-        className="mb-0.5 whitespace-nowrap"
+        className="mb-0.5"
       >
         <Plus className="w-4 h-4 mr-1" />
         Add

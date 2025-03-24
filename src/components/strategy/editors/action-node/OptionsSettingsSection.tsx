@@ -124,69 +124,55 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <div className="col-span-full">
-        <SelectField
-          label="Expiry"
-          id="expiry"
-          value={optionDetails?.expiry || ''}
-          onChange={onExpiryChange}
-          options={expiryOptions}
-          orientation="horizontal"
-        />
-      </div>
+    <div className="space-y-4">
+      <SelectField
+        label="Expiry"
+        id="expiry"
+        value={optionDetails?.expiry || ''}
+        onChange={onExpiryChange}
+        options={expiryOptions}
+      />
       
-      <div className="col-span-full">
-        <SelectField
-          label="Strike Selection"
-          id="strike-category"
-          value={strikeCategory}
-          onChange={handleStrikeCategoryChange}
-          options={strikeCategoryOptions}
-          orientation="horizontal"
-        />
-      </div>
+      <SelectField
+        label="Strike Selection"
+        id="strike-category"
+        value={strikeCategory}
+        onChange={handleStrikeCategoryChange}
+        options={strikeCategoryOptions}
+      />
       
       {(strikeCategory === 'ITM' || strikeCategory === 'OTM') && (
-        <div className="col-span-full">
-          <SelectField
-            label={`${strikeCategory === 'ITM' ? 'ITM' : 'OTM'} Distance`}
-            id="strike-distance"
-            value={strikeDistance}
-            onChange={handleStrikeDistanceChange}
-            options={generateStrikeDistanceOptions()}
-            orientation="horizontal"
-          />
-        </div>
+        <SelectField
+          label={`${strikeCategory === 'ITM' ? 'ITM' : 'OTM'} Distance`}
+          id="strike-distance"
+          value={strikeDistance}
+          onChange={handleStrikeDistanceChange}
+          options={generateStrikeDistanceOptions()}
+        />
       )}
       
       {strikeCategory === 'premium' && (
-        <div className="col-span-full">
-          <InputField
-            label="Target Premium (₹)"
-            id="premium-value"
-            type="number"
-            min={1}
-            value={optionDetails?.strikeValue || premiumValue || 100}
-            onChange={handlePremiumValueChange}
-            placeholder="Enter target premium"
-            orientation="horizontal"
-          />
-        </div>
+        <InputField
+          label="Target Premium (₹)"
+          id="premium-value"
+          type="number"
+          min={1}
+          value={optionDetails?.strikeValue || premiumValue || 100}
+          onChange={handlePremiumValueChange}
+          placeholder="Enter target premium"
+        />
       )}
       
-      <div className="col-span-full">
-        <RadioGroupField
-          label="Option Type"
-          value={optionDetails?.optionType || 'CE'}
-          onChange={onOptionTypeChange}
-          options={[
-            { value: 'CE', label: 'Call (CE)' },
-            { value: 'PE', label: 'Put (PE)' }
-          ]}
-          layout="horizontal"
-        />
-      </div>
+      <RadioGroupField
+        label="Option Type"
+        value={optionDetails?.optionType || 'CE'}
+        onChange={onOptionTypeChange}
+        options={[
+          { value: 'CE', label: 'Call (CE)' },
+          { value: 'PE', label: 'Put (PE)' }
+        ]}
+        layout="horizontal"
+      />
     </div>
   );
 };
