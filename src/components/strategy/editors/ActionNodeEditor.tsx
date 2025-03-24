@@ -45,15 +45,8 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
       
       // Get and set the instrument from the start node
       setStartNodeSymbol(data.symbol);
-      
-      // If the start node has an instrument, update the action node to use it
-      if (data.symbol && data.symbol !== nodeData.instrument) {
-        updateNodeData(node.id, { 
-          instrument: data.symbol 
-        });
-      }
     }
-  }, [getNodes, node.id, updateNodeData]);
+  }, [getNodes]);
   
   const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateNodeData(node.id, { label: e.target.value });
