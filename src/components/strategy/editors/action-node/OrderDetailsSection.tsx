@@ -1,15 +1,6 @@
 
 import React from 'react';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { RadioGroupField, SelectField, InputField } from '../shared';
 
 interface OrderDetailsSectionProps {
   actionType?: 'entry' | 'exit' | 'alert';
@@ -41,81 +32,60 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
   return (
     <div className="space-y-4">
       {actionType === 'entry' && (
-        <div className="space-y-2">
-          <Label>Position Type</Label>
-          <RadioGroup 
-            value={positionType || 'buy'}
-            onValueChange={onPositionTypeChange}
-            className="flex gap-4"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="buy" id="buy" />
-              <Label htmlFor="buy" className="cursor-pointer">Buy</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="sell" id="sell" />
-              <Label htmlFor="sell" className="cursor-pointer">Sell</Label>
-            </div>
-          </RadioGroup>
-        </div>
+        <RadioGroupField
+          label="Position Type"
+          value={positionType || 'buy'}
+          onChange={onPositionTypeChange}
+          options={[
+            { value: 'buy', label: 'Buy' },
+            { value: 'sell', label: 'Sell' }
+          ]}
+          layout="horizontal"
+        />
       )}
       
-      <div className="space-y-2">
-        <Label htmlFor="order-type">Order Type</Label>
-        <Select
-          value={orderType || 'market'}
-          onValueChange={onOrderTypeChange}
-        >
-          <SelectTrigger id="order-type">
-            <SelectValue placeholder="Select order type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="market">Market</SelectItem>
-            <SelectItem value="limit">Limit</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      <SelectField
+        label="Order Type"
+        id="order-type"
+        value={orderType || 'market'}
+        onChange={onOrderTypeChange}
+        options={[
+          { value: 'market', label: 'Market' },
+          { value: 'limit', label: 'Limit' }
+        ]}
+      />
       
       {orderType === 'limit' && (
-        <div className="space-y-2">
-          <Label htmlFor="limit-price">Limit Price</Label>
-          <Input
-            id="limit-price"
-            type="number"
-            value={limitPrice || ''}
-            onChange={onLimitPriceChange}
-            placeholder="Enter limit price"
-          />
-        </div>
+        <InputField
+          label="Limit Price"
+          id="limit-price"
+          type="number"
+          value={limitPrice || ''}
+          onChange={onLimitPriceChange}
+          placeholder="Enter limit price"
+        />
       )}
       
-      <div className="space-y-2">
-        <Label htmlFor="lots">Quantity (Lots)</Label>
-        <Input
-          id="lots"
-          type="number"
-          min="1"
-          value={lots || 1}
-          onChange={onLotsChange}
-          placeholder="Number of lots"
-        />
-      </div>
+      <InputField
+        label="Quantity (Lots)"
+        id="lots"
+        type="number"
+        min={1}
+        value={lots || 1}
+        onChange={onLotsChange}
+        placeholder="Number of lots"
+      />
       
-      <div className="space-y-2">
-        <Label htmlFor="product-type">Product Type</Label>
-        <Select
-          value={productType || 'intraday'}
-          onValueChange={onProductTypeChange}
-        >
-          <SelectTrigger id="product-type">
-            <SelectValue placeholder="Select product type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="intraday">Intraday (MIS)</SelectItem>
-            <SelectItem value="carryForward">Carry Forward (CNC)</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      <SelectField
+        label="Product Type"
+        id="product-type"
+        value={productType || 'intraday'}
+        onChange={onProductTypeChange}
+        options={[
+          { value: 'intraday', label: 'Intraday (MIS)' },
+          { value: 'carryForward', label: 'Carry Forward (CNC)' }
+        ]}
+      />
     </div>
   );
 };

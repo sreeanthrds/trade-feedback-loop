@@ -2,6 +2,7 @@
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { ArrowUpCircle, X, AlertTriangle } from 'lucide-react';
+import { FormField } from '../shared';
 
 interface ActionTypeSelectorProps {
   actionType?: 'entry' | 'exit' | 'alert';
@@ -13,8 +14,7 @@ const ActionTypeSelector: React.FC<ActionTypeSelectorProps> = ({
   onActionTypeChange
 }) => {
   return (
-    <div className="space-y-3">
-      <Label>Action Type</Label>
+    <FormField label="Action Type" className="space-y-3">
       <div className="grid grid-cols-3 gap-2">
         <div 
           className={`flex flex-col items-center justify-center p-2 rounded-md border cursor-pointer transition-colors
@@ -43,7 +43,7 @@ const ActionTypeSelector: React.FC<ActionTypeSelectorProps> = ({
           <span className="text-xs">Alert Only</span>
         </div>
       </div>
-    </div>
+    </FormField>
   );
 };
 

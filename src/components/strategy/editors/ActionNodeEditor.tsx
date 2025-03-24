@@ -1,7 +1,6 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { Node, useReactFlow } from '@xyflow/react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import {
   Accordion,
@@ -9,6 +8,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { NodeDetailsPanel } from './shared';
 
 // Import our new modular components
 import ActionTypeSelector from './action-node/ActionTypeSelector';
@@ -142,83 +142,77 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
   };
 
   return (
-    <div className="space-y-4">
-      <div>
-        <Label htmlFor="node-label">Node Label</Label>
-        <Input
-          id="node-label"
-          value={nodeData?.label || ''}
-          onChange={handleLabelChange}
-          placeholder="Enter a name for this action"
-        />
-      </div>
-      
-      <Separator />
-      
-      <ActionTypeSelector 
-        actionType={nodeData.actionType}
-        onActionTypeChange={handleActionTypeChange}
-      />
-      
-      {nodeData.actionType !== 'alert' && (
-        <>
-          <Separator />
+    <NodeDetailsPanel
+      nodeLabel={nodeData?.label || ''}
+      onLabelChange={handleLabelChange}
+      additionalContent={
+        <div className="space-y-4">
+          <ActionTypeSelector 
+            actionType={nodeData.actionType}
+            onActionTypeChange={handleActionTypeChange}
+          />
           
-          <Accordion type="single" collapsible defaultValue="order-details">
-            <AccordionItem value="order-details">
-              <AccordionTrigger className="text-sm font-medium py-2">
-                Order Details
-              </AccordionTrigger>
-              <AccordionContent className="space-y-4 py-3">
-                <OrderDetailsSection 
-                  actionType={nodeData.actionType}
-                  positionType={nodeData.positionType}
-                  orderType={nodeData.orderType}
-                  limitPrice={nodeData.limitPrice}
-                  lots={nodeData.lots}
-                  productType={nodeData.productType}
-                  onPositionTypeChange={handlePositionTypeChange}
-                  onOrderTypeChange={handleOrderTypeChange}
-                  onLimitPriceChange={handleLimitPriceChange}
-                  onLotsChange={handleLotsChange}
-                  onProductTypeChange={handleProductTypeChange}
-                />
-              </AccordionContent>
-            </AccordionItem>
-            
-            <AccordionItem value="instrument-details">
-              <AccordionTrigger className="text-sm font-medium py-2">
-                Instrument Details
-              </AccordionTrigger>
-              <AccordionContent className="space-y-4 py-3">
-                <InstrumentDisplay startNodeSymbol={startNodeSymbol} />
-              </AccordionContent>
-            </AccordionItem>
-            
-            {hasOptionTrading && (
-              <AccordionItem value="option-details">
-                <AccordionTrigger className="text-sm font-medium py-2">
-                  Options Settings
-                </AccordionTrigger>
-                <AccordionContent className="space-y-4 py-3">
-                  <OptionsSettingsSection 
-                    optionDetails={nodeData.optionDetails}
-                    onExpiryChange={handleExpiryChange}
-                    onStrikeTypeChange={handleStrikeTypeChange}
-                    onStrikeValueChange={handleStrikeValueChange}
-                    onOptionTypeChange={handleOptionTypeChange}
-                  />
-                </AccordionContent>
-              </AccordionItem>
-            )}
-          </Accordion>
-        </>
-      )}
-      
-      {nodeData.actionType === 'alert' && <AlertMessage />}
-      
-      <InfoMessage actionType={nodeData.actionType} />
-    </div>
+          {nodeData.actionType !== 'alert' && (
+            <>
+              <Separator />
+              
+              <Accordion type="single" collapsible defaultValue="order-details">
+                <AccordionItem value="order-details">
+                  <AccordionTrigger className="text-sm font-medium py-2">
+                    Order Details
+                  </AccordionTrigger>
+                  <AccordionContent className="space-y-4 py-3">
+                    <OrderDetailsSection 
+                      actionType={nodeData.actionType}
+                      positionType={nodeData.positionType}
+                      orderType={nodeData.orderType}
+                      limitPrice={nodeData.limitPrice}
+                      lots={nodeData.lots}
+                      productType={nodeData.productType}
+                      onPositionTypeChange={handlePositionTypeChange}
+                      onOrderTypeChange={handleOrderTypeChange}
+                      onLimitPriceChange={handleLimitPriceChange}
+                      onLotsChange={handleLotsChange}
+                      onProductTypeChange={handleProductTypeChange}
+                    />
+                  </AccordionContent>
+                </AccordionItem>
+                
+                <AccordionItem value="instrument-details">
+                  <AccordionTrigger className="text-sm font-medium py-2">
+                    Instrument Details
+                  </AccordionTrigger>
+                  <AccordionContent className="space-y-4 py-3">
+                    <InstrumentDisplay startNodeSymbol={startNodeSymbol} />
+                  </AccordionContent>
+                </AccordionItem>
+                
+                {hasOptionTrading && (
+                  <AccordionItem value="option-details">
+                    <AccordionTrigger className="text-sm font-medium py-2">
+                      Options Settings
+                    </AccordionTrigger>
+                    <AccordionContent className="space-y-4 py-3">
+                      <OptionsSettingsSection 
+                        optionDetails={nodeData.optionDetails}
+                        onExpiryChange={handleExpiryChange}
+                        onStrikeTypeChange={handleStrikeTypeChange}
+                        onStrikeValueChange={handleStrikeValueChange}
+                        onOptionTypeChange={handleOptionTypeChange}
+                      />
+                    </AccordionContent>
+                  </AccordionItem>
+                )}
+              </Accordion>
+            </>
+          )}
+          
+          {nodeData.actionType === 'alert' && <AlertMessage />}
+          
+          <InfoMessage actionType={nodeData.actionType} />
+        </div>
+      }
+    />
   );
 };
 

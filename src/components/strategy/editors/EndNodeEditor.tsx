@@ -1,8 +1,7 @@
 
 import React from 'react';
 import { Node } from '@xyflow/react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { NodeDetailsPanel, InfoBox } from './shared';
 
 interface EndNodeEditorProps {
   node: Node;
@@ -21,26 +20,20 @@ const EndNodeEditor = ({ node, updateNodeData }: EndNodeEditorProps) => {
   };
 
   return (
-    <div className="space-y-4">
-      <div>
-        <Label htmlFor="node-label">Node Label</Label>
-        <Input
-          id="node-label"
-          value={nodeData?.label || 'End'}
-          onChange={handleLabelChange}
-          placeholder="Enter node label"
-        />
-      </div>
-      
-      <div className="bg-gray-50 dark:bg-gray-800 rounded-md p-4">
-        <p className="text-sm text-foreground/70 mb-2">
-          The End Node represents the final state of your strategy. Any path that reaches this node will terminate.
-        </p>
-        <p className="text-sm text-foreground/70">
-          Use multiple End nodes to represent different outcomes or exit conditions.
-        </p>
-      </div>
-    </div>
+    <NodeDetailsPanel
+      nodeLabel={nodeData?.label || 'End'}
+      onLabelChange={handleLabelChange}
+      additionalContent={
+        <InfoBox>
+          <p className="mb-2">
+            The End Node represents the final state of your strategy. Any path that reaches this node will terminate.
+          </p>
+          <p>
+            Use multiple End nodes to represent different outcomes or exit conditions.
+          </p>
+        </InfoBox>
+      }
+    />
   );
 };
 

@@ -1,15 +1,6 @@
 
 import React from 'react';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { RadioGroupField, SelectField, InputField } from '../shared';
 
 interface OptionDetailsType {
   expiry?: string;
@@ -33,79 +24,64 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
   onStrikeValueChange,
   onOptionTypeChange
 }) => {
+  const expiryOptions = [
+    { value: 'W0', label: 'Current Week (W0)' },
+    { value: 'W1', label: 'Next Week (W1)' },
+    { value: 'M0', label: 'Current Month (M0)' },
+    { value: 'M1', label: 'Next Month (M1)' },
+    { value: 'Q0', label: 'Current Quarter (Q0)' },
+    { value: 'Q1', label: 'Next Quarter (Q1)' },
+    { value: 'Y0', label: 'Current Year (Y0)' },
+    { value: 'Y1', label: 'Next Year (Y1)' }
+  ];
+
+  const strikeTypeOptions = [
+    { value: 'ATM', label: 'At The Money (ATM)' },
+    { value: 'ITM', label: 'In The Money (ITM)' },
+    { value: 'OTM', label: 'Out The Money (OTM)' },
+    { value: 'premium', label: 'By Premium' }
+  ];
+
   return (
     <div className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="expiry">Expiry</Label>
-        <Select
-          value={optionDetails?.expiry || ''}
-          onValueChange={onExpiryChange}
-        >
-          <SelectTrigger id="expiry">
-            <SelectValue placeholder="Select expiry" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="W0">Current Week (W0)</SelectItem>
-            <SelectItem value="W1">Next Week (W1)</SelectItem>
-            <SelectItem value="M0">Current Month (M0)</SelectItem>
-            <SelectItem value="M1">Next Month (M1)</SelectItem>
-            <SelectItem value="Q0">Current Quarter (Q0)</SelectItem>
-            <SelectItem value="Q1">Next Quarter (Q1)</SelectItem>
-            <SelectItem value="Y0">Current Year (Y0)</SelectItem>
-            <SelectItem value="Y1">Next Year (Y1)</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      <SelectField
+        label="Expiry"
+        id="expiry"
+        value={optionDetails?.expiry || ''}
+        onChange={onExpiryChange}
+        options={expiryOptions}
+      />
       
-      <div className="space-y-2">
-        <Label htmlFor="strike-type">Strike Selection</Label>
-        <Select
-          value={optionDetails?.strikeType || ''}
-          onValueChange={onStrikeTypeChange}
-        >
-          <SelectTrigger id="strike-type">
-            <SelectValue placeholder="Select strike type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="ATM">At The Money (ATM)</SelectItem>
-            <SelectItem value="ITM">In The Money (ITM)</SelectItem>
-            <SelectItem value="OTM">Out The Money (OTM)</SelectItem>
-            <SelectItem value="premium">By Premium</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      <SelectField
+        label="Strike Selection"
+        id="strike-type"
+        value={optionDetails?.strikeType || ''}
+        onChange={onStrikeTypeChange}
+        options={strikeTypeOptions}
+      />
       
       {optionDetails?.strikeType === 'premium' && (
-        <div className="space-y-2">
-          <Label htmlFor="premium-value">Target Premium (₹)</Label>
-          <Input
-            id="premium-value"
-            type="number"
-            min="1"
-            value={optionDetails?.strikeValue || ''}
-            onChange={onStrikeValueChange}
-            placeholder="Enter target premium"
-          />
-        </div>
+        <InputField
+          label="Target Premium (₹)"
+          id="premium-value"
+          type="number"
+          min={1}
+          value={optionDetails?.strikeValue || ''}
+          onChange={onStrikeValueChange}
+          placeholder="Enter target premium"
+        />
       )}
       
-      <div className="space-y-2">
-        <Label>Option Type</Label>
-        <RadioGroup 
-          value={optionDetails?.optionType || 'CE'}
-          onValueChange={onOptionTypeChange}
-          className="flex gap-4"
-        >
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="CE" id="ce" />
-            <Label htmlFor="ce" className="cursor-pointer">Call (CE)</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="PE" id="pe" />
-            <Label htmlFor="pe" className="cursor-pointer">Put (PE)</Label>
-          </div>
-        </RadioGroup>
-      </div>
+      <RadioGroupField
+        label="Option Type"
+        value={optionDetails?.optionType || 'CE'}
+        onChange={onOptionTypeChange}
+        options={[
+          { value: 'CE', label: 'Call (CE)' },
+          { value: 'PE', label: 'Put (PE)' }
+        ]}
+        layout="horizontal"
+      />
     </div>
   );
 };
