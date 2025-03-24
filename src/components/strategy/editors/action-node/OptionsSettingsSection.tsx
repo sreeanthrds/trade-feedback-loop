@@ -26,6 +26,12 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
 }) => {
   const [strikeCategory, setStrikeCategory] = useState<'ATM' | 'ITM' | 'OTM' | 'premium'>('ATM');
   const [strikeDistance, setStrikeDistance] = useState<string>('');
+  // Initialize with a default premium value of 100
+  const [premiumValue, setPremiumValue] = useState<number>(
+    optionDetails?.strikeType === 'premium' && optionDetails?.strikeValue 
+    ? optionDetails.strikeValue 
+    : 100
+  );
 
   // When component mounts or optionDetails changes, set the initial strike category and distance
   useEffect(() => {
@@ -47,9 +53,16 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
   const handleStrikeCategoryChange = (value: string) => {
     setStrikeCategory(value as any);
     
-    if (value === 'ATM' || value === 'premium') {
-      // For ATM or premium, directly update the strike type
+    if (value === 'ATM') {
+      // For ATM, directly update the strike type
       onStrikeTypeChange(value);
+      setStrikeDistance('');
+    } else if (value === 'premium') {
+      // For premium, set the default premium value if not already set
+      onStrikeTypeChange(value);
+      if (!optionDetails?.strikeValue) {
+        onStrikeValueChange({ target: { value: premiumValue.toString() } } as React.ChangeEvent<HTMLInputElement>);
+      }
       setStrikeDistance('');
     } else if (value === 'ITM' || value === 'OTM') {
       // For ITM or OTM, set default to level 1 if not already set
@@ -63,6 +76,13 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
   const handleStrikeDistanceChange = (value: string) => {
     setStrikeDistance(value);
     onStrikeTypeChange(value);
+  };
+
+  // Handle premium value changes
+  const handlePremiumValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value, 10);
+    setPremiumValue(value);
+    onStrikeValueChange(e);
   };
 
   const expiryOptions = [
@@ -84,7 +104,7 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
     { value: 'ATM', label: 'At The Money (ATM)' },
     { value: 'ITM', label: 'In The Money (ITM)' },
     { value: 'OTM', label: 'Out of The Money (OTM)' },
-    { value: 'premium', label: 'By Premium' }
+    { value: 'premium', label: 'Closest Premium' }
   ];
 
   // Generate options for ITM strike distances
@@ -137,8 +157,8 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
           id="premium-value"
           type="number"
           min={1}
-          value={optionDetails?.strikeValue || ''}
-          onChange={onStrikeValueChange}
+          value={optionDetails?.strikeValue || premiumValue || 100}
+          onChange={handlePremiumValueChange}
           placeholder="Enter target premium"
         />
       )}
