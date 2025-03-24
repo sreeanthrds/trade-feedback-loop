@@ -43,7 +43,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   onDeleteEdge,
   onAddNode
 }) => {
-  const [minimapVisible, setMinimapVisible] = useState(true);
+  const [minimapVisible, setMinimapVisible] = useState(false);
 
   // Create memoized node types to prevent React Flow warnings
   const nodeTypes = React.useMemo(
