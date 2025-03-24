@@ -15,6 +15,26 @@ interface FlowLayoutProps {
   nodePanelComponent?: React.ReactNode;
 }
 
+// Define a more specific type for SplitPane that includes children
+// This helps TypeScript understand that children is a valid prop
+interface SplitPaneProps {
+  split: 'vertical' | 'horizontal';
+  minSize?: number;
+  maxSize?: number;
+  defaultSize?: number | string;
+  size?: number | string;
+  onChange?: (size: number) => void;
+  onDragStarted?: () => void;
+  onDragFinished?: (size: number) => void;
+  allowResize?: boolean;
+  primary?: 'first' | 'second';
+  paneStyle?: React.CSSProperties;
+  pane1Style?: React.CSSProperties;
+  pane2Style?: React.CSSProperties;
+  resizerStyle?: React.CSSProperties;
+  children: React.ReactNode;
+}
+
 const FlowLayout: React.FC<FlowLayoutProps> = ({
   children,
   isPanelOpen,
@@ -26,6 +46,7 @@ const FlowLayout: React.FC<FlowLayoutProps> = ({
   // Calculate default size for the node panel (bottom panel)
   const defaultBottomPanelSize = isPanelOpen ? 300 : 0;
 
+  // Use our custom typed SplitPane component
   return (
     <div className="strategy-flow-container h-full">
       {/* Horizontal split for sidebar and main content */}
