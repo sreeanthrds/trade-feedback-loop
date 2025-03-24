@@ -36,7 +36,11 @@ const TopToolbar: React.FC<TopToolbarProps> = ({ toggleTheme }) => {
           <span className="sr-only">Redo</span>
         </Button>
         <Button size="sm" variant="outline" onClick={toggleTheme}>
-          {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          {theme === 'dark' ? (
+            <Sun className="h-4 w-4 text-yellow-400" />
+          ) : (
+            <Moon className="h-4 w-4 text-indigo-700" />
+          )}
           <span className="sr-only">Toggle Theme</span>
         </Button>
       </div>
