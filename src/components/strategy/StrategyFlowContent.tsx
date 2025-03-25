@@ -1,5 +1,5 @@
 
-import React, { lazy, Suspense, useCallback, useMemo } from 'react';
+import React, { lazy, Suspense, useMemo } from 'react';
 import { useTheme } from '@/hooks/use-theme';
 import { useFlowState } from './hooks/useFlowState';
 import { useFlowHandlers } from './hooks/useFlowHandlers';
@@ -102,8 +102,6 @@ const StrategyFlowContent = () => {
     <FlowLayout
       isPanelOpen={isPanelOpen}
       selectedNode={selectedNode}
-      onAddNode={handleAddNode}
-      updateNodeData={updateNodeData}
       onClosePanel={closePanel}
       nodePanelComponent={lazyNodePanel}
     >
