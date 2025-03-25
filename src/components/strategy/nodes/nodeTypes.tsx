@@ -73,11 +73,43 @@ const createNodeTypes = (
   onAddNode: (type: string) => void
 ): NodeTypes => {
   return {
-    startNode: (props) => <StartNodeWrapper {...props} onAddNode={onAddNode} />,
-    signalNode: (props) => <SignalNodeWrapper {...props} onDelete={onDeleteNode} onAddNode={onAddNode} />,
-    actionNode: (props) => <ActionNodeWrapper {...props} onDelete={onDeleteNode} onAddNode={onAddNode} />,
-    endNode: (props) => <EndNodeWrapper {...props} onDelete={onDeleteNode} />,
-    forceEndNode: (props) => <ForceEndNodeWrapper {...props} onDelete={onDeleteNode} />
+    startNode: (props) => (
+      <StartNodeWrapper
+        {...props}
+        position={props.position} 
+        onAddNode={onAddNode} 
+      />
+    ),
+    signalNode: (props) => (
+      <SignalNodeWrapper
+        {...props}
+        position={props.position}
+        onDelete={onDeleteNode}
+        onAddNode={onAddNode}
+      />
+    ),
+    actionNode: (props) => (
+      <ActionNodeWrapper
+        {...props}
+        position={props.position}
+        onDelete={onDeleteNode}
+        onAddNode={onAddNode}
+      />
+    ),
+    endNode: (props) => (
+      <EndNodeWrapper
+        {...props}
+        position={props.position}
+        onDelete={onDeleteNode}
+      />
+    ),
+    forceEndNode: (props) => (
+      <ForceEndNodeWrapper
+        {...props}
+        position={props.position}
+        onDelete={onDeleteNode}
+      />
+    )
   };
 };
 
