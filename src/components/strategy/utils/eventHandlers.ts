@@ -20,27 +20,11 @@ export const createAddNodeHandler = (
   strategyStore: any
 ) => {
   return (type: string) => {
-    try {
-      // Create the new node
-      const newNode = addNode(type, reactFlowInstance, reactFlowWrapper, nodes);
-      
-      console.log('Current nodes before update:', nodes);
-      console.log('New node to add:', newNode);
-      
-      // Important: Create a new array with all existing nodes plus the new node
-      const updatedNodes = [...nodes, newNode];
-      console.log('Combined nodes after update:', updatedNodes);
-      
-      // Update the local state and the global store
-      setNodes(updatedNodes);
-      strategyStore.setNodes(updatedNodes);
-      strategyStore.addHistoryItem(updatedNodes, strategyStore.edges);
-      
-      toast.success(`Added ${type.replace('Node', '')} node`);
-    } catch (error) {
-      console.error('Error adding node:', error);
-      toast.error('Failed to add node');
-    }
+    const newNode = addNode(type, reactFlowInstance, reactFlowWrapper, nodes);
+    const newNodes = [...nodes, newNode];
+    setNodes(newNodes);
+    strategyStore.setNodes(newNodes);
+    strategyStore.addHistoryItem(newNodes, strategyStore.edges);
   };
 };
 

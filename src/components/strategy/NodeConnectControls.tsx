@@ -51,13 +51,7 @@ const NodeConnectControls = ({ showOn, onAddNode }: NodeConnectControlsProps) =>
     }
   }, [showOn]);
 
-  // Create a stable callback reference
-  const handleAddNode = useCallback((type: string, e: React.MouseEvent) => {
-    // Stop propagation to prevent other events from firing
-    e.preventDefault();
-    e.stopPropagation();
-    
-    console.log('Adding node type:', type);
+  const handleAddNode = useCallback((type: string) => {
     onAddNode(type);
     setIsOpen(false);
   }, [onAddNode]);
@@ -76,8 +70,6 @@ const NodeConnectControls = ({ showOn, onAddNode }: NodeConnectControlsProps) =>
             size="icon"
             className="h-8 w-8 rounded-full shadow-md bg-background border-primary"
             title="Add connected node"
-            type="button" // Explicitly set to button to prevent form submission
-            onClick={(e) => e.stopPropagation()} // Prevent click from bubbling
           >
             <Plus className="h-4 w-4 text-primary" />
           </Button>
@@ -87,7 +79,6 @@ const NodeConnectControls = ({ showOn, onAddNode }: NodeConnectControlsProps) =>
           sideOffset={8}
           onMouseLeave={handleMouseLeave}
           className="p-1 min-w-[3rem] w-auto"
-          onClick={(e) => e.stopPropagation()} // Prevent click from bubbling
         >
           <TooltipProvider delayDuration={200}>
             {nodeOptions.map((option) => {
@@ -98,12 +89,8 @@ const NodeConnectControls = ({ showOn, onAddNode }: NodeConnectControlsProps) =>
                 <Tooltip key={option.value}>
                   <TooltipTrigger asChild>
                     <DropdownMenuItem 
-                      onClick={(e) => handleAddNode(option.value, e)}
+                      onClick={() => handleAddNode(option.value)}
                       className="cursor-pointer py-2 px-2 flex justify-center"
-                      onSelect={(e) => {
-                        // Prevent default selection behavior
-                        e.preventDefault();
-                      }}
                     >
                       <NodeIcon className={`h-5 w-5 ${iconColor}`} />
                     </DropdownMenuItem>

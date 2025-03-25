@@ -2,9 +2,8 @@
 import React from 'react';
 import { ReactFlowProvider } from '@xyflow/react';
 import StrategyFlowContent from './StrategyFlowContent';
-// Explicitly import both the React Flow styles and our custom styles
 import '@xyflow/react/dist/style.css';
-import './styles/index.css';
+import './styles/index.css'; // Updated CSS import
 
 const StrategyFlow = () => {
   return (

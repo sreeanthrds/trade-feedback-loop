@@ -1,5 +1,5 @@
 
-import React, { useCallback } from 'react';
+import React from 'react';
 import { Play, Activity, SlidersHorizontal, StopCircle, AlertTriangle } from 'lucide-react';
 import { 
   Tooltip,
@@ -59,20 +59,10 @@ const NodeSidebar = ({ onAddNode }: NodeSidebarProps) => {
     }
   ];
 
-  // Create stable event handlers that don't cause re-renders
-  const handleDragStart = useCallback((event: React.DragEvent, nodeType: string) => {
+  const handleDragStart = (event: React.DragEvent, nodeType: string) => {
     event.dataTransfer.setData('application/reactflow', nodeType);
     event.dataTransfer.effectAllowed = 'move';
-  }, []);
-
-  const handleNodeAdd = useCallback((nodeType: string, event: React.MouseEvent) => {
-    // Prevent the event from bubbling up to parent elements
-    event.stopPropagation();
-    event.preventDefault();
-    
-    console.log('Sidebar adding node type:', nodeType);
-    onAddNode(nodeType);
-  }, [onAddNode]);
+  };
 
   return (
     <div className="h-full overflow-auto py-4 flex flex-col items-center">
@@ -87,7 +77,7 @@ const NodeSidebar = ({ onAddNode }: NodeSidebarProps) => {
                   className={`flex justify-center items-center w-10 h-10 rounded-full ${nodeType.color} cursor-grab transition-all hover:scale-105 hover:shadow-md`}
                   draggable
                   onDragStart={(e) => handleDragStart(e, nodeType.type)}
-                  onClick={(e) => handleNodeAdd(nodeType.type, e)}
+                  onClick={() => onAddNode(nodeType.type)}
                 >
                   {nodeType.icon}
                 </div>
@@ -106,4 +96,4 @@ const NodeSidebar = ({ onAddNode }: NodeSidebarProps) => {
   );
 };
 
-export default React.memo(NodeSidebar);
+export default NodeSidebar;

@@ -24,20 +24,6 @@
   touch-action: pan-y;
 }
 
-/* Add a visible drag handle for the drawer */
-.drawer-drag-handle {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 6px;
-  border-radius: 3px;
-  background-color: rgba(0, 0, 0, 0.15);
-  cursor: grab;
-  z-index: 10;
-}
-
 /* Mobile styles */
 @media (max-width: 768px) {
   .strategy-flow-container [data-panel-resize-handle-id] {
