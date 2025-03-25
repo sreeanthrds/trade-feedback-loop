@@ -1,5 +1,5 @@
 
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import { Activity } from 'lucide-react';
 import { GroupCondition, groupConditionToString } from '../utils/conditionTypes';
@@ -20,7 +20,7 @@ const SignalNode = ({ data }: { data: SignalNodeData }) => {
     conditions[0].conditions.length > 0;
   
   // Format complex conditions for display
-  const getConditionsDisplay = () => {
+  const conditionDisplay = useMemo(() => {
     if (!hasConditions) return null;
     
     try {
@@ -32,9 +32,7 @@ const SignalNode = ({ data }: { data: SignalNodeData }) => {
     } catch (error) {
       return "Invalid condition structure";
     }
-  };
-  
-  const conditionDisplay = getConditionsDisplay();
+  }, [hasConditions, conditions, strategyStore.nodes]);
   
   return (
     <div className="px-3 py-2 rounded-md shadow-sm bg-white dark:bg-gray-800 border border-border">

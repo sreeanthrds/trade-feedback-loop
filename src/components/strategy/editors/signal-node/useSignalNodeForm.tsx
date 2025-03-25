@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Node } from '@xyflow/react';
 import { GroupCondition } from '../../utils/conditionTypes';
 
@@ -40,13 +40,13 @@ export const useSignalNodeForm = ({ node, updateNodeData }: UseSignalNodeFormPro
     conditions: conditions
   });
 
-  const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLabelChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setFormData(prev => ({ ...prev, label: newValue }));
     updateNodeData(node.id, { ...nodeData, label: newValue });
-  };
+  }, [node.id, nodeData, updateNodeData]);
 
-  // Update node data when conditions change
+  // Update node data when conditions change - use useCallback to memoize this function
   useEffect(() => {
     const timer = setTimeout(() => {
       updateNodeData(node.id, { 
@@ -71,10 +71,10 @@ export const useSignalNodeForm = ({ node, updateNodeData }: UseSignalNodeFormPro
     }
   }, [node.data?.label]);
 
-  const updateConditions = (newConditions: GroupCondition[]) => {
+  const updateConditions = useCallback((newConditions: GroupCondition[]) => {
     setConditions(newConditions);
     setFormData(prev => ({ ...prev, conditions: newConditions }));
-  };
+  }, []);
 
   return {
     formData,
