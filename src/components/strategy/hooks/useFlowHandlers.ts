@@ -1,5 +1,5 @@
 
-import { useCallback } from 'react';
+import { useCallback, useRef, useEffect } from 'react';
 import { Node, Edge } from '@xyflow/react';
 import { toast } from 'sonner';
 import { 
@@ -37,76 +37,114 @@ export const useFlowHandlers = ({
   setEdges,
   strategyStore
 }: UseFlowHandlersProps) => {
+  // Create stable refs to latest values
+  const nodesRef = useRef(nodes);
+  const edgesRef = useRef(edges);
+  const storeRef = useRef(strategyStore);
+  
+  // Update refs when dependencies change
+  useEffect(() => {
+    nodesRef.current = nodes;
+    edgesRef.current = edges;
+    storeRef.current = strategyStore;
+  }, [nodes, edges, strategyStore]);
+
   const onNodeClick = useCallback(
-    createNodeClickHandler(setSelectedNode, setIsPanelOpen),
+    (event, node) => {
+      setSelectedNode(node);
+      setIsPanelOpen(true);
+    },
     [setSelectedNode, setIsPanelOpen]
   );
 
-  // Ensure this handler doesn't cause side effects - it needs to properly add nodes
+  // Create a stable handler for adding nodes
   const handleAddNode = useCallback((type: string) => {
     console.log('useFlowHandlers: handleAddNode called with type', type);
     
-    // Create a new node
     const addNodeHandler = createAddNodeHandler(
       reactFlowInstance,
       reactFlowWrapper,
-      nodes,
+      nodesRef.current,
       setNodes,
-      strategyStore
+      storeRef.current
     );
     
-    // Call the handler directly to ensure proper execution
     addNodeHandler(type);
-  }, [reactFlowInstance, reactFlowWrapper, nodes, setNodes, strategyStore]);
+  }, [reactFlowInstance, reactFlowWrapper, setNodes]);
 
+  // Create a stable handler for updating node data
   const updateNodeData = useCallback(
-    createUpdateNodeDataHandler(
-      nodes,
-      setNodes,
-      strategyStore
-    ),
-    [nodes, setNodes, strategyStore]
+    (id: string, data: any) => {
+      const handler = createUpdateNodeDataHandler(
+        nodesRef.current,
+        setNodes,
+        storeRef.current
+      );
+      
+      handler(id, data);
+    },
+    [setNodes]
   );
   
+  // Create a stable handler for deleting nodes
   const handleDeleteNode = useCallback(
-    createDeleteNodeHandler(
-      nodes,
-      edges,
-      setNodes,
-      setEdges,
-      strategyStore
-    ),
-    [nodes, edges, setNodes, setEdges, strategyStore]
+    (id: string) => {
+      const handler = createDeleteNodeHandler(
+        nodesRef.current,
+        edgesRef.current,
+        setNodes,
+        setEdges,
+        storeRef.current
+      );
+      
+      handler(id);
+    },
+    [setNodes, setEdges]
   );
   
+  // Create a stable handler for deleting edges
   const handleDeleteEdge = useCallback(
-    createDeleteEdgeHandler(
-      edges,
-      setEdges,
-      strategyStore,
-      nodes
-    ),
-    [edges, setEdges, strategyStore, nodes]
+    (id: string) => {
+      const handler = createDeleteEdgeHandler(
+        edgesRef.current,
+        setEdges,
+        storeRef.current,
+        nodesRef.current
+      );
+      
+      handler(id);
+    },
+    [setEdges]
   );
 
+  // Create a stable handler for closing the panel
   const closePanel = useCallback(() => {
     setIsPanelOpen(false);
     setSelectedNode(null);
   }, [setIsPanelOpen, setSelectedNode]);
 
+  // Create a stable handler for resetting the strategy
   const resetStrategy = useCallback(
-    createResetStrategyHandler(
-      setNodes,
-      setEdges,
-      strategyStore,
-      initialNodes,
-      closePanel
-    ),
-    [setNodes, setEdges, strategyStore, closePanel]
+    () => {
+      const handler = createResetStrategyHandler(
+        setNodes,
+        setEdges,
+        storeRef.current,
+        initialNodes,
+        closePanel
+      );
+      
+      handler();
+    },
+    [setNodes, setEdges, closePanel]
   );
 
+  // Create a stable handler for handling import success
   const handleImportSuccess = useCallback(
-    createImportSuccessHandler(reactFlowInstance),
+    () => {
+      const handler = createImportSuccessHandler(reactFlowInstance);
+      handler();
+    },
     [reactFlowInstance]
   );
 

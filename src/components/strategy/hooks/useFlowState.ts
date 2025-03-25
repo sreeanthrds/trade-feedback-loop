@@ -24,6 +24,7 @@ export function useFlowState() {
   const isInitialLoad = useRef(true);
   const isDraggingRef = useRef(false);
   const pendingNodesUpdate = useRef<Node[] | null>(null);
+  const lastUpdateTimeRef = useRef(0);
 
   // Initial load from localStorage - only run once
   useEffect(() => {
@@ -43,7 +44,7 @@ export function useFlowState() {
     }
   }, []);
 
-  // Detect when node dragging starts and ends
+  // Enhanced node change handler with drag detection and throttling
   const onNodesChangeWithDragDetection = useCallback((changes) => {
     // Detect drag operations
     const dragChange = changes.find(change => 
@@ -72,13 +73,18 @@ export function useFlowState() {
   // Custom setNodes wrapper to ensure both local state and store are updated
   // But throttle updates to the store during node drag operations
   const setNodesAndStore = useCallback((updatedNodes: Node[] | ((prevNodes: Node[]) => Node[])) => {
+    // Throttle updates to avoid excessive renders
+    const now = Date.now();
+    const shouldUpdate = now - lastUpdateTimeRef.current > 100;
+    lastUpdateTimeRef.current = now;
+    
     // Handle both functional and direct updates
     if (typeof updatedNodes === 'function') {
       setNodes((prevNodes) => {
         const newNodes = updatedNodes(prevNodes);
         
-        // Only update store if not currently dragging
-        if (!isDraggingRef.current) {
+        // Only update store if not currently dragging and not too frequent
+        if (!isDraggingRef.current && shouldUpdate) {
           strategyStore.setNodes(newNodes);
         } else {
           // Store the update to apply when dragging ends
@@ -90,8 +96,8 @@ export function useFlowState() {
     } else {
       setNodes(updatedNodes);
       
-      // Only update store if not currently dragging
-      if (!isDraggingRef.current) {
+      // Only update store if not currently dragging and not too frequent
+      if (!isDraggingRef.current && shouldUpdate) {
         strategyStore.setNodes(updatedNodes);
       } else {
         // Store the update to apply when dragging ends

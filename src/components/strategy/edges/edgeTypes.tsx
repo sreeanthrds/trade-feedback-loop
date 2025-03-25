@@ -1,6 +1,6 @@
 
 import React, { useMemo } from 'react';
-import { EdgeTypes, Edge } from '@xyflow/react';
+import { EdgeTypes } from '@xyflow/react';
 import ButtonEdge from './ButtonEdge';
 
 // Memoize the button edge component
@@ -13,10 +13,7 @@ const ButtonEdgeWrapper = React.memo((props: any) => {
   return <MemoizedButtonEdge {...rest} onDelete={onDelete} />;
 });
 
-/**
- * Creates edge types with the provided delete edge callback
- * This function should be used with useMemo
- */
+// Create a function to generate edgeTypes with the provided delete edge callback
 const createEdgeTypes = (onDeleteEdge: (id: string) => void): EdgeTypes => {
   // Return a stable edge types object
   return {
