@@ -7,6 +7,7 @@ import {
   CardHeader, 
   CardTitle 
 } from '@/components/ui/card';
+import { useStrategyStore } from '@/hooks/use-strategy-store';
 
 interface ConditionPreviewProps {
   rootCondition: GroupCondition;
@@ -15,6 +16,11 @@ interface ConditionPreviewProps {
 const ConditionPreview: React.FC<ConditionPreviewProps> = ({
   rootCondition,
 }) => {
+  const strategyStore = useStrategyStore();
+  
+  // Get the start node to access indicator parameters
+  const startNode = strategyStore.nodes.find(node => node.type === 'startNode');
+  
   return (
     <Card className="mt-4 bg-muted/40">
       <CardHeader className="py-2 px-3">
@@ -22,7 +28,7 @@ const ConditionPreview: React.FC<ConditionPreviewProps> = ({
       </CardHeader>
       <CardContent className="py-2 px-3">
         <div className="text-sm font-mono break-words">
-          {groupConditionToString(rootCondition)}
+          {groupConditionToString(rootCondition, startNode?.data)}
         </div>
       </CardContent>
     </Card>

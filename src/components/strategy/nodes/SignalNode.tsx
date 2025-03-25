@@ -3,6 +3,7 @@ import React, { memo } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import { Activity } from 'lucide-react';
 import { GroupCondition, groupConditionToString } from '../utils/conditionTypes';
+import { useStrategyStore } from '@/hooks/use-strategy-store';
 
 interface SignalNodeData {
   label?: string;
@@ -10,6 +11,7 @@ interface SignalNodeData {
 }
 
 const SignalNode = ({ data }: { data: SignalNodeData }) => {
+  const strategyStore = useStrategyStore();
   const conditions = Array.isArray(data.conditions) ? data.conditions : [];
   
   // Determine if we have any conditions to display
@@ -22,7 +24,11 @@ const SignalNode = ({ data }: { data: SignalNodeData }) => {
     if (!hasConditions) return null;
     
     try {
-      return groupConditionToString(conditions[0]);
+      // Find the start node to get indicator parameters
+      const startNode = strategyStore.nodes.find(node => node.type === 'startNode');
+      
+      // Pass start node data to the condition formatter
+      return groupConditionToString(conditions[0], startNode?.data);
     } catch (error) {
       return "Invalid condition structure";
     }

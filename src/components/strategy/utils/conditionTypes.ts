@@ -116,24 +116,43 @@ export const createEmptyGroupCondition = (): GroupCondition => {
   };
 };
 
+// Helper function to get display name for indicators (similar to StartNode.tsx)
+export const getIndicatorDisplayName = (key: string, nodeData?: any): string => {
+  if (!nodeData || !nodeData.indicatorParameters) return key;
+  
+  // Extract base indicator name (before any underscore)
+  const baseName = key.split('_')[0];
+  
+  if (nodeData.indicatorParameters[key]) {
+    const params = nodeData.indicatorParameters[key];
+    
+    // Format all parameters into a single, readable string - only values
+    const paramList = Object.values(params).join(',');
+    
+    return `${baseName}(${paramList})`;
+  }
+  
+  return key;
+};
+
 // Convert a condition to a readable string
-export const conditionToString = (condition: Condition): string => {
-  const lhsStr = expressionToString(condition.lhs);
-  const rhsStr = expressionToString(condition.rhs);
+export const conditionToString = (condition: Condition, nodeData?: any): string => {
+  const lhsStr = expressionToString(condition.lhs, nodeData);
+  const rhsStr = expressionToString(condition.rhs, nodeData);
   return `${lhsStr} ${condition.operator} ${rhsStr}`;
 };
 
 // Convert a group condition to a readable string
-export const groupConditionToString = (group: GroupCondition): string => {
+export const groupConditionToString = (group: GroupCondition, nodeData?: any): string => {
   if (group.conditions.length === 0) {
     return '(empty)';
   }
   
   const conditionsStr = group.conditions.map(cond => {
     if ('groupLogic' in cond) {
-      return `(${groupConditionToString(cond)})`;
+      return `(${groupConditionToString(cond, nodeData)})`;
     } else {
-      return conditionToString(cond);
+      return conditionToString(cond, nodeData);
     }
   }).join(` ${group.groupLogic} `);
   
@@ -141,9 +160,13 @@ export const groupConditionToString = (group: GroupCondition): string => {
 };
 
 // Convert an expression to a readable string
-export const expressionToString = (expr: Expression): string => {
+export const expressionToString = (expr: Expression, nodeData?: any): string => {
   switch (expr.type) {
     case 'indicator':
+      if (nodeData) {
+        const displayName = getIndicatorDisplayName(expr.name, nodeData);
+        return expr.parameter ? `${displayName}[${expr.parameter}]` : displayName;
+      }
       return expr.parameter ? `${expr.name}[${expr.parameter}]` : expr.name;
     case 'market_data':
       return expr.sub_indicator ? `${expr.field}.${expr.sub_indicator}` : expr.field;
@@ -152,8 +175,8 @@ export const expressionToString = (expr: Expression): string => {
     case 'time_function':
       return expr.function;
     case 'expression':
-      const leftStr = expressionToString(expr.left);
-      const rightStr = expressionToString(expr.right);
+      const leftStr = expressionToString(expr.left, nodeData);
+      const rightStr = expressionToString(expr.right, nodeData);
       return `(${leftStr} ${expr.operation} ${rightStr})`;
     default:
       return '';
