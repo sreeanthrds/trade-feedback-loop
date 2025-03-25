@@ -45,10 +45,15 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
 }) => {
   const [minimapVisible, setMinimapVisible] = useState(false);
 
-  // Create memoized node types with useCallback to maintain reference stability
+  // Create stable callback references
+  const deleteNodeCallback = useCallback((id: string) => onDeleteNode(id), [onDeleteNode]);
+  const addNodeCallback = useCallback((type: string) => onAddNode(type), [onAddNode]);
+  const deleteEdgeCallback = useCallback((id: string) => onDeleteEdge(id), [onDeleteEdge]);
+
+  // Create memoized node types with stable callbacks
   const nodeTypes = useMemo(
-    () => createNodeTypes(onDeleteNode, onAddNode),
-    [onDeleteNode, onAddNode]
+    () => createNodeTypes(deleteNodeCallback, addNodeCallback),
+    [deleteNodeCallback, addNodeCallback]
   );
 
   // Create edges with delete buttons using useMemo
@@ -57,16 +62,16 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
       ...edge,
       data: {
         ...edge.data,
-        onDelete: onDeleteEdge
+        onDelete: deleteEdgeCallback
       }
     })),
-    [edges, onDeleteEdge]
+    [edges, deleteEdgeCallback]
   );
 
-  // Memoize the edge types with useCallback
+  // Memoize the edge types with stable callback
   const edgeTypes = useMemo(
-    () => createEdgeTypes(onDeleteEdge),
-    [onDeleteEdge]
+    () => createEdgeTypes(deleteEdgeCallback),
+    [deleteEdgeCallback]
   );
 
   const toggleMinimap = useCallback(() => {
