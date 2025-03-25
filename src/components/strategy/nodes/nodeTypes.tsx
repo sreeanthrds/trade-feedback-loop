@@ -30,14 +30,14 @@ interface NodeWrapperProps {
 }
 
 // Create wrapper components that are stable across renders
-const StartNodeWrapper = React.memo(({ data, position, onAddNode, ...props }: NodeWrapperProps) => (
+const StartNodeWrapper = React.memo(({ data, position, onAddNode }: NodeWrapperProps) => (
   <div className="group">
     <MemoizedStartNode data={data} />
     <MemoizedNodeConnectControls showOn="start" onAddNode={onAddNode!} />
   </div>
 ));
 
-const SignalNodeWrapper = React.memo(({ data, id, position, onDelete, onAddNode, ...props }: NodeWrapperProps) => (
+const SignalNodeWrapper = React.memo(({ data, id, position, onDelete, onAddNode }: NodeWrapperProps) => (
   <div className="group">
     <MemoizedSignalNode data={data} />
     <MemoizedNodeControls node={{ id, type: 'signalNode', data, position }} onDelete={onDelete!} />
@@ -45,7 +45,7 @@ const SignalNodeWrapper = React.memo(({ data, id, position, onDelete, onAddNode,
   </div>
 ));
 
-const ActionNodeWrapper = React.memo(({ data, id, position, onDelete, onAddNode, ...props }: NodeWrapperProps) => (
+const ActionNodeWrapper = React.memo(({ data, id, position, onDelete, onAddNode }: NodeWrapperProps) => (
   <div className="group">
     <MemoizedActionNode data={data} id={id} />
     <MemoizedNodeControls node={{ id, type: 'actionNode', data, position }} onDelete={onDelete!} />
@@ -53,32 +53,31 @@ const ActionNodeWrapper = React.memo(({ data, id, position, onDelete, onAddNode,
   </div>
 ));
 
-const EndNodeWrapper = React.memo(({ data, id, position, onDelete, ...props }: NodeWrapperProps) => (
+const EndNodeWrapper = React.memo(({ data, id, position, onDelete }: NodeWrapperProps) => (
   <div className="group">
     <MemoizedEndNode data={data} />
     <MemoizedNodeControls node={{ id, type: 'endNode', data, position }} onDelete={onDelete!} />
   </div>
 ));
 
-const ForceEndNodeWrapper = React.memo(({ data, id, position, onDelete, ...props }: NodeWrapperProps) => (
+const ForceEndNodeWrapper = React.memo(({ data, id, position, onDelete }: NodeWrapperProps) => (
   <div className="group">
     <MemoizedForceEndNode data={data} />
     <MemoizedNodeControls node={{ id, type: 'forceEndNode', data, position }} onDelete={onDelete!} />
   </div>
 ));
 
-// Factory function to create node types with the correct props
+// Create a memoized node types object outside of any component
 const createNodeTypes = (
   onDeleteNode: (id: string) => void, 
   onAddNode: (type: string) => void
 ): NodeTypes => {
-  // Return a memoized nodeTypes object that won't change between renders
   return {
-    startNode: (props) => <StartNodeWrapper {...props} position={props.position} onAddNode={onAddNode} />,
-    signalNode: (props) => <SignalNodeWrapper {...props} position={props.position} onDelete={onDeleteNode} onAddNode={onAddNode} />,
-    actionNode: (props) => <ActionNodeWrapper {...props} position={props.position} onDelete={onDeleteNode} onAddNode={onAddNode} />,
-    endNode: (props) => <EndNodeWrapper {...props} position={props.position} onDelete={onDeleteNode} />,
-    forceEndNode: (props) => <ForceEndNodeWrapper {...props} position={props.position} onDelete={onDeleteNode} />
+    startNode: (props) => <StartNodeWrapper {...props} onAddNode={onAddNode} />,
+    signalNode: (props) => <SignalNodeWrapper {...props} onDelete={onDeleteNode} onAddNode={onAddNode} />,
+    actionNode: (props) => <ActionNodeWrapper {...props} onDelete={onDeleteNode} onAddNode={onAddNode} />,
+    endNode: (props) => <EndNodeWrapper {...props} onDelete={onDeleteNode} />,
+    forceEndNode: (props) => <ForceEndNodeWrapper {...props} onDelete={onDeleteNode} />
   };
 };
 

@@ -34,7 +34,7 @@ const NodeControls = ({ node, onDelete }: NodeControlsProps) => {
     setOpen(false);
   }, [node.id, onDelete]);
 
-  const getNodeTypeName = () => {
+  const getNodeTypeName = useCallback(() => {
     switch (node.type) {
       case 'signalNode': return 'Signal';
       case 'actionNode': return 'Action';
@@ -42,7 +42,7 @@ const NodeControls = ({ node, onDelete }: NodeControlsProps) => {
       case 'forceEndNode': return 'Force End';
       default: return 'Node';
     }
-  };
+  }, [node.type]);
 
   return (
     <div className="absolute right-0 top-0 -mt-5 -mr-1.5 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700">

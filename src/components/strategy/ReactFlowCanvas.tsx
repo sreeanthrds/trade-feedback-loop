@@ -1,11 +1,13 @@
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { 
   ReactFlow, 
   Background, 
   Controls, 
   MiniMap,
-  Edge
+  Edge,
+  NodeTypes,
+  EdgeTypes
 } from '@xyflow/react';
 import TopToolbar from './toolbars/TopToolbar';
 import BottomToolbar from './toolbars/BottomToolbar';
@@ -44,34 +46,36 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   onAddNode
 }) => {
   const [minimapVisible, setMinimapVisible] = useState(false);
+  
+  // Create stable callback references that won't change on each render
+  const stableDeleteNode = useCallback((id: string) => onDeleteNode(id), [onDeleteNode]);
+  const stableAddNode = useCallback((type: string) => onAddNode(type), [onAddNode]);
+  const stableDeleteEdge = useCallback((id: string) => onDeleteEdge(id), [onDeleteEdge]);
+  
+  // Create memoized nodeTypes with stable callbacks
+  // Use a ref to ensure the nodeTypes object stays consistent between renders
+  const nodeTypesRef = useRef<NodeTypes | null>(null);
+  if (!nodeTypesRef.current) {
+    nodeTypesRef.current = createNodeTypes(stableDeleteNode, stableAddNode);
+  }
+  
+  // Create memoized edgeTypes with stable callback
+  // Use a ref to ensure the edgeTypes object stays consistent between renders
+  const edgeTypesRef = useRef<EdgeTypes | null>(null);
+  if (!edgeTypesRef.current) {
+    edgeTypesRef.current = createEdgeTypes(stableDeleteEdge);
+  }
 
-  // Create stable callback references
-  const deleteNodeCallback = useCallback((id: string) => onDeleteNode(id), [onDeleteNode]);
-  const addNodeCallback = useCallback((type: string) => onAddNode(type), [onAddNode]);
-  const deleteEdgeCallback = useCallback((id: string) => onDeleteEdge(id), [onDeleteEdge]);
-
-  // Create memoized node types with stable callbacks
-  const memoizedNodeTypes = useMemo(
-    () => createNodeTypes(deleteNodeCallback, addNodeCallback),
-    [deleteNodeCallback, addNodeCallback]
-  );
-
-  // Create edges with delete buttons using useMemo
+  // Memoize the edge data to prevent unnecessary re-renders
   const edgesWithDeleteButtons = useMemo(() => 
     edges.map((edge: Edge) => ({
       ...edge,
       data: {
         ...edge.data,
-        onDelete: deleteEdgeCallback
+        onDelete: stableDeleteEdge
       }
     })),
-    [edges, deleteEdgeCallback]
-  );
-
-  // Memoize the edge types with stable callback
-  const memoizedEdgeTypes = useMemo(
-    () => createEdgeTypes(deleteEdgeCallback),
-    [deleteEdgeCallback]
+    [edges, stableDeleteEdge]
   );
 
   const toggleMinimap = useCallback(() => {
@@ -87,8 +91,8 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onNodeClick={onNodeClick}
-        nodeTypes={memoizedNodeTypes}
-        edgeTypes={memoizedEdgeTypes}
+        nodeTypes={nodeTypesRef.current!}
+        edgeTypes={edgeTypesRef.current!}
         fitView
         minZoom={0.5}
         maxZoom={2}
