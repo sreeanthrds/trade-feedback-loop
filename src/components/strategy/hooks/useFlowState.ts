@@ -25,6 +25,7 @@ export function useFlowState() {
   const isDraggingRef = useRef(false);
   const pendingNodesUpdate = useRef<Node[] | null>(null);
   const lastUpdateTimeRef = useRef(0);
+  const updateTimeoutRef = useRef<number | null>(null);
 
   // Initial load from localStorage - only run once
   useEffect(() => {
@@ -44,20 +45,25 @@ export function useFlowState() {
     }
   }, []);
 
-  // Enhanced node change handler with drag detection and throttling
+  // Enhanced node change handler with improved drag detection
   const onNodesChangeWithDragDetection = useCallback((changes) => {
+    // Apply the changes to nodes immediately for UI responsiveness
+    onNodesChange(changes);
+    
     // Detect drag operations
     const dragChange = changes.find(change => 
-      change.type === 'position' || 
-      change.type === 'dimensions'
+      change.type === 'position' && change.dragging !== undefined
     );
     
     if (dragChange) {
       if (dragChange.dragging) {
+        // Drag started or continuing
         isDraggingRef.current = true;
-      } else if (isDraggingRef.current && !dragChange.dragging) {
-        // Drag ended, apply the pending update
+      } else if (isDraggingRef.current) {
+        // Drag ended
         isDraggingRef.current = false;
+        
+        // Apply the pending update once the drag is complete
         if (pendingNodesUpdate.current) {
           strategyStore.setNodes(pendingNodesUpdate.current);
           strategyStore.addHistoryItem(pendingNodesUpdate.current, strategyStore.edges);
@@ -65,50 +71,58 @@ export function useFlowState() {
         }
       }
     }
-    
-    // Always apply the changes to nodes
-    onNodesChange(changes);
   }, [onNodesChange, strategyStore]);
 
-  // Custom setNodes wrapper to ensure both local state and store are updated
-  // But throttle updates to the store during node drag operations
+  // Custom setNodes wrapper with improved throttling
   const setNodesAndStore = useCallback((updatedNodes: Node[] | ((prevNodes: Node[]) => Node[])) => {
-    // Throttle updates to avoid excessive renders
-    const now = Date.now();
-    const shouldUpdate = now - lastUpdateTimeRef.current > 100;
-    lastUpdateTimeRef.current = now;
-    
-    // Handle both functional and direct updates
-    if (typeof updatedNodes === 'function') {
-      setNodes((prevNodes) => {
-        const newNodes = updatedNodes(prevNodes);
+    // Always update local state for UI responsiveness
+    setNodes((prevNodes) => {
+      // Handle both functional and direct updates
+      const newNodes = typeof updatedNodes === 'function' 
+        ? updatedNodes(prevNodes) 
+        : updatedNodes;
+      
+      // Don't update store during dragging
+      if (isDraggingRef.current) {
+        pendingNodesUpdate.current = newNodes;
+        return newNodes;
+      }
+      
+      // Throttle updates to the store during frequent operations
+      const now = Date.now();
+      if (now - lastUpdateTimeRef.current > 100) {
+        lastUpdateTimeRef.current = now;
         
-        // Only update store if not currently dragging and not too frequent
-        if (!isDraggingRef.current && shouldUpdate) {
-          strategyStore.setNodes(newNodes);
-        } else {
-          // Store the update to apply when dragging ends
-          pendingNodesUpdate.current = newNodes;
+        // Clear any pending timeout
+        if (updateTimeoutRef.current !== null) {
+          window.clearTimeout(updateTimeoutRef.current);
+          updateTimeoutRef.current = null;
         }
         
-        return newNodes;
-      });
-    } else {
-      setNodes(updatedNodes);
-      
-      // Only update store if not currently dragging and not too frequent
-      if (!isDraggingRef.current && shouldUpdate) {
-        strategyStore.setNodes(updatedNodes);
+        // Schedule the update to the store
+        updateTimeoutRef.current = window.setTimeout(() => {
+          strategyStore.setNodes(newNodes);
+        }, 50);
       } else {
-        // Store the update to apply when dragging ends
-        pendingNodesUpdate.current = updatedNodes;
+        pendingNodesUpdate.current = newNodes;
       }
-    }
+      
+      return newNodes;
+    });
   }, [setNodes, strategyStore]);
 
-  // Sync nodes from store to ReactFlow, but prevent infinite updates by checking for changes
+  // Set up a cleanup function for timeouts
   useEffect(() => {
-    if (isDraggingRef.current) return; // Skip updates during dragging
+    return () => {
+      if (updateTimeoutRef.current !== null) {
+        window.clearTimeout(updateTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Sync nodes from store to ReactFlow
+  useEffect(() => {
+    if (isDraggingRef.current || isInitialLoad.current) return;
     
     const storeNodes = strategyStore.nodes;
     if (storeNodes.length > 0 && 
@@ -118,22 +132,29 @@ export function useFlowState() {
     }
   }, [strategyStore.nodes, setNodes, nodes]);
 
-  // Sync edges from store to ReactFlow, but prevent infinite updates by checking for changes
+  // Sync edges from store to ReactFlow
   useEffect(() => {
+    if (isInitialLoad.current) return;
+    
     const storeEdges = strategyStore.edges;
     if (JSON.stringify(storeEdges) !== JSON.stringify(edges)) {
       setEdges(storeEdges);
     }
   }, [strategyStore.edges, setEdges, edges]);
 
+  // Handle connections with validation
   const onConnect = useCallback(
     (params: Connection) => {
       if (!validateConnection(params, nodes)) return;
       
       const newEdges = addEdge(params, edges);
       setEdges(newEdges);
-      strategyStore.setEdges(newEdges);
-      strategyStore.addHistoryItem(nodes, newEdges);
+      
+      // Avoid store updates during dragging
+      if (!isDraggingRef.current) {
+        strategyStore.setEdges(newEdges);
+        strategyStore.addHistoryItem(nodes, newEdges);
+      }
     },
     [nodes, edges, setEdges, strategyStore]
   );
@@ -150,7 +171,7 @@ export function useFlowState() {
     onConnect,
     setSelectedNode,
     setIsPanelOpen,
-    setNodes: setNodesAndStore, // Use the wrapped version
+    setNodes: setNodesAndStore,
     setEdges,
     strategyStore
   };

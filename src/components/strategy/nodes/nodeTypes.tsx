@@ -1,5 +1,5 @@
 
-import React, { useCallback } from 'react';
+import React from 'react';
 import { NodeTypes, Position } from '@xyflow/react';
 import StartNode from './StartNode';
 import SignalNode from './SignalNode';
@@ -9,7 +9,7 @@ import ForceEndNode from './ForceEndNode';
 import NodeControls from '../NodeControls';
 import NodeConnectControls from '../NodeConnectControls';
 
-// Define base node components with proper memoization
+// Define memoized base components
 const MemoizedStartNode = React.memo(StartNode);
 const MemoizedSignalNode = React.memo(SignalNode);
 const MemoizedActionNode = React.memo(ActionNode);
@@ -28,13 +28,14 @@ interface NodeWrapperProps {
   [key: string]: any;
 }
 
-// Pre-define all wrapper components to avoid conditional hook usage
+// Create stable wrapper components
 const StartNodeWrapper = React.memo(({ data, id, onAddNode }: NodeWrapperProps) => (
   <div className="group">
     <MemoizedStartNode data={data} />
     <MemoizedNodeConnectControls showOn="start" onAddNode={onAddNode} />
   </div>
 ));
+StartNodeWrapper.displayName = 'StartNodeWrapper';
 
 const SignalNodeWrapper = React.memo(({ data, id, onDelete, onAddNode }: NodeWrapperProps) => (
   <div className="group">
@@ -43,6 +44,7 @@ const SignalNodeWrapper = React.memo(({ data, id, onDelete, onAddNode }: NodeWra
     <MemoizedNodeConnectControls showOn="signal" onAddNode={onAddNode} />
   </div>
 ));
+SignalNodeWrapper.displayName = 'SignalNodeWrapper';
 
 const ActionNodeWrapper = React.memo(({ data, id, onDelete, onAddNode }: NodeWrapperProps) => (
   <div className="group">
@@ -51,6 +53,7 @@ const ActionNodeWrapper = React.memo(({ data, id, onDelete, onAddNode }: NodeWra
     <MemoizedNodeConnectControls showOn="action" onAddNode={onAddNode} />
   </div>
 ));
+ActionNodeWrapper.displayName = 'ActionNodeWrapper';
 
 const EndNodeWrapper = React.memo(({ data, id, onDelete }: NodeWrapperProps) => (
   <div className="group">
@@ -58,6 +61,7 @@ const EndNodeWrapper = React.memo(({ data, id, onDelete }: NodeWrapperProps) => 
     <MemoizedNodeControls node={{ id, type: 'endNode', data }} onDelete={onDelete} />
   </div>
 ));
+EndNodeWrapper.displayName = 'EndNodeWrapper';
 
 const ForceEndNodeWrapper = React.memo(({ data, id, onDelete }: NodeWrapperProps) => (
   <div className="group">
@@ -65,13 +69,13 @@ const ForceEndNodeWrapper = React.memo(({ data, id, onDelete }: NodeWrapperProps
     <MemoizedNodeControls node={{ id, type: 'forceEndNode', data }} onDelete={onDelete} />
   </div>
 ));
+ForceEndNodeWrapper.displayName = 'ForceEndNodeWrapper';
 
-// Create a function to generate nodeTypes with the handlers
+// Create a function to generate nodeTypes with stable renderer functions
 const createNodeTypes = (
   onDeleteNode: (id: string) => void, 
   onAddNode: (type: string) => void
 ): NodeTypes => {
-  // Return a stable object of component references
   return {
     startNode: (props) => <StartNodeWrapper {...props} onAddNode={onAddNode} />,
     signalNode: (props) => <SignalNodeWrapper {...props} onDelete={onDeleteNode} onAddNode={onAddNode} />,

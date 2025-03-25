@@ -1,5 +1,5 @@
 
-import React, { lazy, Suspense, useMemo, useCallback } from 'react';
+import React, { lazy, Suspense, useMemo } from 'react';
 import { useTheme } from '@/hooks/use-theme';
 import { useFlowState } from './hooks/useFlowState';
 import { useFlowHandlers } from './hooks/useFlowHandlers';
@@ -67,15 +67,6 @@ const StrategyFlowContent = () => {
     return null;
   }, [isPanelOpen, selectedNode, updateNodeData, closePanel]);
 
-  // Memoize ReactFlowCanvas props with stable references
-  const onNodeClickCallback = useCallback((event, node) => {
-    onNodeClick(event, node);
-  }, [onNodeClick]);
-  
-  const onConnectCallback = useCallback((params) => {
-    onConnect(params);
-  }, [onConnect]);
-
   // Memoize ReactFlowCanvas props
   const flowCanvasProps = useMemo(() => ({
     flowRef: reactFlowWrapper,
@@ -83,8 +74,8 @@ const StrategyFlowContent = () => {
     edges,
     onNodesChange,
     onEdgesChange,
-    onConnect: onConnectCallback,
-    onNodeClick: onNodeClickCallback,
+    onConnect,
+    onNodeClick,
     resetStrategy,
     onImportSuccess: handleImportSuccess,
     onDeleteNode: handleDeleteNode,
@@ -96,8 +87,8 @@ const StrategyFlowContent = () => {
     reactFlowWrapper,
     onNodesChange,
     onEdgesChange,
-    onConnectCallback,
-    onNodeClickCallback,
+    onConnect,
+    onNodeClick,
     resetStrategy,
     handleImportSuccess,
     handleDeleteNode,

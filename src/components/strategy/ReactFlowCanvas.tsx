@@ -1,13 +1,11 @@
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { 
   ReactFlow, 
   Background, 
   Controls, 
   MiniMap,
   Edge,
-  NodeTypes,
-  EdgeTypes,
   Node
 } from '@xyflow/react';
 import TopToolbar from './toolbars/TopToolbar';
@@ -32,11 +30,7 @@ interface ReactFlowCanvasProps {
   onAddNode: (type: string) => void;
 }
 
-// Create stable nodeTypes object outside the component
-const memoizedCreateNodeTypes = React.memo(createNodeTypes);
-const memoizedCreateEdgeTypes = React.memo(createEdgeTypes);
-
-const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
+const ReactFlowCanvas = React.memo(({
   flowRef,
   nodes,
   edges,
@@ -49,49 +43,24 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   onDeleteNode,
   onDeleteEdge,
   onAddNode
-}) => {
+}: ReactFlowCanvasProps) => {
   const [minimapVisible, setMinimapVisible] = useState(false);
   
-  // Create stable references for the callback functions
-  const onDeleteNodeRef = useRef(onDeleteNode);
-  const onDeleteEdgeRef = useRef(onDeleteEdge);
-  const onAddNodeRef = useRef(onAddNode);
-  
-  // Update refs when props change
-  React.useEffect(() => {
-    onDeleteNodeRef.current = onDeleteNode;
-    onDeleteEdgeRef.current = onDeleteEdge;
-    onAddNodeRef.current = onAddNode;
-  }, [onDeleteNode, onDeleteEdge, onAddNode]);
-  
-  // Use stable callback wrappers
-  const handleDeleteNode = useCallback((id: string) => {
-    onDeleteNodeRef.current(id);
-  }, []);
-  
-  const handleDeleteEdge = useCallback((id: string) => {
-    onDeleteEdgeRef.current(id);
-  }, []);
-  
-  const handleAddNode = useCallback((type: string) => {
-    onAddNodeRef.current(type);
-  }, []);
-  
-  // Create stable nodeTypes and edgeTypes objects with proper memoization
-  const nodeTypes = React.useMemo(() => 
-    memoizedCreateNodeTypes(handleDeleteNode, handleAddNode),
-    [handleDeleteNode, handleAddNode]
+  // Create node types with stable callbacks
+  const nodeTypes = useMemo(() => 
+    createNodeTypes(onDeleteNode, onAddNode),
+    [onDeleteNode, onAddNode]
   );
   
-  // Create stable edgeTypes object with proper memoization
-  const edgeTypes = React.useMemo(() => 
-    memoizedCreateEdgeTypes(handleDeleteEdge),
-    [handleDeleteEdge]
+  // Create edge types with stable callbacks
+  const edgeTypes = useMemo(() => 
+    createEdgeTypes(onDeleteEdge),
+    [onDeleteEdge]
   );
 
-  const toggleMinimap = useCallback(() => {
+  const toggleMinimap = () => {
     setMinimapVisible(prev => !prev);
-  }, []);
+  };
 
   return (
     <div className="h-full w-full" ref={flowRef}>
@@ -167,6 +136,8 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
       </ReactFlow>
     </div>
   );
-};
+});
 
-export default React.memo(ReactFlowCanvas);
+ReactFlowCanvas.displayName = 'ReactFlowCanvas';
+
+export default ReactFlowCanvas;

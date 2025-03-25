@@ -49,18 +49,14 @@ export const useFlowHandlers = ({
     storeRef.current = strategyStore;
   }, [nodes, edges, strategyStore]);
 
-  const onNodeClick = useCallback(
-    (event, node) => {
-      setSelectedNode(node);
-      setIsPanelOpen(true);
-    },
-    [setSelectedNode, setIsPanelOpen]
-  );
+  // Create stable handler for node click
+  const onNodeClick = useCallback((event, node) => {
+    setSelectedNode(node);
+    setIsPanelOpen(true);
+  }, [setSelectedNode, setIsPanelOpen]);
 
-  // Create a stable handler for adding nodes
+  // Create stable handler for adding nodes
   const handleAddNode = useCallback((type: string) => {
-    console.log('useFlowHandlers: handleAddNode called with type', type);
-    
     const addNodeHandler = createAddNodeHandler(
       reactFlowInstance,
       reactFlowWrapper,
@@ -68,85 +64,65 @@ export const useFlowHandlers = ({
       setNodes,
       storeRef.current
     );
-    
     addNodeHandler(type);
   }, [reactFlowInstance, reactFlowWrapper, setNodes]);
 
-  // Create a stable handler for updating node data
-  const updateNodeData = useCallback(
-    (id: string, data: any) => {
-      const handler = createUpdateNodeDataHandler(
-        nodesRef.current,
-        setNodes,
-        storeRef.current
-      );
-      
-      handler(id, data);
-    },
-    [setNodes]
-  );
+  // Create stable handler for updating node data
+  const updateNodeData = useCallback((id: string, data: any) => {
+    const handler = createUpdateNodeDataHandler(
+      nodesRef.current,
+      setNodes,
+      storeRef.current
+    );
+    handler(id, data);
+  }, [setNodes]);
   
-  // Create a stable handler for deleting nodes
-  const handleDeleteNode = useCallback(
-    (id: string) => {
-      const handler = createDeleteNodeHandler(
-        nodesRef.current,
-        edgesRef.current,
-        setNodes,
-        setEdges,
-        storeRef.current
-      );
-      
-      handler(id);
-    },
-    [setNodes, setEdges]
-  );
+  // Create stable handler for deleting nodes
+  const handleDeleteNode = useCallback((id: string) => {
+    const handler = createDeleteNodeHandler(
+      nodesRef.current,
+      edgesRef.current,
+      setNodes,
+      setEdges,
+      storeRef.current
+    );
+    handler(id);
+  }, [setNodes, setEdges]);
   
-  // Create a stable handler for deleting edges
-  const handleDeleteEdge = useCallback(
-    (id: string) => {
-      const handler = createDeleteEdgeHandler(
-        edgesRef.current,
-        setEdges,
-        storeRef.current,
-        nodesRef.current
-      );
-      
-      handler(id);
-    },
-    [setEdges]
-  );
+  // Create stable handler for deleting edges
+  const handleDeleteEdge = useCallback((id: string) => {
+    const handler = createDeleteEdgeHandler(
+      edgesRef.current,
+      setEdges,
+      storeRef.current,
+      nodesRef.current
+    );
+    handler(id);
+  }, [setEdges]);
 
-  // Create a stable handler for closing the panel
+  // Create stable handler for closing the panel
   const closePanel = useCallback(() => {
     setIsPanelOpen(false);
     setSelectedNode(null);
   }, [setIsPanelOpen, setSelectedNode]);
 
-  // Create a stable handler for resetting the strategy
-  const resetStrategy = useCallback(
-    () => {
-      const handler = createResetStrategyHandler(
-        setNodes,
-        setEdges,
-        storeRef.current,
-        initialNodes,
-        closePanel
-      );
-      
-      handler();
-    },
-    [setNodes, setEdges, closePanel]
-  );
+  // Create stable handler for resetting the strategy
+  const resetStrategy = useCallback(() => {
+    const handler = createResetStrategyHandler(
+      setNodes,
+      setEdges,
+      storeRef.current,
+      initialNodes,
+      closePanel
+    );
+    handler();
+  }, [setNodes, setEdges, closePanel]);
 
-  // Create a stable handler for handling import success
-  const handleImportSuccess = useCallback(
-    () => {
-      const handler = createImportSuccessHandler(reactFlowInstance);
-      handler();
-    },
-    [reactFlowInstance]
-  );
+  // Create stable handler for handling import success
+  const handleImportSuccess = useCallback(() => {
+    const handler = createImportSuccessHandler(reactFlowInstance);
+    handler();
+  }, [reactFlowInstance]);
 
   return {
     onNodeClick,
