@@ -25,6 +25,14 @@ const AddIndicatorForm: React.FC<AddIndicatorFormProps> = ({
 }) => {
   const allIndicatorOptions = Object.keys(indicatorConfig);
   
+  const handleAdd = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (selectedIndicator) {
+      onAddIndicator();
+    }
+  };
+  
   return (
     <div className="flex items-end gap-2">
       <div className="flex-1">
@@ -49,7 +57,7 @@ const AddIndicatorForm: React.FC<AddIndicatorFormProps> = ({
       </div>
       <Button 
         size="sm" 
-        onClick={onAddIndicator} 
+        onClick={handleAdd} 
         disabled={!selectedIndicator}
         className="mb-0.5"
       >
