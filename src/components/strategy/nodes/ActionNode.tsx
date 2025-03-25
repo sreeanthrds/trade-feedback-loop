@@ -22,43 +22,33 @@ interface ActionNodeData {
 
 interface StartNodeData {
   symbol?: string;
-  tradingInstrument?: {
-    type: 'stock' | 'futures' | 'options';
-  };
 }
 
 const ActionNode = ({ data, id }: { data: ActionNodeData, id: string }) => {
   const { getNodes } = useReactFlow();
   const [startNodeSymbol, setStartNodeSymbol] = useState<string | undefined>(data.instrument);
-  const [hasOptionTrading, setHasOptionTrading] = useState(false);
   
-  // Get the start node symbol to display and check if options trading is enabled
+  // Get the start node symbol to display
   useEffect(() => {
-    const fetchStartNodeData = () => {
+    const fetchStartNodeSymbol = () => {
       const nodes = getNodes();
       const startNode = nodes.find(node => node.type === 'startNode');
       if (startNode && startNode.data) {
         const startData = startNode.data as StartNodeData;
-        
-        // Update symbol if different
         if (startData.symbol !== startNodeSymbol) {
           setStartNodeSymbol(startData.symbol);
         }
-        
-        // Check if options trading is enabled
-        const optionsEnabled = startData.tradingInstrument?.type === 'options';
-        setHasOptionTrading(optionsEnabled || false);
       }
     };
 
     // Initial fetch
-    fetchStartNodeData();
+    fetchStartNodeSymbol();
 
     // Set up an interval to check for changes
-    const intervalId = setInterval(fetchStartNodeData, 200);
+    const intervalId = setInterval(fetchStartNodeSymbol, 200);
 
     return () => clearInterval(intervalId);
-  }, [getNodes, startNodeSymbol]);
+  }, [getNodes]);
   
   const getActionIcon = () => {
     switch (data.actionType) {
@@ -108,6 +98,19 @@ const ActionNode = ({ data, id }: { data: ActionNodeData, id: string }) => {
     return details.join(', ') || 'Default settings';
   };
   
+  const getOptionDetails = () => {
+    if (!data.optionDetails) return null;
+    
+    const { expiry, strikeType, optionType } = data.optionDetails;
+    const details = [];
+    
+    if (expiry) details.push(expiry);
+    if (strikeType) details.push(strikeType);
+    if (optionType) details.push(optionType);
+    
+    return details.length > 0 ? details.join(' · ') : null;
+  };
+  
   return (
     <div className="px-4 py-2 rounded-md bg-background/95">
       <Handle
@@ -143,7 +146,7 @@ const ActionNode = ({ data, id }: { data: ActionNodeData, id: string }) => {
           </div>
         )}
         
-        {hasOptionTrading && data.optionDetails && (
+        {data.optionDetails && (
           <>
             <div className="flex justify-between">
               <span className="text-foreground/60">Expiry:</span>
