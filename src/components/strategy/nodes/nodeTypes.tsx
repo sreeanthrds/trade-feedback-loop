@@ -34,7 +34,7 @@ const SignalNodeWrapper = React.memo((props: any) => {
   return (
     <div className="group">
       <MemoizedSignalNode {...rest} />
-      <MemoizedNodeControls node={props} onDelete={onDelete} />
+      <MemoizedNodeControls node={rest} onDelete={onDelete} />
       <MemoizedNodeConnectControls showOn="signal" onAddNode={onAddNode} />
     </div>
   );
@@ -45,7 +45,7 @@ const ActionNodeWrapper = React.memo((props: any) => {
   return (
     <div className="group">
       <MemoizedActionNode {...rest} />
-      <MemoizedNodeControls node={props} onDelete={onDelete} />
+      <MemoizedNodeControls node={rest} onDelete={onDelete} />
       <MemoizedNodeConnectControls showOn="action" onAddNode={onAddNode} />
     </div>
   );
@@ -56,7 +56,7 @@ const EndNodeWrapper = React.memo((props: any) => {
   return (
     <div className="group">
       <MemoizedEndNode {...rest} />
-      <MemoizedNodeControls node={props} onDelete={onDelete} />
+      <MemoizedNodeControls node={rest} onDelete={onDelete} />
     </div>
   );
 });
@@ -66,7 +66,7 @@ const ForceEndNodeWrapper = React.memo((props: any) => {
   return (
     <div className="group">
       <MemoizedForceEndNode {...rest} />
-      <MemoizedNodeControls node={props} onDelete={onDelete} />
+      <MemoizedNodeControls node={rest} onDelete={onDelete} />
     </div>
   );
 });
@@ -78,11 +78,11 @@ const createNodeTypes = (
 ): NodeTypes => {
   // Create a stable nodeTypes object
   return {
-    startNode: StartNodeWrapper,
-    signalNode: SignalNodeWrapper,
-    actionNode: ActionNodeWrapper,
-    endNode: EndNodeWrapper,
-    forceEndNode: ForceEndNodeWrapper
+    startNode: (props) => <StartNodeWrapper {...props} onAddNode={onAddNode} />,
+    signalNode: (props) => <SignalNodeWrapper {...props} onDelete={onDeleteNode} onAddNode={onAddNode} />,
+    actionNode: (props) => <ActionNodeWrapper {...props} onDelete={onDeleteNode} onAddNode={onAddNode} />,
+    endNode: (props) => <EndNodeWrapper {...props} onDelete={onDeleteNode} />,
+    forceEndNode: (props) => <ForceEndNodeWrapper {...props} onDelete={onDeleteNode} />
   };
 };
 

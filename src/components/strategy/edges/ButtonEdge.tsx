@@ -33,8 +33,12 @@ const ButtonEdge = ({
   const [open, setOpen] = useState(false);
   
   const handleDelete = () => {
-    onDelete(id);
-    setOpen(false);
+    if (typeof onDelete === 'function') {
+      onDelete(id);
+      setOpen(false);
+    } else {
+      console.error('Edge onDelete is not a function', onDelete);
+    }
   };
   
   return (

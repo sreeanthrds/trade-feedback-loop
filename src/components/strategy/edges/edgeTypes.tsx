@@ -9,6 +9,7 @@ const MemoizedButtonEdge = React.memo(ButtonEdge);
 // Create a properly typed wrapper component
 const ButtonEdgeWrapper = React.memo((props: any) => {
   const { onDelete, ...rest } = props;
+  
   return <MemoizedButtonEdge {...rest} onDelete={onDelete} />;
 });
 
@@ -19,7 +20,7 @@ const ButtonEdgeWrapper = React.memo((props: any) => {
 const createEdgeTypes = (onDeleteEdge: (id: string) => void): EdgeTypes => {
   // Return a stable edge types object
   return {
-    default: ButtonEdgeWrapper
+    default: (props) => <ButtonEdgeWrapper {...props} onDelete={onDeleteEdge} />
   };
 };
 

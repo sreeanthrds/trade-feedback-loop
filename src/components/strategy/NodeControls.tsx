@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
@@ -27,8 +28,12 @@ const NodeControls: React.FC<NodeControlsProps> = ({ node, onDelete }) => {
   }
 
   const handleDelete = () => {
-    onDelete(node.id);
-    setOpen(false);
+    if (typeof onDelete === 'function') {
+      onDelete(node.id);
+      setOpen(false);
+    } else {
+      console.error('onDelete is not a function', onDelete);
+    }
   };
 
   const getNodeTypeName = () => {
