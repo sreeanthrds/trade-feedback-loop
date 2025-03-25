@@ -16,8 +16,8 @@ const StrategyBuilder = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-grow pt-16 md:pt-20">
-        <div className={`mx-auto px-4 py-6 transition-all duration-300 ${isExpanded ? 'w-full' : 'container max-w-7xl'}`}>
+      <main className={`flex-grow pt-16 md:pt-20 ${isExpanded ? 'flex-1 flex flex-col' : ''}`}>
+        <div className={`mx-auto px-4 py-6 transition-all duration-300 ${isExpanded ? 'w-full h-full flex-1 flex flex-col' : 'container max-w-7xl'}`}>
           <div className="mb-6 pt-4 flex justify-between items-center">
             <div>
               <h1 className="text-3xl font-bold mb-2">Strategy Builder</h1>
@@ -45,12 +45,12 @@ const StrategyBuilder = () => {
             </Button>
           </div>
           
-          <div className="h-[calc(100vh-250px)] min-h-[650px] rounded-xl border border-border overflow-hidden">
+          <div className={`border border-border overflow-hidden rounded-xl ${isExpanded ? 'flex-1' : 'h-[calc(100vh-250px)] min-h-[650px]'}`}>
             <StrategyFlow />
           </div>
         </div>
       </main>
-      <Footer />
+      {!isExpanded && <Footer />}
     </div>
   );
 };
