@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 import { 
@@ -20,7 +20,7 @@ interface NodeControlsProps {
   onDelete: (nodeId: string) => void;
 }
 
-const NodeControls: React.FC<NodeControlsProps> = ({ node, onDelete }) => {
+const NodeControls = ({ node, onDelete }: NodeControlsProps) => {
   const [open, setOpen] = useState(false);
   
   // Don't allow deletion of the start node
@@ -28,13 +28,10 @@ const NodeControls: React.FC<NodeControlsProps> = ({ node, onDelete }) => {
     return null;
   }
 
-  const handleDelete = useCallback(() => {
-    if (typeof onDelete === 'function') {
-      onDelete(node.id);
-      setOpen(false);
-    } else {
-      console.error('onDelete is not a function', onDelete);
-    }
+  const handleDelete = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDelete(node.id);
+    setOpen(false);
   }, [node.id, onDelete]);
 
   const getNodeTypeName = () => {
@@ -55,9 +52,7 @@ const NodeControls: React.FC<NodeControlsProps> = ({ node, onDelete }) => {
             variant="destructive"
             size="icon"
             className="h-5 w-5 rounded-full shadow-md"
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
+            onClick={(e) => e.stopPropagation()}
             title="Delete node"
           >
             <Trash2 className="h-2.5 w-2.5" />
@@ -74,10 +69,7 @@ const NodeControls: React.FC<NodeControlsProps> = ({ node, onDelete }) => {
           <AlertDialogFooter>
             <AlertDialogCancel onClick={(e) => e.stopPropagation()}>Cancel</AlertDialogCancel>
             <AlertDialogAction 
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDelete();
-              }}
+              onClick={handleDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Delete
@@ -89,4 +81,4 @@ const NodeControls: React.FC<NodeControlsProps> = ({ node, onDelete }) => {
   );
 };
 
-export default React.memo(NodeControls);
+export default memo(NodeControls);

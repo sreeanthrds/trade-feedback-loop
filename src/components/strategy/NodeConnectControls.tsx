@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, memo } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -14,11 +14,11 @@ interface NodeConnectControlsProps {
   onAddNode: (type: string) => void;
 }
 
-const NodeConnectControls: React.FC<NodeConnectControlsProps> = ({ showOn, onAddNode }) => {
+const NodeConnectControls = ({ showOn, onAddNode }: NodeConnectControlsProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   // Different node type options based on the current node type
-  const getNodeOptions = () => {
+  const nodeOptions = React.useMemo(() => {
     if (showOn === 'start') {
       return [
         { value: 'signalNode', label: 'Signal Node' },
@@ -34,15 +34,15 @@ const NodeConnectControls: React.FC<NodeConnectControlsProps> = ({ showOn, onAdd
         { value: 'forceEndNode', label: 'Force End Node' }
       ];
     }
-  };
+  }, [showOn]);
 
-  const handleAddNode = (type: string) => {
+  const handleAddNode = useCallback((type: string) => {
     onAddNode(type);
     setIsOpen(false);
-  };
+  }, [onAddNode]);
 
   return (
-    <div className="absolute right-0 top-1/2 -mr-4 -mt-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+    <div className="absolute right-0 top-1/2 -mr-4 -mt-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild>
           <Button
@@ -58,7 +58,7 @@ const NodeConnectControls: React.FC<NodeConnectControlsProps> = ({ showOn, onAdd
           align="end" 
           sideOffset={8}
         >
-          {getNodeOptions().map((option) => (
+          {nodeOptions.map((option) => (
             <DropdownMenuItem 
               key={option.value}
               onClick={() => handleAddNode(option.value)}
@@ -73,4 +73,4 @@ const NodeConnectControls: React.FC<NodeConnectControlsProps> = ({ showOn, onAdd
   );
 };
 
-export default React.memo(NodeConnectControls);
+export default memo(NodeConnectControls);
