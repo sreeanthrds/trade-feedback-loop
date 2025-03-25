@@ -1,22 +1,13 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Navbar from '@/components/ui/navbar';
 import Footer from '@/components/ui/footer';
 import StrategyFlow from '@/components/strategy/StrategyFlow';
 import { Button } from '@/components/ui/button';
 import { Maximize2, Minimize2 } from 'lucide-react';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 const StrategyBuilder = () => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const isMobile = useIsMobile();
-
-  // Auto-expand on mobile for better experience
-  useEffect(() => {
-    if (isMobile) {
-      setIsExpanded(true);
-    }
-  }, [isMobile]);
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);

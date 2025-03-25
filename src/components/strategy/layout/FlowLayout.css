@@ -14,15 +14,3 @@
 
 /* Import resizable panel styles */
 @import '../styles/resizable.css';
-
-/* Mobile styles */
-@media (max-width: 768px) {
-  .strategy-flow-container [data-panel-resize-handle-id] {
-    width: 10px !important;
-  }
-
-  .strategy-flow-container [data-panel-resize-handle-id] div {
-    width: 10px !important;
-    height: 40px;
-  }
-}
