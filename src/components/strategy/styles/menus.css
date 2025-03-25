@@ -28,3 +28,8 @@
 [data-radix-popper-content-wrapper] {
   z-index: 9999 !important;
 }
+
+/* Adjust dropdown width for node connect controls */
+.react-flow__node [data-radix-popper-content-wrapper] {
+  width: auto !important;
+}

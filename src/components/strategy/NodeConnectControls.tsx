@@ -78,6 +78,7 @@ const NodeConnectControls = ({ showOn, onAddNode }: NodeConnectControlsProps) =>
           align="end" 
           sideOffset={8}
           onMouseLeave={handleMouseLeave}
+          className="p-1 min-w-[3rem] w-auto"
         >
           <TooltipProvider delayDuration={200}>
             {nodeOptions.map((option) => {
@@ -89,7 +90,7 @@ const NodeConnectControls = ({ showOn, onAddNode }: NodeConnectControlsProps) =>
                   <TooltipTrigger asChild>
                     <DropdownMenuItem 
                       onClick={() => handleAddNode(option.value)}
-                      className="cursor-pointer py-2 flex justify-center"
+                      className="cursor-pointer py-2 px-2 flex justify-center"
                     >
                       <NodeIcon className={`h-5 w-5 ${iconColor}`} />
                     </DropdownMenuItem>
