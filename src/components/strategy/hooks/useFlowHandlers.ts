@@ -51,6 +51,9 @@ export const useFlowHandlers = ({
       return;
     }
     
+    console.log('Handling add node request for type:', type);
+    console.log('Current nodes before add:', nodes);
+    
     const createAddNodeFn = createAddNodeHandler(
       reactFlowInstance,
       reactFlowWrapper,

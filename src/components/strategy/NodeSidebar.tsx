@@ -65,7 +65,12 @@ const NodeSidebar = ({ onAddNode }: NodeSidebarProps) => {
     event.dataTransfer.effectAllowed = 'move';
   }, []);
 
-  const handleNodeAdd = useCallback((nodeType: string) => {
+  const handleNodeAdd = useCallback((nodeType: string, event: React.MouseEvent) => {
+    // Prevent the event from bubbling up to parent elements
+    event.stopPropagation();
+    event.preventDefault();
+    
+    console.log('Sidebar adding node type:', nodeType);
     onAddNode(nodeType);
   }, [onAddNode]);
 
@@ -82,7 +87,7 @@ const NodeSidebar = ({ onAddNode }: NodeSidebarProps) => {
                   className={`flex justify-center items-center w-10 h-10 rounded-full ${nodeType.color} cursor-grab transition-all hover:scale-105 hover:shadow-md`}
                   draggable
                   onDragStart={(e) => handleDragStart(e, nodeType.type)}
-                  onClick={() => handleNodeAdd(nodeType.type)}
+                  onClick={(e) => handleNodeAdd(nodeType.type, e)}
                 >
                   {nodeType.icon}
                 </div>
