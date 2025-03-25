@@ -1,12 +1,12 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { EdgeTypes } from '@xyflow/react';
 import ButtonEdge from './ButtonEdge';
 
-// Create a single memoized edge types object
+// Create edge types once outside of any component
 const createEdgeTypes = (onDeleteEdge: (id: string) => void): EdgeTypes => {
   return {
-    default: (props: any) => <ButtonEdge {...props} onDelete={onDeleteEdge} />
+    default: memo((props: any) => <ButtonEdge {...props} onDelete={onDeleteEdge} />)
   };
 };
 

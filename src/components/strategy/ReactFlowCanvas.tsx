@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { 
   ReactFlow, 
   Background, 
@@ -51,7 +51,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
     [onDeleteNode, onAddNode]
   );
 
-  // Create edges with delete buttons
+  // Create edges with delete buttons using useCallback
   const edgesWithDeleteButtons = useMemo(() => 
     edges.map((edge: Edge) => ({
       ...edge,
@@ -69,9 +69,9 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
     [onDeleteEdge]
   );
 
-  const toggleMinimap = () => {
-    setMinimapVisible(!minimapVisible);
-  };
+  const toggleMinimap = useCallback(() => {
+    setMinimapVisible(prev => !prev);
+  }, []);
 
   return (
     <div className="h-full w-full" ref={flowRef}>
@@ -148,4 +148,4 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   );
 };
 
-export default ReactFlowCanvas;
+export default React.memo(ReactFlowCanvas);
