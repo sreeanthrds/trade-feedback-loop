@@ -101,19 +101,11 @@ const ActionNode = ({ data, id }: { data: ActionNodeData, id: string }) => {
   const getOptionDetails = () => {
     if (!data.optionDetails) return null;
     
-    const { expiry, strikeType, strikeValue, optionType } = data.optionDetails;
+    const { expiry, strikeType, optionType } = data.optionDetails;
     const details = [];
     
     if (expiry) details.push(expiry);
-    
-    if (strikeType) {
-      if (strikeType === 'premium' && strikeValue) {
-        details.push(`Premium ~₹${strikeValue}`);
-      } else {
-        details.push(strikeType);
-      }
-    }
-    
+    if (strikeType) details.push(strikeType);
     if (optionType) details.push(optionType);
     
     return details.length > 0 ? details.join(' · ') : null;
@@ -154,11 +146,23 @@ const ActionNode = ({ data, id }: { data: ActionNodeData, id: string }) => {
           </div>
         )}
         
-        {getOptionDetails() && (
-          <div className="flex justify-between">
-            <span className="text-foreground/60">Options:</span>
-            <span className="font-medium">{getOptionDetails()}</span>
-          </div>
+        {data.optionDetails && (
+          <>
+            <div className="flex justify-between">
+              <span className="text-foreground/60">Expiry:</span>
+              <span className="font-medium">{data.optionDetails.expiry || 'W0'}</span>
+            </div>
+            
+            <div className="flex justify-between">
+              <span className="text-foreground/60">Strike:</span>
+              <span className="font-medium">{data.optionDetails.strikeType || 'ATM'}</span>
+            </div>
+            
+            <div className="flex justify-between">
+              <span className="text-foreground/60">Option Type:</span>
+              <span className="font-medium">{data.optionDetails.optionType || 'CE'}</span>
+            </div>
+          </>
         )}
         
         {data.actionType === 'alert' && (

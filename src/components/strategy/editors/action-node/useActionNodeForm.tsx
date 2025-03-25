@@ -25,12 +25,20 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
         positionType: nodeData?.positionType || 'buy',
         orderType: nodeData?.orderType || 'market',
         lots: nodeData?.lots || 1,
-        productType: nodeData?.productType || 'intraday'
+        productType: nodeData?.productType || 'intraday',
+        optionDetails: {
+          ...nodeData?.optionDetails,
+          expiry: nodeData?.optionDetails?.expiry || 'W0',
+          strikeType: nodeData?.optionDetails?.strikeType || 'ATM',
+          optionType: nodeData?.optionDetails?.optionType || 'CE'
+        }
       };
       
       // Only update if any default values are missing
       if (!nodeData?.actionType || !nodeData?.positionType || 
-          !nodeData?.orderType || !nodeData?.lots || !nodeData?.productType) {
+          !nodeData?.orderType || !nodeData?.lots || !nodeData?.productType || 
+          !nodeData?.optionDetails?.expiry || !nodeData?.optionDetails?.strikeType || 
+          !nodeData?.optionDetails?.optionType) {
         updateNodeData(node.id, defaultValues);
         initializedRef.current = true;
       }

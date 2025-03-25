@@ -128,7 +128,7 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
       <SelectField
         label="Expiry"
         id="expiry"
-        value={optionDetails?.expiry || ''}
+        value={optionDetails?.expiry || 'W0'}
         onChange={onExpiryChange}
         options={expiryOptions}
       />
