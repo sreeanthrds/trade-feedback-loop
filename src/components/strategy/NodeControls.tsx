@@ -45,7 +45,7 @@ const NodeControls = ({ node, onDelete }: NodeControlsProps) => {
   };
 
   return (
-    <div className="absolute right-0 top-0 -mt-5 -mr-1.5 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+    <div className="absolute right-0 top-0 -mt-5 -mr-1.5 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
       <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogTrigger asChild>
           <Button
