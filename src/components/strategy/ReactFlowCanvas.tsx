@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   ReactFlow, 
   Background, 
@@ -46,22 +46,25 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   const [minimapVisible, setMinimapVisible] = useState(false);
 
   // Create memoized node types to prevent React Flow warnings
-  const nodeTypes = React.useMemo(
+  const nodeTypes = useMemo(
     () => createNodeTypes(onDeleteNode, onAddNode),
     [onDeleteNode, onAddNode]
   );
 
   // Create edges with delete buttons
-  const edgesWithDeleteButtons = edges.map((edge: Edge) => ({
-    ...edge,
-    data: {
-      ...edge.data,
-      onDelete: onDeleteEdge
-    }
-  }));
+  const edgesWithDeleteButtons = useMemo(() => 
+    edges.map((edge: Edge) => ({
+      ...edge,
+      data: {
+        ...edge.data,
+        onDelete: onDeleteEdge
+      }
+    })),
+    [edges, onDeleteEdge]
+  );
 
   // Memoize the edge types to prevent React Flow warnings
-  const edgeTypes = React.useMemo(
+  const edgeTypes = useMemo(
     () => createEdgeTypes(onDeleteEdge),
     [onDeleteEdge]
   );

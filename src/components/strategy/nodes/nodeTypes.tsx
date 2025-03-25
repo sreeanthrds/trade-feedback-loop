@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { NodeTypes } from '@xyflow/react';
 import StartNode from './StartNode';
 import SignalNode from './SignalNode';
