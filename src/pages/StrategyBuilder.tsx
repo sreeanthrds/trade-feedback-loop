@@ -15,16 +15,18 @@ const StrategyBuilder = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
-      <main className={`flex-grow pt-16 md:pt-20 ${isExpanded ? 'flex-1 flex flex-col' : ''}`}>
-        <div className={`mx-auto px-4 py-6 transition-all duration-300 ${isExpanded ? 'w-full h-full flex-1 flex flex-col' : 'container max-w-7xl'}`}>
-          <div className="mb-6 pt-4 flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">Strategy Builder</h1>
-              <p className="text-foreground/70">
-                Build complex trading strategies with our no-code node-based visual editor
-              </p>
-            </div>
+      {!isExpanded && <Navbar />}
+      <main className={`flex-grow ${isExpanded ? 'h-screen w-screen p-0 flex flex-col' : 'pt-16 md:pt-20'}`}>
+        <div className={`transition-all duration-300 ${isExpanded ? 'w-full h-full flex-1 flex flex-col p-0' : 'container max-w-7xl mx-auto px-4 py-6'}`}>
+          <div className={`${isExpanded ? 'absolute top-4 right-4 z-10' : 'mb-6 pt-4 flex justify-between items-center'}`}>
+            {!isExpanded && (
+              <div>
+                <h1 className="text-3xl font-bold mb-2">Strategy Builder</h1>
+                <p className="text-foreground/70">
+                  Build complex trading strategies with our no-code node-based visual editor
+                </p>
+              </div>
+            )}
             <Button 
               variant="outline" 
               size="sm" 
