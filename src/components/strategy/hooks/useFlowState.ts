@@ -21,46 +21,60 @@ export function useFlowState() {
   const reactFlowInstance = useReactFlow();
   
   const strategyStore = useStrategyStore();
+  const isInitialLoad = useRef(true);
 
   // Initial load from localStorage - only run once
   useEffect(() => {
-    const savedStrategy = loadStrategyFromLocalStorage();
-    if (savedStrategy) {
-      setNodes(savedStrategy.nodes);
-      setEdges(savedStrategy.edges);
-      strategyStore.setNodes(savedStrategy.nodes);
-      strategyStore.setEdges(savedStrategy.edges);
-    } else {
-      strategyStore.setNodes(initialNodes);
-      strategyStore.resetHistory();
-      strategyStore.addHistoryItem(initialNodes, []);
+    if (isInitialLoad.current) {
+      const savedStrategy = loadStrategyFromLocalStorage();
+      if (savedStrategy) {
+        setNodes(savedStrategy.nodes);
+        setEdges(savedStrategy.edges);
+        strategyStore.setNodes(savedStrategy.nodes);
+        strategyStore.setEdges(savedStrategy.edges);
+      } else {
+        strategyStore.setNodes(initialNodes);
+        strategyStore.resetHistory();
+        strategyStore.addHistoryItem(initialNodes, []);
+      }
+      isInitialLoad.current = false;
     }
   }, []);
 
   // Custom setNodes wrapper to ensure both local state and store are updated
+  // But throttle updates to the store during node drag operations
   const setNodesAndStore = useCallback((updatedNodes: Node[] | ((prevNodes: Node[]) => Node[])) => {
-    console.log('setNodesAndStore called');
-    
     // Handle both functional and direct updates
     if (typeof updatedNodes === 'function') {
       setNodes((prevNodes) => {
         const newNodes = updatedNodes(prevNodes);
-        console.log('Updating nodes with function, count:', newNodes.length);
-        strategyStore.setNodes(newNodes);
+        
+        // Only update store if not a position update (during dragging)
+        const isDragOperation = prevNodes.length === newNodes.length && 
+          newNodes.some((node, i) => 
+            node.position.x !== prevNodes[i].position.x || 
+            node.position.y !== prevNodes[i].position.y
+          );
+          
+        if (!isDragOperation) {
+          strategyStore.setNodes(newNodes);
+        }
+        
         return newNodes;
       });
     } else {
-      console.log('Updating nodes directly, count:', updatedNodes.length);
       setNodes(updatedNodes);
       strategyStore.setNodes(updatedNodes);
     }
   }, [setNodes, strategyStore]);
 
   // Sync nodes from store to ReactFlow, but prevent infinite updates by checking for changes
+  // Don't sync during drag operations
   useEffect(() => {
     const storeNodes = strategyStore.nodes;
-    if (storeNodes.length > 0 && JSON.stringify(storeNodes) !== JSON.stringify(nodes)) {
-      console.log('Syncing nodes from store, count:', storeNodes.length);
+    if (storeNodes.length > 0 && 
+        JSON.stringify(storeNodes.map(n => ({ id: n.id, type: n.type, data: n.data }))) !== 
+        JSON.stringify(nodes.map(n => ({ id: n.id, type: n.type, data: n.data })))) {
       setNodes(storeNodes);
     }
   }, [strategyStore.nodes]);

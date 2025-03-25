@@ -9,7 +9,7 @@ import ForceEndNode from './ForceEndNode';
 import NodeControls from '../NodeControls';
 import NodeConnectControls from '../NodeConnectControls';
 
-// Define base node components outside to ensure consistent memoization
+// Define base node components with proper memoization
 const MemoizedStartNode = React.memo(StartNode);
 const MemoizedSignalNode = React.memo(SignalNode);
 const MemoizedActionNode = React.memo(ActionNode);
@@ -28,11 +28,10 @@ interface NodeWrapperProps {
   [key: string]: any;
 }
 
-// Create wrapper components that are stable across renders
+// Create stable wrapper components with React.memo
 const StartNodeWrapper = React.memo(({ data, id, onAddNode }: NodeWrapperProps) => {
   // Important: Use a wrapper function to ensure correct parameter passing
   const handleAddNode = React.useCallback((type: string) => {
-    console.log('StartNodeWrapper: Adding node', type);
     if (onAddNode) onAddNode(type);
   }, [onAddNode]);
 
@@ -47,7 +46,6 @@ const StartNodeWrapper = React.memo(({ data, id, onAddNode }: NodeWrapperProps) 
 const SignalNodeWrapper = React.memo(({ data, id, onDelete, onAddNode }: NodeWrapperProps) => {
   // Important: Use a wrapper function to ensure correct parameter passing
   const handleAddNode = React.useCallback((type: string) => {
-    console.log('SignalNodeWrapper: Adding node', type);
     if (onAddNode) onAddNode(type);
   }, [onAddNode]);
 
@@ -63,7 +61,6 @@ const SignalNodeWrapper = React.memo(({ data, id, onDelete, onAddNode }: NodeWra
 const ActionNodeWrapper = React.memo(({ data, id, onDelete, onAddNode }: NodeWrapperProps) => {
   // Important: Use a wrapper function to ensure correct parameter passing
   const handleAddNode = React.useCallback((type: string) => {
-    console.log('ActionNodeWrapper: Adding node', type);
     if (onAddNode) onAddNode(type);
   }, [onAddNode]);
 
@@ -90,23 +87,12 @@ const ForceEndNodeWrapper = React.memo(({ data, id, onDelete }: NodeWrapperProps
   </div>
 ));
 
-// Pre-define nodeType components outside the createNodeTypes function
-// This is a key change to prevent new objects on each render
-const nodeTypes: Record<string, React.ComponentType<any>> = {
-  startNode: StartNodeWrapper,
-  signalNode: SignalNodeWrapper,
-  actionNode: ActionNodeWrapper,
-  endNode: EndNodeWrapper,
-  forceEndNode: ForceEndNodeWrapper
-};
-
 // Create a function to generate nodeTypes with the handlers
 const createNodeTypes = (
   onDeleteNode: (id: string) => void, 
   onAddNode: (type: string) => void
 ): NodeTypes => {
-  // Instead of creating new function components on each call, 
-  // we'll use the pre-defined components and just add props
+  // Return a stable object of component references
   return {
     startNode: (props) => <StartNodeWrapper {...props} onAddNode={onAddNode} />,
     signalNode: (props) => <SignalNodeWrapper {...props} onDelete={onDeleteNode} onAddNode={onAddNode} />,

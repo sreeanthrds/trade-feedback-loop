@@ -57,7 +57,6 @@ const NodeConnectControls = ({ showOn, onAddNode }: NodeConnectControlsProps) =>
     e.stopPropagation();
     
     // Call the onAddNode function
-    console.log('Node connect: Adding node', type);
     onAddNode(type);
     
     // Close the dropdown

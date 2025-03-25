@@ -50,17 +50,14 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   
   // Create stable callback references that won't change on each render
   const stableDeleteNode = useCallback((id: string) => {
-    console.log('Deleting node:', id);
     onDeleteNode(id);
   }, [onDeleteNode]);
   
   const stableAddNode = useCallback((type: string) => {
-    console.log('ReactFlowCanvas: Adding node', type);
     onAddNode(type);
   }, [onAddNode]);
   
   const stableDeleteEdge = useCallback((id: string) => {
-    console.log('Deleting edge:', id);
     onDeleteEdge(id);
   }, [onDeleteEdge]);
   
