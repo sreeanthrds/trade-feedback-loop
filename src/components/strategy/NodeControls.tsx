@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 import { 
@@ -13,9 +13,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Node } from '@xyflow/react';
 
 interface NodeControlsProps {
-  node: any; // Using any to avoid TypeScript errors with position property
+  node: Node;
   onDelete: (nodeId: string) => void;
 }
 
@@ -27,14 +28,14 @@ const NodeControls: React.FC<NodeControlsProps> = ({ node, onDelete }) => {
     return null;
   }
 
-  const handleDelete = () => {
+  const handleDelete = useCallback(() => {
     if (typeof onDelete === 'function') {
       onDelete(node.id);
       setOpen(false);
     } else {
       console.error('onDelete is not a function', onDelete);
     }
-  };
+  }, [node.id, onDelete]);
 
   const getNodeTypeName = () => {
     switch (node.type) {
@@ -88,4 +89,4 @@ const NodeControls: React.FC<NodeControlsProps> = ({ node, onDelete }) => {
   );
 };
 
-export default NodeControls;
+export default React.memo(NodeControls);
