@@ -11,6 +11,7 @@ import {
   createDeleteNodeHandler,
   createDeleteEdgeHandler
 } from '../utils/eventHandlers';
+import { initialNodes } from '../utils/flowUtils';
 
 interface UseFlowHandlersProps {
   nodes: Node[];
@@ -37,54 +38,84 @@ export const useFlowHandlers = ({
   setEdges,
   strategyStore
 }: UseFlowHandlersProps) => {
+  // Create a memoized onNodeClick handler that won't change on every render
   const onNodeClick = useCallback(
     createNodeClickHandler(setSelectedNode, setIsPanelOpen),
-    []
+    [setSelectedNode, setIsPanelOpen]
   );
 
-  const handleAddNode = createAddNodeHandler(
-    reactFlowInstance,
-    reactFlowWrapper,
-    nodes,
-    setNodes,
-    strategyStore
-  );
+  // Create a memoized handleAddNode function that properly preserves existing nodes
+  const handleAddNode = useCallback((type: string) => {
+    if (!reactFlowInstance || !reactFlowWrapper.current) {
+      toast.error("Flow canvas not initialized");
+      return;
+    }
+    
+    const createAddNodeFn = createAddNodeHandler(
+      reactFlowInstance,
+      reactFlowWrapper,
+      nodes,
+      setNodes,
+      strategyStore
+    );
+    
+    createAddNodeFn(type);
+  }, [nodes, reactFlowInstance, reactFlowWrapper, setNodes, strategyStore]);
 
-  const updateNodeData = createUpdateNodeDataHandler(
-    nodes,
-    setNodes,
-    strategyStore
-  );
+  const updateNodeData = useCallback((id: string, data: any) => {
+    const updateNodeDataFn = createUpdateNodeDataHandler(
+      nodes,
+      setNodes,
+      strategyStore
+    );
+    
+    updateNodeDataFn(id, data);
+  }, [nodes, setNodes, strategyStore]);
   
-  const handleDeleteNode = createDeleteNodeHandler(
-    nodes,
-    edges,
-    setNodes,
-    setEdges,
-    strategyStore
-  );
+  const handleDeleteNode = useCallback((id: string) => {
+    const deleteNodeFn = createDeleteNodeHandler(
+      nodes,
+      edges,
+      setNodes,
+      setEdges,
+      strategyStore
+    );
+    
+    deleteNodeFn(id);
+  }, [nodes, edges, setNodes, setEdges, strategyStore]);
   
-  const handleDeleteEdge = createDeleteEdgeHandler(
-    edges,
-    setEdges,
-    strategyStore,
-    nodes
-  );
+  const handleDeleteEdge = useCallback((id: string) => {
+    const deleteEdgeFn = createDeleteEdgeHandler(
+      edges,
+      setEdges,
+      strategyStore,
+      nodes
+    );
+    
+    deleteEdgeFn(id);
+  }, [edges, setEdges, strategyStore, nodes]);
 
-  const closePanel = () => {
+  const closePanel = useCallback(() => {
     setIsPanelOpen(false);
     setSelectedNode(null);
-  };
+  }, [setIsPanelOpen, setSelectedNode]);
 
-  const resetStrategy = createResetStrategyHandler(
-    setNodes,
-    setEdges,
-    strategyStore,
-    initialNodes,
-    closePanel
-  );
+  const resetStrategy = useCallback(() => {
+    const resetStrategyFn = createResetStrategyHandler(
+      setNodes,
+      setEdges,
+      strategyStore,
+      initialNodes,
+      closePanel
+    );
+    
+    resetStrategyFn();
+  }, [setNodes, setEdges, strategyStore, closePanel]);
 
-  const handleImportSuccess = createImportSuccessHandler(reactFlowInstance);
+  const handleImportSuccess = useCallback(() => {
+    const importSuccessFn = createImportSuccessHandler(reactFlowInstance);
+    importSuccessFn();
+  }, [reactFlowInstance]);
 
   return {
     onNodeClick,
@@ -97,6 +128,3 @@ export const useFlowHandlers = ({
     handleImportSuccess
   };
 };
-
-// Import this to avoid circular dependencies
-import { initialNodes } from '../utils/flowUtils';

@@ -51,7 +51,9 @@ const NodeConnectControls = ({ showOn, onAddNode }: NodeConnectControlsProps) =>
     }
   }, [showOn]);
 
+  // Create a stable callback reference
   const handleAddNode = useCallback((type: string) => {
+    // Prevent default behavior that might cause page reloads
     onAddNode(type);
     setIsOpen(false);
   }, [onAddNode]);
@@ -70,6 +72,7 @@ const NodeConnectControls = ({ showOn, onAddNode }: NodeConnectControlsProps) =>
             size="icon"
             className="h-8 w-8 rounded-full shadow-md bg-background border-primary"
             title="Add connected node"
+            type="button" // Explicitly set to button to prevent form submission
           >
             <Plus className="h-4 w-4 text-primary" />
           </Button>
@@ -89,7 +92,11 @@ const NodeConnectControls = ({ showOn, onAddNode }: NodeConnectControlsProps) =>
                 <Tooltip key={option.value}>
                   <TooltipTrigger asChild>
                     <DropdownMenuItem 
-                      onClick={() => handleAddNode(option.value)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleAddNode(option.value);
+                      }}
                       className="cursor-pointer py-2 px-2 flex justify-center"
                     >
                       <NodeIcon className={`h-5 w-5 ${iconColor}`} />
