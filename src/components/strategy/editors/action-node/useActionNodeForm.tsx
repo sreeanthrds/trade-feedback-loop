@@ -26,26 +26,31 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
         orderType: nodeData?.orderType || 'market',
         lots: nodeData?.lots || 1,
         productType: nodeData?.productType || 'intraday',
-        optionDetails: {
+      };
+      
+      // Only initialize option details if options trading is enabled
+      if (hasOptionTrading) {
+        defaultValues.optionDetails = {
           ...nodeData?.optionDetails,
           expiry: nodeData?.optionDetails?.expiry || 'W0',
           strikeType: nodeData?.optionDetails?.strikeType || 'ATM',
           optionType: nodeData?.optionDetails?.optionType || 'CE'
-        }
-      };
+        };
+      }
       
       // Only update if any default values are missing
       if (!nodeData?.actionType || !nodeData?.positionType || 
-          !nodeData?.orderType || !nodeData?.lots || !nodeData?.productType || 
-          !nodeData?.optionDetails?.expiry || !nodeData?.optionDetails?.strikeType || 
-          !nodeData?.optionDetails?.optionType) {
+          !nodeData?.orderType || !nodeData?.lots || !nodeData?.productType ||
+          (hasOptionTrading && (!nodeData?.optionDetails?.expiry || 
+                               !nodeData?.optionDetails?.strikeType || 
+                               !nodeData?.optionDetails?.optionType))) {
         updateNodeData(node.id, defaultValues);
         initializedRef.current = true;
       }
     }
-  }, [node.id, nodeData, updateNodeData]);
+  }, [node.id, nodeData, updateNodeData, hasOptionTrading]);
   
-  // Get the start node to access its instrument
+  // Get the start node to access its instrument and check for options trading
   useEffect(() => {
     const fetchStartNodeData = () => {
       const nodes = getNodes();

@@ -77,10 +77,10 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
 
       {nodeData?.actionType !== 'alert' && (
         <Tabs defaultValue="basic" className="mt-4">
-          <TabsList className="w-full grid grid-cols-3">
+          <TabsList className="w-full grid grid-cols-2">
             <TabsTrigger value="basic">Order</TabsTrigger>
             <TabsTrigger value="instrument">Instrument</TabsTrigger>
-            {hasOptionTrading && <TabsTrigger value="options">Options</TabsTrigger>}
+            {hasOptionTrading && <TabsTrigger value="options" className="col-span-2">Options</TabsTrigger>}
           </TabsList>
           
           <TabsContent value="basic" className="pt-4 space-y-4">
