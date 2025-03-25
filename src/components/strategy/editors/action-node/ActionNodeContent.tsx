@@ -2,10 +2,12 @@
 import React from 'react';
 import { Separator } from '@/components/ui/separator';
 import ActionTypeSelector from './ActionTypeSelector';
-import ActionTabs from './ActionTabs';
 import AlertMessage from './AlertMessage';
 import InfoMessage from './InfoMessage';
 import { NodeData } from './types';
+import OrderDetailsSection from './OrderDetailsSection';
+import InstrumentDisplay from './InstrumentDisplay';
+import OptionsSettingsSection from './OptionsSettingsSection';
 
 interface ActionNodeContentProps {
   nodeData: NodeData;
@@ -51,21 +53,36 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
         <>
           <Separator />
           
-          <ActionTabs
-            nodeData={nodeData}
-            showLimitPrice={showLimitPrice}
-            hasOptionTrading={hasOptionTrading}
-            startNodeSymbol={startNodeSymbol}
-            onPositionTypeChange={onPositionTypeChange}
-            onOrderTypeChange={onOrderTypeChange}
-            onLimitPriceChange={onLimitPriceChange}
-            onLotsChange={onLotsChange}
-            onProductTypeChange={onProductTypeChange}
-            onExpiryChange={onExpiryChange}
-            onStrikeTypeChange={onStrikeTypeChange}
-            onStrikeValueChange={onStrikeValueChange}
-            onOptionTypeChange={onOptionTypeChange}
-          />
+          <div className="space-y-4 py-3">
+            {/* Order Details Section */}
+            <OrderDetailsSection 
+              actionType={nodeData.actionType}
+              positionType={nodeData.positionType}
+              orderType={nodeData.orderType}
+              limitPrice={nodeData.limitPrice}
+              lots={nodeData.lots}
+              productType={nodeData.productType}
+              onPositionTypeChange={onPositionTypeChange}
+              onOrderTypeChange={onOrderTypeChange}
+              onLimitPriceChange={onLimitPriceChange}
+              onLotsChange={onLotsChange}
+              onProductTypeChange={onProductTypeChange}
+            />
+            
+            {/* Instrument Details Section */}
+            <InstrumentDisplay startNodeSymbol={startNodeSymbol} />
+            
+            {/* Options Settings Section (conditionally rendered) */}
+            {hasOptionTrading && (
+              <OptionsSettingsSection 
+                optionDetails={nodeData.optionDetails}
+                onExpiryChange={onExpiryChange}
+                onStrikeTypeChange={onStrikeTypeChange}
+                onStrikeValueChange={onStrikeValueChange}
+                onOptionTypeChange={onOptionTypeChange}
+              />
+            )}
+          </div>
         </>
       )}
       
