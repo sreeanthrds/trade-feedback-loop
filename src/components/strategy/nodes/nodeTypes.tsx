@@ -31,8 +31,8 @@ interface NodeWrapperProps {
 
 // Create wrapper components that are stable across renders
 const StartNodeWrapper = React.memo(({ data, position, onAddNode }: NodeWrapperProps) => {
-  // Using an explicit function to prevent issues with event propagation
-  const handleAddNodeFromStartNode = React.useCallback((type: string) => {
+  // Important: Use a wrapper function to ensure correct parameter passing
+  const handleAddNode = React.useCallback((type: string) => {
     console.log('StartNodeWrapper: Adding node', type);
     if (onAddNode) onAddNode(type);
   }, [onAddNode]);
@@ -40,14 +40,14 @@ const StartNodeWrapper = React.memo(({ data, position, onAddNode }: NodeWrapperP
   return (
     <div className="group">
       <MemoizedStartNode data={data} />
-      <MemoizedNodeConnectControls showOn="start" onAddNode={handleAddNodeFromStartNode} />
+      <MemoizedNodeConnectControls showOn="start" onAddNode={handleAddNode} />
     </div>
   );
 });
 
 const SignalNodeWrapper = React.memo(({ data, id, position, onDelete, onAddNode }: NodeWrapperProps) => {
-  // Using an explicit function to prevent issues with event propagation
-  const handleAddNodeFromSignalNode = React.useCallback((type: string) => {
+  // Important: Use a wrapper function to ensure correct parameter passing
+  const handleAddNode = React.useCallback((type: string) => {
     console.log('SignalNodeWrapper: Adding node', type);
     if (onAddNode) onAddNode(type);
   }, [onAddNode]);
@@ -56,14 +56,14 @@ const SignalNodeWrapper = React.memo(({ data, id, position, onDelete, onAddNode 
     <div className="group">
       <MemoizedSignalNode data={data} />
       <MemoizedNodeControls node={{ id, type: 'signalNode', data, position }} onDelete={onDelete!} />
-      <MemoizedNodeConnectControls showOn="signal" onAddNode={handleAddNodeFromSignalNode} />
+      <MemoizedNodeConnectControls showOn="signal" onAddNode={handleAddNode} />
     </div>
   );
 });
 
 const ActionNodeWrapper = React.memo(({ data, id, position, onDelete, onAddNode }: NodeWrapperProps) => {
-  // Using an explicit function to prevent issues with event propagation
-  const handleAddNodeFromActionNode = React.useCallback((type: string) => {
+  // Important: Use a wrapper function to ensure correct parameter passing
+  const handleAddNode = React.useCallback((type: string) => {
     console.log('ActionNodeWrapper: Adding node', type);
     if (onAddNode) onAddNode(type);
   }, [onAddNode]);
@@ -72,7 +72,7 @@ const ActionNodeWrapper = React.memo(({ data, id, position, onDelete, onAddNode 
     <div className="group">
       <MemoizedActionNode data={data} id={id} />
       <MemoizedNodeControls node={{ id, type: 'actionNode', data, position }} onDelete={onDelete!} />
-      <MemoizedNodeConnectControls showOn="action" onAddNode={handleAddNodeFromActionNode} />
+      <MemoizedNodeConnectControls showOn="action" onAddNode={handleAddNode} />
     </div>
   );
 });
@@ -91,18 +91,21 @@ const ForceEndNodeWrapper = React.memo(({ data, id, position, onDelete }: NodeWr
   </div>
 ));
 
-// Create a memoized node types object outside of any component
+// Create a function to generate nodeTypes with the handlers
 const createNodeTypes = (
   onDeleteNode: (id: string) => void, 
   onAddNode: (type: string) => void
 ): NodeTypes => {
+  // Log when nodeTypes are being created to identify potential issues
+  console.log('Creating nodeTypes with handlers');
+  
   return {
     startNode: (props) => (
       <StartNodeWrapper
         {...props}
         id={props.id}
         data={props.data}
-        position={{ x: 0, y: 0 }}
+        position={props.position || { x: 0, y: 0 }}
         onAddNode={onAddNode} 
       />
     ),
@@ -111,7 +114,7 @@ const createNodeTypes = (
         {...props}
         id={props.id}
         data={props.data}
-        position={{ x: 0, y: 0 }}
+        position={props.position || { x: 0, y: 0 }}
         onDelete={onDeleteNode}
         onAddNode={onAddNode}
       />
@@ -121,7 +124,7 @@ const createNodeTypes = (
         {...props}
         id={props.id}
         data={props.data}
-        position={{ x: 0, y: 0 }}
+        position={props.position || { x: 0, y: 0 }}
         onDelete={onDeleteNode}
         onAddNode={onAddNode}
       />
@@ -131,7 +134,7 @@ const createNodeTypes = (
         {...props}
         id={props.id}
         data={props.data}
-        position={{ x: 0, y: 0 }}
+        position={props.position || { x: 0, y: 0 }}
         onDelete={onDeleteNode}
       />
     ),
@@ -140,7 +143,7 @@ const createNodeTypes = (
         {...props}
         id={props.id}
         data={props.data}
-        position={{ x: 0, y: 0 }}
+        position={props.position || { x: 0, y: 0 }}
         onDelete={onDeleteNode}
       />
     )

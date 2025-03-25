@@ -37,10 +37,30 @@ export function useFlowState() {
     }
   }, []);
 
+  // Custom setNodes wrapper to ensure both local state and store are updated
+  const setNodesAndStore = useCallback((updatedNodes: Node[] | ((prevNodes: Node[]) => Node[])) => {
+    console.log('setNodesAndStore called');
+    
+    // Handle both functional and direct updates
+    if (typeof updatedNodes === 'function') {
+      setNodes((prevNodes) => {
+        const newNodes = updatedNodes(prevNodes);
+        console.log('Updating nodes with function, count:', newNodes.length);
+        strategyStore.setNodes(newNodes);
+        return newNodes;
+      });
+    } else {
+      console.log('Updating nodes directly, count:', updatedNodes.length);
+      setNodes(updatedNodes);
+      strategyStore.setNodes(updatedNodes);
+    }
+  }, [setNodes, strategyStore]);
+
   // Sync nodes from store to ReactFlow, but prevent infinite updates by checking for changes
   useEffect(() => {
     const storeNodes = strategyStore.nodes;
     if (storeNodes.length > 0 && JSON.stringify(storeNodes) !== JSON.stringify(nodes)) {
+      console.log('Syncing nodes from store, count:', storeNodes.length);
       setNodes(storeNodes);
     }
   }, [strategyStore.nodes]);
@@ -77,7 +97,7 @@ export function useFlowState() {
     onConnect,
     setSelectedNode,
     setIsPanelOpen,
-    setNodes,
+    setNodes: setNodesAndStore, // Use the wrapped version
     setEdges,
     strategyStore
   };

@@ -25,14 +25,18 @@ export const createAddNodeHandler = (
     const newNode = addNode(type, reactFlowInstance, reactFlowWrapper, nodes);
     
     console.log('Before adding node:', nodes.length, 'existing nodes');
+    console.log('Current nodes:', JSON.stringify(nodes.map(n => n.id)));
     
-    // Create a new array with ALL existing nodes plus the new one
+    // IMPORTANT: Create a completely new array with ALL existing nodes plus the new one
     const updatedNodes = [...nodes, newNode];
     
     console.log('After adding node:', updatedNodes.length, 'total nodes');
+    console.log('Updated nodes:', JSON.stringify(updatedNodes.map(n => n.id)));
     
     // Update states with the combined nodes array
     setNodes(updatedNodes);
+    
+    // Also update the global store
     strategyStore.setNodes(updatedNodes);
     strategyStore.addHistoryItem(updatedNodes, strategyStore.edges);
     

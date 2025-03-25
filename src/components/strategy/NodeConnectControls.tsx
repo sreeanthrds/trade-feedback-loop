@@ -53,15 +53,15 @@ const NodeConnectControls = ({ showOn, onAddNode }: NodeConnectControlsProps) =>
 
   const handleAddNode = useCallback((type: string, e: React.MouseEvent) => {
     // Prevent event bubbling up to parent elements
+    e.preventDefault();
     e.stopPropagation();
     
     // Call the onAddNode function
+    console.log('Node connect: Adding node', type);
     onAddNode(type);
     
     // Close the dropdown
     setIsOpen(false);
-    
-    console.log('Node connect: Adding node', type);
   }, [onAddNode]);
 
   // Auto-close the dropdown when the mouse leaves
@@ -79,6 +79,7 @@ const NodeConnectControls = ({ showOn, onAddNode }: NodeConnectControlsProps) =>
             className="h-8 w-8 rounded-full shadow-md bg-background border-primary"
             title="Add connected node"
             type="button"
+            onClick={(e) => e.stopPropagation()}
           >
             <Plus className="h-4 w-4 text-primary" />
           </Button>

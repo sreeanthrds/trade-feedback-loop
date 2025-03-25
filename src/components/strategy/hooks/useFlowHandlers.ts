@@ -42,16 +42,22 @@ export const useFlowHandlers = ({
     [setSelectedNode, setIsPanelOpen]
   );
 
-  const handleAddNode = useCallback(
-    createAddNodeHandler(
+  // Ensure this handler doesn't cause side effects - it needs to properly add nodes
+  const handleAddNode = useCallback((type: string) => {
+    console.log('useFlowHandlers: handleAddNode called with type', type);
+    
+    // Create a new node
+    const addNodeHandler = createAddNodeHandler(
       reactFlowInstance,
       reactFlowWrapper,
       nodes,
       setNodes,
       strategyStore
-    ),
-    [reactFlowInstance, reactFlowWrapper, nodes, setNodes, strategyStore]
-  );
+    );
+    
+    // Call the handler directly to ensure proper execution
+    addNodeHandler(type);
+  }, [reactFlowInstance, reactFlowWrapper, nodes, setNodes, strategyStore]);
 
   const updateNodeData = useCallback(
     createUpdateNodeDataHandler(
