@@ -39,52 +39,70 @@ export const useFlowHandlers = ({
 }: UseFlowHandlersProps) => {
   const onNodeClick = useCallback(
     createNodeClickHandler(setSelectedNode, setIsPanelOpen),
-    []
+    [setSelectedNode, setIsPanelOpen]
   );
 
-  const handleAddNode = createAddNodeHandler(
-    reactFlowInstance,
-    reactFlowWrapper,
-    nodes,
-    setNodes,
-    strategyStore
+  const handleAddNode = useCallback(
+    createAddNodeHandler(
+      reactFlowInstance,
+      reactFlowWrapper,
+      nodes,
+      setNodes,
+      strategyStore
+    ),
+    [reactFlowInstance, reactFlowWrapper, nodes, setNodes, strategyStore]
   );
 
-  const updateNodeData = createUpdateNodeDataHandler(
-    nodes,
-    setNodes,
-    strategyStore
+  const updateNodeData = useCallback(
+    createUpdateNodeDataHandler(
+      nodes,
+      setNodes,
+      strategyStore
+    ),
+    [nodes, setNodes, strategyStore]
   );
   
-  const handleDeleteNode = createDeleteNodeHandler(
-    nodes,
-    edges,
-    setNodes,
-    setEdges,
-    strategyStore
+  const handleDeleteNode = useCallback(
+    createDeleteNodeHandler(
+      nodes,
+      edges,
+      setNodes,
+      setEdges,
+      strategyStore
+    ),
+    [nodes, edges, setNodes, setEdges, strategyStore]
   );
   
-  const handleDeleteEdge = createDeleteEdgeHandler(
-    edges,
-    setEdges,
-    strategyStore,
-    nodes
+  const handleDeleteEdge = useCallback(
+    createDeleteEdgeHandler(
+      edges,
+      setEdges,
+      strategyStore,
+      nodes
+    ),
+    [edges, setEdges, strategyStore, nodes]
   );
 
-  const closePanel = () => {
+  const closePanel = useCallback(() => {
     setIsPanelOpen(false);
     setSelectedNode(null);
-  };
+  }, [setIsPanelOpen, setSelectedNode]);
 
-  const resetStrategy = createResetStrategyHandler(
-    setNodes,
-    setEdges,
-    strategyStore,
-    initialNodes,
-    closePanel
+  const resetStrategy = useCallback(
+    createResetStrategyHandler(
+      setNodes,
+      setEdges,
+      strategyStore,
+      initialNodes,
+      closePanel
+    ),
+    [setNodes, setEdges, strategyStore, closePanel]
   );
 
-  const handleImportSuccess = createImportSuccessHandler(reactFlowInstance);
+  const handleImportSuccess = useCallback(
+    createImportSuccessHandler(reactFlowInstance),
+    [reactFlowInstance]
+  );
 
   return {
     onNodeClick,

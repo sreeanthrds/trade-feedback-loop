@@ -51,9 +51,17 @@ const NodeConnectControls = ({ showOn, onAddNode }: NodeConnectControlsProps) =>
     }
   }, [showOn]);
 
-  const handleAddNode = useCallback((type: string) => {
+  const handleAddNode = useCallback((type: string, e: React.MouseEvent) => {
+    // Prevent event bubbling up to parent elements
+    e.stopPropagation();
+    
+    // Call the onAddNode function
     onAddNode(type);
+    
+    // Close the dropdown
     setIsOpen(false);
+    
+    console.log('Node connect: Adding node', type);
   }, [onAddNode]);
 
   // Auto-close the dropdown when the mouse leaves
@@ -70,6 +78,7 @@ const NodeConnectControls = ({ showOn, onAddNode }: NodeConnectControlsProps) =>
             size="icon"
             className="h-8 w-8 rounded-full shadow-md bg-background border-primary"
             title="Add connected node"
+            type="button"
           >
             <Plus className="h-4 w-4 text-primary" />
           </Button>
@@ -89,7 +98,7 @@ const NodeConnectControls = ({ showOn, onAddNode }: NodeConnectControlsProps) =>
                 <Tooltip key={option.value}>
                   <TooltipTrigger asChild>
                     <DropdownMenuItem 
-                      onClick={() => handleAddNode(option.value)}
+                      onClick={(e) => handleAddNode(option.value, e)}
                       className="cursor-pointer py-2 px-2 flex justify-center"
                     >
                       <NodeIcon className={`h-5 w-5 ${iconColor}`} />

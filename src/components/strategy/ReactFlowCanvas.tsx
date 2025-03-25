@@ -49,7 +49,10 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   
   // Create stable callback references that won't change on each render
   const stableDeleteNode = useCallback((id: string) => onDeleteNode(id), [onDeleteNode]);
-  const stableAddNode = useCallback((type: string) => onAddNode(type), [onAddNode]);
+  const stableAddNode = useCallback((type: string) => {
+    console.log('ReactFlowCanvas: Adding node', type);
+    onAddNode(type);
+  }, [onAddNode]);
   const stableDeleteEdge = useCallback((id: string) => onDeleteEdge(id), [onDeleteEdge]);
   
   // Create memoized nodeTypes with stable callbacks
@@ -119,6 +122,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
             size="icon" 
             className="h-7 w-7 bg-background/80 backdrop-blur-sm" 
             onClick={toggleMinimap}
+            type="button"
           >
             {minimapVisible ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
           </Button>

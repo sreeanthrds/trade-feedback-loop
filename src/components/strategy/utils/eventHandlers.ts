@@ -1,3 +1,4 @@
+
 import { NodeMouseHandler, Node, ReactFlowInstance, Edge } from '@xyflow/react';
 import { toast } from 'sonner';
 import { addNode } from './flowUtils';
@@ -20,11 +21,18 @@ export const createAddNodeHandler = (
   strategyStore: any
 ) => {
   return (type: string) => {
+    // Create a new node but don't modify existing ones
     const newNode = addNode(type, reactFlowInstance, reactFlowWrapper, nodes);
+    
+    // Important: Create a new array with ALL existing nodes PLUS the new one
     const newNodes = [...nodes, newNode];
+    
+    // Update the states
     setNodes(newNodes);
     strategyStore.setNodes(newNodes);
     strategyStore.addHistoryItem(newNodes, strategyStore.edges);
+    
+    console.log('Added node', type, 'Total nodes:', newNodes.length);
   };
 };
 

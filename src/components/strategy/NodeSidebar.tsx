@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Play, Activity, SlidersHorizontal, StopCircle, AlertTriangle } from 'lucide-react';
 import { 
   Tooltip,
@@ -59,6 +59,13 @@ const NodeSidebar = ({ onAddNode }: NodeSidebarProps) => {
     }
   ];
 
+  const handleNodeClick = useCallback((type: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onAddNode(type);
+    console.log('Sidebar: Adding node', type);
+  }, [onAddNode]);
+
   const handleDragStart = (event: React.DragEvent, nodeType: string) => {
     event.dataTransfer.setData('application/reactflow', nodeType);
     event.dataTransfer.effectAllowed = 'move';
@@ -77,7 +84,7 @@ const NodeSidebar = ({ onAddNode }: NodeSidebarProps) => {
                   className={`flex justify-center items-center w-10 h-10 rounded-full ${nodeType.color} cursor-grab transition-all hover:scale-105 hover:shadow-md`}
                   draggable
                   onDragStart={(e) => handleDragStart(e, nodeType.type)}
-                  onClick={() => onAddNode(nodeType.type)}
+                  onClick={(e) => handleNodeClick(nodeType.type, e)}
                 >
                   {nodeType.icon}
                 </div>

@@ -30,28 +30,52 @@ interface NodeWrapperProps {
 }
 
 // Create wrapper components that are stable across renders
-const StartNodeWrapper = React.memo(({ data, position, onAddNode }: NodeWrapperProps) => (
-  <div className="group">
-    <MemoizedStartNode data={data} />
-    <MemoizedNodeConnectControls showOn="start" onAddNode={onAddNode!} />
-  </div>
-));
+const StartNodeWrapper = React.memo(({ data, position, onAddNode }: NodeWrapperProps) => {
+  // Using an explicit function to prevent issues with event propagation
+  const handleAddNodeFromStartNode = React.useCallback((type: string) => {
+    console.log('StartNodeWrapper: Adding node', type);
+    if (onAddNode) onAddNode(type);
+  }, [onAddNode]);
 
-const SignalNodeWrapper = React.memo(({ data, id, position, onDelete, onAddNode }: NodeWrapperProps) => (
-  <div className="group">
-    <MemoizedSignalNode data={data} />
-    <MemoizedNodeControls node={{ id, type: 'signalNode', data, position }} onDelete={onDelete!} />
-    <MemoizedNodeConnectControls showOn="signal" onAddNode={onAddNode!} />
-  </div>
-));
+  return (
+    <div className="group">
+      <MemoizedStartNode data={data} />
+      <MemoizedNodeConnectControls showOn="start" onAddNode={handleAddNodeFromStartNode} />
+    </div>
+  );
+});
 
-const ActionNodeWrapper = React.memo(({ data, id, position, onDelete, onAddNode }: NodeWrapperProps) => (
-  <div className="group">
-    <MemoizedActionNode data={data} id={id} />
-    <MemoizedNodeControls node={{ id, type: 'actionNode', data, position }} onDelete={onDelete!} />
-    <MemoizedNodeConnectControls showOn="action" onAddNode={onAddNode!} />
-  </div>
-));
+const SignalNodeWrapper = React.memo(({ data, id, position, onDelete, onAddNode }: NodeWrapperProps) => {
+  // Using an explicit function to prevent issues with event propagation
+  const handleAddNodeFromSignalNode = React.useCallback((type: string) => {
+    console.log('SignalNodeWrapper: Adding node', type);
+    if (onAddNode) onAddNode(type);
+  }, [onAddNode]);
+
+  return (
+    <div className="group">
+      <MemoizedSignalNode data={data} />
+      <MemoizedNodeControls node={{ id, type: 'signalNode', data, position }} onDelete={onDelete!} />
+      <MemoizedNodeConnectControls showOn="signal" onAddNode={handleAddNodeFromSignalNode} />
+    </div>
+  );
+});
+
+const ActionNodeWrapper = React.memo(({ data, id, position, onDelete, onAddNode }: NodeWrapperProps) => {
+  // Using an explicit function to prevent issues with event propagation
+  const handleAddNodeFromActionNode = React.useCallback((type: string) => {
+    console.log('ActionNodeWrapper: Adding node', type);
+    if (onAddNode) onAddNode(type);
+  }, [onAddNode]);
+
+  return (
+    <div className="group">
+      <MemoizedActionNode data={data} id={id} />
+      <MemoizedNodeControls node={{ id, type: 'actionNode', data, position }} onDelete={onDelete!} />
+      <MemoizedNodeConnectControls showOn="action" onAddNode={handleAddNodeFromActionNode} />
+    </div>
+  );
+});
 
 const EndNodeWrapper = React.memo(({ data, id, position, onDelete }: NodeWrapperProps) => (
   <div className="group">
