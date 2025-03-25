@@ -34,6 +34,7 @@ const FlowLayout: React.FC<FlowLayoutProps> = ({
 }) => {
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
+  const [drawerHeight, setDrawerHeight] = useState(70);
 
   // Sync drawer open state with panel open state
   useEffect(() => {
@@ -48,6 +49,18 @@ const FlowLayout: React.FC<FlowLayoutProps> = ({
     onClosePanel();
   };
 
+  // Get node title text based on node type
+  const getNodeTitle = (type: string | undefined) => {
+    switch (type) {
+      case 'startNode': return 'Start Node';
+      case 'signalNode': return 'Signal Node';
+      case 'actionNode': return 'Action Node';
+      case 'endNode': return 'End Node';
+      case 'forceEndNode': return 'Force End Node';
+      default: return 'Node Settings';
+    }
+  };
+
   // Render mobile layout with drawer
   if (isMobile) {
     return (
@@ -57,16 +70,27 @@ const FlowLayout: React.FC<FlowLayoutProps> = ({
         </div>
         
         {selectedNode && (
-          <Drawer open={open} onOpenChange={setOpen} onClose={onClosePanel} shouldScaleBackground={false}>
-            <DrawerContent className="h-[70vh] max-h-[70vh] drawer-no-dismiss">
+          <Drawer 
+            open={open} 
+            onOpenChange={setOpen} 
+            onClose={onClosePanel} 
+            shouldScaleBackground={false}
+          >
+            <DrawerContent 
+              className={`h-[${drawerHeight}vh] max-h-[95vh] drawer-no-dismiss`}
+              // Make sure drawer doesn't close when dragging
+              onPointerDown={(e) => {
+                if (e.target instanceof HTMLElement && 
+                    e.target.closest('.drawer-drag-handle')) {
+                  // Allow dragging only for the dedicated handle
+                  e.stopPropagation();
+                }
+              }}
+            >
+              <div className="drawer-drag-handle mt-1 mb-3" />
               <DrawerHeader className="flex flex-row items-center justify-between pb-2 border-b">
                 <DrawerTitle className="text-lg">
-                  {selectedNode.type === 'startNode' ? 'Start Node' : 
-                   selectedNode.type === 'signalNode' ? 'Signal Node' :
-                   selectedNode.type === 'actionNode' ? 'Action Node' :
-                   selectedNode.type === 'endNode' ? 'End Node' :
-                   selectedNode.type === 'forceEndNode' ? 'Force End Node' : 
-                   'Node Settings'}
+                  {getNodeTitle(selectedNode.type)}
                 </DrawerTitle>
                 <Button variant="ghost" size="sm" onClick={handleDrawerClose} className="h-8 w-8 p-0">
                   <X className="h-4 w-4" />
