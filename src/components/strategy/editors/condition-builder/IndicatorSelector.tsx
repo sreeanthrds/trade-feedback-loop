@@ -88,18 +88,21 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
     return outputParameters[baseIndicator] || [];
   };
   
+  // This function is now consistent with the same function in StartNode.tsx
   const getIndicatorDisplayName = (key: string) => {
     const startNode = strategyStore.nodes.find(node => node.type === 'startNode');
     if (!startNode || !startNode.data || !startNode.data.indicatorParameters) return key;
     
+    // Extract base indicator name (before any underscore)
     const baseName = key.split('_')[0];
     
     if (startNode.data.indicatorParameters[key]) {
       const params = startNode.data.indicatorParameters[key];
       
+      // Format all parameters into a single, readable string - only values
       const paramList = Object.values(params).join(',');
       
-      return `${baseName} (${paramList})`;
+      return `${baseName}(${paramList})`;
     }
     
     return key;
