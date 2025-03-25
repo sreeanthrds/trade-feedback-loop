@@ -7,6 +7,8 @@ import '@xyflow/react/dist/style.css';
 import './styles/index.css';
 
 const StrategyFlow = () => {
+  console.log('Rendering StrategyFlow component');
+  
   return (
     <ReactFlowProvider>
       <StrategyFlowContent />

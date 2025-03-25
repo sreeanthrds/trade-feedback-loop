@@ -62,8 +62,8 @@ const NodeSidebar = ({ onAddNode }: NodeSidebarProps) => {
   const handleNodeClick = useCallback((type: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    onAddNode(type);
     console.log('Sidebar: Adding node', type);
+    onAddNode(type);
   }, [onAddNode]);
 
   const handleDragStart = (event: React.DragEvent, nodeType: string) => {
@@ -103,4 +103,4 @@ const NodeSidebar = ({ onAddNode }: NodeSidebarProps) => {
   );
 };
 
-export default NodeSidebar;
+export default React.memo(NodeSidebar);

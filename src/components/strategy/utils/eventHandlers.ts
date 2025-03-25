@@ -21,18 +21,22 @@ export const createAddNodeHandler = (
   strategyStore: any
 ) => {
   return (type: string) => {
-    // Create a new node but don't modify existing ones
+    // Create a new node
     const newNode = addNode(type, reactFlowInstance, reactFlowWrapper, nodes);
     
-    // Important: Create a new array with ALL existing nodes PLUS the new one
-    const newNodes = [...nodes, newNode];
+    console.log('Before adding node:', nodes.length, 'existing nodes');
     
-    // Update the states
-    setNodes(newNodes);
-    strategyStore.setNodes(newNodes);
-    strategyStore.addHistoryItem(newNodes, strategyStore.edges);
+    // Create a new array with ALL existing nodes plus the new one
+    const updatedNodes = [...nodes, newNode];
     
-    console.log('Added node', type, 'Total nodes:', newNodes.length);
+    console.log('After adding node:', updatedNodes.length, 'total nodes');
+    
+    // Update states with the combined nodes array
+    setNodes(updatedNodes);
+    strategyStore.setNodes(updatedNodes);
+    strategyStore.addHistoryItem(updatedNodes, strategyStore.edges);
+    
+    toast.success(`Added ${type.replace('Node', '')} node`);
   };
 };
 
