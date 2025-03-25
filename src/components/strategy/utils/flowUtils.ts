@@ -15,12 +15,22 @@ export const addNode = (
   type: string, 
   reactFlowInstance: ReactFlowInstance,
   reactFlowWrapper: React.RefObject<HTMLDivElement>,
-  nodes: Node[]
-): Node => {
+  nodes: Node[],
+  parentNodeId?: string
+): { node: Node, parentNode?: Node } => {
   const position = reactFlowInstance.screenToFlowPosition({
     x: (reactFlowWrapper.current?.clientWidth || 800) / 2,
     y: (reactFlowWrapper.current?.clientHeight || 600) / 2,
   });
+  
+  // If we have a parent node ID, offset the new node from the parent
+  const parentNode = parentNodeId ? nodes.find(node => node.id === parentNodeId) : undefined;
+  
+  if (parentNode) {
+    // Position the new node to the right of the parent node
+    position.x = parentNode.position.x + 200;
+    position.y = parentNode.position.y + 50;
+  }
   
   // Set default data based on node type
   let defaultData: any = { 
@@ -47,11 +57,27 @@ export const addNode = (
     };
   }
   
-  return {
+  const newNode = {
     id: `${type}-${Date.now()}`,
     type: type as any,
     position,
     data: defaultData
+  };
+  
+  return { node: newNode, parentNode };
+};
+
+export const createEdgeBetweenNodes = (
+  sourceNode: Node,
+  targetNode: Node,
+  edgeType: string = 'default'
+): Edge => {
+  return {
+    id: `e-${sourceNode.id}-${targetNode.id}`,
+    source: sourceNode.id,
+    target: targetNode.id,
+    type: edgeType,
+    animated: true
   };
 };
 
@@ -151,7 +177,8 @@ export const importStrategyFromEvent = (
           ...edge,
           id: edge.id || `edge-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           source: edge.source || '',
-          target: edge.target || ''
+          target: edge.target || '',
+          type: edge.type || 'default' // Make sure edge type is preserved
         }));
         
         // Only proceed if we have valid connections

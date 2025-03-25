@@ -17,7 +17,8 @@ import {
 
 interface NodeConnectControlsProps {
   showOn: 'start' | 'signal' | 'action';
-  onAddNode: (type: string) => void;
+  onAddNode: (type: string, parentNodeId: string) => void;
+  parentNodeId: string;
 }
 
 // Define node types with icons and labels
@@ -29,7 +30,7 @@ const nodeTypeIcons = {
   forceEndNode: { icon: AlertTriangle, label: 'Force End Node', color: 'text-purple-500' }
 };
 
-const NodeConnectControls = ({ showOn, onAddNode }: NodeConnectControlsProps) => {
+const NodeConnectControls = ({ showOn, onAddNode, parentNodeId }: NodeConnectControlsProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   // Different node type options based on the current node type
@@ -56,12 +57,12 @@ const NodeConnectControls = ({ showOn, onAddNode }: NodeConnectControlsProps) =>
     e.preventDefault();
     e.stopPropagation();
     
-    // Call the onAddNode function
-    onAddNode(type);
+    // Call the onAddNode function with parent node ID
+    onAddNode(type, parentNodeId);
     
     // Close the dropdown
     setIsOpen(false);
-  }, [onAddNode]);
+  }, [onAddNode, parentNodeId]);
 
   // Auto-close the dropdown when the mouse leaves
   const handleMouseLeave = useCallback(() => {

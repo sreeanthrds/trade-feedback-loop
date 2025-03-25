@@ -1,7 +1,7 @@
 
 import { NodeMouseHandler, Node, ReactFlowInstance, Edge } from '@xyflow/react';
 import { toast } from 'sonner';
-import { addNode } from './flowUtils';
+import { addNode, createEdgeBetweenNodes } from './flowUtils';
 
 export const createNodeClickHandler = (
   setSelectedNode: (node: Node | null) => void,
@@ -17,12 +17,14 @@ export const createAddNodeHandler = (
   reactFlowInstance: ReactFlowInstance,
   reactFlowWrapper: React.RefObject<HTMLDivElement>,
   nodes: Node[],
+  edges: Edge[],
   setNodes: (nodes: Node[]) => void,
+  setEdges: (edges: Edge[]) => void,
   strategyStore: any
 ) => {
-  return (type: string) => {
-    // Create a new node
-    const newNode = addNode(type, reactFlowInstance, reactFlowWrapper, nodes);
+  return (type: string, parentNodeId?: string) => {
+    // Create a new node, passing the parent node ID if available
+    const { node: newNode, parentNode } = addNode(type, reactFlowInstance, reactFlowWrapper, nodes, parentNodeId);
     
     console.log('Before adding node:', nodes.length, 'existing nodes');
     console.log('Current nodes:', JSON.stringify(nodes.map(n => n.id)));
@@ -30,15 +32,24 @@ export const createAddNodeHandler = (
     // IMPORTANT: Create a completely new array with ALL existing nodes plus the new one
     const updatedNodes = [...nodes, newNode];
     
+    // Create an edge if we have a parent node
+    let updatedEdges = [...edges];
+    if (parentNode) {
+      const newEdge = createEdgeBetweenNodes(parentNode, newNode);
+      updatedEdges = [...edges, newEdge];
+    }
+    
     console.log('After adding node:', updatedNodes.length, 'total nodes');
     console.log('Updated nodes:', JSON.stringify(updatedNodes.map(n => n.id)));
     
     // Update states with the combined nodes array
     setNodes(updatedNodes);
+    setEdges(updatedEdges);
     
     // Also update the global store
     strategyStore.setNodes(updatedNodes);
-    strategyStore.addHistoryItem(updatedNodes, strategyStore.edges);
+    strategyStore.setEdges(updatedEdges);
+    strategyStore.addHistoryItem(updatedNodes, updatedEdges);
     
     toast.success(`Added ${type.replace('Node', '')} node`);
   };

@@ -24,7 +24,7 @@ interface NodeWrapperProps {
   data: any;
   selected?: boolean;
   onDelete?: (id: string) => void;
-  onAddNode?: (type: string) => void;
+  onAddNode?: (type: string, parentNodeId: string) => void;
   [key: string]: any;
 }
 
@@ -32,7 +32,7 @@ interface NodeWrapperProps {
 const StartNodeWrapper = React.memo(({ data, id, onAddNode }: NodeWrapperProps) => (
   <div className="group">
     <MemoizedStartNode data={data} />
-    <MemoizedNodeConnectControls showOn="start" onAddNode={onAddNode} />
+    <MemoizedNodeConnectControls showOn="start" onAddNode={onAddNode} parentNodeId={id} />
   </div>
 ));
 StartNodeWrapper.displayName = 'StartNodeWrapper';
@@ -41,7 +41,7 @@ const SignalNodeWrapper = React.memo(({ data, id, onDelete, onAddNode }: NodeWra
   <div className="group">
     <MemoizedSignalNode data={data} />
     <MemoizedNodeControls node={{ id, type: 'signalNode', data }} onDelete={onDelete} />
-    <MemoizedNodeConnectControls showOn="signal" onAddNode={onAddNode} />
+    <MemoizedNodeConnectControls showOn="signal" onAddNode={onAddNode} parentNodeId={id} />
   </div>
 ));
 SignalNodeWrapper.displayName = 'SignalNodeWrapper';
@@ -50,7 +50,7 @@ const ActionNodeWrapper = React.memo(({ data, id, onDelete, onAddNode }: NodeWra
   <div className="group">
     <MemoizedActionNode data={data} id={id} />
     <MemoizedNodeControls node={{ id, type: 'actionNode', data }} onDelete={onDelete} />
-    <MemoizedNodeConnectControls showOn="action" onAddNode={onAddNode} />
+    <MemoizedNodeConnectControls showOn="action" onAddNode={onAddNode} parentNodeId={id} />
   </div>
 ));
 ActionNodeWrapper.displayName = 'ActionNodeWrapper';
@@ -74,7 +74,7 @@ ForceEndNodeWrapper.displayName = 'ForceEndNodeWrapper';
 // Create a function to generate nodeTypes with stable renderer functions
 const createNodeTypes = (
   onDeleteNode: (id: string) => void, 
-  onAddNode: (type: string) => void
+  onAddNode: (type: string, parentNodeId: string) => void
 ): NodeTypes => {
   return {
     startNode: (props) => <StartNodeWrapper {...props} onAddNode={onAddNode} />,
