@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { 
   ReactFlow, 
   Background, 
@@ -48,41 +48,28 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
 }) => {
   const [minimapVisible, setMinimapVisible] = useState(false);
   
-  // Create stable callback references that won't change on each render
-  const stableDeleteNode = useCallback((id: string) => {
-    onDeleteNode(id);
-  }, [onDeleteNode]);
-  
-  const stableAddNode = useCallback((type: string) => {
-    onAddNode(type);
-  }, [onAddNode]);
-  
-  const stableDeleteEdge = useCallback((id: string) => {
-    onDeleteEdge(id);
-  }, [onDeleteEdge]);
-  
-  // IMPORTANT: We need to properly memoize these to prevent regeneration on each render
-  // This is a key fix to prevent the warning in the console
+  // Create stable nodeTypes object with proper memoization
   const nodeTypes = useMemo(() => 
-    createNodeTypes(stableDeleteNode, stableAddNode),
-    [stableDeleteNode, stableAddNode]
+    createNodeTypes(onDeleteNode, onAddNode),
+    [onDeleteNode, onAddNode]
   );
   
+  // Create stable edgeTypes object with proper memoization
   const edgeTypes = useMemo(() => 
-    createEdgeTypes(stableDeleteEdge),
-    [stableDeleteEdge]
+    createEdgeTypes(onDeleteEdge),
+    [onDeleteEdge]
   );
 
   // Memoize the edge data to prevent unnecessary re-renders
-  const edgesWithDeleteButtons = useMemo(() => 
+  const edgesWithData = useMemo(() => 
     edges.map((edge: Edge) => ({
       ...edge,
       data: {
         ...edge.data,
-        onDelete: stableDeleteEdge
+        onDelete: onDeleteEdge
       }
     })),
-    [edges, stableDeleteEdge]
+    [edges, onDeleteEdge]
   );
 
   const toggleMinimap = useCallback(() => {
@@ -93,7 +80,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
     <div className="h-full w-full" ref={flowRef}>
       <ReactFlow
         nodes={nodes}
-        edges={edgesWithDeleteButtons}
+        edges={edgesWithData}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}

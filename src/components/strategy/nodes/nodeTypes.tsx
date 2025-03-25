@@ -28,50 +28,29 @@ interface NodeWrapperProps {
   [key: string]: any;
 }
 
-// Create stable wrapper components with React.memo
-const StartNodeWrapper = React.memo(({ data, id, onAddNode }: NodeWrapperProps) => {
-  // Important: Use a wrapper function to ensure correct parameter passing
-  const handleAddNode = React.useCallback((type: string) => {
-    if (onAddNode) onAddNode(type);
-  }, [onAddNode]);
+// Pre-define all wrapper components to avoid conditional hook usage
+const StartNodeWrapper = React.memo(({ data, id, onAddNode }: NodeWrapperProps) => (
+  <div className="group">
+    <MemoizedStartNode data={data} />
+    <MemoizedNodeConnectControls showOn="start" onAddNode={onAddNode!} />
+  </div>
+));
 
-  return (
-    <div className="group">
-      <MemoizedStartNode data={data} />
-      <MemoizedNodeConnectControls showOn="start" onAddNode={handleAddNode} />
-    </div>
-  );
-});
+const SignalNodeWrapper = React.memo(({ data, id, onDelete, onAddNode }: NodeWrapperProps) => (
+  <div className="group">
+    <MemoizedSignalNode data={data} />
+    <MemoizedNodeControls node={{ id, type: 'signalNode', data }} onDelete={onDelete!} />
+    <MemoizedNodeConnectControls showOn="signal" onAddNode={onAddNode!} />
+  </div>
+));
 
-const SignalNodeWrapper = React.memo(({ data, id, onDelete, onAddNode }: NodeWrapperProps) => {
-  // Important: Use a wrapper function to ensure correct parameter passing
-  const handleAddNode = React.useCallback((type: string) => {
-    if (onAddNode) onAddNode(type);
-  }, [onAddNode]);
-
-  return (
-    <div className="group">
-      <MemoizedSignalNode data={data} />
-      <MemoizedNodeControls node={{ id, type: 'signalNode', data }} onDelete={onDelete!} />
-      <MemoizedNodeConnectControls showOn="signal" onAddNode={handleAddNode} />
-    </div>
-  );
-});
-
-const ActionNodeWrapper = React.memo(({ data, id, onDelete, onAddNode }: NodeWrapperProps) => {
-  // Important: Use a wrapper function to ensure correct parameter passing
-  const handleAddNode = React.useCallback((type: string) => {
-    if (onAddNode) onAddNode(type);
-  }, [onAddNode]);
-
-  return (
-    <div className="group">
-      <MemoizedActionNode data={data} id={id} />
-      <MemoizedNodeControls node={{ id, type: 'actionNode', data }} onDelete={onDelete!} />
-      <MemoizedNodeConnectControls showOn="action" onAddNode={handleAddNode} />
-    </div>
-  );
-});
+const ActionNodeWrapper = React.memo(({ data, id, onDelete, onAddNode }: NodeWrapperProps) => (
+  <div className="group">
+    <MemoizedActionNode data={data} id={id} />
+    <MemoizedNodeControls node={{ id, type: 'actionNode', data }} onDelete={onDelete!} />
+    <MemoizedNodeConnectControls showOn="action" onAddNode={onAddNode!} />
+  </div>
+));
 
 const EndNodeWrapper = React.memo(({ data, id, onDelete }: NodeWrapperProps) => (
   <div className="group">

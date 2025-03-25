@@ -22,6 +22,8 @@ export function useFlowState() {
   
   const strategyStore = useStrategyStore();
   const isInitialLoad = useRef(true);
+  const isDraggingRef = useRef(false);
+  const pendingNodesUpdate = useRef<Node[] | null>(null);
 
   // Initial load from localStorage - only run once
   useEffect(() => {
@@ -41,6 +43,32 @@ export function useFlowState() {
     }
   }, []);
 
+  // Detect when node dragging starts and ends
+  const onNodesChangeWithDragDetection = useCallback((changes) => {
+    // Detect drag operations
+    const dragChange = changes.find(change => 
+      change.type === 'position' || 
+      change.type === 'dimensions'
+    );
+    
+    if (dragChange) {
+      if (dragChange.dragging) {
+        isDraggingRef.current = true;
+      } else if (isDraggingRef.current && !dragChange.dragging) {
+        // Drag ended, apply the pending update
+        isDraggingRef.current = false;
+        if (pendingNodesUpdate.current) {
+          strategyStore.setNodes(pendingNodesUpdate.current);
+          strategyStore.addHistoryItem(pendingNodesUpdate.current, strategyStore.edges);
+          pendingNodesUpdate.current = null;
+        }
+      }
+    }
+    
+    // Always apply the changes to nodes
+    onNodesChange(changes);
+  }, [onNodesChange, strategyStore]);
+
   // Custom setNodes wrapper to ensure both local state and store are updated
   // But throttle updates to the store during node drag operations
   const setNodesAndStore = useCallback((updatedNodes: Node[] | ((prevNodes: Node[]) => Node[])) => {
@@ -49,35 +77,40 @@ export function useFlowState() {
       setNodes((prevNodes) => {
         const newNodes = updatedNodes(prevNodes);
         
-        // Only update store if not a position update (during dragging)
-        const isDragOperation = prevNodes.length === newNodes.length && 
-          newNodes.some((node, i) => 
-            node.position.x !== prevNodes[i].position.x || 
-            node.position.y !== prevNodes[i].position.y
-          );
-          
-        if (!isDragOperation) {
+        // Only update store if not currently dragging
+        if (!isDraggingRef.current) {
           strategyStore.setNodes(newNodes);
+        } else {
+          // Store the update to apply when dragging ends
+          pendingNodesUpdate.current = newNodes;
         }
         
         return newNodes;
       });
     } else {
       setNodes(updatedNodes);
-      strategyStore.setNodes(updatedNodes);
+      
+      // Only update store if not currently dragging
+      if (!isDraggingRef.current) {
+        strategyStore.setNodes(updatedNodes);
+      } else {
+        // Store the update to apply when dragging ends
+        pendingNodesUpdate.current = updatedNodes;
+      }
     }
   }, [setNodes, strategyStore]);
 
   // Sync nodes from store to ReactFlow, but prevent infinite updates by checking for changes
-  // Don't sync during drag operations
   useEffect(() => {
+    if (isDraggingRef.current) return; // Skip updates during dragging
+    
     const storeNodes = strategyStore.nodes;
     if (storeNodes.length > 0 && 
         JSON.stringify(storeNodes.map(n => ({ id: n.id, type: n.type, data: n.data }))) !== 
         JSON.stringify(nodes.map(n => ({ id: n.id, type: n.type, data: n.data })))) {
       setNodes(storeNodes);
     }
-  }, [strategyStore.nodes]);
+  }, [strategyStore.nodes, setNodes, nodes]);
 
   // Sync edges from store to ReactFlow, but prevent infinite updates by checking for changes
   useEffect(() => {
@@ -85,7 +118,7 @@ export function useFlowState() {
     if (JSON.stringify(storeEdges) !== JSON.stringify(edges)) {
       setEdges(storeEdges);
     }
-  }, [strategyStore.edges]);
+  }, [strategyStore.edges, setEdges, edges]);
 
   const onConnect = useCallback(
     (params: Connection) => {
@@ -106,7 +139,7 @@ export function useFlowState() {
     isPanelOpen,
     reactFlowWrapper,
     reactFlowInstance,
-    onNodesChange,
+    onNodesChange: onNodesChangeWithDragDetection,
     onEdgesChange,
     onConnect,
     setSelectedNode,

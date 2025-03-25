@@ -10,7 +10,7 @@ import ReactFlowCanvas from './ReactFlowCanvas';
 const NodePanel = lazy(() => import('./NodePanel'));
 
 const StrategyFlowContent = () => {
-  const { theme, setTheme } = useTheme();
+  const { theme } = useTheme();
   const {
     nodes,
     edges,
@@ -51,8 +51,8 @@ const StrategyFlowContent = () => {
     strategyStore
   });
 
-  // Memoize the NodePanel component
-  const lazyNodePanel = useMemo(() => {
+  // Create NodePanel component if needed
+  const nodePanelComponent = useMemo(() => {
     if (isPanelOpen && selectedNode) {
       return (
         <Suspense fallback={<div className="p-4">Loading panel...</div>}>
@@ -67,23 +67,21 @@ const StrategyFlowContent = () => {
     return null;
   }, [isPanelOpen, selectedNode, updateNodeData, closePanel]);
 
-  // Memoize ReactFlowCanvas to prevent unnecessary re-renders
-  const flowCanvas = useMemo(() => (
-    <ReactFlowCanvas
-      flowRef={reactFlowWrapper}
-      nodes={nodes}
-      edges={edges}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-      onConnect={onConnect}
-      onNodeClick={onNodeClick}
-      resetStrategy={resetStrategy}
-      onImportSuccess={handleImportSuccess}
-      onDeleteNode={handleDeleteNode}
-      onDeleteEdge={handleDeleteEdge}
-      onAddNode={handleAddNode}
-    />
-  ), [
+  // Memoize ReactFlowCanvas props
+  const flowCanvasProps = useMemo(() => ({
+    flowRef: reactFlowWrapper,
+    nodes,
+    edges,
+    onNodesChange,
+    onEdgesChange,
+    onConnect,
+    onNodeClick,
+    resetStrategy,
+    onImportSuccess: handleImportSuccess,
+    onDeleteNode: handleDeleteNode,
+    onDeleteEdge: handleDeleteEdge,
+    onAddNode: handleAddNode
+  }), [
     nodes,
     edges,
     reactFlowWrapper,
@@ -103,9 +101,9 @@ const StrategyFlowContent = () => {
       isPanelOpen={isPanelOpen}
       selectedNode={selectedNode}
       onClosePanel={closePanel}
-      nodePanelComponent={lazyNodePanel}
+      nodePanelComponent={nodePanelComponent}
     >
-      {flowCanvas}
+      <ReactFlowCanvas {...flowCanvasProps} />
     </FlowLayout>
   );
 };
