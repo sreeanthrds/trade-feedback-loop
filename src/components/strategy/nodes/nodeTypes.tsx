@@ -78,7 +78,7 @@ const createNodeTypes = (
         {...props}
         id={props.id}
         data={props.data}
-        position={{ x: Number(props.positionAbsoluteX || props.positionX || 0), y: Number(props.positionAbsoluteY || props.positionY || 0) }}
+        position={{ x: 0, y: 0 }}
         onAddNode={onAddNode} 
       />
     ),
@@ -87,7 +87,7 @@ const createNodeTypes = (
         {...props}
         id={props.id}
         data={props.data}
-        position={{ x: Number(props.positionAbsoluteX || props.positionX || 0), y: Number(props.positionAbsoluteY || props.positionY || 0) }}
+        position={{ x: 0, y: 0 }}
         onDelete={onDeleteNode}
         onAddNode={onAddNode}
       />
@@ -97,7 +97,7 @@ const createNodeTypes = (
         {...props}
         id={props.id}
         data={props.data}
-        position={{ x: Number(props.positionAbsoluteX || props.positionX || 0), y: Number(props.positionAbsoluteY || props.positionY || 0) }}
+        position={{ x: 0, y: 0 }}
         onDelete={onDeleteNode}
         onAddNode={onAddNode}
       />
@@ -107,7 +107,7 @@ const createNodeTypes = (
         {...props}
         id={props.id}
         data={props.data}
-        position={{ x: Number(props.positionAbsoluteX || props.positionX || 0), y: Number(props.positionAbsoluteY || props.positionY || 0) }}
+        position={{ x: 0, y: 0 }}
         onDelete={onDeleteNode}
       />
     ),
@@ -116,7 +116,7 @@ const createNodeTypes = (
         {...props}
         id={props.id}
         data={props.data}
-        position={{ x: Number(props.positionAbsoluteX || props.positionX || 0), y: Number(props.positionAbsoluteY || props.positionY || 0) }}
+        position={{ x: 0, y: 0 }}
         onDelete={onDeleteNode}
       />
     )
