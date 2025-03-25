@@ -4,6 +4,7 @@ import { Node } from '@xyflow/react';
 import { X } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
 import StartNodeEditor from './editors/StartNodeEditor';
 import SignalNodeEditor from './editors/SignalNodeEditor';
 import ActionNodeEditor from './editors/ActionNodeEditor';
@@ -17,6 +18,8 @@ interface NodePanelProps {
 }
 
 const NodePanel = ({ node, updateNodeData, onClose }: NodePanelProps) => {
+  const isMobile = useIsMobile();
+
   const renderEditor = () => {
     switch (node.type) {
       case 'startNode':
@@ -33,6 +36,11 @@ const NodePanel = ({ node, updateNodeData, onClose }: NodePanelProps) => {
         return <div>Unknown node type</div>;
     }
   };
+
+  // For mobile devices in the drawer, we'll just return the editor directly
+  if (isMobile) {
+    return renderEditor();
+  }
 
   const getNodeTitle = () => {
     switch (node.type) {
