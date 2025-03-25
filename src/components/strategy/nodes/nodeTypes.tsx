@@ -76,14 +76,18 @@ const createNodeTypes = (
     startNode: (props) => (
       <StartNodeWrapper
         {...props}
-        position={props.position} 
+        id={props.id}
+        data={props.data}
+        position={{ x: props.xPos, y: props.yPos }}
         onAddNode={onAddNode} 
       />
     ),
     signalNode: (props) => (
       <SignalNodeWrapper
         {...props}
-        position={props.position}
+        id={props.id}
+        data={props.data}
+        position={{ x: props.xPos, y: props.yPos }}
         onDelete={onDeleteNode}
         onAddNode={onAddNode}
       />
@@ -91,7 +95,9 @@ const createNodeTypes = (
     actionNode: (props) => (
       <ActionNodeWrapper
         {...props}
-        position={props.position}
+        id={props.id}
+        data={props.data}
+        position={{ x: props.xPos, y: props.yPos }}
         onDelete={onDeleteNode}
         onAddNode={onAddNode}
       />
@@ -99,14 +105,18 @@ const createNodeTypes = (
     endNode: (props) => (
       <EndNodeWrapper
         {...props}
-        position={props.position}
+        id={props.id}
+        data={props.data}
+        position={{ x: props.xPos, y: props.yPos }}
         onDelete={onDeleteNode}
       />
     ),
     forceEndNode: (props) => (
       <ForceEndNodeWrapper
         {...props}
-        position={props.position}
+        id={props.id}
+        data={props.data}
+        position={{ x: props.xPos, y: props.yPos }}
         onDelete={onDeleteNode}
       />
     )
