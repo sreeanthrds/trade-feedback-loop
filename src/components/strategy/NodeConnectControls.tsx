@@ -73,4 +73,4 @@ const NodeConnectControls: React.FC<NodeConnectControlsProps> = ({ showOn, onAdd
   );
 };
 
-export default NodeConnectControls;
+export default React.memo(NodeConnectControls);
