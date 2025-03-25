@@ -16,7 +16,7 @@ import {
 import { Node } from '@xyflow/react';
 
 interface NodeControlsProps {
-  node: Node;
+  node: Node | { id: string; type: string; data: any; position?: { x: number; y: number } };
   onDelete: (nodeId: string) => void;
 }
 
@@ -45,7 +45,7 @@ const NodeControls = ({ node, onDelete }: NodeControlsProps) => {
   };
 
   return (
-    <div className="absolute right-0 top-0 -mt-5 -mr-1.5 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+    <div className="absolute right-0 top-0 -mt-5 -mr-1.5 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
       <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogTrigger asChild>
           <Button
