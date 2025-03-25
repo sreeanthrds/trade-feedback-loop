@@ -15,15 +15,6 @@
 /* Import resizable panel styles */
 @import '../styles/resizable.css';
 
-/* Prevent drawer from dismissing when dragging resize handle */
-.drawer-no-dismiss [data-vaul-drawer-shadow] {
-  touch-action: none;
-}
-
-.drawer-no-dismiss [data-vaul-drawer-content] {
-  touch-action: pan-y;
-}
-
 /* Mobile styles */
 @media (max-width: 768px) {
   .strategy-flow-container [data-panel-resize-handle-id] {

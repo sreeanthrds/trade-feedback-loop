@@ -57,8 +57,8 @@ const FlowLayout: React.FC<FlowLayoutProps> = ({
         </div>
         
         {selectedNode && (
-          <Drawer open={open} onOpenChange={setOpen} onClose={onClosePanel} shouldScaleBackground={false}>
-            <DrawerContent className="h-[70vh] max-h-[70vh] drawer-no-dismiss">
+          <Drawer open={open} onOpenChange={setOpen} onClose={onClosePanel}>
+            <DrawerContent className="h-[70vh] max-h-[70vh]">
               <DrawerHeader className="flex flex-row items-center justify-between pb-2 border-b">
                 <DrawerTitle className="text-lg">
                   {selectedNode.type === 'startNode' ? 'Start Node' : 
