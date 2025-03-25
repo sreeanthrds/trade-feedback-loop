@@ -11,10 +11,31 @@ interface UseActionNodeFormProps {
 export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormProps) => {
   const { getNodes } = useReactFlow();
   const nodeData = node.data as NodeData;
-  const [showLimitPrice, setShowLimitPrice] = useState(nodeData.orderType === 'limit');
+  const [showLimitPrice, setShowLimitPrice] = useState(nodeData?.orderType === 'limit');
   const [hasOptionTrading, setHasOptionTrading] = useState(false);
-  const [startNodeSymbol, setStartNodeSymbol] = useState<string | undefined>(nodeData.instrument || undefined);
+  const [startNodeSymbol, setStartNodeSymbol] = useState<string | undefined>(nodeData?.instrument || undefined);
   const previousSymbolRef = useRef<string | undefined>(startNodeSymbol);
+  const initializedRef = useRef(false);
+  
+  // Set default values if not present
+  useEffect(() => {
+    if (!initializedRef.current) {
+      const defaultValues: Partial<NodeData> = {
+        actionType: nodeData?.actionType || 'entry',
+        positionType: nodeData?.positionType || 'buy',
+        orderType: nodeData?.orderType || 'market',
+        lots: nodeData?.lots || 1,
+        productType: nodeData?.productType || 'intraday'
+      };
+      
+      // Only update if any default values are missing
+      if (!nodeData?.actionType || !nodeData?.positionType || 
+          !nodeData?.orderType || !nodeData?.lots || !nodeData?.productType) {
+        updateNodeData(node.id, defaultValues);
+        initializedRef.current = true;
+      }
+    }
+  }, [node.id, nodeData, updateNodeData]);
   
   // Get the start node to access its instrument
   useEffect(() => {

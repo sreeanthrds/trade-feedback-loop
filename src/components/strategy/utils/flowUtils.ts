@@ -22,21 +22,36 @@ export const addNode = (
     y: (reactFlowWrapper.current?.clientHeight || 600) / 2,
   });
   
+  // Set default data based on node type
+  let defaultData: any = { 
+    label: type === 'startNode' 
+      ? 'Start' 
+      : type === 'endNode' 
+        ? 'End' 
+        : type === 'forceEndNode'
+          ? 'Force End'
+          : type === 'signalNode' 
+            ? 'Signal' 
+            : 'Action'
+  };
+  
+  // Add specific default values for action nodes
+  if (type === 'actionNode') {
+    defaultData = {
+      ...defaultData,
+      actionType: 'entry',
+      positionType: 'buy',
+      orderType: 'market',
+      lots: 1,
+      productType: 'intraday'
+    };
+  }
+  
   return {
     id: `${type}-${Date.now()}`,
     type: type as any,
     position,
-    data: { 
-      label: type === 'startNode' 
-        ? 'Start' 
-        : type === 'endNode' 
-          ? 'End' 
-          : type === 'forceEndNode'
-            ? 'Force End'
-            : type === 'signalNode' 
-              ? 'Signal' 
-              : 'Action'
-    }
+    data: defaultData
   };
 };
 
