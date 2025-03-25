@@ -29,17 +29,6 @@ interface ReactFlowCanvasProps {
   onAddNode: (type: string) => void;
 }
 
-// Create node types and edge types outside the component
-// to prevent recreation on each render
-const nodeTypes = createNodeTypes(
-  (id: string) => console.log(`Delete node ${id}`), 
-  (type: string) => console.log(`Add node ${type}`)
-);
-
-const edgeTypes = createEdgeTypes(
-  (id: string) => console.log(`Delete edge ${id}`)
-);
-
 const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   flowRef,
   nodes,
