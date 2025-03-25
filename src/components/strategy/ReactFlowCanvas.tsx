@@ -45,13 +45,13 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
 }) => {
   const [minimapVisible, setMinimapVisible] = useState(false);
 
-  // Create memoized node types to prevent React Flow warnings
+  // Create memoized node types with useCallback to maintain reference stability
   const nodeTypes = useMemo(
     () => createNodeTypes(onDeleteNode, onAddNode),
     [onDeleteNode, onAddNode]
   );
 
-  // Create edges with delete buttons using useCallback
+  // Create edges with delete buttons using useMemo
   const edgesWithDeleteButtons = useMemo(() => 
     edges.map((edge: Edge) => ({
       ...edge,
@@ -63,7 +63,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
     [edges, onDeleteEdge]
   );
 
-  // Memoize the edge types to prevent React Flow warnings
+  // Memoize the edge types with useCallback
   const edgeTypes = useMemo(
     () => createEdgeTypes(onDeleteEdge),
     [onDeleteEdge]

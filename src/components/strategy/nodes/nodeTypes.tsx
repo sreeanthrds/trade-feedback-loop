@@ -1,5 +1,5 @@
 
-import React, { memo } from 'react';
+import React from 'react';
 import { NodeTypes } from '@xyflow/react';
 import StartNode from './StartNode';
 import SignalNode from './SignalNode';
@@ -9,41 +9,48 @@ import ForceEndNode from './ForceEndNode';
 import NodeControls from '../NodeControls';
 import NodeConnectControls from '../NodeConnectControls';
 
+// Define base node components outside to ensure consistent memoization
+const MemoizedStartNode = React.memo(StartNode);
+const MemoizedSignalNode = React.memo(SignalNode);
+const MemoizedActionNode = React.memo(ActionNode);
+const MemoizedEndNode = React.memo(EndNode);
+const MemoizedForceEndNode = React.memo(ForceEndNode);
+
 // Create node types once outside of any component
 const createNodeTypes = (
   onDeleteNode: (id: string) => void, 
   onAddNode: (type: string) => void
 ): NodeTypes => {
   return {
-    startNode: memo((nodeProps) => (
+    startNode: React.memo((nodeProps) => (
       <div className="group">
-        <StartNode {...nodeProps} />
+        <MemoizedStartNode {...nodeProps} />
         <NodeConnectControls showOn="start" onAddNode={onAddNode} />
       </div>
     )),
-    signalNode: memo((nodeProps) => (
+    signalNode: React.memo((nodeProps) => (
       <div className="group">
-        <SignalNode {...nodeProps} />
+        <MemoizedSignalNode {...nodeProps} />
         <NodeControls node={nodeProps} onDelete={onDeleteNode} />
         <NodeConnectControls showOn="signal" onAddNode={onAddNode} />
       </div>
     )),
-    actionNode: memo((nodeProps) => (
+    actionNode: React.memo((nodeProps) => (
       <div className="group">
-        <ActionNode {...nodeProps} />
+        <MemoizedActionNode {...nodeProps} />
         <NodeControls node={nodeProps} onDelete={onDeleteNode} />
         <NodeConnectControls showOn="action" onAddNode={onAddNode} />
       </div>
     )),
-    endNode: memo((nodeProps) => (
+    endNode: React.memo((nodeProps) => (
       <div className="group">
-        <EndNode {...nodeProps} />
+        <MemoizedEndNode {...nodeProps} />
         <NodeControls node={nodeProps} onDelete={onDeleteNode} />
       </div>
     )),
-    forceEndNode: memo((nodeProps) => (
+    forceEndNode: React.memo((nodeProps) => (
       <div className="group">
-        <ForceEndNode {...nodeProps} />
+        <MemoizedForceEndNode {...nodeProps} />
         <NodeControls node={nodeProps} onDelete={onDeleteNode} />
       </div>
     ))
