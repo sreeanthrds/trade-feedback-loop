@@ -4,6 +4,7 @@
   height: 100%;
   width: 100%;
   overflow: hidden;
+  transition: width 0.3s ease, height 0.3s ease;
 }
 
 .flow-main-content {
