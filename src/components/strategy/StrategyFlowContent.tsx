@@ -4,7 +4,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useFlowState } from './hooks/useFlowState';
 import { useFlowHandlers } from './hooks/useFlowHandlers';
 import FlowLayout from './layout/FlowLayout';
-import ReactFlowCanvas from './ReactFlowCanvas';
+import ReactFlowCanvas from './canvas/ReactFlowCanvas';
 
 // Lazy load the NodePanel component
 const NodePanel = lazy(() => import('./NodePanel'));
