@@ -15,6 +15,7 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
   const [hasOptionTrading, setHasOptionTrading] = useState(false);
   const [startNodeSymbol, setStartNodeSymbol] = useState<string | undefined>(nodeData?.instrument || undefined);
   const previousSymbolRef = useRef<string | undefined>(startNodeSymbol);
+  const previousInstrumentTypeRef = useRef<string | undefined>(undefined);
   const initializedRef = useRef(false);
   
   // Set default values if not present
@@ -55,7 +56,19 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
         
         // Check for options trading
         const optionsEnabled = data.tradingInstrument?.type === 'options';
-        setHasOptionTrading(optionsEnabled || false);
+        
+        // If instrument type changed from options to something else, we need to clear option details
+        if (previousInstrumentTypeRef.current === 'options' && data.tradingInstrument?.type !== 'options') {
+          updateNodeData(node.id, { optionDetails: undefined });
+        }
+        
+        // Update the previous instrument type reference
+        previousInstrumentTypeRef.current = data.tradingInstrument?.type;
+        
+        // Update options trading state
+        if (hasOptionTrading !== optionsEnabled) {
+          setHasOptionTrading(optionsEnabled || false);
+        }
         
         // Get and set the instrument from the start node
         if (data.symbol !== previousSymbolRef.current) {
@@ -77,7 +90,7 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
     const intervalId = setInterval(fetchStartNodeData, 200);
 
     return () => clearInterval(intervalId);
-  }, [getNodes, node.id, updateNodeData]);
+  }, [getNodes, node.id, updateNodeData, hasOptionTrading]);
   
   const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateNodeData(node.id, { label: e.target.value });

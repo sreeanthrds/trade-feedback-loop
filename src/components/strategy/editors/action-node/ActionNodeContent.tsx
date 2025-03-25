@@ -8,6 +8,7 @@ import { NodeData } from './types';
 import OrderDetailsSection from './OrderDetailsSection';
 import InstrumentDisplay from './InstrumentDisplay';
 import OptionsSettingsSection from './OptionsSettingsSection';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface ActionNodeContentProps {
   nodeData: NodeData;
@@ -42,6 +43,19 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
   onStrikeValueChange,
   onOptionTypeChange
 }) => {
+  if (nodeData.actionType === 'alert') {
+    return (
+      <div className="space-y-4">
+        <ActionTypeSelector 
+          actionType={nodeData.actionType}
+          onActionTypeChange={onActionTypeChange}
+        />
+        <AlertMessage />
+        <InfoMessage actionType={nodeData.actionType} />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <ActionTypeSelector 
@@ -49,31 +63,36 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
         onActionTypeChange={onActionTypeChange}
       />
       
-      {nodeData.actionType !== 'alert' && (
-        <>
-          <Separator />
+      <Separator />
+      
+      <Tabs defaultValue="order-details" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="order-details">Order Details</TabsTrigger>
+          <TabsTrigger value="instrument-details">Instrument</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="order-details" className="space-y-4 py-2">
+          <OrderDetailsSection 
+            actionType={nodeData.actionType}
+            positionType={nodeData.positionType}
+            orderType={nodeData.orderType}
+            limitPrice={nodeData.limitPrice}
+            lots={nodeData.lots}
+            productType={nodeData.productType}
+            onPositionTypeChange={onPositionTypeChange}
+            onOrderTypeChange={onOrderTypeChange}
+            onLimitPriceChange={onLimitPriceChange}
+            onLotsChange={onLotsChange}
+            onProductTypeChange={onProductTypeChange}
+          />
+        </TabsContent>
+        
+        <TabsContent value="instrument-details" className="space-y-4 py-2">
+          <InstrumentDisplay startNodeSymbol={startNodeSymbol} />
           
-          <div className="space-y-4 py-3">
-            {/* Order Details Section */}
-            <OrderDetailsSection 
-              actionType={nodeData.actionType}
-              positionType={nodeData.positionType}
-              orderType={nodeData.orderType}
-              limitPrice={nodeData.limitPrice}
-              lots={nodeData.lots}
-              productType={nodeData.productType}
-              onPositionTypeChange={onPositionTypeChange}
-              onOrderTypeChange={onOrderTypeChange}
-              onLimitPriceChange={onLimitPriceChange}
-              onLotsChange={onLotsChange}
-              onProductTypeChange={onProductTypeChange}
-            />
-            
-            {/* Instrument Details Section */}
-            <InstrumentDisplay startNodeSymbol={startNodeSymbol} />
-            
-            {/* Options Settings Section (conditionally rendered) */}
-            {hasOptionTrading && (
+          {hasOptionTrading && (
+            <>
+              <Separator className="my-4" />
               <OptionsSettingsSection 
                 optionDetails={nodeData.optionDetails}
                 onExpiryChange={onExpiryChange}
@@ -81,12 +100,10 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
                 onStrikeValueChange={onStrikeValueChange}
                 onOptionTypeChange={onOptionTypeChange}
               />
-            )}
-          </div>
-        </>
-      )}
-      
-      {nodeData.actionType === 'alert' && <AlertMessage />}
+            </>
+          )}
+        </TabsContent>
+      </Tabs>
       
       <InfoMessage actionType={nodeData.actionType} />
     </div>
