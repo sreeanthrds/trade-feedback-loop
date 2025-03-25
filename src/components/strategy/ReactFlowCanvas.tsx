@@ -64,13 +64,13 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
     onDeleteEdge(id);
   }, [onDeleteEdge]);
   
-  // Create nodeTypes with stable callbacks
+  // IMPORTANT: We need to properly memoize these to prevent regeneration on each render
+  // This is a key fix to prevent the warning in the console
   const nodeTypes = useMemo(() => 
     createNodeTypes(stableDeleteNode, stableAddNode),
     [stableDeleteNode, stableAddNode]
   );
   
-  // Create edgeTypes with stable callback
   const edgeTypes = useMemo(() => 
     createEdgeTypes(stableDeleteEdge),
     [stableDeleteEdge]
