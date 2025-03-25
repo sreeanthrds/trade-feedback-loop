@@ -102,9 +102,10 @@ const ActionNode = ({ data, id }: { data: ActionNodeData, id: string }) => {
     if (!data.optionDetails) return null;
     
     const { expiry, strikeType, strikeValue, optionType } = data.optionDetails;
-    let details = [];
+    const details = [];
     
     if (expiry) details.push(expiry);
+    
     if (strikeType) {
       if (strikeType === 'premium' && strikeValue) {
         details.push(`Premium ~₹${strikeValue}`);
@@ -112,9 +113,10 @@ const ActionNode = ({ data, id }: { data: ActionNodeData, id: string }) => {
         details.push(strikeType);
       }
     }
+    
     if (optionType) details.push(optionType);
     
-    return details.join(' ');
+    return details.length > 0 ? details.join(' · ') : null;
   };
   
   return (
