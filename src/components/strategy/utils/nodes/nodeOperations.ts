@@ -1,6 +1,5 @@
-
 import { Node, ReactFlowInstance } from '@xyflow/react';
-import { toast } from 'sonner';
+import { toast } from "@/hooks/use-toast";
 
 export const initialNodes: Node[] = [
   {

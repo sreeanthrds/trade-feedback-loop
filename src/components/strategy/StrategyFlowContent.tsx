@@ -15,14 +15,9 @@ const NodePanel = lazy(() => import('./NodePanel'));
 
 const StrategyFlowContent = () => {
   const { theme } = useTheme();
-  const stableHandlersRef = useRef({
-    handleDeleteNode: null,
-    handleAddNode: null,
-    handleDeleteEdge: null,
-    onNodeClick: null,
-    resetStrategy: null,
-    handleImportSuccess: null
-  });
+  
+  // Store handlers in a ref to prevent render-time updates
+  const handlersRef = useRef(null);
   
   const {
     nodes,
@@ -41,16 +36,8 @@ const StrategyFlowContent = () => {
     strategyStore
   } = useFlowState();
 
-  const {
-    onNodeClick,
-    handleAddNode,
-    updateNodeData,
-    handleDeleteNode,
-    handleDeleteEdge,
-    closePanel,
-    resetStrategy,
-    handleImportSuccess
-  } = useFlowHandlers({
+  // Create handlers but don't cause renders when they're updated
+  const handlers = useFlowHandlers({
     nodes,
     edges,
     selectedNode,
@@ -63,47 +50,64 @@ const StrategyFlowContent = () => {
     setEdges,
     strategyStore
   });
-
-  // Update the stable handlers ref when the handlers change - put in useEffect to avoid render-time updates
+  
+  // Update the ref without causing renders
   useEffect(() => {
-    stableHandlersRef.current = {
-      handleDeleteNode,
-      handleAddNode,
-      handleDeleteEdge,
-      onNodeClick,
-      resetStrategy,
-      handleImportSuccess
-    };
-  }, [handleDeleteNode, handleAddNode, handleDeleteEdge, onNodeClick, resetStrategy, handleImportSuccess]);
+    handlersRef.current = handlers;
+  }, [handlers]);
 
-  // Create stable handler callbacks using the ref
-  const handleDeleteNodeStable = useCallback((id) => {
-    stableHandlersRef.current.handleDeleteNode(id);
+  // Create stable callback versions of the handlers using the ref
+  const onNodeClick = useCallback((event, node) => {
+    if (handlersRef.current) {
+      handlersRef.current.onNodeClick(event, node);
+    }
   }, []);
   
-  const handleAddNodeStable = useCallback((type, parentId) => {
-    stableHandlersRef.current.handleAddNode(type, parentId);
+  const handleAddNode = useCallback((type, parentId) => {
+    if (handlersRef.current) {
+      handlersRef.current.handleAddNode(type, parentId);
+    }
   }, []);
   
-  const handleDeleteEdgeStable = useCallback((id) => {
-    stableHandlersRef.current.handleDeleteEdge(id);
+  const handleDeleteNode = useCallback((id) => {
+    if (handlersRef.current) {
+      handlersRef.current.handleDeleteNode(id);
+    }
   }, []);
   
-  const onNodeClickStable = useCallback((event, node) => {
-    stableHandlersRef.current.onNodeClick(event, node);
+  const handleDeleteEdge = useCallback((id) => {
+    if (handlersRef.current) {
+      handlersRef.current.handleDeleteEdge(id);
+    }
   }, []);
   
-  const resetStrategyStable = useCallback(() => {
-    stableHandlersRef.current.resetStrategy();
+  const updateNodeData = useCallback((id, data) => {
+    if (handlersRef.current) {
+      handlersRef.current.updateNodeData(id, data);
+    }
   }, []);
   
-  const handleImportSuccessStable = useCallback(() => {
-    stableHandlersRef.current.handleImportSuccess();
+  const closePanel = useCallback(() => {
+    if (handlersRef.current) {
+      handlersRef.current.closePanel();
+    }
+  }, []);
+  
+  const resetStrategy = useCallback(() => {
+    if (handlersRef.current) {
+      handlersRef.current.resetStrategy();
+    }
+  }, []);
+  
+  const handleImportSuccess = useCallback(() => {
+    if (handlersRef.current) {
+      handlersRef.current.handleImportSuccess();
+    }
   }, []);
 
   // Create node types and edge types once
-  const nodeTypes = useMemo(() => createNodeTypes(handleDeleteNodeStable, handleAddNodeStable), [handleDeleteNodeStable, handleAddNodeStable]);
-  const edgeTypes = useMemo(() => createEdgeTypes(handleDeleteEdgeStable), [handleDeleteEdgeStable]);
+  const nodeTypes = useMemo(() => createNodeTypes(handleDeleteNode, handleAddNode), [handleDeleteNode, handleAddNode]);
+  const edgeTypes = useMemo(() => createEdgeTypes(handleDeleteEdge), [handleDeleteEdge]);
 
   // Create NodePanel component if needed
   const nodePanelComponent = useMemo(() => {
@@ -129,12 +133,12 @@ const StrategyFlowContent = () => {
     onNodesChange,
     onEdgesChange,
     onConnect,
-    onNodeClick: onNodeClickStable,
-    resetStrategy: resetStrategyStable,
-    onImportSuccess: handleImportSuccessStable,
-    onDeleteNode: handleDeleteNodeStable,
-    onDeleteEdge: handleDeleteEdgeStable,
-    onAddNode: handleAddNodeStable,
+    onNodeClick,
+    resetStrategy,
+    onImportSuccess: handleImportSuccess,
+    onDeleteNode: handleDeleteNode,
+    onDeleteEdge: handleDeleteEdge,
+    onAddNode: handleAddNode,
     nodeTypes,
     edgeTypes
   }), [
@@ -143,12 +147,12 @@ const StrategyFlowContent = () => {
     onNodesChange,
     onEdgesChange,
     onConnect,
-    onNodeClickStable,
-    resetStrategyStable,
-    handleImportSuccessStable,
-    handleDeleteNodeStable,
-    handleDeleteEdgeStable,
-    handleAddNodeStable,
+    onNodeClick,
+    resetStrategy,
+    handleImportSuccess,
+    handleDeleteNode,
+    handleDeleteEdge,
+    handleAddNode,
     nodeTypes,
     edgeTypes
   ]);

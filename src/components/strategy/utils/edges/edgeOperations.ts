@@ -1,6 +1,6 @@
 
 import { Node, Edge, Connection } from '@xyflow/react';
-import { toast } from 'sonner';
+import { toast } from "@/hooks/use-toast";
 
 export const createEdgeBetweenNodes = (
   sourceNode: Node,
@@ -24,12 +24,20 @@ export const validateConnection = (
   const targetNode = nodes.find(node => node.id === connection.target);
   
   if (sourceNode?.type === 'endNode' || sourceNode?.type === 'forceEndNode') {
-    toast.error("End nodes cannot have outgoing connections");
+    toast({
+      title: "Invalid connection",
+      description: "End nodes cannot have outgoing connections",
+      variant: "destructive"
+    });
     return false;
   }
   
   if (targetNode?.type === 'startNode') {
-    toast.error("Start nodes cannot have incoming connections");
+    toast({
+      title: "Invalid connection",
+      description: "Start nodes cannot have incoming connections",
+      variant: "destructive"
+    });
     return false;
   }
   
