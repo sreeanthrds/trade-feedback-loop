@@ -23,7 +23,7 @@ export const useSignalNodeForm = ({ node, updateNodeData }: UseSignalNodeFormPro
   const nodeData = (node.data || {}) as SignalNodeData;
   
   // Initialize complex conditions data structure if it doesn't exist
-  const initialConditions: GroupCondition[] = Array.isArray(nodeData.conditions) 
+  const initialConditions: GroupCondition[] = Array.isArray(nodeData.conditions) && nodeData.conditions.length > 0
     ? nodeData.conditions
     : [
         {

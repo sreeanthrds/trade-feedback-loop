@@ -21,11 +21,14 @@ const ConditionItem: React.FC<ConditionItemProps> = ({
   updateCondition,
   removeCondition,
 }) => {
-  if ('groupLogic' in condition) {
+  // Ensure we have a valid condition object
+  const safeCondition = condition || {};
+  
+  if ('groupLogic' in safeCondition) {
     // Render nested group condition
     return (
       <ConditionBuilder
-        rootCondition={condition as GroupCondition}
+        rootCondition={safeCondition as GroupCondition}
         updateConditions={(updated) => updateCondition(updated)}
         level={level + 1}
         parentUpdateFn={(updated) => updateCondition(updated)}
@@ -39,7 +42,7 @@ const ConditionItem: React.FC<ConditionItemProps> = ({
       <div className="flex items-start">
         <div className="flex-grow">
           <SingleConditionEditor
-            condition={condition as Condition}
+            condition={safeCondition as Condition}
             updateCondition={(updated) => updateCondition(updated)}
           />
         </div>

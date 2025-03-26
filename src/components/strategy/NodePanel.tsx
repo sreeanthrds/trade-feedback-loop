@@ -32,18 +32,24 @@ const NodePanel = memo(({ node, updateNodeData, onClose }: NodePanelProps) => {
     updateNodeData(id, data);
   }, [updateNodeData]);
 
+  // Make sure node.data exists with a default fallback
+  const safeNode = {
+    ...node,
+    data: node.data || {}
+  };
+
   const renderEditor = () => {
-    switch (node.type) {
+    switch (safeNode.type) {
       case 'startNode':
-        return <StartNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
+        return <StartNodeEditor node={safeNode} updateNodeData={stableUpdateNodeData} />;
       case 'signalNode':
-        return <SignalNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
+        return <SignalNodeEditor node={safeNode} updateNodeData={stableUpdateNodeData} />;
       case 'actionNode':
-        return <ActionNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
+        return <ActionNodeEditor node={safeNode} updateNodeData={stableUpdateNodeData} />;
       case 'endNode':
-        return <EndNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
+        return <EndNodeEditor node={safeNode} updateNodeData={stableUpdateNodeData} />;
       case 'forceEndNode':
-        return <ForceEndNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
+        return <ForceEndNodeEditor node={safeNode} updateNodeData={stableUpdateNodeData} />;
       default:
         return <div>Unknown node type</div>;
     }
@@ -55,7 +61,7 @@ const NodePanel = memo(({ node, updateNodeData, onClose }: NodePanelProps) => {
   }
 
   const getNodeTitle = () => {
-    switch (node.type) {
+    switch (safeNode.type) {
       case 'startNode': return 'Start Node';
       case 'signalNode': return 'Signal Node';
       case 'actionNode': return 'Action Node';

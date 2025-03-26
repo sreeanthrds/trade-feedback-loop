@@ -28,12 +28,20 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
   allowRemove = false,
   index = 0
 }) => {
+  // Ensure rootCondition has a valid conditions array
+  const safeRootCondition: GroupCondition = {
+    ...rootCondition,
+    id: rootCondition?.id || 'root',
+    groupLogic: rootCondition?.groupLogic || 'AND',
+    conditions: Array.isArray(rootCondition?.conditions) ? rootCondition.conditions : []
+  };
+
   // Add a new single condition to this group
   const addCondition = () => {
     const newCondition = createEmptyCondition();
     const updatedRoot = { 
-      ...rootCondition,
-      conditions: [...rootCondition.conditions, newCondition]
+      ...safeRootCondition,
+      conditions: [...safeRootCondition.conditions, newCondition]
     };
     updateConditions(updatedRoot);
   };
@@ -42,8 +50,8 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
   const addGroup = () => {
     const newGroup = createEmptyGroupCondition();
     const updatedRoot = { 
-      ...rootCondition,
-      conditions: [...rootCondition.conditions, newGroup]
+      ...safeRootCondition,
+      conditions: [...safeRootCondition.conditions, newGroup]
     };
     updateConditions(updatedRoot);
   };
@@ -51,7 +59,7 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
   // Update this group's logic operator (AND/OR)
   const updateGroupLogic = (value: string) => {
     const updatedRoot = { 
-      ...rootCondition,
+      ...safeRootCondition,
       groupLogic: value as 'AND' | 'OR' 
     };
     updateConditions(updatedRoot);
@@ -59,22 +67,22 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
 
   // Update a specific condition within this group
   const updateChildCondition = (index: number, updated: Condition | GroupCondition) => {
-    const newConditions = [...rootCondition.conditions];
+    const newConditions = [...safeRootCondition.conditions];
     newConditions[index] = updated;
-    const updatedRoot = { ...rootCondition, conditions: newConditions };
+    const updatedRoot = { ...safeRootCondition, conditions: newConditions };
     updateConditions(updatedRoot);
   };
 
   // Remove a condition from this group
   const removeCondition = (index: number) => {
     // Don't remove the last condition
-    if (rootCondition.conditions.length <= 1) {
+    if (safeRootCondition.conditions.length <= 1) {
       return;
     }
     
-    const newConditions = [...rootCondition.conditions];
+    const newConditions = [...safeRootCondition.conditions];
     newConditions.splice(index, 1);
-    const updatedRoot = { ...rootCondition, conditions: newConditions };
+    const updatedRoot = { ...safeRootCondition, conditions: newConditions };
     updateConditions(updatedRoot);
   };
 
@@ -95,7 +103,7 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
   return (
     <div className="space-y-3">
       <GroupConditionTitle 
-        rootCondition={rootCondition}
+        rootCondition={safeRootCondition}
         level={level}
         allowRemove={allowRemove}
         updateGroupLogic={updateGroupLogic}
@@ -103,8 +111,8 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
       />
 
       <div style={indentStyle} className="space-y-3 pt-2">
-        {rootCondition.conditions.map((condition, idx) => (
-          <div key={condition.id} className="relative">
+        {safeRootCondition.conditions.map((condition, idx) => (
+          <div key={condition.id || `condition-${idx}`} className="relative">
             <ConditionItem 
               condition={condition}
               index={idx}
@@ -122,7 +130,7 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
       </div>
 
       {level === 0 && (
-        <ConditionPreview rootCondition={rootCondition} />
+        <ConditionPreview rootCondition={safeRootCondition} />
       )}
     </div>
   );

@@ -72,6 +72,10 @@ export const getIndicatorMap = (startNode: Node | undefined): Record<string, str
   // Safely handle the case where indicators might not be an array
   const indicators = Array.isArray(startNode.data.indicators) ? startNode.data.indicators : [];
   
+  if (!indicators.length) {
+    return {};
+  }
+  
   if (!isIndicatorParameters(startNode.data.indicatorParameters)) {
     return indicators.reduce((acc: Record<string, string>, indicator: string) => {
       acc[indicator] = indicator;
