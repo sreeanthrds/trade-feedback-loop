@@ -5,22 +5,24 @@ import { Separator } from '@/components/ui/separator';
 import OrderDetailsSection from '../OrderDetailsSection';
 import InstrumentDisplay from '../InstrumentDisplay';
 import OptionsSettingsSection from '../OptionsSettingsSection';
+import { NodeData } from '../types';
+
+type ActionType = NodeData['actionType'];
+type PositionType = NodeData['positionType'];
+type OrderType = NodeData['orderType'];
+type ProductType = NodeData['productType'];
+type OptionDetailsType = NodeData['optionDetails'];
 
 interface ActionTabsContainerProps {
-  actionType?: string;
-  positionType?: string;
-  orderType?: string;
+  actionType?: ActionType;
+  positionType?: PositionType;
+  orderType?: OrderType;
   limitPrice?: number;
   lots?: number;
-  productType?: string;
+  productType?: ProductType;
   startNodeSymbol?: string;
   hasOptionTrading: boolean;
-  optionDetails?: {
-    expiry?: string;
-    strikeType?: string;
-    strikeValue?: number;
-    optionType?: string;
-  };
+  optionDetails?: OptionDetailsType;
   onPositionTypeChange: (value: string) => void;
   onOrderTypeChange: (value: string) => void;
   onLimitPriceChange: (e: React.ChangeEvent<HTMLInputElement>) => void;

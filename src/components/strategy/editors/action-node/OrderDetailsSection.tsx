@@ -1,14 +1,20 @@
 
 import React from 'react';
 import { RadioGroupField, SelectField, InputField } from '../shared';
+import { NodeData } from './types';
+
+type ActionType = NodeData['actionType'];
+type PositionType = NodeData['positionType'];
+type OrderType = NodeData['orderType'];
+type ProductType = NodeData['productType'];
 
 interface OrderDetailsSectionProps {
-  actionType?: 'entry' | 'exit' | 'alert';
-  positionType?: 'buy' | 'sell';
-  orderType?: 'market' | 'limit';
+  actionType?: ActionType;
+  positionType?: PositionType;
+  orderType?: OrderType;
   limitPrice?: number;
   lots?: number;
-  productType?: 'intraday' | 'carryForward';
+  productType?: ProductType;
   onPositionTypeChange: (value: string) => void;
   onOrderTypeChange: (value: string) => void;
   onLimitPriceChange: (e: React.ChangeEvent<HTMLInputElement>) => void;

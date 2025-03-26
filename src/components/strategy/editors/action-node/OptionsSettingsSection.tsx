@@ -1,13 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { RadioGroupField, SelectField, InputField } from '../shared';
+import { NodeData } from './types';
 
-interface OptionDetailsType {
-  expiry?: string;
-  strikeType?: 'ATM' | 'ITM1' | 'ITM2' | 'ITM3' | 'ITM4' | 'ITM5' | 'ITM6' | 'ITM7' | 'ITM8' | 'ITM9' | 'ITM10' | 'ITM11' | 'ITM12' | 'ITM13' | 'ITM14' | 'ITM15' | 'OTM1' | 'OTM2' | 'OTM3' | 'OTM4' | 'OTM5' | 'OTM6' | 'OTM7' | 'OTM8' | 'OTM9' | 'OTM10' | 'OTM11' | 'OTM12' | 'OTM13' | 'OTM14' | 'OTM15' | 'premium';
-  strikeValue?: number;
-  optionType?: 'CE' | 'PE';
-}
+type OptionDetailsType = NonNullable<NodeData['optionDetails']>;
 
 interface OptionsSettingsSectionProps {
   optionDetails?: OptionDetailsType;
@@ -26,14 +21,12 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
 }) => {
   const [strikeCategory, setStrikeCategory] = useState<'ATM' | 'ITM' | 'OTM' | 'premium'>('ATM');
   const [strikeDistance, setStrikeDistance] = useState<string>('');
-  // Initialize with a default premium value of 100
   const [premiumValue, setPremiumValue] = useState<number>(
     optionDetails?.strikeType === 'premium' && optionDetails?.strikeValue 
     ? optionDetails.strikeValue 
     : 100
   );
 
-  // When component mounts or optionDetails changes, set the initial strike category and distance
   useEffect(() => {
     if (optionDetails?.strikeType) {
       if (optionDetails.strikeType === 'ATM' || optionDetails.strikeType === 'premium') {
@@ -49,36 +42,30 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
     }
   }, [optionDetails?.strikeType]);
 
-  // Handle changes to the strike category
   const handleStrikeCategoryChange = (value: string) => {
     setStrikeCategory(value as any);
     
     if (value === 'ATM') {
-      // For ATM, directly update the strike type
       onStrikeTypeChange(value);
       setStrikeDistance('');
     } else if (value === 'premium') {
-      // For premium, set the default premium value if not already set
       onStrikeTypeChange(value);
       if (!optionDetails?.strikeValue) {
         onStrikeValueChange({ target: { value: premiumValue.toString() } } as React.ChangeEvent<HTMLInputElement>);
       }
       setStrikeDistance('');
     } else if (value === 'ITM' || value === 'OTM') {
-      // For ITM or OTM, set default to level 1 if not already set
       const newStrikeType = `${value}1`;
       onStrikeTypeChange(newStrikeType);
       setStrikeDistance(newStrikeType);
     }
   };
 
-  // Handle changes to the strike distance
   const handleStrikeDistanceChange = (value: string) => {
     setStrikeDistance(value);
     onStrikeTypeChange(value);
   };
 
-  // Handle premium value changes
   const handlePremiumValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value, 10);
     setPremiumValue(value);
@@ -107,7 +94,6 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
     { value: 'premium', label: 'Closest Premium' }
   ];
 
-  // Generate options for ITM strike distances
   const generateStrikeDistanceOptions = () => {
     if (strikeCategory === 'ITM') {
       return Array.from({ length: 15 }, (_, i) => ({
