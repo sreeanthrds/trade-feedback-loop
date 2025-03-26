@@ -1,4 +1,3 @@
-
 import { useCallback, useRef, useEffect } from 'react';
 import { Node, Edge } from '@xyflow/react';
 import { toast } from 'sonner';
@@ -10,7 +9,7 @@ import {
   createImportSuccessHandler,
   createDeleteNodeHandler,
   createDeleteEdgeHandler
-} from '../utils/eventHandlers';
+} from '../utils/handlers';
 
 interface UseFlowHandlersProps {
   nodes: Node[];

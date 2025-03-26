@@ -1,6 +1,6 @@
 
 import { useCallback } from 'react';
-import { Edge, useEdgesState, Connection, addEdge } from '@xyflow/react';
+import { Edge, useEdgesState, Connection, addEdge, Node } from '@xyflow/react';
 import { validateConnection } from '../utils/flowUtils';
 
 /**
