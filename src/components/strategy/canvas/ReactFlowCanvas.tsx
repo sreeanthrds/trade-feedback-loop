@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
   ReactFlow, 
   Background, 
@@ -47,6 +47,8 @@ const ReactFlowCanvas = React.memo(({
 }: ReactFlowCanvasProps) => {
   const [minimapVisible, setMinimapVisible] = useState(false);
   const reactFlowInstance = useReactFlow();
+  const initialLoadRef = useRef(true);
+  const isNodeDraggingRef = useRef(false);
   
   // Create node types with stable callbacks
   const nodeTypes = useMemo(() => 
@@ -87,16 +89,47 @@ const ReactFlowCanvas = React.memo(({
     }, 850); // Slightly after the initial fit animation
   };
 
-  // Fit view whenever nodes or edges change
+  // Track node dragging to prevent refitting during drag
+  const handleBeforeDrag = () => {
+    isNodeDraggingRef.current = true;
+  };
+
+  const handleDragStop = () => {
+    isNodeDraggingRef.current = false;
+  };
+
+  // Customize onNodesChange to track dragging
+  const handleNodesChange = (changes) => {
+    // Detect start of dragging
+    const dragStart = changes.find(change => 
+      change.type === 'position' && change.dragging === true
+    );
+    
+    if (dragStart && !isNodeDraggingRef.current) {
+      handleBeforeDrag();
+    }
+    
+    // Detect end of dragging
+    const dragEnd = changes.find(change => 
+      change.type === 'position' && change.dragging === false
+    );
+    
+    if (dragEnd && isNodeDraggingRef.current) {
+      handleDragStop();
+    }
+    
+    // Pass changes to original handler
+    onNodesChange(changes);
+  };
+
+  // Only fit view on initial load or when explicitly requested (import)
   useEffect(() => {
-    // Only fit view if we have nodes and a valid flow instance
-    if (nodes.length > 0 && reactFlowInstance) {
-      // Small timeout to ensure the flow is properly rendered
-      const timer = setTimeout(() => {
+    if (initialLoadRef.current && nodes.length > 0 && reactFlowInstance) {
+      // Initial load fit view
+      setTimeout(() => {
         fitViewWithCustomZoom();
-      }, 100);
-      
-      return () => clearTimeout(timer);
+        initialLoadRef.current = false;
+      }, 300);
     }
   }, [nodes, edges, reactFlowInstance]);
 
@@ -109,13 +142,12 @@ const ReactFlowCanvas = React.memo(({
       <ReactFlow
         nodes={nodes}
         edges={edges}
-        onNodesChange={onNodesChange}
+        onNodesChange={handleNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onNodeClick={onNodeClick}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
-        fitView
         minZoom={0.4} // Allow more zoom out
         maxZoom={2}
         defaultViewport={{ x: 0, y: 0, zoom: 0.6 }} // Start with a more zoomed out view
