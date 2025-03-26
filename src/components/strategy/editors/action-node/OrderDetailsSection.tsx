@@ -66,7 +66,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
           label="Limit Price"
           id="limit-price"
           type="number"
-          value={limitPrice || ''}
+          value={limitPrice === undefined ? '' : limitPrice}
           onChange={onLimitPriceChange}
           placeholder="Enter limit price"
           min={0.01}

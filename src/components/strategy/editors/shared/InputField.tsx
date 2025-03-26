@@ -34,12 +34,15 @@ const InputField: React.FC<InputFieldProps> = ({
   disabled,
   readOnly,
 }) => {
+  // Convert empty value to empty string for controlled input
+  const inputValue = value === undefined || value === null ? '' : value;
+  
   return (
     <FormField label={label} htmlFor={id} description={description} className={className}>
       <Input
         id={id}
         type={type}
-        value={value}
+        value={inputValue}
         onChange={onChange}
         placeholder={placeholder}
         min={min}
@@ -47,6 +50,7 @@ const InputField: React.FC<InputFieldProps> = ({
         step={step}
         disabled={disabled}
         readOnly={readOnly}
+        className="focus:ring-2 focus:ring-primary/30"
       />
     </FormField>
   );

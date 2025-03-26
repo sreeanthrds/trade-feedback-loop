@@ -29,8 +29,6 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
     handleOptionTypeChange
   } = useActionNodeForm({ node, updateNodeData });
 
-  // Remove the problematic useEffect that was causing infinite updates
-
   // Get the appropriate info message based on the action type
   const getActionInfoTooltip = () => {
     switch (nodeData?.actionType) {

@@ -38,8 +38,9 @@ export const useActionNodeHandlers = ({
   }, [nodeId, updateNodeData]);
   
   const handleLimitPriceChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value);
-    if (!isNaN(value)) {
+    const value = e.target.value === '' ? '' : parseFloat(e.target.value);
+    // Allow empty string or valid numbers. Empty string allows clearing the field
+    if (value === '' || !isNaN(value)) {
       updateNodeData(nodeId, { limitPrice: value });
     }
   }, [nodeId, updateNodeData]);
