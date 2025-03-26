@@ -17,6 +17,7 @@ export const useStartNodeData = ({
   const { getNodes } = useReactFlow();
   const [startNodeSymbol, setStartNodeSymbol] = useState<string | undefined>(initialInstrument);
   const [hasOptionTrading, setHasOptionTrading] = useState(false);
+  const [isSymbolMissing, setIsSymbolMissing] = useState(false);
   const previousSymbolRef = useRef<string | undefined>(startNodeSymbol);
   const previousInstrumentTypeRef = useRef<string | undefined>(undefined);
   const nodeUpdateMadeRef = useRef(false);
@@ -70,6 +71,13 @@ export const useStartNodeData = ({
             setHasOptionTrading(optionsEnabled || false);
           }
           
+          // Check if the action node has an instrument, but start node doesn't
+          if (initialInstrument && !data.symbol) {
+            setIsSymbolMissing(true);
+          } else {
+            setIsSymbolMissing(false);
+          }
+          
           // Get and set the instrument from the start node only if it changed
           if (data.symbol !== previousSymbolRef.current) {
             setStartNodeSymbol(data.symbol);
@@ -107,5 +115,5 @@ export const useStartNodeData = ({
     };
   }, []);  // Empty dependency array to run only once on mount
   
-  return { startNodeSymbol, hasOptionTrading };
+  return { startNodeSymbol, hasOptionTrading, isSymbolMissing };
 };

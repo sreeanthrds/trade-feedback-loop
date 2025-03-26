@@ -1,22 +1,19 @@
 
 import React, { memo } from 'react';
-import { useStartNodeSymbol } from './action-node/useStartNodeSymbol';
 import ActionNodeContent from './action-node/ActionNodeContent';
-import { ActionNodeData } from './action-node/types';
+import { useStartNodeSymbol } from './action-node/useStartNodeSymbol';
 
-interface ActionNodeProps {
-  data: ActionNodeData;
-  id: string;
-}
-
-const ActionNode = ({ data, id }: ActionNodeProps) => {
-  // Make a copy of data to prevent potential null reference issues
-  const safeData = { ...data };
+const ActionNode = ({ data, id }: { data: any, id: string }) => {
+  const startNodeSymbol = useStartNodeSymbol(data.instrument);
+  const isSymbolMissing = data.instrument && !startNodeSymbol;
   
-  // Get the start node symbol to display
-  const startNodeSymbol = useStartNodeSymbol(safeData?.instrument);
-  
-  return <ActionNodeContent data={safeData} startNodeSymbol={startNodeSymbol} />;
+  return (
+    <ActionNodeContent 
+      data={data} 
+      startNodeSymbol={startNodeSymbol}
+      isSymbolMissing={isSymbolMissing} 
+    />
+  );
 };
 
 export default memo(ActionNode);

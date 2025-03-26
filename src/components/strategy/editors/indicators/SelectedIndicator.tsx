@@ -1,10 +1,24 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { X, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import IndicatorForm from '../IndicatorForm';
 import { indicatorConfig } from '../../utils/indicatorConfig';
+import { useReactFlow } from '@xyflow/react';
+import { findIndicatorUsages, UsageReference } from '../../utils/dependency-tracking/usageFinder';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface SelectedIndicatorProps {
   name: string;
@@ -23,17 +37,44 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
   onRemove,
   onParameterChange
 }) => {
+  const { getNodes } = useReactFlow();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [usages, setUsages] = useState<UsageReference[]>([]);
+  
   const getIndicatorDisplayName = () => {
     const baseName = name.split('_')[0];
     
     if (values && baseName in indicatorConfig) {
+      // Create a copy of parameters without indicator_name
+      const displayParams = { ...values };
+      delete displayParams.indicator_name;
+      
       // Just join all parameter values with commas, no parameter names
-      const paramList = Object.values(values).join(',');
+      const paramList = Object.values(displayParams).join(',');
       
       return `${baseName} (${paramList})`;
     }
     
     return name;
+  };
+
+  const handleRemoveClick = () => {
+    // Find usages before showing dialog
+    const allNodes = getNodes();
+    const foundUsages = findIndicatorUsages(name, allNodes);
+    
+    if (foundUsages.length > 0) {
+      setUsages(foundUsages);
+      setIsDialogOpen(true);
+    } else {
+      // No usages, safe to remove
+      onRemove();
+    }
+  };
+
+  const confirmRemove = () => {
+    onRemove();
+    setIsDialogOpen(false);
   };
 
   return (
@@ -55,14 +96,51 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
                 )}
               </Button>
             </CollapsibleTrigger>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onRemove}
-              className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+            
+            <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleRemoveClick}
+                  className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete {getIndicatorDisplayName()}?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This indicator is currently used in the following places:
+                    <ul className="mt-2 space-y-1 text-sm">
+                      {usages.map((usage, index) => (
+                        <li key={index} className="flex items-center gap-2">
+                          <AlertTriangle className="h-4 w-4 text-warning" />
+                          <span>{usage.nodeName} ({usage.context})</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <Alert variant="destructive" className="mt-4">
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertTitle>Warning</AlertTitle>
+                      <AlertDescription>
+                        Deleting this indicator will break functionality in the nodes listed above.
+                      </AlertDescription>
+                    </Alert>
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={confirmRemove}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Delete Anyway
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
         <CollapsibleContent>

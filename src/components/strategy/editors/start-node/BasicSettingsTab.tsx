@@ -7,6 +7,20 @@ import {
 } from '../shared';
 import SymbolSelector from '../form-components/SymbolSelector';
 import { timeframeOptions, exchangeOptions } from '../../utils/indicatorConfig';
+import { useReactFlow } from '@xyflow/react';
+import { findInstrumentUsages } from '../../utils/dependency-tracking/usageFinder';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { AlertTriangle } from 'lucide-react';
+import { useState } from 'react';
 
 interface BasicSettingsTabProps {
   formData: any;
@@ -21,6 +35,11 @@ const BasicSettingsTab: React.FC<BasicSettingsTabProps> = ({
   handleTradingInstrumentChange,
   handleUnderlyingTypeChange
 }) => {
+  const { getNodes } = useReactFlow();
+  const [isSymbolDialogOpen, setIsSymbolDialogOpen] = useState(false);
+  const [pendingSymbol, setPendingSymbol] = useState<string>('');
+  const [symbolUsages, setSymbolUsages] = useState<any[]>([]);
+  
   // Define radio options for instrument type
   const instrumentTypeOptions = [
     { value: 'stock', label: 'Stock' },
@@ -34,6 +53,32 @@ const BasicSettingsTab: React.FC<BasicSettingsTabProps> = ({
     { value: 'indexFuture', label: 'Index Future' },
     { value: 'stock', label: 'Stock' }
   ];
+
+  const handleSymbolChange = (newSymbol: string) => {
+    // If clearing the symbol or setting a new one when none exists
+    if (!newSymbol || !formData.symbol) {
+      handleInputChange('symbol', newSymbol);
+      return;
+    }
+    
+    // Check if the current symbol is used anywhere
+    const usages = findInstrumentUsages(formData.symbol, getNodes());
+    
+    if (usages.length > 0) {
+      // Show warning dialog
+      setSymbolUsages(usages);
+      setPendingSymbol(newSymbol);
+      setIsSymbolDialogOpen(true);
+    } else {
+      // No usages, safe to change
+      handleInputChange('symbol', newSymbol);
+    }
+  };
+
+  const confirmSymbolChange = () => {
+    handleInputChange('symbol', pendingSymbol);
+    setIsSymbolDialogOpen(false);
+  };
 
   return (
     <div className="space-y-4">
@@ -84,12 +129,40 @@ const BasicSettingsTab: React.FC<BasicSettingsTabProps> = ({
         <SymbolSelector
           id="node-symbol"
           value={formData.symbol || ''}
-          onChange={(value) => handleInputChange('symbol', value)}
+          onChange={handleSymbolChange}
           placeholder="Search for a symbol..."
           instrumentType={formData.tradingInstrument?.type}
           underlyingType={formData.tradingInstrument?.type === 'options' ? formData.tradingInstrument.underlyingType : undefined}
         />
       </div>
+      
+      <AlertDialog open={isSymbolDialogOpen} onOpenChange={setIsSymbolDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Change Trading Symbol?</AlertDialogTitle>
+            <AlertDialogDescription>
+              The current symbol <strong>{formData.symbol}</strong> is being used in:
+              <ul className="mt-2 space-y-1 text-sm">
+                {symbolUsages.map((usage, index) => (
+                  <li key={index} className="flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4 text-warning" />
+                    <span>{usage.nodeName} ({usage.context})</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-4">
+                Changing the symbol will affect all these nodes. Do you want to continue?
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmSymbolChange}>
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

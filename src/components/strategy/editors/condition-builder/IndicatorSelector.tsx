@@ -13,6 +13,8 @@ import {
 } from '@/components/ui/select';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
 import ExpressionIcon from './components/ExpressionIcon';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertTriangle } from 'lucide-react';
 
 interface IndicatorSelectorProps {
   expression: Expression;
@@ -25,6 +27,7 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
 }) => {
   const strategyStore = useStrategyStore();
   const [availableIndicators, setAvailableIndicators] = useState<string[]>([]);
+  const [missingIndicator, setMissingIndicator] = useState(false);
   
   if (expression.type !== 'indicator') {
     return null;
@@ -37,10 +40,20 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
     if (startNode && startNode.data && startNode.data.indicators && 
         Array.isArray(startNode.data.indicators) && startNode.data.indicators.length > 0) {
       setAvailableIndicators(startNode.data.indicators);
+      
+      // Check if the current indicator still exists in the start node
+      if (indicatorExpr.name && !startNode.data.indicators.includes(indicatorExpr.name)) {
+        setMissingIndicator(true);
+      } else {
+        setMissingIndicator(false);
+      }
     } else {
       setAvailableIndicators([]);
+      if (indicatorExpr.name) {
+        setMissingIndicator(true);
+      }
     }
-  }, [strategyStore.nodes]);
+  }, [strategyStore.nodes, indicatorExpr.name]);
   
   const updateIndicatorName = (value: string) => {
     updateExpression({
@@ -99,8 +112,12 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
     if (startNode.data.indicatorParameters[key]) {
       const params = startNode.data.indicatorParameters[key];
       
+      // Create a copy without indicator_name
+      const displayParams = { ...params };
+      delete displayParams.indicator_name;
+      
       // Format all parameters into a single, readable string - only values
-      const paramList = Object.values(params).join(',');
+      const paramList = Object.values(displayParams).join(',');
       
       return `${baseName}(${paramList})`;
     }
@@ -110,12 +127,22 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
   
   return (
     <div className="space-y-2">
+      {missingIndicator && indicatorExpr.name && (
+        <Alert variant="destructive" className="py-2">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription className="text-xs">
+            Indicator <strong>{getIndicatorDisplayName(indicatorExpr.name)}</strong> is no longer 
+            available in the Start Node. Please select a different indicator.
+          </AlertDescription>
+        </Alert>
+      )}
+      
       <Select 
         value={indicatorExpr.name} 
         onValueChange={updateIndicatorName}
         disabled={availableIndicators.length === 0}
       >
-        <SelectTrigger className="h-8">
+        <SelectTrigger className={`h-8 ${missingIndicator ? 'border-destructive' : ''}`}>
           <SelectValue placeholder="Select indicator">
             {indicatorExpr.name && (
               <div className="flex items-center gap-2">
