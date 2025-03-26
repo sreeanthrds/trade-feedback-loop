@@ -20,7 +20,7 @@ export const useStartNodeData = ({
   const previousSymbolRef = useRef<string | undefined>(startNodeSymbol);
   const previousInstrumentTypeRef = useRef<string | undefined>(undefined);
   
-  // Get the start node to access its instrument
+  // Get the start node to access its instrument - with reduced polling frequency
   useEffect(() => {
     const fetchStartNodeData = () => {
       const nodes = getNodes();
@@ -60,8 +60,8 @@ export const useStartNodeData = ({
     // Initial fetch
     fetchStartNodeData();
 
-    // Set up an interval to check for changes - more frequent updates for better responsiveness
-    const intervalId = setInterval(fetchStartNodeData, 100);
+    // Set up an interval with reduced frequency (from 100ms to 500ms)
+    const intervalId = setInterval(fetchStartNodeData, 500);
 
     return () => clearInterval(intervalId);
   }, [getNodes, nodeId, updateNodeData, hasOptionTrading]);

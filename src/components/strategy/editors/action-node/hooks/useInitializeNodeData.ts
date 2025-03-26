@@ -15,37 +15,68 @@ export const useInitializeNodeData = ({
 }: UseInitializeNodeDataProps) => {
   const initializedRef = useRef(false);
   
-  // Set default values if not present - this runs only once
+  // Set default values if not present - this runs only once with a more optimized approach
   useEffect(() => {
     if (!initializedRef.current) {
-      // Create a clean defaultValues object
-      const defaultValues: Partial<NodeData> = {};
+      // Use a more direct approach to check for missing values
+      const needsInitialization = 
+        !nodeData?.actionType || 
+        !nodeData?.positionType || 
+        !nodeData?.orderType || 
+        !nodeData?.lots || 
+        !nodeData?.productType ||
+        (nodeData?.instrument?.includes('OPT') && !nodeData?.optionDetails) ||
+        (nodeData?.optionDetails && (!nodeData.optionDetails.expiry || !nodeData.optionDetails.strikeType || !nodeData.optionDetails.optionType));
       
-      // Add defaults only for missing values
-      if (!nodeData?.actionType) defaultValues.actionType = 'entry';
-      if (!nodeData?.positionType) defaultValues.positionType = 'buy';
-      if (!nodeData?.orderType) defaultValues.orderType = 'market';
-      if (!nodeData?.lots) defaultValues.lots = 1;
-      if (!nodeData?.productType) defaultValues.productType = 'intraday';
-      
-      // Handle option details
-      if (nodeData?.optionDetails) {
-        defaultValues.optionDetails = { ...nodeData.optionDetails };
-        if (!nodeData.optionDetails.expiry) defaultValues.optionDetails.expiry = 'W0';
-        if (!nodeData.optionDetails.strikeType) defaultValues.optionDetails.strikeType = 'ATM';
-        if (!nodeData.optionDetails.optionType) defaultValues.optionDetails.optionType = 'CE';
-      } else if (nodeData?.instrument && nodeData?.instrument.includes('OPT')) {
-        // Initialize options data if it's an options instrument
-        defaultValues.optionDetails = {
-          expiry: 'W0',
-          strikeType: 'ATM',
-          optionType: 'CE'
-        };
-      }
-      
-      // Only update if we have defaults to set
-      if (Object.keys(defaultValues).length > 0) {
-        updateNodeData(nodeId, defaultValues);
+      if (needsInitialization) {
+        // Create a clean defaultValues object only with the needed properties
+        const defaultValues: Partial<NodeData> = {};
+        
+        // Add defaults only for missing values
+        if (!nodeData?.actionType) defaultValues.actionType = 'entry';
+        if (!nodeData?.positionType) defaultValues.positionType = 'buy';
+        if (!nodeData?.orderType) defaultValues.orderType = 'market';
+        if (!nodeData?.lots) defaultValues.lots = 1;
+        if (!nodeData?.productType) defaultValues.productType = 'intraday';
+        
+        // Handle option details in a more optimized way
+        if (nodeData?.optionDetails) {
+          const optDefaults: any = {};
+          let needsOptionUpdate = false;
+          
+          if (!nodeData.optionDetails.expiry) {
+            optDefaults.expiry = 'W0';
+            needsOptionUpdate = true;
+          }
+          if (!nodeData.optionDetails.strikeType) {
+            optDefaults.strikeType = 'ATM';
+            needsOptionUpdate = true;
+          }
+          if (!nodeData.optionDetails.optionType) {
+            optDefaults.optionType = 'CE';
+            needsOptionUpdate = true;
+          }
+          
+          if (needsOptionUpdate) {
+            defaultValues.optionDetails = { ...nodeData.optionDetails, ...optDefaults };
+          }
+        } else if (nodeData?.instrument && nodeData?.instrument.includes('OPT')) {
+          // Initialize options data if it's an options instrument
+          defaultValues.optionDetails = {
+            expiry: 'W0',
+            strikeType: 'ATM',
+            optionType: 'CE'
+          };
+        }
+        
+        // Only update if we have defaults to set
+        if (Object.keys(defaultValues).length > 0) {
+          updateNodeData(nodeId, defaultValues);
+        }
+        
+        initializedRef.current = true;
+      } else {
+        // Mark as initialized if everything is already set
         initializedRef.current = true;
       }
     }

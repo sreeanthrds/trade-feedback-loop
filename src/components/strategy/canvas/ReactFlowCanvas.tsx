@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback, memo } from 'react';
 import { ReactFlow, useReactFlow } from '@xyflow/react';
 import TopToolbar from '../toolbars/TopToolbar';
 import BottomToolbar from '../toolbars/BottomToolbar';
@@ -24,7 +24,7 @@ interface ReactFlowCanvasProps {
   edgeTypes: any;
 }
 
-const ReactFlowCanvas = React.memo(({
+const ReactFlowCanvas = memo(({
   flowRef,
   nodes,
   edges,
@@ -43,23 +43,23 @@ const ReactFlowCanvas = React.memo(({
   const { isNodeDraggingRef, handleNodesChange } = useDragHandling();
   
   // Custom nodes change handler with drag detection
-  const customNodesChangeHandler = (changes) => {
+  const customNodesChangeHandler = useCallback((changes) => {
     handleNodesChange(changes, onNodesChange);
-  };
+  }, [handleNodesChange, onNodesChange]);
 
   // Only fit view on initial load or when explicitly requested (import)
   useEffect(() => {
     if (initialLoadRef.current && nodes.length > 0 && reactFlowInstance) {
-      // Initial load fit view
+      // Initial load fit view - but with a shorter timeout
       setTimeout(() => {
         fitViewWithCustomZoom();
         initialLoadRef.current = false;
-      }, 300);
+      }, 200);
     }
   }, [nodes, edges, reactFlowInstance, fitViewWithCustomZoom]);
 
   // Simple function to determine node class name for minimap
-  const nodeClassName = (node) => node.type;
+  const nodeClassName = useCallback((node) => node.type, []);
 
   return (
     <div className="h-full w-full" ref={flowRef}>
@@ -90,7 +90,7 @@ const ReactFlowCanvas = React.memo(({
         fitViewOptions={{
           padding: 0.3,
           includeHiddenNodes: false,
-          duration: 600,
+          duration: 400, // Reduced from 600
           maxZoom: 0.85
         }}
       >

@@ -1,5 +1,5 @@
 
-import React, { lazy, Suspense, useMemo, useEffect } from 'react';
+import React, { lazy, Suspense, useMemo, useEffect, useCallback } from 'react';
 import { useTheme } from '@/hooks/use-theme';
 import { useFlowState } from './hooks/useFlowState';
 import { useFlowHandlers } from './hooks/useFlowHandlers';
@@ -55,16 +55,21 @@ const StrategyFlowContent = () => {
     strategyStore
   });
 
-  // Create node types with stable callbacks
+  // Stable callback references to avoid recreation
+  const handleDeleteNodeStable = useCallback(handleDeleteNode, [handleDeleteNode]);
+  const handleAddNodeStable = useCallback(handleAddNode, [handleAddNode]);
+  const handleDeleteEdgeStable = useCallback(handleDeleteEdge, [handleDeleteEdge]);
+
+  // Create node types with stable callbacks - extracted outside of render cycles
   const nodeTypes = useMemo(() => 
-    createNodeTypes(handleDeleteNode, handleAddNode),
-    [handleDeleteNode, handleAddNode]
+    createNodeTypes(handleDeleteNodeStable, handleAddNodeStable),
+    [handleDeleteNodeStable, handleAddNodeStable]
   );
   
-  // Create edge types with stable callbacks
+  // Create edge types with stable callbacks - extracted outside of render cycles
   const edgeTypes = useMemo(() => 
-    createEdgeTypes(handleDeleteEdge),
-    [handleDeleteEdge]
+    createEdgeTypes(handleDeleteEdgeStable),
+    [handleDeleteEdgeStable]
   );
 
   // Create NodePanel component if needed
@@ -94,9 +99,9 @@ const StrategyFlowContent = () => {
     onNodeClick,
     resetStrategy,
     onImportSuccess: handleImportSuccess,
-    onDeleteNode: handleDeleteNode,
-    onDeleteEdge: handleDeleteEdge,
-    onAddNode: handleAddNode,
+    onDeleteNode: handleDeleteNodeStable,
+    onDeleteEdge: handleDeleteEdgeStable,
+    onAddNode: handleAddNodeStable,
     nodeTypes,
     edgeTypes
   }), [
@@ -109,9 +114,9 @@ const StrategyFlowContent = () => {
     onNodeClick,
     resetStrategy,
     handleImportSuccess,
-    handleDeleteNode,
-    handleDeleteEdge,
-    handleAddNode,
+    handleDeleteNodeStable,
+    handleDeleteEdgeStable,
+    handleAddNodeStable,
     nodeTypes,
     edgeTypes
   ]);
