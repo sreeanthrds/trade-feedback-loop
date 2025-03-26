@@ -21,15 +21,11 @@ export const createResetStrategyHandler = (
   };
 };
 
+// This handler only shows a success toast for imports
 export const createImportSuccessHandler = (
   reactFlowInstance: any
 ) => {
   return () => {
-    // Center view on the imported nodes
-    window.requestAnimationFrame(() => {
-      reactFlowInstance.fitView({ padding: 0.2 });
-    });
-    
     toast.success("Strategy imported successfully");
   };
 };

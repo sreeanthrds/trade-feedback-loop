@@ -1,6 +1,7 @@
 
 import { ReactFlowInstance } from '@xyflow/react';
 
+// This function specifically handles viewport adjustment after importing a strategy
 export const createViewportAdjustmentHandler = (
   reactFlowInstance: ReactFlowInstance
 ) => {
