@@ -18,25 +18,33 @@ export const useInitializeNodeData = ({
   // Set default values if not present - this runs only once
   useEffect(() => {
     if (!initializedRef.current) {
-      const defaultValues: Partial<NodeData> = {
-        actionType: nodeData?.actionType || 'entry',
-        positionType: nodeData?.positionType || 'buy',
-        orderType: nodeData?.orderType || 'market',
-        lots: nodeData?.lots || 1,
-        productType: nodeData?.productType || 'intraday',
-        optionDetails: {
-          ...nodeData?.optionDetails,
-          expiry: nodeData?.optionDetails?.expiry || 'W0',
-          strikeType: nodeData?.optionDetails?.strikeType || 'ATM',
-          optionType: nodeData?.optionDetails?.optionType || 'CE'
-        }
-      };
+      // Create a clean defaultValues object
+      const defaultValues: Partial<NodeData> = {};
       
-      // Only update if any default values are missing
-      if (!nodeData?.actionType || !nodeData?.positionType || 
-          !nodeData?.orderType || !nodeData?.lots || !nodeData?.productType || 
-          !nodeData?.optionDetails?.expiry || !nodeData?.optionDetails?.strikeType || 
-          !nodeData?.optionDetails?.optionType) {
+      // Add defaults only for missing values
+      if (!nodeData?.actionType) defaultValues.actionType = 'entry';
+      if (!nodeData?.positionType) defaultValues.positionType = 'buy';
+      if (!nodeData?.orderType) defaultValues.orderType = 'market';
+      if (!nodeData?.lots) defaultValues.lots = 1;
+      if (!nodeData?.productType) defaultValues.productType = 'intraday';
+      
+      // Handle option details
+      if (nodeData?.optionDetails) {
+        defaultValues.optionDetails = { ...nodeData.optionDetails };
+        if (!nodeData.optionDetails.expiry) defaultValues.optionDetails.expiry = 'W0';
+        if (!nodeData.optionDetails.strikeType) defaultValues.optionDetails.strikeType = 'ATM';
+        if (!nodeData.optionDetails.optionType) defaultValues.optionDetails.optionType = 'CE';
+      } else if (nodeData?.instrument && nodeData?.instrument.includes('OPT')) {
+        // Initialize options data if it's an options instrument
+        defaultValues.optionDetails = {
+          expiry: 'W0',
+          strikeType: 'ATM',
+          optionType: 'CE'
+        };
+      }
+      
+      // Only update if we have defaults to set
+      if (Object.keys(defaultValues).length > 0) {
         updateNodeData(nodeId, defaultValues);
         initializedRef.current = true;
       }

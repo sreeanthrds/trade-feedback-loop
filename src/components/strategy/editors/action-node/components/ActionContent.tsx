@@ -39,6 +39,10 @@ const ActionContent: React.FC<ActionContentProps> = ({
   onStrikeValueChange,
   onOptionTypeChange
 }) => {
+  if (!nodeData) {
+    return <div>Loading node data...</div>;
+  }
+
   if (nodeData.actionType === 'alert') {
     return (
       <div className="space-y-4">

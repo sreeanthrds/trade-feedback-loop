@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Node } from '@xyflow/react';
 import { NodeData } from './types';
 import { 
@@ -16,7 +16,8 @@ interface UseActionNodeFormProps {
 }
 
 export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormProps) => {
-  const nodeData = node.data as NodeData;
+  // Safely cast node data with defaults
+  const nodeData = (node.data || {}) as NodeData;
   
   // Initialize node data with default values
   useInitializeNodeData({
@@ -63,6 +64,14 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
     updateNodeData,
     nodeData
   });
+
+  // Force an update when action type changes
+  useEffect(() => {
+    if (nodeData?.actionType === 'alert' && nodeData?.positionType) {
+      // Reset position type when switching to alert
+      updateNodeData(node.id, { positionType: undefined });
+    }
+  }, [nodeData?.actionType, nodeData?.positionType, node.id, updateNodeData]);
 
   return {
     nodeData,

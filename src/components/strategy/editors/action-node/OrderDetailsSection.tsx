@@ -69,6 +69,8 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
           value={limitPrice || ''}
           onChange={onLimitPriceChange}
           placeholder="Enter limit price"
+          min={0.01}
+          step={0.01}
         />
       )}
       

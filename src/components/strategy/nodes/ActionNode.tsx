@@ -27,15 +27,18 @@ interface StartNodeData {
 
 const ActionNode = ({ data, id }: { data: ActionNodeData, id: string }) => {
   const { getNodes } = useReactFlow();
-  const [startNodeSymbol, setStartNodeSymbol] = useState<string | undefined>(data.instrument);
+  const [startNodeSymbol, setStartNodeSymbol] = useState<string | undefined>(data?.instrument);
+  
+  // Make a copy of data to prevent potential null reference issues
+  const safeData = { ...data };
   
   // Force rerender when data changes
   useEffect(() => {
-    if (data && data._lastUpdated) {
+    if (safeData && safeData._lastUpdated) {
       // This will trigger a re-render when the _lastUpdated timestamp changes
-      console.log('Action node data updated:', data._lastUpdated);
+      console.log('Action node data updated:', safeData._lastUpdated);
     }
-  }, [data, data?._lastUpdated]);
+  }, [safeData, safeData?._lastUpdated]);
   
   // Get the start node symbol to display
   useEffect(() => {
@@ -60,8 +63,8 @@ const ActionNode = ({ data, id }: { data: ActionNodeData, id: string }) => {
   }, [getNodes, startNodeSymbol]);
   
   const getActionIcon = () => {
-    switch (data.actionType) {
-      case 'entry': return data.positionType === 'buy' 
+    switch (safeData.actionType) {
+      case 'entry': return safeData.positionType === 'buy' 
         ? <ArrowUpCircle className="h-5 w-5 text-emerald-500 dark:text-emerald-400 mr-2" /> 
         : <ArrowDownCircle className="h-5 w-5 text-rose-600 dark:text-rose-500 mr-2" />;
       case 'exit': return <X className="h-5 w-5 text-amber-600 dark:text-amber-500 mr-2" />;
@@ -71,37 +74,37 @@ const ActionNode = ({ data, id }: { data: ActionNodeData, id: string }) => {
   };
   
   const getActionLabel = () => {
-    if (!data.actionType) return "Action";
+    if (!safeData.actionType) return "Action";
     
-    if (data.actionType === 'entry') {
-      return `${data.positionType === 'buy' ? 'Buy' : 'Sell'} Entry`;
-    } else if (data.actionType === 'exit') {
+    if (safeData.actionType === 'entry') {
+      return `${safeData.positionType === 'buy' ? 'Buy' : 'Sell'} Entry`;
+    } else if (safeData.actionType === 'exit') {
       return 'Exit Position';
-    } else if (data.actionType === 'alert') {
+    } else if (safeData.actionType === 'alert') {
       return 'Alert';
     }
     
-    return data.label || "Action";
+    return safeData.label || "Action";
   };
   
   const getLots = () => {
-    if (!data.lots) return "Not set";
-    return `${data.lots} lot${data.lots > 1 ? 's' : ''}`;
+    if (!safeData.lots) return "Not set";
+    return `${safeData.lots} lot${safeData.lots > 1 ? 's' : ''}`;
   };
   
   const getOrderDetails = () => {
     const details = [];
     
-    if (data.orderType) {
-      details.push(`${data.orderType} order`);
+    if (safeData.orderType) {
+      details.push(`${safeData.orderType} order`);
     }
     
-    if (data.orderType === 'limit' && data.limitPrice) {
-      details.push(`@ ₹${data.limitPrice}`);
+    if (safeData.orderType === 'limit' && safeData.limitPrice) {
+      details.push(`@ ₹${safeData.limitPrice}`);
     }
     
-    if (data.productType) {
-      details.push(data.productType === 'intraday' ? 'MIS' : 'CNC');
+    if (safeData.productType) {
+      details.push(safeData.productType === 'intraday' ? 'MIS' : 'CNC');
     }
     
     return details.join(', ') || 'Default settings';
@@ -121,7 +124,7 @@ const ActionNode = ({ data, id }: { data: ActionNodeData, id: string }) => {
       </div>
       
       <div className="text-xs bg-background/80 p-2 rounded-md space-y-1.5">
-        {data.actionType !== 'alert' && (
+        {safeData.actionType !== 'alert' && (
           <>
             <div className="flex justify-between">
               <span className="text-foreground/60">Quantity:</span>
@@ -142,26 +145,26 @@ const ActionNode = ({ data, id }: { data: ActionNodeData, id: string }) => {
           </div>
         )}
         
-        {data.optionDetails && (
+        {safeData.optionDetails && (
           <>
             <div className="flex justify-between">
               <span className="text-foreground/60">Expiry:</span>
-              <span className="font-medium">{data.optionDetails.expiry || 'W0'}</span>
+              <span className="font-medium">{safeData.optionDetails.expiry || 'W0'}</span>
             </div>
             
             <div className="flex justify-between">
               <span className="text-foreground/60">Strike:</span>
-              <span className="font-medium">{data.optionDetails.strikeType || 'ATM'}</span>
+              <span className="font-medium">{safeData.optionDetails.strikeType || 'ATM'}</span>
             </div>
             
             <div className="flex justify-between">
               <span className="text-foreground/60">Option Type:</span>
-              <span className="font-medium">{data.optionDetails.optionType || 'CE'}</span>
+              <span className="font-medium">{safeData.optionDetails.optionType || 'CE'}</span>
             </div>
           </>
         )}
         
-        {data.actionType === 'alert' && (
+        {safeData.actionType === 'alert' && (
           <div className="flex items-center justify-center py-1">
             <span className="font-medium text-amber-500 dark:text-amber-400">Send notification only</span>
           </div>
