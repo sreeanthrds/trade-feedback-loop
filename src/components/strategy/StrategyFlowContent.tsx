@@ -64,7 +64,7 @@ const StrategyFlowContent = () => {
     strategyStore
   });
 
-  // Update the stable handlers ref when the handlers change
+  // Update the stable handlers ref when the handlers change - put in useEffect to avoid render-time updates
   useEffect(() => {
     stableHandlersRef.current = {
       handleDeleteNode,
@@ -102,8 +102,8 @@ const StrategyFlowContent = () => {
   }, []);
 
   // Create node types and edge types once
-  const nodeTypes = useMemo(() => createNodeTypes(handleDeleteNodeStable, handleAddNodeStable), []);
-  const edgeTypes = useMemo(() => createEdgeTypes(handleDeleteEdgeStable), []);
+  const nodeTypes = useMemo(() => createNodeTypes(handleDeleteNodeStable, handleAddNodeStable), [handleDeleteNodeStable, handleAddNodeStable]);
+  const edgeTypes = useMemo(() => createEdgeTypes(handleDeleteEdgeStable), [handleDeleteEdgeStable]);
 
   // Create NodePanel component if needed
   const nodePanelComponent = useMemo(() => {

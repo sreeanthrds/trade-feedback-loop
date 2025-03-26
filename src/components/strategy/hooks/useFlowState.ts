@@ -43,7 +43,7 @@ export function useFlowState() {
     initialNodes
   );
   
-  // Sync with global store
+  // Use a separate effect for store sync to avoid render-time updates
   useStoreSync(
     nodes,
     edges,
