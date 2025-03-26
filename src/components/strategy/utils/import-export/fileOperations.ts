@@ -1,19 +1,77 @@
 
 import { Node, Edge } from '@xyflow/react';
 import { toast } from 'sonner';
+import { indicatorConfig } from '../indicatorConfig';
+
+// Helper function to get a readable display name for an indicator
+const getIndicatorDisplayName = (key: string, parameters: Record<string, any>) => {
+  // Extract base indicator name (before any underscore)
+  const baseName = key.split('_')[0];
+  
+  // Format all parameters into a single, readable string - only values
+  const paramList = Object.values(parameters).join(',');
+  
+  return `${baseName}(${paramList})`;
+};
+
+// Helper function to transform node data for export
+const transformNodeForExport = (node: Node) => {
+  const transformedNode = { ...node };
+  
+  // Process indicator data if present
+  if (
+    transformedNode.data && 
+    transformedNode.data.indicatorParameters && 
+    transformedNode.data.indicators &&
+    Array.isArray(transformedNode.data.indicators)
+  ) {
+    const indicatorParams = transformedNode.data.indicatorParameters as Record<string, Record<string, any>>;
+    
+    // Create a mapping of original indicator names to display names
+    const indicatorDisplayMap = Object.fromEntries(
+      transformedNode.data.indicators.map(indicator => {
+        const params = indicatorParams[indicator];
+        const displayName = getIndicatorDisplayName(indicator, params);
+        
+        // Add indicator base name to params for backend reference
+        const baseName = indicator.split('_')[0];
+        if (params) {
+          params.indicator_name = baseName;
+        }
+        
+        return [indicator, displayName];
+      })
+    );
+    
+    // Update indicators array with display names
+    transformedNode.data.indicators = transformedNode.data.indicators.map(
+      indicator => indicatorDisplayMap[indicator] || indicator
+    );
+  }
+  
+  return transformedNode;
+};
 
 export const exportStrategyToFile = (nodes: Node[], edges: Edge[]) => {
-  const strategy = { nodes, edges };
-  const blob = new Blob([JSON.stringify(strategy, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `trady-strategy-${new Date().toISOString().slice(0,10)}.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  toast.success("Strategy exported successfully");
+  try {
+    // Transform nodes to include display names for indicators
+    const transformedNodes = nodes.map(transformNodeForExport);
+    
+    const strategy = { nodes: transformedNodes, edges };
+    const blob = new Blob([JSON.stringify(strategy, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `trady-strategy-${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("Strategy exported successfully");
+  } catch (error) {
+    console.error("Export error:", error);
+    toast.error("Failed to export strategy");
+  }
 };
 
 export const importStrategyFromEvent = (
