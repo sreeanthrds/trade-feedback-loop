@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { 
   Expression, 
@@ -12,8 +13,7 @@ import {
 } from '@/components/ui/select';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
 import ExpressionIcon from './components/ExpressionIcon';
-import { getIndicatorDisplayName } from '../../utils/indicatorUtils';
-import { isIndicatorParameters } from '../../utils/indicatorUtils';
+import { getIndicatorDisplayName, isIndicatorParameters } from '../../utils/indicatorUtils';
 
 interface IndicatorSelectorProps {
   expression: Expression;
@@ -91,26 +91,29 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
   
   const getStartNodeParameters = () => {
     const startNode = strategyStore.nodes.find(node => node.type === 'startNode');
-    return startNode?.data?.indicatorParameters || {};
+    if (!startNode || !startNode.data || !startNode.data.indicatorParameters) {
+      return {};
+    }
+    return startNode.data.indicatorParameters;
   };
   
   const mapToOptions = (indicators: string[] = [], indicatorParameters: unknown): { value: string; label: string }[] => {
     if (!indicators.length) return [];
 
-    return indicators.map((indicator) => {
-      let label = indicator;
-      
-      // Only use the indicator display name if parameters are valid
-      if (isIndicatorParameters(indicatorParameters)) {
-        label = getIndicatorDisplayName(indicator, indicatorParameters);
-      }
-      
-      return {
+    if (!isIndicatorParameters(indicatorParameters)) {
+      return indicators.map((indicator) => ({
         value: indicator,
-        label
-      };
-    });
+        label: indicator
+      }));
+    }
+    
+    return indicators.map((indicator) => ({
+      value: indicator,
+      label: getIndicatorDisplayName(indicator, indicatorParameters)
+    }));
   };
+
+  const startNodeParameters = getStartNodeParameters();
 
   return (
     <div className="space-y-2">
@@ -125,7 +128,7 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
               <div className="flex items-center gap-2">
                 <ExpressionIcon type="indicator" subType={indicatorExpr.parameter} />
                 <span>
-                  {getIndicatorDisplayName(indicatorExpr.name, getStartNodeParameters())}
+                  {getIndicatorDisplayName(indicatorExpr.name, isIndicatorParameters(startNodeParameters) ? startNodeParameters : {})}
                 </span>
               </div>
             )}
@@ -138,7 +141,7 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
                 <div className="flex items-center gap-2">
                   <ExpressionIcon type="indicator" />
                   <span>
-                    {getIndicatorDisplayName(indicator, getStartNodeParameters())}
+                    {getIndicatorDisplayName(indicator, isIndicatorParameters(startNodeParameters) ? startNodeParameters : {})}
                   </span>
                 </div>
               </SelectItem>

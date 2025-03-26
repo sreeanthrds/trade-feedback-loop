@@ -1,3 +1,4 @@
+
 import { Node } from '@xyflow/react';
 import { toast } from "@/hooks/use-toast";
 import { getIndicatorDisplayName } from '../indicatorUtils';
@@ -58,6 +59,8 @@ export const importStrategyData = (
             title: "Strategy Imported",
             description: "Strategy data has been successfully imported.",
           });
+          
+          return true;
         } else {
           toast({
             title: "Import Failed",
@@ -74,7 +77,9 @@ export const importStrategyData = (
         variant: "destructive",
       });
     }
+    return false;
   };
   
   reader.readAsText(file);
+  return true;
 };

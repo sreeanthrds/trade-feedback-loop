@@ -1,3 +1,4 @@
+
 import { Node, ReactFlowInstance } from '@xyflow/react';
 import { toast } from "@/hooks/use-toast";
 import { getIndicatorDisplayName, isIndicatorParameters } from '../indicatorUtils';
@@ -68,14 +69,16 @@ export const getIndicatorMap = (startNode: Node | undefined): Record<string, str
     return {};
   }
   
+  // Safely handle the case where indicators might not be an array
+  const indicators = Array.isArray(startNode.data.indicators) ? startNode.data.indicators : [];
+  
   if (!isIndicatorParameters(startNode.data.indicatorParameters)) {
-    return startNode.data.indicators.reduce((acc: Record<string, string>, indicator: string) => {
+    return indicators.reduce((acc: Record<string, string>, indicator: string) => {
       acc[indicator] = indicator;
       return acc;
     }, {});
   }
   
-  const indicators = startNode.data.indicators as string[];
   const indicatorParameters = startNode.data.indicatorParameters;
   
   return indicators.reduce((acc, indicator) => {
