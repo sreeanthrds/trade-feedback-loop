@@ -19,7 +19,7 @@ interface ReactFlowCanvasProps {
   onImportSuccess: () => void;
   onDeleteNode: (id: string) => void;
   onDeleteEdge: (id: string) => void;
-  onAddNode: (type: string, parentNodeId?: string) => void;  // Fixed the signature here
+  onAddNode: (type: string, parentNodeId?: string) => void;
   nodeTypes: any;
   edgeTypes: any;
 }
@@ -34,6 +34,9 @@ const ReactFlowCanvas = memo(({
   onNodeClick,
   resetStrategy,
   onImportSuccess,
+  onDeleteNode,
+  onDeleteEdge,
+  onAddNode,
   nodeTypes,
   edgeTypes
 }: ReactFlowCanvasProps) => {

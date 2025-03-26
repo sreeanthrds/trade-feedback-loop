@@ -23,35 +23,49 @@ export const createAddNodeHandler = (
   strategyStore: any
 ) => {
   return (type: string, parentNodeId?: string) => {
-    // Create a new node, passing the parent node ID if available
-    const { node: newNode, parentNode } = addNode(type, reactFlowInstance, reactFlowWrapper, nodes, parentNodeId);
-    
-    console.log('Before adding node:', nodes.length, 'existing nodes');
-    console.log('Current nodes:', JSON.stringify(nodes.map(n => n.id)));
-    
-    // IMPORTANT: Create a completely new array with ALL existing nodes plus the new one
-    const updatedNodes = [...nodes, newNode];
-    
-    // Create an edge if we have a parent node
-    let updatedEdges = [...edges];
-    if (parentNode) {
-      const newEdge = createEdgeBetweenNodes(parentNode, newNode);
-      updatedEdges = [...edges, newEdge];
+    if (!reactFlowInstance || !reactFlowWrapper.current) {
+      console.error('React Flow instance or wrapper not available');
+      return;
     }
     
-    console.log('After adding node:', updatedNodes.length, 'total nodes');
-    console.log('Updated nodes:', JSON.stringify(updatedNodes.map(n => n.id)));
-    
-    // Update states with the combined nodes array
-    setNodes(updatedNodes);
-    setEdges(updatedEdges);
-    
-    // Also update the global store
-    strategyStore.setNodes(updatedNodes);
-    strategyStore.setEdges(updatedEdges);
-    strategyStore.addHistoryItem(updatedNodes, updatedEdges);
-    
-    toast.success(`Added ${type.replace('Node', '')} node`);
+    try {
+      // Create a new node, passing the parent node ID if available
+      const { node: newNode, parentNode } = addNode(type, reactFlowInstance, reactFlowWrapper, nodes, parentNodeId);
+      
+      // Defensive checks
+      if (!newNode) {
+        console.error('Failed to create new node');
+        return;
+      }
+      
+      console.log('Before adding node:', nodes.length, 'existing nodes');
+      
+      // IMPORTANT: Create a completely new array with ALL existing nodes plus the new one
+      const updatedNodes = [...nodes, newNode];
+      
+      // Create an edge if we have a parent node
+      let updatedEdges = [...edges];
+      if (parentNode) {
+        const newEdge = createEdgeBetweenNodes(parentNode, newNode);
+        updatedEdges = [...edges, newEdge];
+      }
+      
+      console.log('After adding node:', updatedNodes.length, 'total nodes');
+      
+      // Update states with the combined nodes array
+      setNodes(updatedNodes);
+      setEdges(updatedEdges);
+      
+      // Also update the global store
+      strategyStore.setNodes(updatedNodes);
+      strategyStore.setEdges(updatedEdges);
+      strategyStore.addHistoryItem(updatedNodes, updatedEdges);
+      
+      toast.success(`Added ${type.replace('Node', '')} node`);
+    } catch (error) {
+      console.error('Error adding node:', error);
+      toast.error('Failed to add node');
+    }
   };
 };
 
@@ -61,22 +75,31 @@ export const createUpdateNodeDataHandler = (
   strategyStore: any
 ) => {
   return (id: string, data: any) => {
-    const updatedNodes = nodes.map((node) => {
-      if (node.id === id) {
-        // Add timestamp to force rendering updates
-        const updatedData = { 
-          ...node.data, 
-          ...data,
-          _lastUpdated: Date.now() 
-        };
-        return { ...node, data: updatedData };
-      }
-      return node;
-    });
+    if (!nodes || !id || !data) {
+      console.error('Invalid parameters for updateNodeData');
+      return;
+    }
     
-    setNodes(updatedNodes);
-    strategyStore.setNodes(updatedNodes);
-    strategyStore.addHistoryItem(updatedNodes, strategyStore.edges);
+    try {
+      const updatedNodes = nodes.map((node) => {
+        if (node.id === id) {
+          // Add timestamp to force rendering updates
+          const updatedData = { 
+            ...node.data, 
+            ...data,
+            _lastUpdated: Date.now() 
+          };
+          return { ...node, data: updatedData };
+        }
+        return node;
+      });
+      
+      setNodes(updatedNodes);
+      strategyStore.setNodes(updatedNodes);
+      strategyStore.addHistoryItem(updatedNodes, strategyStore.edges);
+    } catch (error) {
+      console.error('Error updating node data:', error);
+    }
   };
 };
 
@@ -88,20 +111,30 @@ export const createDeleteNodeHandler = (
   strategyStore: any
 ) => {
   return (nodeId: string) => {
-    // Remove the node
-    const newNodes = nodes.filter(node => node.id !== nodeId);
+    if (!nodes || !edges || !nodeId) {
+      console.error('Invalid parameters for deleteNode');
+      return;
+    }
     
-    // Remove any connected edges
-    const newEdges = edges.filter(
-      edge => edge.source !== nodeId && edge.target !== nodeId
-    );
-    
-    setNodes(newNodes);
-    setEdges(newEdges);
-    strategyStore.setNodes(newNodes);
-    strategyStore.setEdges(newEdges);
-    strategyStore.addHistoryItem(newNodes, newEdges);
-    
-    toast.success("Node deleted");
+    try {
+      // Remove the node
+      const newNodes = nodes.filter(node => node.id !== nodeId);
+      
+      // Remove any connected edges
+      const newEdges = edges.filter(
+        edge => edge.source !== nodeId && edge.target !== nodeId
+      );
+      
+      setNodes(newNodes);
+      setEdges(newEdges);
+      strategyStore.setNodes(newNodes);
+      strategyStore.setEdges(newEdges);
+      strategyStore.addHistoryItem(newNodes, newEdges);
+      
+      toast.success("Node deleted");
+    } catch (error) {
+      console.error('Error deleting node:', error);
+      toast.error('Failed to delete node');
+    }
   };
 };

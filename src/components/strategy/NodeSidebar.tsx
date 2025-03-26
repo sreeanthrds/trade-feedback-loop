@@ -1,5 +1,5 @@
 
-import React, { useCallback } from 'react';
+import React, { useCallback, memo } from 'react';
 import { Play, Activity, SlidersHorizontal, StopCircle, AlertTriangle } from 'lucide-react';
 import { 
   Tooltip,
@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/tooltip';
 
 interface NodeSidebarProps {
-  onAddNode: (type: string, parentNodeId?: string) => void;  // Updated signature
+  onAddNode: (type: string, parentNodeId?: string) => void;
 }
 
 interface NodeTypeItem {
@@ -58,18 +58,17 @@ const nodeTypes: NodeTypeItem[] = [
   }
 ];
 
-const NodeSidebar = ({ onAddNode }: NodeSidebarProps) => {
+const NodeSidebar = memo(({ onAddNode }: NodeSidebarProps) => {
   const handleNodeClick = useCallback((type: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('Sidebar: Adding node', type);
     onAddNode(type);  // Call without second parameter when adding from sidebar
   }, [onAddNode]);
 
-  const handleDragStart = (event: React.DragEvent, nodeType: string) => {
+  const handleDragStart = useCallback((event: React.DragEvent, nodeType: string) => {
     event.dataTransfer.setData('application/reactflow', nodeType);
     event.dataTransfer.effectAllowed = 'move';
-  };
+  }, []);
 
   return (
     <div className="h-full overflow-auto py-4 flex flex-col items-center">
@@ -101,6 +100,8 @@ const NodeSidebar = ({ onAddNode }: NodeSidebarProps) => {
       </div>
     </div>
   );
-};
+});
 
-export default React.memo(NodeSidebar);
+NodeSidebar.displayName = 'NodeSidebar';
+
+export default NodeSidebar;

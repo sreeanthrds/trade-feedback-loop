@@ -30,7 +30,7 @@ const nodeTypeIcons = {
   forceEndNode: { icon: AlertTriangle, label: 'Force End Node', color: 'text-purple-500' }
 };
 
-const NodeConnectControls = ({ showOn, onAddNode, parentNodeId }: NodeConnectControlsProps) => {
+const NodeConnectControls = memo(({ showOn, onAddNode, parentNodeId }: NodeConnectControlsProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   // Different node type options based on the current node type
@@ -116,6 +116,8 @@ const NodeConnectControls = ({ showOn, onAddNode, parentNodeId }: NodeConnectCon
       </DropdownMenu>
     </div>
   );
-};
+});
 
-export default memo(NodeConnectControls);
+NodeConnectControls.displayName = 'NodeConnectControls';
+
+export default NodeConnectControls;

@@ -1,5 +1,5 @@
 
-import React, { lazy, Suspense, useMemo, useEffect, useCallback } from 'react';
+import React, { lazy, Suspense, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useTheme } from '@/hooks/use-theme';
 import { useFlowState } from './hooks/useFlowState';
 import { useFlowHandlers } from './hooks/useFlowHandlers';
@@ -15,6 +15,15 @@ const NodePanel = lazy(() => import('./NodePanel'));
 
 const StrategyFlowContent = () => {
   const { theme } = useTheme();
+  const stableHandlersRef = useRef({
+    handleDeleteNode: null,
+    handleAddNode: null,
+    handleDeleteEdge: null,
+    onNodeClick: null,
+    resetStrategy: null,
+    handleImportSuccess: null
+  });
+  
   const {
     nodes,
     edges,
@@ -55,15 +64,44 @@ const StrategyFlowContent = () => {
     strategyStore
   });
 
-  // Create single stable callback references that won't change on every render
-  const handleDeleteNodeStable = useCallback((id) => handleDeleteNode(id), []);
-  const handleAddNodeStable = useCallback((type, parentId) => handleAddNode(type, parentId), []);
-  const handleDeleteEdgeStable = useCallback((id) => handleDeleteEdge(id), []);
-  const onNodeClickStable = useCallback((event, node) => onNodeClick(event, node), []);
-  const resetStrategyStable = useCallback(() => resetStrategy(), []);
-  const handleImportSuccessStable = useCallback(() => handleImportSuccess(), []);
+  // Update the stable handlers ref when the handlers change
+  useEffect(() => {
+    stableHandlersRef.current = {
+      handleDeleteNode,
+      handleAddNode,
+      handleDeleteEdge,
+      onNodeClick,
+      resetStrategy,
+      handleImportSuccess
+    };
+  }, [handleDeleteNode, handleAddNode, handleDeleteEdge, onNodeClick, resetStrategy, handleImportSuccess]);
 
-  // Create node types and edge types once on component mount
+  // Create stable handler callbacks using the ref
+  const handleDeleteNodeStable = useCallback((id) => {
+    stableHandlersRef.current.handleDeleteNode(id);
+  }, []);
+  
+  const handleAddNodeStable = useCallback((type, parentId) => {
+    stableHandlersRef.current.handleAddNode(type, parentId);
+  }, []);
+  
+  const handleDeleteEdgeStable = useCallback((id) => {
+    stableHandlersRef.current.handleDeleteEdge(id);
+  }, []);
+  
+  const onNodeClickStable = useCallback((event, node) => {
+    stableHandlersRef.current.onNodeClick(event, node);
+  }, []);
+  
+  const resetStrategyStable = useCallback(() => {
+    stableHandlersRef.current.resetStrategy();
+  }, []);
+  
+  const handleImportSuccessStable = useCallback(() => {
+    stableHandlersRef.current.handleImportSuccess();
+  }, []);
+
+  // Create node types and edge types once
   const nodeTypes = useMemo(() => createNodeTypes(handleDeleteNodeStable, handleAddNodeStable), []);
   const edgeTypes = useMemo(() => createEdgeTypes(handleDeleteEdgeStable), []);
 
@@ -104,7 +142,15 @@ const StrategyFlowContent = () => {
     edges,
     onNodesChange,
     onEdgesChange,
-    onConnect
+    onConnect,
+    onNodeClickStable,
+    resetStrategyStable,
+    handleImportSuccessStable,
+    handleDeleteNodeStable,
+    handleDeleteEdgeStable,
+    handleAddNodeStable,
+    nodeTypes,
+    edgeTypes
   ]);
 
   return (
