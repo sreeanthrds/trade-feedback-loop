@@ -1,19 +1,20 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
 /**
  * Hook to manage the node configuration panel state
+ * with immediate updates
  */
 export function usePanelState() {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   
-  // Memoize the setter to provide a stable reference
-  const setPanelOpen = useCallback((isOpen: boolean) => {
+  // Use a stable reference for the setter to avoid unnecessary rerenders
+  const setIsPanelOpenStable = useCallback((isOpen: boolean) => {
     setIsPanelOpen(isOpen);
   }, []);
   
   return {
     isPanelOpen,
-    setIsPanelOpen: setPanelOpen
+    setIsPanelOpen: setIsPanelOpenStable
   };
 }
