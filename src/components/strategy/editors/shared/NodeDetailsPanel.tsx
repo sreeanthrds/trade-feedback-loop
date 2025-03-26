@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Separator } from '@/components/ui/separator';
 import InputField from './InputField';
 import { Info } from 'lucide-react';
@@ -60,4 +60,5 @@ const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
   );
 };
 
-export default NodeDetailsPanel;
+// Memoize the component to prevent unnecessary re-renders
+export default memo(NodeDetailsPanel);

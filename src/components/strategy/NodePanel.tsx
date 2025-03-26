@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo, useCallback } from 'react';
 import { Node } from '@xyflow/react';
 import { X } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -17,29 +17,33 @@ interface NodePanelProps {
   onClose: () => void;
 }
 
-const NodePanel = ({ node, updateNodeData, onClose }: NodePanelProps) => {
+const NodePanel = memo(({ node, updateNodeData, onClose }: NodePanelProps) => {
   const isMobile = useIsMobile();
 
-  // Every time a node is updated, add a timestamp to force React to rerender
-  const updateNodeDataWithTimestamp = (id: string, data: any) => {
-    updateNodeData(id, {
-      ...data,
-      _lastUpdated: Date.now() // Add timestamp to force updates
-    });
-  };
+  // Create stable update function to prevent re-renders
+  const stableUpdateNodeData = useCallback((id: string, data: any) => {
+    // Add timestamp only if it doesn't already have one
+    if (!data._lastUpdated) {
+      data = {
+        ...data,
+        _lastUpdated: Date.now()
+      };
+    }
+    updateNodeData(id, data);
+  }, [updateNodeData]);
 
   const renderEditor = () => {
     switch (node.type) {
       case 'startNode':
-        return <StartNodeEditor node={node} updateNodeData={updateNodeData} />;
+        return <StartNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       case 'signalNode':
-        return <SignalNodeEditor node={node} updateNodeData={updateNodeData} />;
+        return <SignalNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       case 'actionNode':
-        return <ActionNodeEditor node={node} updateNodeData={updateNodeDataWithTimestamp} />;
+        return <ActionNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       case 'endNode':
-        return <EndNodeEditor node={node} updateNodeData={updateNodeData} />;
+        return <EndNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       case 'forceEndNode':
-        return <ForceEndNodeEditor node={node} updateNodeData={updateNodeData} />;
+        return <ForceEndNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       default:
         return <div>Unknown node type</div>;
     }
@@ -76,6 +80,8 @@ const NodePanel = ({ node, updateNodeData, onClose }: NodePanelProps) => {
       </Card>
     </div>
   );
-};
+});
+
+NodePanel.displayName = 'NodePanel';
 
 export default NodePanel;

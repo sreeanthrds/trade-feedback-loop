@@ -78,5 +78,5 @@ export const useInitializeNodeData = ({
       // Mark as initialized to prevent future updates
       initializedRef.current = true;
     }
-  }, [nodeId]);  // Remove other dependencies to prevent re-running
+  }, [nodeId, nodeData, updateNodeData]); // Adding dependencies but using ref to prevent re-runs
 };

@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Node } from '@xyflow/react';
 import { NodeDetailsPanel } from './shared';
 import { useActionNodeForm } from './action-node/useActionNodeForm';
@@ -29,16 +29,7 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
     handleOptionTypeChange
   } = useActionNodeForm({ node, updateNodeData });
 
-  // Force the node to update visually when any change happens
-  useEffect(() => {
-    // Just touching the node data to trigger an update
-    if (nodeData) {
-      updateNodeData(node.id, { 
-        ...nodeData,
-        _lastUpdated: Date.now() // Add timestamp to force updates
-      });
-    }
-  }, [nodeData, node.id, updateNodeData]);
+  // Remove the problematic useEffect that was causing infinite updates
 
   // Get the appropriate info message based on the action type
   const getActionInfoTooltip = () => {
