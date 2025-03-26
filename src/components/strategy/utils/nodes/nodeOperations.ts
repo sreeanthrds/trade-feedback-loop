@@ -1,7 +1,6 @@
-
 import { Node, ReactFlowInstance } from '@xyflow/react';
 import { toast } from "@/hooks/use-toast";
-import { getIndicatorDisplayName } from '../indicatorUtils';
+import { getIndicatorDisplayName, isIndicatorParameters } from '../indicatorUtils';
 
 export const initialNodes: Node[] = [
   {
@@ -24,16 +23,13 @@ export const addNode = (
     y: (reactFlowWrapper.current?.clientHeight || 600) / 2,
   });
   
-  // If we have a parent node ID, offset the new node from the parent
   const parentNode = parentNodeId ? nodes.find(node => node.id === parentNodeId) : undefined;
   
   if (parentNode) {
-    // Position the new node to the right of the parent node
     position.x = parentNode.position.x + 200;
     position.y = parentNode.position.y + 50;
   }
   
-  // Set default data based on node type
   let defaultData: any = { 
     label: type === 'startNode' 
       ? 'Start' 
@@ -46,7 +42,6 @@ export const addNode = (
             : 'Action'
   };
   
-  // Add specific default values for action nodes
   if (type === 'actionNode') {
     defaultData = {
       ...defaultData,
@@ -68,14 +63,20 @@ export const addNode = (
   return { node: newNode, parentNode };
 };
 
-// Add a utility function to get formatted display names for all indicators
 export const getIndicatorMap = (startNode: Node | undefined): Record<string, string> => {
-  if (!startNode || !startNode.data || !startNode.data.indicators || !startNode.data.indicatorParameters) {
+  if (!startNode || !startNode.data || !startNode.data.indicators) {
     return {};
   }
   
+  if (!isIndicatorParameters(startNode.data.indicatorParameters)) {
+    return startNode.data.indicators.reduce((acc: Record<string, string>, indicator: string) => {
+      acc[indicator] = indicator;
+      return acc;
+    }, {});
+  }
+  
   const indicators = startNode.data.indicators as string[];
-  const indicatorParameters = startNode.data.indicatorParameters as Record<string, Record<string, any>>;
+  const indicatorParameters = startNode.data.indicatorParameters;
   
   return indicators.reduce((acc, indicator) => {
     acc[indicator] = getIndicatorDisplayName(indicator, indicatorParameters);

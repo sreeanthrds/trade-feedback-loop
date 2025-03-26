@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { 
   Expression, 
@@ -14,6 +13,7 @@ import {
 import { useStrategyStore } from '@/hooks/use-strategy-store';
 import ExpressionIcon from './components/ExpressionIcon';
 import { getIndicatorDisplayName } from '../../utils/indicatorUtils';
+import { isIndicatorParameters } from '../../utils/indicatorUtils';
 
 interface IndicatorSelectorProps {
   expression: Expression;
@@ -94,6 +94,24 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
     return startNode?.data?.indicatorParameters || {};
   };
   
+  const mapToOptions = (indicators: string[] = [], indicatorParameters: unknown): { value: string; label: string }[] => {
+    if (!indicators.length) return [];
+
+    return indicators.map((indicator) => {
+      let label = indicator;
+      
+      // Only use the indicator display name if parameters are valid
+      if (isIndicatorParameters(indicatorParameters)) {
+        label = getIndicatorDisplayName(indicator, indicatorParameters);
+      }
+      
+      return {
+        value: indicator,
+        label
+      };
+    });
+  };
+
   return (
     <div className="space-y-2">
       <Select 

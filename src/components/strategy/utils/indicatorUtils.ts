@@ -59,3 +59,15 @@ export const getIndicatorNameForDisplay = (
     startNodeData.indicatorParameters
   );
 };
+
+/**
+ * Type guard to check if an object is a valid indicator parameters object
+ */
+export const isIndicatorParameters = (obj: unknown): obj is Record<string, Record<string, any>> => {
+  if (typeof obj !== 'object' || obj === null) return false;
+  
+  // Check if it's a non-null object with string keys and record values
+  return Object.entries(obj).every(([_, value]) => {
+    return typeof value === 'object' && value !== null;
+  });
+};

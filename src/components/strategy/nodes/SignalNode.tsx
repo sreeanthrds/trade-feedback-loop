@@ -40,7 +40,7 @@ const SignalNode = ({ data }: { data: SignalNodeData }) => {
       <Handle
         type="target"
         position={Position.Top}
-        style={{ background: '#2196F3' }}
+        style={{ background: '#5F92CF' }}
       />
       
       <div className="flex items-center mb-1.5">
@@ -63,7 +63,7 @@ const SignalNode = ({ data }: { data: SignalNodeData }) => {
       <Handle
         type="source"
         position={Position.Bottom}
-        style={{ background: '#2196F3' }}
+        style={{ background: '#5F92CF' }}
       />
     </div>
   );

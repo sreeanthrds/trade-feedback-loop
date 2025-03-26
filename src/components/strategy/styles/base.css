@@ -23,3 +23,23 @@
 .strategy-flow-container ::-webkit-scrollbar-thumb:hover {
   background-color: hsl(var(--muted-foreground) / 0.5);
 }
+
+/* Light theme node styling */
+.light .react-flow__node {
+  box-shadow: 0 2px 6px rgba(47, 79, 124, 0.1);
+}
+
+.light .react-flow__controls {
+  background-color: white;
+  border: 1px solid hsl(var(--border));
+}
+
+.light .react-flow__controls-button {
+  border-color: hsl(var(--border));
+  background-color: white;
+  fill: hsl(var(--foreground));
+}
+
+.light .react-flow__minimap {
+  background-color: white;
+}
