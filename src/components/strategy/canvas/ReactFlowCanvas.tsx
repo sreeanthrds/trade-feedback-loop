@@ -24,6 +24,10 @@ interface ReactFlowCanvasProps {
   edgeTypes: any;
 }
 
+// Memoize the toolbars to prevent unnecessary renders
+const MemoizedTopToolbar = memo(TopToolbar);
+const MemoizedBottomToolbar = memo(BottomToolbar);
+
 const ReactFlowCanvas = memo(({
   flowRef,
   nodes,
@@ -66,6 +70,12 @@ const ReactFlowCanvas = memo(({
   // Simple function to determine node class name for minimap
   const nodeClassName = useCallback((node) => node.type, []);
 
+  // Prepare toolbar props
+  const bottomToolbarProps = useCallback(() => ({
+    resetStrategy,
+    onImportSuccess
+  }), [resetStrategy, onImportSuccess]);
+
   return (
     <div className="h-full w-full" ref={flowRef}>
       <ReactFlow
@@ -101,8 +111,8 @@ const ReactFlowCanvas = memo(({
       >
         <CanvasControls nodeClassName={nodeClassName} />
         
-        <TopToolbar />
-        <BottomToolbar 
+        <MemoizedTopToolbar />
+        <MemoizedBottomToolbar 
           resetStrategy={resetStrategy} 
           onImportSuccess={onImportSuccess}
         />

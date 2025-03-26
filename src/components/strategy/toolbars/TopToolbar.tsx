@@ -1,19 +1,19 @@
 
-import React from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { Panel } from '@xyflow/react';
 import { Undo, Redo } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/hooks/use-theme';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
-import ThemeToggle from '@/components/ui/theme-toggle';
 
 const TopToolbar: React.FC = () => {
   const { theme, setTheme } = useTheme();
   const strategyStore = useStrategyStore();
   
-  const toggleTheme = () => {
+  // Move the theme toggle to a callback to prevent render-time updates
+  const toggleTheme = useCallback(() => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
+  }, [theme, setTheme]);
   
   return (
     <Panel position="top-center">
@@ -36,7 +36,15 @@ const TopToolbar: React.FC = () => {
           <Redo className="h-4 w-4" />
           <span className="sr-only">Redo</span>
         </Button>
-        <ThemeToggle isDarkMode={theme === 'dark'} toggleTheme={toggleTheme} />
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={toggleTheme}
+          className="flex items-center gap-2"
+        >
+          {theme === 'dark' ? '☀️' : '🌙'}
+          <span className="sr-only">Toggle theme</span>
+        </Button>
       </div>
     </Panel>
   );
