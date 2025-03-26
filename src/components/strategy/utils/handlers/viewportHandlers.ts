@@ -1,7 +1,7 @@
 
 import { ReactFlowInstance } from '@xyflow/react';
 
-export const createImportSuccessHandler = (
+export const createViewportAdjustmentHandler = (
   reactFlowInstance: ReactFlowInstance
 ) => {
   return () => {

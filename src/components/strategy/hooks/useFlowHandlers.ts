@@ -1,3 +1,4 @@
+
 import { useCallback, useRef, useEffect } from 'react';
 import { Node, Edge } from '@xyflow/react';
 import { toast } from 'sonner';
@@ -7,6 +8,7 @@ import {
   createUpdateNodeDataHandler, 
   createResetStrategyHandler,
   createImportSuccessHandler,
+  createViewportAdjustmentHandler,
   createDeleteNodeHandler,
   createDeleteEdgeHandler
 } from '../utils/handlers';
@@ -121,8 +123,13 @@ export const useFlowHandlers = ({
 
   // Create stable handler for handling import success
   const handleImportSuccess = useCallback(() => {
-    const handler = createImportSuccessHandler(reactFlowInstance);
-    handler();
+    // First notify that import was successful
+    const importHandler = createImportSuccessHandler(reactFlowInstance);
+    importHandler();
+    
+    // Then adjust the viewport
+    const viewportHandler = createViewportAdjustmentHandler(reactFlowInstance);
+    viewportHandler();
   }, [reactFlowInstance]);
 
   return {
