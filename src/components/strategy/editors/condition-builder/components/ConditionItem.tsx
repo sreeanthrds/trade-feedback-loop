@@ -6,7 +6,8 @@ import {
   GroupCondition, 
   Condition, 
   isGroupCondition, 
-  createEmptyCondition 
+  createEmptyCondition,
+  createDefaultExpression
 } from '../../../utils/conditionTypes';
 import ConditionBuilder from '../ConditionBuilder';
 import SingleConditionEditor from '../SingleConditionEditor';
