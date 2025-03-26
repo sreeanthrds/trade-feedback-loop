@@ -41,18 +41,14 @@ export const useFlowHandlers = ({
   const nodesRef = useRef(nodes);
   const edgesRef = useRef(edges);
   const storeRef = useRef(strategyStore);
-  const instanceRef = useRef(reactFlowInstance);
   
-  // Update refs when dependencies change - more efficient than recreating handlers
+  // Update refs when dependencies change
   useEffect(() => {
     nodesRef.current = nodes;
     edgesRef.current = edges;
     storeRef.current = strategyStore;
-    instanceRef.current = reactFlowInstance;
-  }, [nodes, edges, strategyStore, reactFlowInstance]);
+  }, [nodes, edges, strategyStore]);
 
-  // Memoized handlers that use refs for better performance
-  
   // Create stable handler for node click
   const onNodeClick = useCallback((event, node) => {
     setSelectedNode(node);
@@ -62,7 +58,7 @@ export const useFlowHandlers = ({
   // Create stable handler for adding nodes
   const handleAddNode = useCallback((type: string, parentNodeId?: string) => {
     const addNodeHandler = createAddNodeHandler(
-      instanceRef.current,
+      reactFlowInstance,
       reactFlowWrapper,
       nodesRef.current,
       edgesRef.current,
@@ -71,7 +67,7 @@ export const useFlowHandlers = ({
       storeRef.current
     );
     addNodeHandler(type, parentNodeId);
-  }, [reactFlowWrapper, setNodes, setEdges]);
+  }, [reactFlowInstance, reactFlowWrapper, setNodes, setEdges]);
 
   // Create stable handler for updating node data
   const updateNodeData = useCallback((id: string, data: any) => {
@@ -126,9 +122,9 @@ export const useFlowHandlers = ({
 
   // Create stable handler for handling import success
   const handleImportSuccess = useCallback(() => {
-    const handler = createImportSuccessHandler(instanceRef.current);
+    const handler = createImportSuccessHandler(reactFlowInstance);
     handler();
-  }, []);
+  }, [reactFlowInstance]);
 
   return {
     onNodeClick,

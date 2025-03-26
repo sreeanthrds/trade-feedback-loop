@@ -26,40 +26,26 @@ export function useFlowState() {
   const pendingNodesUpdate = useRef<Node[] | null>(null);
   const lastUpdateTimeRef = useRef(0);
   const updateTimeoutRef = useRef<number | null>(null);
-  const debounceTimeoutRef = useRef<number | null>(null);
 
-  // Initial load from localStorage - optimized to only run once
+  // Initial load from localStorage - only run once
   useEffect(() => {
     if (isInitialLoad.current) {
-      // Use requestAnimationFrame for more efficient timing after initial render
-      requestAnimationFrame(() => {
-        const savedStrategy = loadStrategyFromLocalStorage();
-        if (savedStrategy) {
-          setNodes(savedStrategy.nodes);
-          setEdges(savedStrategy.edges);
-          strategyStore.setNodes(savedStrategy.nodes);
-          strategyStore.setEdges(savedStrategy.edges);
-        } else {
-          strategyStore.setNodes(initialNodes);
-          strategyStore.resetHistory();
-          strategyStore.addHistoryItem(initialNodes, []);
-        }
-        isInitialLoad.current = false;
-      });
+      const savedStrategy = loadStrategyFromLocalStorage();
+      if (savedStrategy) {
+        setNodes(savedStrategy.nodes);
+        setEdges(savedStrategy.edges);
+        strategyStore.setNodes(savedStrategy.nodes);
+        strategyStore.setEdges(savedStrategy.edges);
+      } else {
+        strategyStore.setNodes(initialNodes);
+        strategyStore.resetHistory();
+        strategyStore.addHistoryItem(initialNodes, []);
+      }
+      isInitialLoad.current = false;
     }
-    
-    // Cleanup function
-    return () => {
-      if (updateTimeoutRef.current !== null) {
-        window.clearTimeout(updateTimeoutRef.current);
-      }
-      if (debounceTimeoutRef.current !== null) {
-        window.clearTimeout(debounceTimeoutRef.current);
-      }
-    };
   }, []);
 
-  // Enhanced node change handler with improved drag detection and performance
+  // Enhanced node change handler with improved drag detection
   const onNodesChangeWithDragDetection = useCallback((changes) => {
     // Apply the changes to nodes immediately for UI responsiveness
     onNodesChange(changes);
@@ -79,28 +65,13 @@ export function useFlowState() {
         
         // Apply the pending update once the drag is complete
         if (pendingNodesUpdate.current) {
-          // Use queueMicrotask to batch updates efficiently
-          queueMicrotask(() => {
-            strategyStore.setNodes(pendingNodesUpdate.current);
-            strategyStore.addHistoryItem(pendingNodesUpdate.current, strategyStore.edges);
-            pendingNodesUpdate.current = null;
-          });
+          strategyStore.setNodes(pendingNodesUpdate.current);
+          strategyStore.addHistoryItem(pendingNodesUpdate.current, strategyStore.edges);
+          pendingNodesUpdate.current = null;
         }
       }
     }
   }, [onNodesChange, strategyStore]);
-
-  // Debounced update function for better performance
-  const debouncedStoreUpdate = useCallback((newNodes: Node[]) => {
-    if (debounceTimeoutRef.current) {
-      window.clearTimeout(debounceTimeoutRef.current);
-    }
-    
-    debounceTimeoutRef.current = window.setTimeout(() => {
-      strategyStore.setNodes(newNodes);
-      debounceTimeoutRef.current = null;
-    }, 50);
-  }, [strategyStore]);
 
   // Custom setNodes wrapper with improved throttling
   const setNodesAndStore = useCallback((updatedNodes: Node[] | ((prevNodes: Node[]) => Node[])) => {
@@ -128,22 +99,32 @@ export function useFlowState() {
           updateTimeoutRef.current = null;
         }
         
-        // Debounce the update to the store
-        debouncedStoreUpdate(newNodes);
+        // Schedule the update to the store
+        updateTimeoutRef.current = window.setTimeout(() => {
+          strategyStore.setNodes(newNodes);
+        }, 50);
       } else {
         pendingNodesUpdate.current = newNodes;
       }
       
       return newNodes;
     });
-  }, [setNodes, debouncedStoreUpdate]);
+  }, [setNodes, strategyStore]);
 
-  // Optimized sync nodes from store to ReactFlow
+  // Set up a cleanup function for timeouts
+  useEffect(() => {
+    return () => {
+      if (updateTimeoutRef.current !== null) {
+        window.clearTimeout(updateTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Sync nodes from store to ReactFlow
   useEffect(() => {
     if (isDraggingRef.current || isInitialLoad.current) return;
     
     const storeNodes = strategyStore.nodes;
-    // Memoized comparison to reduce unnecessary updates
     if (storeNodes.length > 0 && 
         JSON.stringify(storeNodes.map(n => ({ id: n.id, type: n.type, data: n.data }))) !== 
         JSON.stringify(nodes.map(n => ({ id: n.id, type: n.type, data: n.data })))) {
@@ -151,7 +132,7 @@ export function useFlowState() {
     }
   }, [strategyStore.nodes, setNodes, nodes]);
 
-  // Optimized sync edges from store to ReactFlow
+  // Sync edges from store to ReactFlow
   useEffect(() => {
     if (isInitialLoad.current) return;
     
@@ -161,7 +142,7 @@ export function useFlowState() {
     }
   }, [strategyStore.edges, setEdges, edges]);
 
-  // Optimized connection handler
+  // Handle connections with validation
   const onConnect = useCallback(
     (params: Connection) => {
       if (!validateConnection(params, nodes)) return;
@@ -169,12 +150,10 @@ export function useFlowState() {
       const newEdges = addEdge(params, edges);
       setEdges(newEdges);
       
-      // Avoid store updates during dragging and batch updates
+      // Avoid store updates during dragging
       if (!isDraggingRef.current) {
-        queueMicrotask(() => {
-          strategyStore.setEdges(newEdges);
-          strategyStore.addHistoryItem(nodes, newEdges);
-        });
+        strategyStore.setEdges(newEdges);
+        strategyStore.addHistoryItem(nodes, newEdges);
       }
     },
     [nodes, edges, setEdges, strategyStore]

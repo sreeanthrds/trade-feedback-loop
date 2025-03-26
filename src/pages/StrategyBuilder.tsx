@@ -1,27 +1,11 @@
 
-import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/ui/navbar';
 import Footer from '@/components/ui/footer';
+import StrategyFlow from '@/components/strategy/StrategyFlow';
 import { Button } from '@/components/ui/button';
 import { Maximize2, Minimize2 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
-
-// Lazy load the StrategyFlow component for better initial page load
-const StrategyFlow = lazy(() => 
-  import('@/components/strategy/StrategyFlow').then(module => ({
-    default: module.default
-  }))
-);
-
-// Loading fallback optimized for better perceived performance
-const LoadingFallback = () => (
-  <div className="h-full w-full flex items-center justify-center">
-    <div className="flex flex-col items-center gap-2">
-      <div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-      <p className="text-sm text-muted-foreground">Loading strategy builder...</p>
-    </div>
-  </div>
-);
 
 const StrategyBuilder = () => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -34,10 +18,9 @@ const StrategyBuilder = () => {
     }
   }, [isMobile]);
 
-  // Memoize toggle function to prevent unnecessary re-renders
-  const toggleExpand = useCallback(() => {
-    setIsExpanded(prev => !prev);
-  }, []);
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded);
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -74,9 +57,7 @@ const StrategyBuilder = () => {
           </div>
           
           <div className={`border border-border overflow-hidden rounded-xl ${isExpanded ? 'flex-1' : 'h-[calc(100vh-250px)] min-h-[650px]'}`}>
-            <Suspense fallback={<LoadingFallback />}>
-              <StrategyFlow />
-            </Suspense>
+            <StrategyFlow />
           </div>
         </div>
       </main>
