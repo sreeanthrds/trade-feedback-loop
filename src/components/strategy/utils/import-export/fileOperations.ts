@@ -1,9 +1,29 @@
 
 import { Node, Edge } from '@xyflow/react';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
+import { getIndicatorDisplayNames } from '../indicatorUtils';
 
 export const exportStrategyToFile = (nodes: Node[], edges: Edge[]) => {
-  const strategy = { nodes, edges };
+  // Get the start node to access indicator parameters
+  const startNode = nodes.find(node => node.type === 'startNode');
+  let indicatorDisplayNames = {};
+  
+  if (startNode && startNode.data.indicators && startNode.data.indicatorParameters) {
+    indicatorDisplayNames = getIndicatorDisplayNames(
+      startNode.data.indicators, 
+      startNode.data.indicatorParameters
+    );
+  }
+  
+  // Create a strategy object with nodes, edges, and indicator display names
+  const strategy = { 
+    nodes, 
+    edges,
+    metadata: {
+      indicatorDisplayNames
+    }
+  };
+  
   const blob = new Blob([JSON.stringify(strategy, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -13,7 +33,10 @@ export const exportStrategyToFile = (nodes: Node[], edges: Edge[]) => {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  toast.success("Strategy exported successfully");
+  toast({
+    title: "Success",
+    description: "Strategy exported successfully"
+  });
 };
 
 export const importStrategyFromEvent = (

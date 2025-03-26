@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/select';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
 import ExpressionIcon from './components/ExpressionIcon';
+import { getIndicatorDisplayName } from '../../utils/indicatorUtils';
 
 interface IndicatorSelectorProps {
   expression: Expression;
@@ -120,7 +121,10 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
             {indicatorExpr.name && (
               <div className="flex items-center gap-2">
                 <ExpressionIcon type="indicator" subType={indicatorExpr.parameter} />
-                <span>{getIndicatorDisplayName(indicatorExpr.name)}</span>
+                <span>
+                  {getIndicatorDisplayName(indicatorExpr.name, 
+                    strategyStore.nodes.find(node => node.type === 'startNode')?.data?.indicatorParameters)}
+                </span>
               </div>
             )}
           </SelectValue>
@@ -131,7 +135,10 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
               <SelectItem key={indicator} value={indicator}>
                 <div className="flex items-center gap-2">
                   <ExpressionIcon type="indicator" />
-                  <span>{getIndicatorDisplayName(indicator)}</span>
+                  <span>
+                    {getIndicatorDisplayName(indicator, 
+                      strategyStore.nodes.find(node => node.type === 'startNode')?.data?.indicatorParameters)}
+                  </span>
                 </div>
               </SelectItem>
             ))

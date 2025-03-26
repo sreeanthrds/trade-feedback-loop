@@ -1,4 +1,3 @@
-
 // Type definitions for condition builder
 
 // Expression component types
@@ -71,6 +70,9 @@ export interface GroupCondition {
   conditions: (Condition | GroupCondition)[];
 }
 
+// Helper function to get display name for indicators (similar to StartNode.tsx)
+import { getIndicatorDisplayName } from './indicatorUtils';
+
 // Default expressions for new conditions
 export const createDefaultExpression = (type: ExpressionType): Expression => {
   const id = `expr_${Math.random().toString(36).substr(2, 9)}`;
@@ -116,25 +118,6 @@ export const createEmptyGroupCondition = (): GroupCondition => {
   };
 };
 
-// Helper function to get display name for indicators (similar to StartNode.tsx)
-export const getIndicatorDisplayName = (key: string, nodeData?: any): string => {
-  if (!nodeData || !nodeData.indicatorParameters) return key;
-  
-  // Extract base indicator name (before any underscore)
-  const baseName = key.split('_')[0];
-  
-  if (nodeData.indicatorParameters[key]) {
-    const params = nodeData.indicatorParameters[key];
-    
-    // Format all parameters into a single, readable string - only values
-    const paramList = Object.values(params).join(',');
-    
-    return `${baseName}(${paramList})`;
-  }
-  
-  return key;
-};
-
 // Convert a condition to a readable string
 export const conditionToString = (condition: Condition, nodeData?: any): string => {
   const lhsStr = expressionToString(condition.lhs, nodeData);
@@ -163,8 +146,8 @@ export const groupConditionToString = (group: GroupCondition, nodeData?: any): s
 export const expressionToString = (expr: Expression, nodeData?: any): string => {
   switch (expr.type) {
     case 'indicator':
-      if (nodeData) {
-        const displayName = getIndicatorDisplayName(expr.name, nodeData);
+      if (nodeData && expr.name) {
+        const displayName = getIndicatorDisplayName(expr.name, nodeData.indicatorParameters);
         return expr.parameter ? `${displayName}[${expr.parameter}]` : displayName;
       }
       return expr.parameter ? `${expr.name}[${expr.parameter}]` : expr.name;

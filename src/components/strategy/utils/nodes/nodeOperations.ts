@@ -1,5 +1,7 @@
+
 import { Node, ReactFlowInstance } from '@xyflow/react';
 import { toast } from "@/hooks/use-toast";
+import { getIndicatorDisplayName } from '../indicatorUtils';
 
 export const initialNodes: Node[] = [
   {
@@ -64,4 +66,16 @@ export const addNode = (
   };
   
   return { node: newNode, parentNode };
+};
+
+// Add a utility function to get formatted display names for all indicators
+export const getIndicatorMap = (startNode: Node | undefined): Record<string, string> => {
+  if (!startNode || !startNode.data || !startNode.data.indicators || !startNode.data.indicatorParameters) {
+    return {};
+  }
+  
+  return startNode.data.indicators.reduce((acc, indicator) => {
+    acc[indicator] = getIndicatorDisplayName(indicator, startNode.data.indicatorParameters);
+    return acc;
+  }, {} as Record<string, string>);
 };

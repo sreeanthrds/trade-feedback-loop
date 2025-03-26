@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { X, ChevronDown, ChevronUp } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import IndicatorForm from '../IndicatorForm';
-import { indicatorConfig } from '../../utils/indicatorConfig';
+import { getIndicatorDisplayName } from '../../utils/indicatorUtils';
 
 interface SelectedIndicatorProps {
   name: string;
@@ -23,18 +23,8 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
   onRemove,
   onParameterChange
 }) => {
-  const getIndicatorDisplayName = () => {
-    const baseName = name.split('_')[0];
-    
-    if (values && baseName in indicatorConfig) {
-      // Just join all parameter values with commas, no parameter names
-      const paramList = Object.values(values).join(',');
-      
-      return `${baseName} (${paramList})`;
-    }
-    
-    return name;
-  };
+  const indicatorParams = { [name]: values };
+  const displayName = getIndicatorDisplayName(name, indicatorParams);
 
   return (
     <div className="border rounded-md w-full">
@@ -44,7 +34,7 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
         className="w-full"
       >
         <div className="flex items-center justify-between p-3">
-          <div className="font-medium truncate max-w-[calc(100%-80px)]">{getIndicatorDisplayName()}</div>
+          <div className="font-medium truncate max-w-[calc(100%-80px)]">{displayName}</div>
           <div className="flex items-center gap-1 flex-shrink-0">
             <CollapsibleTrigger asChild>
               <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -68,7 +58,7 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
         <CollapsibleContent>
           <div className="px-3 pb-3">
             <IndicatorForm
-              indicator={indicatorConfig[name.split('_')[0]]}
+              indicator={values._indicatorConfig || name.split('_')[0]}
               values={values}
               onChange={onParameterChange}
             />
