@@ -60,17 +60,40 @@ const ReactFlowCanvas = React.memo(({
     [onDeleteEdge]
   );
 
+  // Custom function to fit view with 15% additional zoom out
+  const fitViewWithCustomZoom = () => {
+    if (!reactFlowInstance) return;
+    
+    reactFlowInstance.fitView({
+      padding: 0.2,
+      includeHiddenNodes: false,
+      duration: 800,
+      maxZoom: 1.0 // Set a maximum zoom level
+    });
+    
+    // After fitting, zoom out by an additional 15%
+    setTimeout(() => {
+      const { zoom } = reactFlowInstance.getViewport();
+      const newZoom = zoom * 0.85; // 15% more zoomed out
+      
+      reactFlowInstance.setViewport(
+        { 
+          x: reactFlowInstance.getViewport().x, 
+          y: reactFlowInstance.getViewport().y, 
+          zoom: newZoom 
+        }, 
+        { duration: 200 }
+      );
+    }, 850); // Slightly after the initial fit animation
+  };
+
   // Fit view whenever nodes or edges change
   useEffect(() => {
     // Only fit view if we have nodes and a valid flow instance
     if (nodes.length > 0 && reactFlowInstance) {
       // Small timeout to ensure the flow is properly rendered
       const timer = setTimeout(() => {
-        reactFlowInstance.fitView({
-          padding: 0.2,
-          includeHiddenNodes: false,
-          duration: 800
-        });
+        fitViewWithCustomZoom();
       }, 100);
       
       return () => clearTimeout(timer);
@@ -93,9 +116,9 @@ const ReactFlowCanvas = React.memo(({
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         fitView
-        minZoom={0.5}
+        minZoom={0.4} // Allow more zoom out
         maxZoom={2}
-        defaultViewport={{ x: 0, y: 0, zoom: 0.7 }}
+        defaultViewport={{ x: 0, y: 0, zoom: 0.6 }} // Start with a more zoomed out view
         snapToGrid
         snapGrid={[15, 15]}
         defaultEdgeOptions={{
@@ -109,9 +132,10 @@ const ReactFlowCanvas = React.memo(({
         elementsSelectable={true}
         proOptions={{ hideAttribution: true }}
         fitViewOptions={{
-          padding: 0.2,
+          padding: 0.3, // Increase padding for more context
           includeHiddenNodes: false,
-          duration: 600
+          duration: 600,
+          maxZoom: 0.85 // Set a maximum zoom level to ensure we're zoomed out
         }}
       >
         <Background />
