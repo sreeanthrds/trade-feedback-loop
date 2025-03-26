@@ -64,15 +64,6 @@ export default {
         danger: '#FF5252',
         dark: '#1A1A1A',
         'dark-subtle': '#2A2A2A',
-        highcharts: {
-          blue: '#5F92CF',
-          teal: '#5FBFCE',
-          navy: '#2F4F7C',
-          gray: '#F7F7F7',
-          text: '#333E48',
-          lightblue: '#EFF4F9',
-          secondary: '#8E929B',
-        },
       },
       borderRadius: {
         lg: 'var(--radius)',

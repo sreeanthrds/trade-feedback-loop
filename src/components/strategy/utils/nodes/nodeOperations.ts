@@ -1,7 +1,5 @@
-
 import { Node, ReactFlowInstance } from '@xyflow/react';
 import { toast } from "@/hooks/use-toast";
-import { getIndicatorDisplayName, isIndicatorParameters } from '../indicatorUtils';
 
 export const initialNodes: Node[] = [
   {
@@ -24,13 +22,16 @@ export const addNode = (
     y: (reactFlowWrapper.current?.clientHeight || 600) / 2,
   });
   
+  // If we have a parent node ID, offset the new node from the parent
   const parentNode = parentNodeId ? nodes.find(node => node.id === parentNodeId) : undefined;
   
   if (parentNode) {
+    // Position the new node to the right of the parent node
     position.x = parentNode.position.x + 200;
     position.y = parentNode.position.y + 50;
   }
   
+  // Set default data based on node type
   let defaultData: any = { 
     label: type === 'startNode' 
       ? 'Start' 
@@ -43,6 +44,7 @@ export const addNode = (
             : 'Action'
   };
   
+  // Add specific default values for action nodes
   if (type === 'actionNode') {
     defaultData = {
       ...defaultData,
@@ -62,31 +64,4 @@ export const addNode = (
   };
   
   return { node: newNode, parentNode };
-};
-
-export const getIndicatorMap = (startNode: Node | undefined): Record<string, string> => {
-  if (!startNode || !startNode.data || !startNode.data.indicators) {
-    return {};
-  }
-  
-  // Safely handle the case where indicators might not be an array
-  const indicators = Array.isArray(startNode.data.indicators) ? startNode.data.indicators : [];
-  
-  if (!indicators.length) {
-    return {};
-  }
-  
-  if (!isIndicatorParameters(startNode.data.indicatorParameters)) {
-    return indicators.reduce((acc: Record<string, string>, indicator: string) => {
-      acc[indicator] = indicator;
-      return acc;
-    }, {});
-  }
-  
-  const indicatorParameters = startNode.data.indicatorParameters;
-  
-  return indicators.reduce((acc, indicator) => {
-    acc[indicator] = getIndicatorDisplayName(indicator, indicatorParameters);
-    return acc;
-  }, {} as Record<string, string>);
 };

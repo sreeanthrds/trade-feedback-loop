@@ -3,8 +3,7 @@ import React from 'react';
 import { 
   Expression, 
   ComplexExpression,
-  createDefaultExpression,
-  isComplexExpression
+  createDefaultExpression
 } from '../../utils/conditionTypes';
 import { 
   Select,
@@ -24,7 +23,7 @@ const ComplexExpressionEditor: React.FC<ComplexExpressionEditorProps> = ({
   expression,
   updateExpression
 }) => {
-  if (!isComplexExpression(expression)) {
+  if (expression.type !== 'expression') {
     return null;
   }
 
@@ -32,29 +31,26 @@ const ComplexExpressionEditor: React.FC<ComplexExpressionEditorProps> = ({
   
   // Update the operation (+, -, *, /, %)
   const updateOperation = (value: string) => {
-    const updated: ComplexExpression = {
+    updateExpression({
       ...complexExpr,
       operation: value as '+' | '-' | '*' | '/' | '%'
-    };
-    updateExpression(updated);
+    });
   };
   
   // Update the left expression
   const updateLeft = (expr: Expression) => {
-    const updated: ComplexExpression = {
+    updateExpression({
       ...complexExpr,
       left: expr
-    };
-    updateExpression(updated);
+    });
   };
   
   // Update the right expression
   const updateRight = (expr: Expression) => {
-    const updated: ComplexExpression = {
+    updateExpression({
       ...complexExpr,
       right: expr
-    };
-    updateExpression(updated);
+    });
   };
   
   return (

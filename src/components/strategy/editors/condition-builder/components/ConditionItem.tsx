@@ -1,24 +1,16 @@
 
 import React from 'react';
-import { Trash2 } from 'lucide-react';
+import { Condition, GroupCondition } from '../../../utils/conditionTypes';
 import { Button } from '@/components/ui/button';
-import { 
-  GroupCondition, 
-  Condition, 
-  isGroupCondition, 
-  createEmptyCondition,
-  createEmptyGroupCondition,
-  createDefaultExpression
-} from '../../../utils/conditionTypes';
-import ConditionBuilder from '../ConditionBuilder';
+import { Trash2 } from 'lucide-react';
 import SingleConditionEditor from '../SingleConditionEditor';
-import ConditionErrorBoundary from './ConditionErrorBoundary';
+import ConditionBuilder from '../ConditionBuilder';
 
 interface ConditionItemProps {
-  condition: GroupCondition | Condition;
+  condition: Condition | GroupCondition;
   index: number;
   level: number;
-  updateCondition: (updated: GroupCondition | Condition) => void;
+  updateCondition: (updated: Condition | GroupCondition) => void;
   removeCondition: () => void;
 }
 
@@ -27,82 +19,41 @@ const ConditionItem: React.FC<ConditionItemProps> = ({
   index,
   level,
   updateCondition,
-  removeCondition
+  removeCondition,
 }) => {
-  // Handle case where condition is undefined
-  if (!condition) {
-    const emptyCondition = createEmptyCondition();
+  if ('groupLogic' in condition) {
+    // Render nested group condition
     return (
-      <div className="border border-destructive/50 bg-destructive/10 rounded-md p-3 relative">
-        <p className="text-xs text-destructive mb-2">Invalid condition detected</p>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => updateCondition(emptyCondition)}
+      <ConditionBuilder
+        rootCondition={condition as GroupCondition}
+        updateConditions={(updated) => updateCondition(updated)}
+        level={level + 1}
+        parentUpdateFn={(updated) => updateCondition(updated)}
+        allowRemove={true}
+        index={index}
+      />
+    );
+  } else {
+    // Render single condition
+    return (
+      <div className="flex items-start">
+        <div className="flex-grow">
+          <SingleConditionEditor
+            condition={condition as Condition}
+            updateCondition={(updated) => updateCondition(updated)}
+          />
+        </div>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={removeCondition} 
+          className="ml-2 h-8 w-8 p-0 mt-1"
         >
-          Reset Condition
+          <Trash2 className="h-4 w-4 text-destructive" />
         </Button>
       </div>
     );
   }
-
-  const resetCondition = () => {
-    if (isGroupCondition(condition)) {
-      updateCondition(createEmptyGroupCondition());
-    } else {
-      updateCondition(createEmptyCondition());
-    }
-  };
-
-  const renderContent = () => {
-    // For group conditions, render a nested ConditionBuilder
-    if (isGroupCondition(condition)) {
-      return (
-        <ConditionBuilder
-          rootCondition={condition}
-          updateConditions={(updated) => updateCondition(updated)}
-          level={level + 1}
-          index={index}
-        />
-      );
-    }
-
-    // Type guard has confirmed this is a simple condition, not a group
-    // Ensure our condition has all required properties
-    const safeCondition: Condition = {
-      id: condition.id || `condition_${Math.random().toString(36).substr(2, 9)}`,
-      lhs: condition.lhs || createDefaultExpression('indicator'),
-      operator: condition.operator || '==',
-      rhs: condition.rhs || createDefaultExpression('constant')
-    };
-
-    // For simple conditions, render the SingleConditionEditor
-    return (
-      <SingleConditionEditor
-        condition={safeCondition}
-        updateCondition={updateCondition}
-      />
-    );
-  };
-
-  return (
-    <div className="border border-border rounded-md p-3 relative">
-      <div className="absolute right-2 top-2 z-10">
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={removeCondition}
-          className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      </div>
-      <ConditionErrorBoundary onReset={resetCondition}>
-        {renderContent()}
-      </ConditionErrorBoundary>
-    </div>
-  );
 };
 
 export default ConditionItem;

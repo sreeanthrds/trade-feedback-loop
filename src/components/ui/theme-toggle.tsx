@@ -15,7 +15,7 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({ isDarkMode, toggleTheme }) =>
       aria-label="Toggle theme"
     >
       {!isDarkMode ? (
-        <Moon className="h-5 w-5 text-highcharts-navy dark:text-indigo-400" />
+        <Moon className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
       ) : (
         <Sun className="h-5 w-5 text-amber-500" />
       )}

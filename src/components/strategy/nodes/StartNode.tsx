@@ -1,7 +1,7 @@
+
 import React, { memo } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import { Play, Calendar, Building, BarChart, LineChart } from 'lucide-react';
-import { getIndicatorDisplayName } from '../utils/indicatorUtils';
 
 interface StartNodeProps {
   data: {
@@ -19,6 +19,26 @@ interface StartNodeProps {
 }
 
 const StartNode = ({ data }: StartNodeProps) => {
+  // Helper to get a readable display name for an indicator
+  const getIndicatorDisplayName = (key: string) => {
+    if (!data.indicatorParameters) return key;
+    
+    // Extract base indicator name (before any underscore)
+    const baseName = key.split('_')[0];
+    
+    // If we have parameters for this indicator
+    if (data.indicatorParameters[key]) {
+      const params = data.indicatorParameters[key];
+      
+      // Format all parameters into a single, readable string - only values
+      const paramList = Object.values(params).join(',');
+      
+      return `${baseName}(${paramList})`;
+    }
+    
+    return key;
+  };
+
   // Helper to generate instrument display text
   const getInstrumentDisplay = () => {
     if (!data.tradingInstrument) return null;
@@ -89,7 +109,7 @@ const StartNode = ({ data }: StartNodeProps) => {
                   key={index}
                   className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-primary/10 text-primary-foreground"
                 >
-                  {getIndicatorDisplayName(indicator, data.indicatorParameters)}
+                  {getIndicatorDisplayName(indicator)}
                 </span>
               ))}
             </div>

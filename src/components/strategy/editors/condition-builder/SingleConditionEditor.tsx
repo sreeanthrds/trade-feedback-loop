@@ -25,36 +25,26 @@ const SingleConditionEditor: React.FC<SingleConditionEditorProps> = ({
   condition,
   updateCondition
 }) => {
-  // Ensure we have valid expressions
-  const safeCondition: Condition = {
-    ...condition,
-    lhs: condition.lhs || createDefaultExpression('indicator'),
-    rhs: condition.rhs || createDefaultExpression('constant'),
-    operator: condition.operator || '=='
-  };
-
   // Update the condition operator
   const updateOperator = (value: string) => {
     updateCondition({
-      ...safeCondition,
+      ...condition,
       operator: value as ComparisonOperator
     });
   };
 
   // Update the left-hand side expression
   const updateLhs = (expr: Expression) => {
-    if (!expr) return;
     updateCondition({
-      ...safeCondition,
+      ...condition,
       lhs: expr
     });
   };
 
   // Update the right-hand side expression
   const updateRhs = (expr: Expression) => {
-    if (!expr) return;
     updateCondition({
-      ...safeCondition,
+      ...condition,
       rhs: expr
     });
   };
@@ -65,7 +55,7 @@ const SingleConditionEditor: React.FC<SingleConditionEditorProps> = ({
       <div>
         <Label className="text-xs mb-1 block">Left Side</Label>
         <ExpressionEditor 
-          expression={safeCondition.lhs}
+          expression={condition.lhs}
           updateExpression={updateLhs}
         />
       </div>
@@ -73,7 +63,7 @@ const SingleConditionEditor: React.FC<SingleConditionEditorProps> = ({
       {/* Operator */}
       <div className="pt-6">
         <Select 
-          value={safeCondition.operator} 
+          value={condition.operator} 
           onValueChange={updateOperator}
         >
           <SelectTrigger className="w-16">
@@ -94,7 +84,7 @@ const SingleConditionEditor: React.FC<SingleConditionEditorProps> = ({
       <div>
         <Label className="text-xs mb-1 block">Right Side</Label>
         <ExpressionEditor 
-          expression={safeCondition.rhs}
+          expression={condition.rhs}
           updateExpression={updateRhs}
         />
       </div>

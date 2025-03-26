@@ -20,24 +20,15 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({ resetStrategy, onImportSu
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files.length > 0) {
-      const file = event.target.files[0];
-      importStrategyFromEvent(
-        file,
-        (nodes) => {
-          setNodes(nodes);
-          if (onImportSuccess) onImportSuccess();
-        },
-        setEdges,
-        () => {}, // Empty function for setName
-        () => {}, // Empty function for setDescription
-        () => {}  // Empty function for setActive
-      );
-      
-      // Reset the input value so the same file can be imported again if needed
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+    const success = importStrategyFromEvent(event, setNodes, setEdges, addHistoryItem, resetHistory);
+    // Reset the input value so the same file can be imported again if needed
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    
+    // Notify parent component that import was successful
+    if (success && onImportSuccess) {
+      onImportSuccess();
     }
   };
 
@@ -46,13 +37,7 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({ resetStrategy, onImportSu
   };
 
   const handleExport = () => {
-    exportStrategyToFile({
-      nodes,
-      edges,
-      name: 'Strategy',
-      description: '',
-      active: false
-    });
+    exportStrategyToFile(nodes, edges);
   };
 
   const triggerFileInput = () => {

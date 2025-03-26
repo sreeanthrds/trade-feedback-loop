@@ -30,8 +30,6 @@ const ExpressionEditor: React.FC<ExpressionEditorProps> = ({
 
   // Render the appropriate editor based on expression type
   const renderExpressionEditor = () => {
-    if (!expression) return null;
-    
     switch (expression.type) {
       case 'indicator':
         return (
@@ -77,7 +75,7 @@ const ExpressionEditor: React.FC<ExpressionEditorProps> = ({
     <div className="space-y-2">
       <div className="flex items-center gap-2">
         <ExpressionTypeSelector
-          type={expression ? expression.type : 'constant'}
+          type={expression.type}
           onTypeChange={changeExpressionType}
         />
       </div>

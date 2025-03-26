@@ -20,21 +20,10 @@ interface NodePanelProps {
 const NodePanel = memo(({ node, updateNodeData, onClose }: NodePanelProps) => {
   const isMobile = useIsMobile();
 
-  // Ensure node is valid before proceeding
-  if (!node || !node.id) {
-    console.error('Invalid node passed to NodePanel');
-    return (
-      <div className="p-4">
-        <div className="text-destructive">Invalid node data</div>
-        <Button onClick={onClose} className="mt-2">Close</Button>
-      </div>
-    );
-  }
-
   // Create stable update function to prevent re-renders
   const stableUpdateNodeData = useCallback((id: string, data: any) => {
     // Add timestamp only if it doesn't already have one
-    if (data && !data._lastUpdated) {
+    if (!data._lastUpdated) {
       data = {
         ...data,
         _lastUpdated: Date.now()
@@ -43,27 +32,20 @@ const NodePanel = memo(({ node, updateNodeData, onClose }: NodePanelProps) => {
     updateNodeData(id, data);
   }, [updateNodeData]);
 
-  // Make sure node.data exists with a default fallback
-  const safeNode = {
-    ...node,
-    data: node.data || {},
-    type: node.type || 'unknown'
-  };
-
   const renderEditor = () => {
-    switch (safeNode.type) {
+    switch (node.type) {
       case 'startNode':
-        return <StartNodeEditor node={safeNode} updateNodeData={stableUpdateNodeData} />;
+        return <StartNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       case 'signalNode':
-        return <SignalNodeEditor node={safeNode} updateNodeData={stableUpdateNodeData} />;
+        return <SignalNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       case 'actionNode':
-        return <ActionNodeEditor node={safeNode} updateNodeData={stableUpdateNodeData} />;
+        return <ActionNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       case 'endNode':
-        return <EndNodeEditor node={safeNode} updateNodeData={stableUpdateNodeData} />;
+        return <EndNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       case 'forceEndNode':
-        return <ForceEndNodeEditor node={safeNode} updateNodeData={stableUpdateNodeData} />;
+        return <ForceEndNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       default:
-        return <div>Unknown node type: {safeNode.type}</div>;
+        return <div>Unknown node type</div>;
     }
   };
 
@@ -73,7 +55,7 @@ const NodePanel = memo(({ node, updateNodeData, onClose }: NodePanelProps) => {
   }
 
   const getNodeTitle = () => {
-    switch (safeNode.type) {
+    switch (node.type) {
       case 'startNode': return 'Start Node';
       case 'signalNode': return 'Signal Node';
       case 'actionNode': return 'Action Node';

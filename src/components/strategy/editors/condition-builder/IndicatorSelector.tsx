@@ -2,8 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { 
   Expression, 
-  IndicatorExpression,
-  isIndicatorExpression
+  IndicatorExpression
 } from '../../utils/conditionTypes';
 import { 
   Select,
@@ -14,7 +13,6 @@ import {
 } from '@/components/ui/select';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
 import ExpressionIcon from './components/ExpressionIcon';
-import { getIndicatorDisplayName, isIndicatorParameters } from '../../utils/indicatorUtils';
 
 interface IndicatorSelectorProps {
   expression: Expression;
@@ -28,7 +26,7 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
   const strategyStore = useStrategyStore();
   const [availableIndicators, setAvailableIndicators] = useState<string[]>([]);
   
-  if (!isIndicatorExpression(expression)) {
+  if (expression.type !== 'indicator') {
     return null;
   }
 
@@ -45,20 +43,18 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
   }, [strategyStore.nodes]);
   
   const updateIndicatorName = (value: string) => {
-    const updated: IndicatorExpression = {
+    updateExpression({
       ...indicatorExpr,
       name: value,
       parameter: undefined
-    };
-    updateExpression(updated);
+    });
   };
   
   const updateParameter = (value: string) => {
-    const updated: IndicatorExpression = {
+    updateExpression({
       ...indicatorExpr,
       parameter: value
-    };
-    updateExpression(updated);
+    });
   };
   
   const hasMultipleOutputs = (indicator: string): boolean => {
@@ -92,16 +88,26 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
     return outputParameters[baseIndicator] || [];
   };
   
-  const getStartNodeParameters = () => {
+  // This function is now consistent with the same function in StartNode.tsx
+  const getIndicatorDisplayName = (key: string) => {
     const startNode = strategyStore.nodes.find(node => node.type === 'startNode');
-    if (!startNode || !startNode.data || !startNode.data.indicatorParameters) {
-      return {};
+    if (!startNode || !startNode.data || !startNode.data.indicatorParameters) return key;
+    
+    // Extract base indicator name (before any underscore)
+    const baseName = key.split('_')[0];
+    
+    if (startNode.data.indicatorParameters[key]) {
+      const params = startNode.data.indicatorParameters[key];
+      
+      // Format all parameters into a single, readable string - only values
+      const paramList = Object.values(params).join(',');
+      
+      return `${baseName}(${paramList})`;
     }
-    return startNode.data.indicatorParameters;
+    
+    return key;
   };
   
-  const startNodeParameters = getStartNodeParameters();
-
   return (
     <div className="space-y-2">
       <Select 
@@ -114,9 +120,7 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
             {indicatorExpr.name && (
               <div className="flex items-center gap-2">
                 <ExpressionIcon type="indicator" subType={indicatorExpr.parameter} />
-                <span>
-                  {getIndicatorDisplayName(indicatorExpr.name, isIndicatorParameters(startNodeParameters) ? startNodeParameters : {})}
-                </span>
+                <span>{getIndicatorDisplayName(indicatorExpr.name)}</span>
               </div>
             )}
           </SelectValue>
@@ -127,9 +131,7 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
               <SelectItem key={indicator} value={indicator}>
                 <div className="flex items-center gap-2">
                   <ExpressionIcon type="indicator" />
-                  <span>
-                    {getIndicatorDisplayName(indicator, isIndicatorParameters(startNodeParameters) ? startNodeParameters : {})}
-                  </span>
+                  <span>{getIndicatorDisplayName(indicator)}</span>
                 </div>
               </SelectItem>
             ))
