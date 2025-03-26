@@ -19,7 +19,7 @@ interface ReactFlowCanvasProps {
   onImportSuccess: () => void;
   onDeleteNode: (id: string) => void;
   onDeleteEdge: (id: string) => void;
-  onAddNode: (type: string) => void;
+  onAddNode: (type: string, parentNodeId?: string) => void;  // Fixed the signature here
   nodeTypes: any;
   edgeTypes: any;
 }

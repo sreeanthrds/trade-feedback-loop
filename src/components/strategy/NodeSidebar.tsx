@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/tooltip';
 
 interface NodeSidebarProps {
-  onAddNode: (type: string) => void;
+  onAddNode: (type: string, parentNodeId?: string) => void;  // Updated signature
 }
 
 interface NodeTypeItem {
@@ -63,7 +63,7 @@ const NodeSidebar = ({ onAddNode }: NodeSidebarProps) => {
     e.preventDefault();
     e.stopPropagation();
     console.log('Sidebar: Adding node', type);
-    onAddNode(type);
+    onAddNode(type);  // Call without second parameter when adding from sidebar
   }, [onAddNode]);
 
   const handleDragStart = (event: React.DragEvent, nodeType: string) => {
