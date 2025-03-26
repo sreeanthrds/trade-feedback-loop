@@ -5,6 +5,8 @@ import { useFlowState } from './hooks/useFlowState';
 import { useFlowHandlers } from './hooks/useFlowHandlers';
 import FlowLayout from './layout/FlowLayout';
 import ReactFlowCanvas from './canvas/ReactFlowCanvas';
+import { createNodeTypes } from './nodes/nodeTypes';
+import { createEdgeTypes } from './edges/edgeTypes';
 import '@xyflow/react/dist/style.css';
 import './styles/menus.css';
 
@@ -53,6 +55,18 @@ const StrategyFlowContent = () => {
     strategyStore
   });
 
+  // Create node types with stable callbacks
+  const nodeTypes = useMemo(() => 
+    createNodeTypes(handleDeleteNode, handleAddNode),
+    [handleDeleteNode, handleAddNode]
+  );
+  
+  // Create edge types with stable callbacks
+  const edgeTypes = useMemo(() => 
+    createEdgeTypes(handleDeleteEdge),
+    [handleDeleteEdge]
+  );
+
   // Create NodePanel component if needed
   const nodePanelComponent = useMemo(() => {
     if (isPanelOpen && selectedNode) {
@@ -82,7 +96,9 @@ const StrategyFlowContent = () => {
     onImportSuccess: handleImportSuccess,
     onDeleteNode: handleDeleteNode,
     onDeleteEdge: handleDeleteEdge,
-    onAddNode: handleAddNode
+    onAddNode: handleAddNode,
+    nodeTypes,
+    edgeTypes
   }), [
     nodes,
     edges,
@@ -95,7 +111,9 @@ const StrategyFlowContent = () => {
     handleImportSuccess,
     handleDeleteNode,
     handleDeleteEdge,
-    handleAddNode
+    handleAddNode,
+    nodeTypes,
+    edgeTypes
   ]);
 
   return (

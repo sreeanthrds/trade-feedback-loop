@@ -1,4 +1,3 @@
-
 import { NodeMouseHandler, Node, ReactFlowInstance, Edge } from '@xyflow/react';
 import { toast } from 'sonner';
 import { addNode, createEdgeBetweenNodes } from './flowUtils';

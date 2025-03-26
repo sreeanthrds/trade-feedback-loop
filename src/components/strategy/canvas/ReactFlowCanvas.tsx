@@ -1,24 +1,15 @@
 
-import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { 
-  ReactFlow, 
-  Background, 
-  Controls, 
-  MiniMap,
-  Edge,
-  Node,
-  useReactFlow
-} from '@xyflow/react';
+import React, { useEffect, useRef } from 'react';
+import { ReactFlow, useReactFlow } from '@xyflow/react';
 import TopToolbar from '../toolbars/TopToolbar';
 import BottomToolbar from '../toolbars/BottomToolbar';
-import { createNodeTypes } from '../nodes/nodeTypes';
-import { createEdgeTypes } from '../edges/edgeTypes';
-import { Minimize2, Maximize2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import CanvasControls from './CanvasControls';
+import { useViewportUtils } from './useViewportUtils';
+import { useDragHandling } from './useDragHandling';
 
 interface ReactFlowCanvasProps {
   flowRef: React.RefObject<HTMLDivElement>;
-  nodes: Node[];
+  nodes: any[];
   edges: any[];
   onNodesChange: any;
   onEdgesChange: any;
@@ -29,6 +20,8 @@ interface ReactFlowCanvasProps {
   onDeleteNode: (id: string) => void;
   onDeleteEdge: (id: string) => void;
   onAddNode: (type: string) => void;
+  nodeTypes: any;
+  edgeTypes: any;
 }
 
 const ReactFlowCanvas = React.memo(({
@@ -41,85 +34,17 @@ const ReactFlowCanvas = React.memo(({
   onNodeClick,
   resetStrategy,
   onImportSuccess,
-  onDeleteNode,
-  onDeleteEdge,
-  onAddNode
+  nodeTypes,
+  edgeTypes
 }: ReactFlowCanvasProps) => {
-  const [minimapVisible, setMinimapVisible] = useState(false);
   const reactFlowInstance = useReactFlow();
   const initialLoadRef = useRef(true);
-  const isNodeDraggingRef = useRef(false);
+  const { fitViewWithCustomZoom } = useViewportUtils();
+  const { isNodeDraggingRef, handleNodesChange } = useDragHandling();
   
-  // Create node types with stable callbacks
-  const nodeTypes = useMemo(() => 
-    createNodeTypes(onDeleteNode, onAddNode),
-    [onDeleteNode, onAddNode]
-  );
-  
-  // Create edge types with stable callbacks
-  const edgeTypes = useMemo(() => 
-    createEdgeTypes(onDeleteEdge),
-    [onDeleteEdge]
-  );
-
-  // Custom function to fit view with 15% additional zoom out
-  const fitViewWithCustomZoom = () => {
-    if (!reactFlowInstance) return;
-    
-    reactFlowInstance.fitView({
-      padding: 0.2,
-      includeHiddenNodes: false,
-      duration: 800,
-      maxZoom: 1.0 // Set a maximum zoom level
-    });
-    
-    // After fitting, zoom out by an additional 15%
-    setTimeout(() => {
-      const { zoom } = reactFlowInstance.getViewport();
-      const newZoom = zoom * 0.85; // 15% more zoomed out
-      
-      reactFlowInstance.setViewport(
-        { 
-          x: reactFlowInstance.getViewport().x, 
-          y: reactFlowInstance.getViewport().y, 
-          zoom: newZoom 
-        }, 
-        { duration: 200 }
-      );
-    }, 850); // Slightly after the initial fit animation
-  };
-
-  // Track node dragging to prevent refitting during drag
-  const handleBeforeDrag = () => {
-    isNodeDraggingRef.current = true;
-  };
-
-  const handleDragStop = () => {
-    isNodeDraggingRef.current = false;
-  };
-
-  // Customize onNodesChange to track dragging
-  const handleNodesChange = (changes) => {
-    // Detect start of dragging
-    const dragStart = changes.find(change => 
-      change.type === 'position' && change.dragging === true
-    );
-    
-    if (dragStart && !isNodeDraggingRef.current) {
-      handleBeforeDrag();
-    }
-    
-    // Detect end of dragging
-    const dragEnd = changes.find(change => 
-      change.type === 'position' && change.dragging === false
-    );
-    
-    if (dragEnd && isNodeDraggingRef.current) {
-      handleDragStop();
-    }
-    
-    // Pass changes to original handler
-    onNodesChange(changes);
+  // Custom nodes change handler with drag detection
+  const customNodesChangeHandler = (changes) => {
+    handleNodesChange(changes, onNodesChange);
   };
 
   // Only fit view on initial load or when explicitly requested (import)
@@ -131,26 +56,25 @@ const ReactFlowCanvas = React.memo(({
         initialLoadRef.current = false;
       }, 300);
     }
-  }, [nodes, edges, reactFlowInstance]);
+  }, [nodes, edges, reactFlowInstance, fitViewWithCustomZoom]);
 
-  const toggleMinimap = () => {
-    setMinimapVisible(prev => !prev);
-  };
+  // Simple function to determine node class name for minimap
+  const nodeClassName = (node) => node.type;
 
   return (
     <div className="h-full w-full" ref={flowRef}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
-        onNodesChange={handleNodesChange}
+        onNodesChange={customNodesChangeHandler}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onNodeClick={onNodeClick}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
-        minZoom={0.4} // Allow more zoom out
+        minZoom={0.4}
         maxZoom={2}
-        defaultViewport={{ x: 0, y: 0, zoom: 0.6 }} // Start with a more zoomed out view
+        defaultViewport={{ x: 0, y: 0, zoom: 0.6 }}
         snapToGrid
         snapGrid={[15, 15]}
         defaultEdgeOptions={{
@@ -164,43 +88,13 @@ const ReactFlowCanvas = React.memo(({
         elementsSelectable={true}
         proOptions={{ hideAttribution: true }}
         fitViewOptions={{
-          padding: 0.3, // Increase padding for more context
+          padding: 0.3,
           includeHiddenNodes: false,
           duration: 600,
-          maxZoom: 0.85 // Set a maximum zoom level to ensure we're zoomed out
+          maxZoom: 0.85
         }}
       >
-        <Background />
-        <Controls />
-        
-        <div className="absolute bottom-6 right-6 z-10 flex flex-col gap-1">
-          <Button 
-            variant="outline" 
-            size="icon" 
-            className="h-7 w-7 bg-background/80 backdrop-blur-sm" 
-            onClick={toggleMinimap}
-            type="button"
-          >
-            {minimapVisible ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
-          </Button>
-          
-          {minimapVisible && (
-            <MiniMap 
-              className="rounded-md overflow-hidden border border-border"
-              nodeStrokeWidth={1}
-              nodeColor={(node) => {
-                switch (node.type) {
-                  case 'startNode': return '#4CAF50';
-                  case 'signalNode': return '#2196F3';
-                  case 'actionNode': return '#FF9800';
-                  case 'endNode': return '#F44336';
-                  case 'forceEndNode': return '#9C27B0';
-                  default: return '#eee';
-                }
-              }}
-            />
-          )}
-        </div>
+        <CanvasControls nodeClassName={nodeClassName} />
         
         <TopToolbar />
         <BottomToolbar 
