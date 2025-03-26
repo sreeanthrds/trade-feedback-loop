@@ -25,10 +25,12 @@
     position: fixed !important;
     width: auto !important;
     max-width: 95vw !important;
+    touch-action: manipulation !important;
+    pointer-events: auto !important;
   }
 
   /* Better scrolling for mobile dropdowns */
-  .max-h-\[40vh\] {
+  .max-h-\[40vh\], .max-h-\[50vh\] {
     -webkit-overflow-scrolling: touch;
     overflow-scrolling: touch;
     max-height: 50vh !important; /* Slightly larger on mobile */
@@ -39,6 +41,7 @@
     cursor: pointer !important;
     user-select: none !important;
     -webkit-touch-callout: none !important;
+    touch-action: manipulation !important;
   }
   
   /* Ensure backdrops work properly */
@@ -69,6 +72,8 @@
     background-color: var(--background) !important;
     width: auto !important;
     max-width: 95vw !important;
+    touch-action: manipulation !important;
+    pointer-events: auto !important;
   }
   
   /* Prevent click-through issues on selectors */
@@ -84,15 +89,31 @@
 [data-radix-popper-content-wrapper] {
   background-color: var(--background) !important;
   z-index: 9999 !important;
+  pointer-events: auto !important; /* Ensure clicks work */
 }
 
 /* Special class to ensure symbol selector popover has a proper background */
 .symbol-selector-popover {
   background-color: var(--background) !important;
   z-index: 9999 !important;
+  touch-action: manipulation !important;
 }
 
 /* Fix for dropdown icon duplication in symbol selector input */
 .symbol-selector-input-wrapper .search-icon {
   display: none !important;
+}
+
+/* Ensure symbol selector popover content is visible */
+.symbol-selector-command {
+  pointer-events: auto !important;
+  touch-action: auto !important;
+}
+
+/* Fix for CommandItems to be clickable */
+[cmdk-item][data-mobile-selectable="true"] {
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-touch-callout: none !important;
+  user-select: none !important;
 }

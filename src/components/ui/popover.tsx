@@ -29,6 +29,16 @@ const PopoverContent = React.forwardRef<
         // Prevent autofocus which can cause mobile issues
         e.preventDefault();
       }}
+      // Ensure clicks inside the popover don't propagate to elements behind it
+      onPointerDownOutside={(e) => {
+        const target = e.target as HTMLElement;
+        // If we're clicking on a command item, don't close
+        if (target.hasAttribute('cmdk-item')) {
+          e.preventDefault();
+        }
+      }}
+      // Higher z-index to make sure it appears above other elements
+      style={{ zIndex: 9999 }}
       {...props}
     />
   </PopoverPrimitive.Portal>

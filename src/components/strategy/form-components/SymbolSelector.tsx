@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -100,7 +101,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
       setTimeout(() => {
         onChange(currentValue);
         setOpen(false);
-      }, 150);
+      }, 200); // Increased timeout for better mobile handling
     } else {
       onChange(currentValue);
       setOpen(false);
@@ -123,7 +124,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
         </Button>
       </PopoverTrigger>
       <PopoverContent 
-        className="symbol-selector-popover w-full p-0" 
+        className="w-full p-0 symbol-selector-popover" 
         align="start"
         sideOffset={5}
         onOpenAutoFocus={(e) => e.preventDefault()}
@@ -134,7 +135,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
             placeholder="Search symbol..." 
             className="h-9 symbol-selector-input" 
           />
-          <CommandList className={isMobile ? "max-h-[40vh]" : "max-h-[300px]"}>
+          <CommandList className={isMobile ? "max-h-[50vh]" : "max-h-[300px]"}>
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup heading={getGroupHeading(instrumentType, underlyingType)}>
               {symbolList.map((symbol) => (

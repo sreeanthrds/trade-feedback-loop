@@ -1,4 +1,3 @@
-
 import * as React from "react"
 import { type DialogProps } from "@radix-ui/react-dialog"
 import { Command as CommandPrimitive } from "cmdk"
@@ -42,7 +41,7 @@ const CommandInput = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
 >(({ className, ...props }, ref) => {
   // Check if this input is part of the symbol selector
-  const isSymbolSelectorInput = className?.includes('symbol-selector-input');
+  const isSymbolSelectorInput = className?.includes('symbol-selector-input') || props.placeholder === "Search symbol...";
   
   return (
   <div className={cn("flex items-center border-b px-3", isSymbolSelectorInput && "symbol-selector-input-wrapper")} cmdk-input-wrapper="">
