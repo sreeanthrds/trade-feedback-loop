@@ -1,12 +1,13 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   ReactFlow, 
   Background, 
   Controls, 
   MiniMap,
   Edge,
-  Node
+  Node,
+  useReactFlow
 } from '@xyflow/react';
 import TopToolbar from '../toolbars/TopToolbar';
 import BottomToolbar from '../toolbars/BottomToolbar';
@@ -45,6 +46,7 @@ const ReactFlowCanvas = React.memo(({
   onAddNode
 }: ReactFlowCanvasProps) => {
   const [minimapVisible, setMinimapVisible] = useState(false);
+  const reactFlowInstance = useReactFlow();
   
   // Create node types with stable callbacks
   const nodeTypes = useMemo(() => 
@@ -57,6 +59,23 @@ const ReactFlowCanvas = React.memo(({
     createEdgeTypes(onDeleteEdge),
     [onDeleteEdge]
   );
+
+  // Fit view whenever nodes or edges change
+  useEffect(() => {
+    // Only fit view if we have nodes and a valid flow instance
+    if (nodes.length > 0 && reactFlowInstance) {
+      // Small timeout to ensure the flow is properly rendered
+      const timer = setTimeout(() => {
+        reactFlowInstance.fitView({
+          padding: 0.2,
+          includeHiddenNodes: false,
+          duration: 800
+        });
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [nodes, edges, reactFlowInstance]);
 
   const toggleMinimap = () => {
     setMinimapVisible(prev => !prev);
@@ -89,6 +108,11 @@ const ReactFlowCanvas = React.memo(({
         nodesDraggable={true}
         elementsSelectable={true}
         proOptions={{ hideAttribution: true }}
+        fitViewOptions={{
+          padding: 0.2,
+          includeHiddenNodes: false,
+          duration: 600
+        }}
       >
         <Background />
         <Controls />

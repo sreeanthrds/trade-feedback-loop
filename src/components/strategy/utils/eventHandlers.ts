@@ -142,11 +142,16 @@ export const createImportSuccessHandler = (
   reactFlowInstance: ReactFlowInstance
 ) => {
   return () => {
-    // Force a layout update after import
+    // Force a layout update after import with a slightly longer delay
+    // to ensure all elements are properly loaded
     setTimeout(() => {
       if (reactFlowInstance) {
-        reactFlowInstance.fitView({ padding: 0.2 });
+        reactFlowInstance.fitView({
+          padding: 0.2,
+          includeHiddenNodes: false,
+          duration: 800
+        });
       }
-    }, 100);
+    }, 300);
   };
 };
