@@ -1,0 +1,42 @@
+
+import { useCallback } from 'react';
+import { Edge, useEdgesState, Connection, addEdge } from '@xyflow/react';
+import { validateConnection } from '../utils/flowUtils';
+
+/**
+ * Hook to manage edge state with validation
+ */
+export function useEdgeStateManagement(initialEdges: Edge[] = [], strategyStore: any) {
+  const [edges, setLocalEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  // Custom setEdges wrapper that also updates the store
+  const setEdges = useCallback((updatedEdges: Edge[] | ((prevEdges: Edge[]) => Edge[])) => {
+    setLocalEdges((prevEdges) => {
+      const newEdges = typeof updatedEdges === 'function'
+        ? updatedEdges(prevEdges)
+        : updatedEdges;
+      
+      strategyStore.setEdges(newEdges);
+      return newEdges;
+    });
+  }, [setLocalEdges, strategyStore]);
+
+  // Handle connections with validation
+  const onConnect = useCallback(
+    (params: Connection, nodes: Node[]) => {
+      if (!validateConnection(params, nodes)) return;
+      
+      const newEdges = addEdge(params, edges);
+      setEdges(newEdges);
+      strategyStore.addHistoryItem(strategyStore.nodes, newEdges);
+    },
+    [edges, setEdges, strategyStore]
+  );
+
+  return {
+    edges,
+    setEdges,
+    onEdgesChange,
+    onConnect
+  };
+}
