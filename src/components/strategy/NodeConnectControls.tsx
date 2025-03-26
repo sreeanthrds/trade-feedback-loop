@@ -53,26 +53,28 @@ const NodeConnectControls = memo(({ showOn, onAddNode, parentNodeId }: NodeConne
   }, [showOn]);
 
   const handleAddNode = useCallback((type: string, e: React.MouseEvent) => {
-    // Prevent event bubbling up to parent elements
     e.preventDefault();
     e.stopPropagation();
-    
-    // Call the onAddNode function with parent node ID
     onAddNode(type, parentNodeId);
-    
-    // Close the dropdown
     setIsOpen(false);
   }, [onAddNode, parentNodeId]);
 
-  // Auto-close the dropdown when the mouse leaves
+  // Manually control open state with both mouse and click events
+  const handleMouseEnter = useCallback(() => {
+    setIsOpen(true);
+  }, []);
+
   const handleMouseLeave = useCallback(() => {
     setIsOpen(false);
   }, []);
 
   return (
-    <div className="absolute right-0 top-1/2 -mr-4 -mt-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+    <div 
+      className="absolute right-0 top-1/2 -mr-4 -mt-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity"
+      onMouseLeave={handleMouseLeave}
+    >
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-        <DropdownMenuTrigger asChild onMouseEnter={() => setIsOpen(true)}>
+        <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
             size="icon"
@@ -80,6 +82,7 @@ const NodeConnectControls = memo(({ showOn, onAddNode, parentNodeId }: NodeConne
             title="Add connected node"
             type="button"
             onClick={(e) => e.stopPropagation()}
+            onMouseEnter={handleMouseEnter}
           >
             <Plus className="h-4 w-4 text-primary" />
           </Button>
@@ -87,8 +90,7 @@ const NodeConnectControls = memo(({ showOn, onAddNode, parentNodeId }: NodeConne
         <DropdownMenuContent 
           align="end" 
           sideOffset={8}
-          onMouseLeave={handleMouseLeave}
-          className="p-1 min-w-[3rem] w-auto"
+          className="p-1 min-w-[3rem] w-auto z-50"
         >
           <TooltipProvider delayDuration={200}>
             {nodeOptions.map((option) => {
@@ -99,7 +101,7 @@ const NodeConnectControls = memo(({ showOn, onAddNode, parentNodeId }: NodeConne
                 <Tooltip key={option.value}>
                   <TooltipTrigger asChild>
                     <DropdownMenuItem 
-                      onClick={(e) => handleAddNode(option.value, e)}
+                      onClick={(e) => handleAddNode(option.value, e as React.MouseEvent)}
                       className="cursor-pointer py-2 px-2 flex justify-center"
                     >
                       <NodeIcon className={`h-5 w-5 ${iconColor}`} />

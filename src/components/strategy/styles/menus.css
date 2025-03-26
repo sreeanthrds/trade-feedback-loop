@@ -34,6 +34,19 @@
   width: auto !important;
 }
 
+/* Ensure dropdown menus stay visible when hovered */
+.group:hover .dropdown-menu,
+.dropdown-menu:hover {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+/* Additional styles for node connect controls */
+.group-hover\:opacity-100.transition-opacity {
+  transition-duration: 300ms;
+}
+
 /* Fix for CommandItem in mobile view */
 @media (max-width: 768px) {
   [cmdk-item] {

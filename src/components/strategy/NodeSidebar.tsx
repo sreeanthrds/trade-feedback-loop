@@ -71,7 +71,7 @@ const NodeSidebar = memo(({ onAddNode }: NodeSidebarProps) => {
   }, []);
 
   return (
-    <div className="h-full overflow-auto py-4 flex flex-col items-center">
+    <div className="h-full overflow-auto py-4 flex flex-col items-center relative z-10 bg-background/60 backdrop-blur-sm">
       <h3 className="font-medium text-xs uppercase tracking-wider mb-4 text-center text-muted-foreground">Nodes</h3>
       
       <div className="space-y-6">
