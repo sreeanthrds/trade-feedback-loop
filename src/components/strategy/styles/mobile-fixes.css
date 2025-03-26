@@ -1,0 +1,24 @@
+
+/* Mobile fixes for dropdowns and selectors */
+@media (max-width: 768px) {
+  /* Increase touch target size for mobile */
+  [cmdk-item] {
+    padding: 10px !important;
+    margin: 2px 0 !important;
+  }
+
+  /* Fix mobile selection issues */
+  [data-mobile-selectable="true"] {
+    touch-action: manipulation !important;
+  }
+
+  /* Ensure popover content has background and proper z-index */
+  [data-radix-popper-content-wrapper] {
+    z-index: 9999 !important;
+  }
+
+  /* Better scrolling for mobile dropdowns */
+  .max-h-\[40vh\] {
+    -webkit-overflow-scrolling: touch;
+  }
+}

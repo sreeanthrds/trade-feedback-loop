@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 // Dummy lists for different categories
 const STOCKS_LIST = [
@@ -62,6 +63,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
   underlyingType,
 }) => {
   const [open, setOpen] = useState(false);
+  const isMobile = useIsMobile();
   
   // Determine which list to use based on instrument type and underlying type
   const symbolList = useMemo(() => {
@@ -92,6 +94,12 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
   // Determine if the dropdown should be disabled
   const isDropdownDisabled = disabled || (instrumentType === 'options' && !underlyingType);
   
+  // Handle item selection
+  const handleSelectItem = (currentValue: string) => {
+    onChange(currentValue);
+    setOpen(false);
+  };
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -113,18 +121,16 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
             <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
             <CommandInput placeholder="Search symbol..." className="h-9"/>
           </div>
-          <CommandList>
+          <CommandList className={isMobile ? "max-h-[40vh]" : "max-h-[300px]"}>
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup heading={getGroupHeading(instrumentType, underlyingType)}>
               {symbolList.map((symbol) => (
                 <CommandItem
                   key={symbol.value}
                   value={symbol.value}
-                  onSelect={(currentValue) => {
-                    onChange(currentValue);
-                    setOpen(false);
-                  }}
+                  onSelect={handleSelectItem}
                   className="flex items-center"
+                  data-mobile-selectable={isMobile ? "true" : undefined}
                 >
                   <span>{symbol.value}</span>
                   <span className="ml-2 text-muted-foreground text-xs">
