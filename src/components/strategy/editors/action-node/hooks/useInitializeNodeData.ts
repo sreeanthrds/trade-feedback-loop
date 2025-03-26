@@ -15,10 +15,10 @@ export const useInitializeNodeData = ({
 }: UseInitializeNodeDataProps) => {
   const initializedRef = useRef(false);
   
-  // Set default values if not present - this runs only once with a more optimized approach
+  // Set default values if not present - this runs only once
   useEffect(() => {
     if (!initializedRef.current) {
-      // Use a more direct approach to check for missing values
+      // Check if initialization is needed
       const needsInitialization = 
         !nodeData?.actionType || 
         !nodeData?.positionType || 
@@ -75,8 +75,8 @@ export const useInitializeNodeData = ({
         }
       }
       
-      // Mark as initialized regardless of update
+      // Mark as initialized to prevent future updates
       initializedRef.current = true;
     }
-  }, [nodeId, nodeData, updateNodeData]);
+  }, [nodeId]);  // Remove other dependencies to prevent re-running
 };

@@ -28,39 +28,60 @@ interface StartNodeData {
 const ActionNode = ({ data, id }: { data: ActionNodeData, id: string }) => {
   const { getNodes } = useReactFlow();
   const [startNodeSymbol, setStartNodeSymbol] = useState<string | undefined>(data?.instrument);
+  const fetchIntervalRef = useRef<number | null>(null);
+  const shouldFetchRef = useRef(true);
   
   // Make a copy of data to prevent potential null reference issues
   const safeData = { ...data };
-  const intervalRef = useRef<number | null>(null);
   
-  // Get the start node symbol to display with optimized polling
+  // Get the start node symbol to display with reduced polling
   useEffect(() => {
-    const fetchStartNodeSymbol = () => {
+    // Initial fetch
+    if (shouldFetchRef.current) {
       const nodes = getNodes();
       const startNode = nodes.find(node => node.type === 'startNode');
       if (startNode && startNode.data) {
         const startData = startNode.data as StartNodeData;
-        if (startData.symbol !== startNodeSymbol) {
-          setStartNodeSymbol(startData.symbol);
-        }
+        setStartNodeSymbol(startData.symbol);
       }
-    };
-
-    // Initial fetch
-    fetchStartNodeSymbol();
-
-    // Set up an interval with reduced frequency (500ms instead of 200ms)
-    if (!intervalRef.current) {
-      intervalRef.current = window.setInterval(fetchStartNodeSymbol, 500);
     }
-
+    
+    // Set up a very infrequent polling (every 5 seconds)
+    if (fetchIntervalRef.current === null) {
+      fetchIntervalRef.current = window.setInterval(() => {
+        if (shouldFetchRef.current) {
+          const nodes = getNodes();
+          const startNode = nodes.find(node => node.type === 'startNode');
+          if (startNode && startNode.data) {
+            const startData = startNode.data as StartNodeData;
+            if (startData.symbol !== startNodeSymbol) {
+              setStartNodeSymbol(startData.symbol);
+            }
+          }
+        }
+      }, 5000);
+    }
+    
+    // Cleanup
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
+      if (fetchIntervalRef.current !== null) {
+        window.clearInterval(fetchIntervalRef.current);
+        fetchIntervalRef.current = null;
       }
     };
-  }, [getNodes]);
+  }, []);  // Empty dependency array to run only once on mount
+  
+  // Update local symbol if data.instrument changes
+  useEffect(() => {
+    if (data?.instrument && data.instrument !== startNodeSymbol) {
+      setStartNodeSymbol(data.instrument);
+      // Temporarily pause fetching to avoid conflicts
+      shouldFetchRef.current = false;
+      setTimeout(() => {
+        shouldFetchRef.current = true;
+      }, 1000);
+    }
+  }, [data?.instrument]);
   
   const getActionIcon = () => {
     switch (safeData.actionType) {

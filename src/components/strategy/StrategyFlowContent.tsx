@@ -55,22 +55,17 @@ const StrategyFlowContent = () => {
     strategyStore
   });
 
-  // Stable callback references to avoid recreation
-  const handleDeleteNodeStable = useCallback(handleDeleteNode, [handleDeleteNode]);
-  const handleAddNodeStable = useCallback(handleAddNode, [handleAddNode]);
-  const handleDeleteEdgeStable = useCallback(handleDeleteEdge, [handleDeleteEdge]);
+  // Create single stable callback references that won't change on every render
+  const handleDeleteNodeStable = useCallback((id) => handleDeleteNode(id), []);
+  const handleAddNodeStable = useCallback((type, parentId) => handleAddNode(type, parentId), []);
+  const handleDeleteEdgeStable = useCallback((id) => handleDeleteEdge(id), []);
+  const onNodeClickStable = useCallback((event, node) => onNodeClick(event, node), []);
+  const resetStrategyStable = useCallback(() => resetStrategy(), []);
+  const handleImportSuccessStable = useCallback(() => handleImportSuccess(), []);
 
-  // Create node types with stable callbacks - extracted outside of render cycles
-  const nodeTypes = useMemo(() => 
-    createNodeTypes(handleDeleteNodeStable, handleAddNodeStable),
-    [handleDeleteNodeStable, handleAddNodeStable]
-  );
-  
-  // Create edge types with stable callbacks - extracted outside of render cycles
-  const edgeTypes = useMemo(() => 
-    createEdgeTypes(handleDeleteEdgeStable),
-    [handleDeleteEdgeStable]
-  );
+  // Create node types and edge types once on component mount
+  const nodeTypes = useMemo(() => createNodeTypes(handleDeleteNodeStable, handleAddNodeStable), []);
+  const edgeTypes = useMemo(() => createEdgeTypes(handleDeleteEdgeStable), []);
 
   // Create NodePanel component if needed
   const nodePanelComponent = useMemo(() => {
@@ -88,7 +83,7 @@ const StrategyFlowContent = () => {
     return null;
   }, [isPanelOpen, selectedNode, updateNodeData, closePanel]);
 
-  // Memoize ReactFlowCanvas props
+  // Memoize ReactFlowCanvas props to prevent unnecessary re-renders
   const flowCanvasProps = useMemo(() => ({
     flowRef: reactFlowWrapper,
     nodes,
@@ -96,9 +91,9 @@ const StrategyFlowContent = () => {
     onNodesChange,
     onEdgesChange,
     onConnect,
-    onNodeClick,
-    resetStrategy,
-    onImportSuccess: handleImportSuccess,
+    onNodeClick: onNodeClickStable,
+    resetStrategy: resetStrategyStable,
+    onImportSuccess: handleImportSuccessStable,
     onDeleteNode: handleDeleteNodeStable,
     onDeleteEdge: handleDeleteEdgeStable,
     onAddNode: handleAddNodeStable,
@@ -107,18 +102,9 @@ const StrategyFlowContent = () => {
   }), [
     nodes,
     edges,
-    reactFlowWrapper,
     onNodesChange,
     onEdgesChange,
-    onConnect,
-    onNodeClick,
-    resetStrategy,
-    handleImportSuccess,
-    handleDeleteNodeStable,
-    handleDeleteEdgeStable,
-    handleAddNodeStable,
-    nodeTypes,
-    edgeTypes
+    onConnect
   ]);
 
   return (
