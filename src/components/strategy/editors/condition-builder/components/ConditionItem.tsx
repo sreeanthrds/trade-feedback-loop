@@ -1,105 +1,93 @@
 
 import React from 'react';
-import { Condition, GroupCondition, createEmptyCondition, createEmptyGroupCondition } from '../../../utils/conditionTypes';
-import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
-import SingleConditionEditor from '../SingleConditionEditor';
+import { Button } from '@/components/ui/button';
+import { GroupCondition, Condition, isGroupCondition } from '../../../utils/conditionTypes';
 import ConditionBuilder from '../ConditionBuilder';
+import SingleConditionEditor from '../SingleConditionEditor';
 
 interface ConditionItemProps {
-  condition: Condition | GroupCondition;
+  condition: GroupCondition | Condition;
   index: number;
   level: number;
-  updateCondition: (updated: Condition | GroupCondition) => void;
+  updateCondition: (updated: GroupCondition | Condition) => void;
   removeCondition: () => void;
 }
+
+/**
+ * Type guard to check if a condition is a GroupCondition
+ */
+const isGroup = (condition: GroupCondition | Condition): condition is GroupCondition => {
+  return 'groupLogic' in condition && 'conditions' in condition;
+};
 
 const ConditionItem: React.FC<ConditionItemProps> = ({
   condition,
   index,
   level,
   updateCondition,
-  removeCondition,
+  removeCondition
 }) => {
-  // Handle potentially undefined or invalid condition
+  // Safely handle the case where condition might be undefined
   if (!condition) {
-    // If condition is undefined, create an empty condition as a fallback
-    const fallbackCondition = createEmptyCondition();
+    console.error('Condition is undefined in ConditionItem');
+    return null;
+  }
+
+  // For group conditions, render a nested ConditionBuilder
+  if (isGroup(condition)) {
     return (
-      <div className="flex items-start">
-        <div className="flex-grow">
-          <SingleConditionEditor
-            condition={fallbackCondition}
-            updateCondition={(updated) => updateCondition(updated)}
-          />
+      <div className="border border-border rounded-md p-3 relative">
+        <div className="absolute right-2 top-2 z-10">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={removeCondition}
+            className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
         </div>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={removeCondition} 
-          className="ml-2 h-8 w-8 p-0 mt-1"
-        >
-          <Trash2 className="h-4 w-4 text-destructive" />
-        </Button>
+        <ConditionBuilder
+          rootCondition={condition}
+          updateConditions={(updated) => updateCondition(updated)}
+          level={level + 1}
+          index={index}
+        />
       </div>
     );
   }
-  
-  // Type guard function to check if the condition is a GroupCondition
-  const isGroupCondition = (cond: Condition | GroupCondition): cond is GroupCondition => {
-    return 'groupLogic' in cond && 'conditions' in cond;
+
+  // Type guard has confirmed this is a simple condition, not a group
+  // Ensure our condition has all required properties
+  const safeCondition: Condition = {
+    id: condition.id || `condition_${Math.random().toString(36).substr(2, 9)}`,
+    lhs: condition.lhs || { type: 'indicator', value: '' },
+    operator: condition.operator || '==',
+    rhs: condition.rhs || { type: 'constant', value: 0 }
   };
-  
-  // Check if this is a group condition using the type guard
-  if (isGroupCondition(condition)) {
-    // Ensure the group condition has all required properties
-    const safeGroupCondition: GroupCondition = {
-      id: condition.id || `group_${Math.random().toString(36).substr(2, 9)}`,
-      groupLogic: condition.groupLogic || 'AND',
-      conditions: Array.isArray(condition.conditions) ? condition.conditions : []
-    };
-    
-    // Render nested group condition
-    return (
-      <ConditionBuilder
-        rootCondition={safeGroupCondition}
-        updateConditions={(updated) => updateCondition(updated)}
-        level={level + 1}
-        parentUpdateFn={(updated) => updateCondition(updated)}
-        allowRemove={true}
-        index={index}
-      />
-    );
-  } else {
-    // Now TypeScript knows this is a Condition type, not GroupCondition
-    // Ensure the condition has all required properties for a single condition
-    const safeCondition: Condition = {
-      id: condition.id || `cond_${Math.random().toString(36).substr(2, 9)}`,
-      lhs: condition.lhs || createEmptyCondition().lhs,
-      operator: condition.operator || '>',
-      rhs: condition.rhs || createEmptyCondition().rhs
-    };
-    
-    // Render single condition
-    return (
-      <div className="flex items-start">
-        <div className="flex-grow">
-          <SingleConditionEditor
-            condition={safeCondition}
-            updateCondition={(updated) => updateCondition(updated)}
-          />
-        </div>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={removeCondition} 
-          className="ml-2 h-8 w-8 p-0 mt-1"
+
+  // For simple conditions, render the SingleConditionEditor
+  return (
+    <div className="border border-border rounded-md p-3 relative">
+      <div className="absolute right-2 top-2">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={removeCondition}
+          className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
         >
-          <Trash2 className="h-4 w-4 text-destructive" />
+          <Trash2 className="h-4 w-4" />
         </Button>
       </div>
-    );
-  }
+      <SingleConditionEditor
+        condition={safeCondition}
+        updateCondition={updateCondition}
+      />
+    </div>
+  );
 };
 
 export default ConditionItem;

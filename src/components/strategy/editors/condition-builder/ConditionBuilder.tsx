@@ -110,10 +110,10 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
       />
 
       <div style={indentStyle} className="space-y-3 pt-2">
-        {safeRootCondition.conditions.map((condition, idx) => (
+        {(safeRootCondition.conditions || []).map((condition, idx) => (
           <div key={condition?.id || `condition-${idx}`} className="relative">
             <ConditionItem 
-              condition={condition}
+              condition={condition || createEmptyCondition()}
               index={idx}
               level={level}
               updateCondition={(updated) => updateChildCondition(idx, updated)}

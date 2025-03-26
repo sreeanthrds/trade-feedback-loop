@@ -80,7 +80,7 @@ export const useSignalNodeForm = ({ node, updateNodeData }: UseSignalNodeFormPro
     
     setFormData(safeFormData);
     setConditions(safeFormData.conditions);
-  }, [node.data]);
+  }, [node.id]); // Only when node.id changes, not when nodeData changes
 
   const updateConditions = useCallback((newConditions: GroupCondition[]) => {
     // Ensure newConditions is always a valid array with valid group conditions

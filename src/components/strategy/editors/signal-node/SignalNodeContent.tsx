@@ -1,65 +1,76 @@
 
 import React from 'react';
-import { Info } from 'lucide-react';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import ConditionBuilder from '../condition-builder/ConditionBuilder';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 import { GroupCondition, createEmptyGroupCondition } from '../../utils/conditionTypes';
+import ConditionBuilder from '../condition-builder/ConditionBuilder';
 
 interface SignalNodeContentProps {
   conditions: GroupCondition[];
-  updateConditions: (updatedConditions: GroupCondition[]) => void;
+  updateConditions: (conditions: GroupCondition[]) => void;
 }
 
-const SignalNodeContent: React.FC<SignalNodeContentProps> = ({
-  conditions,
+const SignalNodeContent: React.FC<SignalNodeContentProps> = ({ 
+  conditions = [], 
   updateConditions
 }) => {
-  // Create default condition if none exists or conditions is not an array
-  const safeConditions = Array.isArray(conditions) && conditions.length > 0
-    ? conditions
-    : [createEmptyGroupCondition()];
+  // Ensure conditions is always an array
+  const safeConditions = Array.isArray(conditions) ? conditions : [];
   
-  // Ensure the first condition is a valid group condition with all required properties
-  const rootCondition = safeConditions[0];
-  
-  // Ensure rootCondition has all necessary properties of a GroupCondition
-  const validRootCondition: GroupCondition = {
-    id: rootCondition?.id || `group_${Math.random().toString(36).substr(2, 9)}`,
-    groupLogic: rootCondition?.groupLogic || 'AND',
-    conditions: Array.isArray(rootCondition?.conditions) ? rootCondition.conditions : []
+  const handleAddConditionGroup = () => {
+    const newConditions = [...safeConditions, createEmptyGroupCondition()];
+    updateConditions(newConditions);
+  };
+
+  const updateConditionGroup = (index: number, updatedGroup: GroupCondition) => {
+    const newConditions = [...safeConditions];
+    newConditions[index] = updatedGroup;
+    updateConditions(newConditions);
+  };
+
+  const removeConditionGroup = (index: number) => {
+    // Don't allow removing the last group
+    if (safeConditions.length <= 1) {
+      return;
+    }
+    
+    const newConditions = safeConditions.filter((_, i) => i !== index);
+    updateConditions(newConditions);
   };
 
   return (
-    <div className="space-y-4 pt-2">
-      <div className="flex items-center gap-2 mb-2">
-        <h3 className="text-sm font-medium">Condition Builder</h3>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-            </TooltipTrigger>
-            <TooltipContent className="max-w-xs">
-              <p className="text-xs">
-                Build complex conditions with nested groups, indicators, and operators.
-              </p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
+    <div className="space-y-6">
+      <div className="text-sm font-medium mb-2">Signal Conditions</div>
       
-      <ConditionBuilder 
-        rootCondition={validRootCondition} 
-        updateConditions={(updatedRoot) => {
-          if (updatedRoot) {
-            updateConditions([updatedRoot]);
-          }
-        }}
-      />
+      {/* Always ensure we have at least one condition group */}
+      {safeConditions.length === 0 ? (
+        <div className="text-sm text-muted-foreground py-2">
+          No conditions defined. Add a condition group to define when this signal is triggered.
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {safeConditions.map((condition, index) => (
+            <ConditionBuilder
+              key={condition?.id || `group-${index}`}
+              rootCondition={condition || createEmptyGroupCondition()}
+              updateConditions={(updated) => updateConditionGroup(index, updated)}
+              allowRemove={safeConditions.length > 1}
+              parentUpdateFn={() => removeConditionGroup(index)}
+            />
+          ))}
+        </div>
+      )}
+      
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="w-full"
+        onClick={handleAddConditionGroup}
+      >
+        <Plus className="h-4 w-4 mr-2" />
+        Add Condition Group
+      </Button>
     </div>
   );
 };
