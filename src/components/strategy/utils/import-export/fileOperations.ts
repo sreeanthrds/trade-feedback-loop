@@ -1,3 +1,4 @@
+
 import { Node, Edge } from '@xyflow/react';
 import { toast } from 'sonner';
 
@@ -24,7 +25,7 @@ export const exportStrategyToFile = (nodes: Node[], edges: Edge[]) => {
   // Create a deep copy of nodes to modify
   const nodesCopy = JSON.parse(JSON.stringify(nodes));
   
-  // Transform indicator names to display names in start nodes
+  // Transform indicator names to display names throughout the strategy
   nodesCopy.forEach((node: Node) => {
     if (node.type === 'startNode' && node.data) {
       // Type assertions and safety checks
@@ -45,6 +46,11 @@ export const exportStrategyToFile = (nodes: Node[], edges: Edge[]) => {
         node.data.indicators = displayIndicators;
       }
     }
+    
+    // Also transform any indicator names in condition nodes
+    if ((node.type === 'signalNode' || node.type === 'actionNode') && node.data && node.data.conditions) {
+      transformConditionIndicators(node.data.conditions, findIndicatorParameters(nodesCopy));
+    }
   });
   
   const strategy = { nodes: nodesCopy, edges };
@@ -58,6 +64,67 @@ export const exportStrategyToFile = (nodes: Node[], edges: Edge[]) => {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
   toast.success("Strategy exported successfully");
+};
+
+// Helper function to find indicator parameters from the start node
+const findIndicatorParameters = (nodes: Node[]): Record<string, Record<string, any>> | undefined => {
+  const startNode = nodes.find(node => node.type === 'startNode');
+  if (startNode && startNode.data) {
+    const nodeData = startNode.data as { indicatorParameters?: Record<string, Record<string, any>> };
+    return nodeData.indicatorParameters;
+  }
+  return undefined;
+};
+
+// Recursively transform indicator references in conditions
+const transformConditionIndicators = (
+  conditions: any, 
+  indicatorParameters?: Record<string, Record<string, any>>
+) => {
+  if (!conditions || !indicatorParameters) return;
+  
+  // If it's a group condition, process each sub-condition
+  if (conditions.groupLogic && Array.isArray(conditions.conditions)) {
+    conditions.conditions.forEach((condition: any) => {
+      transformConditionIndicators(condition, indicatorParameters);
+    });
+    return;
+  }
+  
+  // Process individual condition with lhs and rhs
+  if (conditions.lhs) {
+    transformExpression(conditions.lhs, indicatorParameters);
+  }
+  
+  if (conditions.rhs) {
+    transformExpression(conditions.rhs, indicatorParameters);
+  }
+};
+
+// Transform indicator names in expressions
+const transformExpression = (
+  expression: any, 
+  indicatorParameters: Record<string, Record<string, any>>
+) => {
+  if (!expression) return;
+  
+  // If this is an indicator expression
+  if (expression.type === 'indicator' && expression.name) {
+    // Store original name for import
+    expression.originalName = expression.name;
+    // Replace with display name
+    expression.name = getIndicatorDisplayName(expression.name, indicatorParameters);
+  }
+  
+  // If it's a complex expression with left and right sides, process recursively
+  if (expression.type === 'expression') {
+    if (expression.left) {
+      transformExpression(expression.left, indicatorParameters);
+    }
+    if (expression.right) {
+      transformExpression(expression.right, indicatorParameters);
+    }
+  }
 };
 
 export const importStrategyFromEvent = (
@@ -89,14 +156,20 @@ export const importStrategyFromEvent = (
         const nodes = JSON.parse(JSON.stringify(imported.nodes));
         const edges = JSON.parse(JSON.stringify(imported.edges));
         
-        // Restore original indicators if present
+        // Restore original indicators in all nodes
         nodes.forEach((node: Node) => {
+          // Restore original indicators in start nodes
           if (node.type === 'startNode' && node.data) {
             const nodeData = node.data as { originalIndicators?: string[] };
             if (nodeData.originalIndicators) {
               node.data.indicators = nodeData.originalIndicators;
               delete node.data.originalIndicators;
             }
+          }
+          
+          // Restore original indicator names in condition nodes
+          if ((node.type === 'signalNode' || node.type === 'actionNode') && node.data && node.data.conditions) {
+            restoreConditionIndicators(node.data.conditions);
           }
         });
         
@@ -143,3 +216,48 @@ export const importStrategyFromEvent = (
   reader.readAsText(file);
   return success;
 };
+
+// Recursively restore original indicator names in conditions
+const restoreConditionIndicators = (conditions: any) => {
+  if (!conditions) return;
+  
+  // If it's a group condition, process each sub-condition
+  if (conditions.groupLogic && Array.isArray(conditions.conditions)) {
+    conditions.conditions.forEach((condition: any) => {
+      restoreConditionIndicators(condition);
+    });
+    return;
+  }
+  
+  // Process individual condition with lhs and rhs
+  if (conditions.lhs) {
+    restoreExpression(conditions.lhs);
+  }
+  
+  if (conditions.rhs) {
+    restoreExpression(conditions.rhs);
+  }
+};
+
+// Restore original indicator names in expressions
+const restoreExpression = (expression: any) => {
+  if (!expression) return;
+  
+  // If this is an indicator expression
+  if (expression.type === 'indicator' && expression.originalName) {
+    // Restore original name
+    expression.name = expression.originalName;
+    delete expression.originalName;
+  }
+  
+  // If it's a complex expression with left and right sides, process recursively
+  if (expression.type === 'expression') {
+    if (expression.left) {
+      restoreExpression(expression.left);
+    }
+    if (expression.right) {
+      restoreExpression(expression.right);
+    }
+  }
+};
+
