@@ -1,10 +1,9 @@
 
 import React, { memo, useMemo } from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { Activity } from 'lucide-react';
+import { Activity, AlertTriangle } from 'lucide-react';
 import { GroupCondition, groupConditionToString, createEmptyGroupCondition } from '../utils/conditionTypes';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
-import { getIndicatorNameForDisplay } from '../utils/indicatorUtils';
 
 interface SignalNodeData {
   label?: string;
@@ -15,18 +14,25 @@ const SignalNode = ({ data }: { data: SignalNodeData }) => {
   const strategyStore = useStrategyStore();
   
   // Ensure data is valid with default values
-  const safeData = {
+  const safeData = useMemo(() => ({
     label: data?.label || 'Signal',
     conditions: Array.isArray(data?.conditions) && data.conditions.length > 0 
       ? data.conditions 
       : [createEmptyGroupCondition()]
-  };
+  }), [data]);
   
   // Determine if we have any valid conditions to display
-  const hasConditions = safeData.conditions.length > 0 && 
-    safeData.conditions[0]?.conditions && 
-    Array.isArray(safeData.conditions[0].conditions) &&
-    safeData.conditions[0].conditions.length > 0;
+  const hasConditions = useMemo(() => {
+    if (!Array.isArray(safeData.conditions) || safeData.conditions.length === 0) {
+      return false;
+    }
+    
+    return safeData.conditions.some(group => 
+      group && 
+      Array.isArray(group.conditions) && 
+      group.conditions.length > 0
+    );
+  }, [safeData.conditions]);
   
   // Format complex conditions for display
   const conditionDisplay = useMemo(() => {
@@ -44,9 +50,11 @@ const SignalNode = ({ data }: { data: SignalNodeData }) => {
       return groupConditionToString(rootCondition, startNode?.data);
     } catch (error) {
       console.error("Error formatting condition:", error);
-      return "Invalid condition structure";
+      return null;
     }
   }, [hasConditions, safeData.conditions, strategyStore.nodes]);
+  
+  const hasError = hasConditions && !conditionDisplay;
   
   return (
     <div className="px-3 py-2 rounded-md shadow-sm bg-white dark:bg-gray-800 border border-border">
@@ -61,7 +69,12 @@ const SignalNode = ({ data }: { data: SignalNodeData }) => {
         <div className="font-medium text-xs">{safeData.label}</div>
       </div>
       
-      {hasConditions && conditionDisplay ? (
+      {hasError ? (
+        <div className="text-[10px] bg-destructive/10 text-destructive p-1.5 rounded-md mb-1.5 max-w-[180px] break-words flex items-center gap-1">
+          <AlertTriangle className="h-3 w-3 flex-shrink-0" />
+          <span>Invalid condition</span>
+        </div>
+      ) : hasConditions && conditionDisplay ? (
         <div className="text-[10px] bg-muted/50 p-1.5 rounded-md mb-1.5 max-w-[180px] break-words">
           <div className="font-mono">
             {conditionDisplay}

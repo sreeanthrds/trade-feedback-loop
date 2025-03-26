@@ -4,7 +4,7 @@
  */
 
 // Re-export types
-export {
+export type {
   OperatorType,
   ExpressionType,
   ComparisonOperator,
