@@ -3,7 +3,6 @@ import React from 'react';
 import { Separator } from '@/components/ui/separator';
 import ActionTypeSelector from './ActionTypeSelector';
 import AlertMessage from './AlertMessage';
-import InfoMessage from './InfoMessage';
 import { NodeData } from './types';
 import OrderDetailsSection from './OrderDetailsSection';
 import InstrumentDisplay from './InstrumentDisplay';
@@ -51,7 +50,6 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
           onActionTypeChange={onActionTypeChange}
         />
         <AlertMessage />
-        <InfoMessage actionType={nodeData.actionType} />
       </div>
     );
   }
@@ -104,8 +102,6 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
           )}
         </TabsContent>
       </Tabs>
-      
-      <InfoMessage actionType={nodeData.actionType} />
     </div>
   );
 };

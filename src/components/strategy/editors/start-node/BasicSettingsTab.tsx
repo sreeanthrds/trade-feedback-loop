@@ -7,7 +7,6 @@ import {
 } from '../shared';
 import SymbolSelector from '../form-components/SymbolSelector';
 import { timeframeOptions, exchangeOptions } from '../../utils/indicatorConfig';
-import { InfoBox } from '../shared';
 
 interface BasicSettingsTabProps {
   formData: any;
@@ -91,10 +90,6 @@ const BasicSettingsTab: React.FC<BasicSettingsTabProps> = ({
           underlyingType={formData.tradingInstrument?.type === 'options' ? formData.tradingInstrument.underlyingType : undefined}
         />
       </div>
-      
-      <InfoBox>
-        The Start Node is the entry point of your strategy. Configure basic settings here and add technical indicators in the Indicators tab.
-      </InfoBox>
     </div>
   );
 };

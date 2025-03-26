@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { SwitchField, InputField, InfoBox } from '../shared';
+import { SwitchField, InputField } from '../shared';
 
 interface ForceEndNodeSettingsProps {
   closeAll: boolean;
@@ -31,13 +31,6 @@ const ForceEndNodeSettings: React.FC<ForceEndNodeSettingsProps> = ({
         onChange={onMessageChange}
         placeholder="Message to display when strategy ends"
       />
-      
-      <InfoBox type="warning" title="Force End Node">
-        <p>
-          This node forces an immediate end to strategy execution. 
-          All open positions will be closed, and no further nodes will be processed.
-        </p>
-      </InfoBox>
     </div>
   );
 };

@@ -18,10 +18,13 @@ const SignalNodeEditor = ({ node, updateNodeData }: SignalNodeEditorProps) => {
     updateConditions 
   } = useSignalNodeForm({ node, updateNodeData });
 
+  const signalNodeInfo = "Signal nodes detect specific market conditions to trigger actions in your strategy. Use groups for complex conditions with AND/OR logic.";
+
   return (
     <NodeDetailsPanel
       nodeLabel={formData.label}
       onLabelChange={handleLabelChange}
+      infoTooltip={signalNodeInfo}
       additionalContent={
         <SignalNodeContent
           conditions={conditions}

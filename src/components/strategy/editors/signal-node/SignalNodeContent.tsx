@@ -7,7 +7,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { InfoBox } from '../shared';
 import ConditionBuilder from '../condition-builder/ConditionBuilder';
 import { GroupCondition } from '../../utils/conditionTypes';
 
@@ -44,11 +43,6 @@ const SignalNodeContent: React.FC<SignalNodeContentProps> = ({
           updateConditions([updatedRoot]);
         }}
       />
-      
-      <InfoBox>
-        Signal nodes detect specific market conditions to trigger actions in your strategy.
-        Use groups for complex conditions with AND/OR logic.
-      </InfoBox>
     </div>
   );
 };

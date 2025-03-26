@@ -18,10 +18,13 @@ const ForceEndNodeEditor = ({ node, updateNodeData }: ForceEndNodeEditorProps) =
     handleCloseAllChange
   } = useForceEndNodeForm({ node, updateNodeData });
 
+  const forceEndNodeInfo = "This node forces an immediate end to strategy execution. All open positions will be closed, and no further nodes will be processed.";
+
   return (
     <NodeDetailsPanel
       nodeLabel={formData.label}
       onLabelChange={handleLabelChange}
+      infoTooltip={forceEndNodeInfo}
       additionalContent={
         <ForceEndNodeSettings
           closeAll={formData.closeAll}

@@ -1,7 +1,6 @@
 
 import React from 'react';
 import IndicatorSelector from '../IndicatorSelector';
-import { InfoBox } from '../shared';
 
 interface IndicatorsTabProps {
   indicatorParameters: Record<string, Record<string, any>>;
@@ -24,10 +23,6 @@ const IndicatorsTab: React.FC<IndicatorsTabProps> = ({
           onChange={onIndicatorsChange}
         />
       </div>
-      
-      <InfoBox>
-        Add and configure technical indicators to use in your strategy conditions and actions.
-      </InfoBox>
     </div>
   );
 };
