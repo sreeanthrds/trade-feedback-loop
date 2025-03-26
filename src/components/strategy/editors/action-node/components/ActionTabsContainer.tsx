@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import OrderDetailsSection from '../OrderDetailsSection';
 import InstrumentDisplay from '../InstrumentDisplay';
@@ -55,13 +54,9 @@ const ActionTabsContainer: React.FC<ActionTabsContainerProps> = ({
   onOptionTypeChange
 }) => {
   return (
-    <Tabs defaultValue="order-details" className="w-full">
-      <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="order-details">Order Details</TabsTrigger>
-        <TabsTrigger value="instrument-details">Instrument</TabsTrigger>
-      </TabsList>
-      
-      <TabsContent value="order-details" className="space-y-4 py-2">
+    <div className="space-y-6">
+      <div className="space-y-4">
+        <h3 className="text-sm font-medium">Order Details</h3>
         <OrderDetailsSection 
           actionType={actionType}
           positionType={positionType}
@@ -75,14 +70,18 @@ const ActionTabsContainer: React.FC<ActionTabsContainerProps> = ({
           onLotsChange={onLotsChange}
           onProductTypeChange={onProductTypeChange}
         />
-      </TabsContent>
+      </div>
       
-      <TabsContent value="instrument-details" className="space-y-4 py-2">
+      <Separator className="my-4" />
+      
+      <div className="space-y-4">
+        <h3 className="text-sm font-medium">Instrument</h3>
         <InstrumentDisplay startNodeSymbol={startNodeSymbol} />
         
         {hasOptionTrading && (
           <>
             <Separator className="my-4" />
+            <h3 className="text-sm font-medium">Options Settings</h3>
             <OptionsSettingsSection 
               optionDetails={optionDetails}
               onExpiryChange={onExpiryChange}
@@ -92,8 +91,8 @@ const ActionTabsContainer: React.FC<ActionTabsContainerProps> = ({
             />
           </>
         )}
-      </TabsContent>
-    </Tabs>
+      </div>
+    </div>
   );
 };
 
