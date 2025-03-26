@@ -63,7 +63,13 @@ export const createUpdateNodeDataHandler = (
   return (id: string, data: any) => {
     const updatedNodes = nodes.map((node) => {
       if (node.id === id) {
-        return { ...node, data: { ...node.data, ...data } };
+        // Add timestamp to force rendering updates
+        const updatedData = { 
+          ...node.data, 
+          ...data,
+          _lastUpdated: Date.now() 
+        };
+        return { ...node, data: updatedData };
       }
       return node;
     });

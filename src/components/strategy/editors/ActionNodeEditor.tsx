@@ -33,9 +33,12 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
   useEffect(() => {
     // Just touching the node data to trigger an update
     if (nodeData) {
-      updateNodeData(node.id, { ...nodeData });
+      updateNodeData(node.id, { 
+        ...nodeData,
+        _lastUpdated: Date.now() // Add timestamp to force updates
+      });
     }
-  }, [nodeData]);
+  }, [nodeData, node.id, updateNodeData]);
 
   // Get the appropriate info message based on the action type
   const getActionInfoTooltip = () => {

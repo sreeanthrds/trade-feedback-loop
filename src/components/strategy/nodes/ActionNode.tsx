@@ -18,6 +18,7 @@ interface ActionNodeData {
     strikeValue?: number;
     optionType?: 'CE' | 'PE';
   };
+  _lastUpdated?: number; // Timestamp for forcing updates
 }
 
 interface StartNodeData {
@@ -27,6 +28,14 @@ interface StartNodeData {
 const ActionNode = ({ data, id }: { data: ActionNodeData, id: string }) => {
   const { getNodes } = useReactFlow();
   const [startNodeSymbol, setStartNodeSymbol] = useState<string | undefined>(data.instrument);
+  
+  // Force rerender when data changes
+  useEffect(() => {
+    if (data && data._lastUpdated) {
+      // This will trigger a re-render when the _lastUpdated timestamp changes
+      console.log('Action node data updated:', data._lastUpdated);
+    }
+  }, [data, data?._lastUpdated]);
   
   // Get the start node symbol to display
   useEffect(() => {
@@ -96,19 +105,6 @@ const ActionNode = ({ data, id }: { data: ActionNodeData, id: string }) => {
     }
     
     return details.join(', ') || 'Default settings';
-  };
-  
-  const getOptionDetails = () => {
-    if (!data.optionDetails) return null;
-    
-    const { expiry, strikeType, optionType } = data.optionDetails;
-    const details = [];
-    
-    if (expiry) details.push(expiry);
-    if (strikeType) details.push(strikeType);
-    if (optionType) details.push(optionType);
-    
-    return details.length > 0 ? details.join(' · ') : null;
   };
   
   return (
