@@ -1,9 +1,9 @@
 
 import React from 'react';
 import { Separator } from '@/components/ui/separator';
-import OrderDetailsSection from '../OrderDetailsSection';
-import InstrumentDisplay from '../InstrumentDisplay';
-import OptionsSettingsSection from '../OptionsSettingsSection';
+import OrderDetailsPanel from './OrderDetailsPanel';
+import InstrumentPanel from './InstrumentPanel';
+import OptionsSettingsPanel from './OptionsSettingsPanel';
 import { NodeData } from '../types';
 
 type ActionType = NodeData['actionType'];
@@ -55,43 +55,32 @@ const ActionTabsContainer: React.FC<ActionTabsContainerProps> = ({
 }) => {
   return (
     <div className="space-y-6">
-      <div className="space-y-4">
-        <h3 className="text-sm font-medium">Order Details</h3>
-        <OrderDetailsSection 
-          actionType={actionType}
-          positionType={positionType}
-          orderType={orderType}
-          limitPrice={limitPrice}
-          lots={lots}
-          productType={productType}
-          onPositionTypeChange={onPositionTypeChange}
-          onOrderTypeChange={onOrderTypeChange}
-          onLimitPriceChange={onLimitPriceChange}
-          onLotsChange={onLotsChange}
-          onProductTypeChange={onProductTypeChange}
-        />
-      </div>
+      <OrderDetailsPanel 
+        actionType={actionType}
+        positionType={positionType}
+        orderType={orderType}
+        limitPrice={limitPrice}
+        lots={lots}
+        productType={productType}
+        onPositionTypeChange={onPositionTypeChange}
+        onOrderTypeChange={onOrderTypeChange}
+        onLimitPriceChange={onLimitPriceChange}
+        onLotsChange={onLotsChange}
+        onProductTypeChange={onProductTypeChange}
+      />
       
       <Separator className="my-4" />
       
-      <div className="space-y-4">
-        <h3 className="text-sm font-medium">Instrument</h3>
-        <InstrumentDisplay startNodeSymbol={startNodeSymbol} />
-        
-        {hasOptionTrading && (
-          <>
-            <Separator className="my-4" />
-            <h3 className="text-sm font-medium">Options Settings</h3>
-            <OptionsSettingsSection 
-              optionDetails={optionDetails}
-              onExpiryChange={onExpiryChange}
-              onStrikeTypeChange={onStrikeTypeChange}
-              onStrikeValueChange={onStrikeValueChange}
-              onOptionTypeChange={onOptionTypeChange}
-            />
-          </>
-        )}
-      </div>
+      <InstrumentPanel startNodeSymbol={startNodeSymbol} />
+      
+      <OptionsSettingsPanel 
+        hasOptionTrading={hasOptionTrading}
+        optionDetails={optionDetails}
+        onExpiryChange={onExpiryChange}
+        onStrikeTypeChange={onStrikeTypeChange}
+        onStrikeValueChange={onStrikeValueChange}
+        onOptionTypeChange={onOptionTypeChange}
+      />
     </div>
   );
 };
