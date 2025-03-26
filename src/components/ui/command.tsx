@@ -41,12 +41,12 @@ const CommandInput = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Input>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
 >(({ className, ...props }, ref) => {
-  // The symbol-selector-input class will be used to hide the icon when in a symbol selector
+  // Check if this input is part of the symbol selector
   const isSymbolSelectorInput = className?.includes('symbol-selector-input');
   
   return (
-  <div className={cn("flex items-center border-b px-3", isSymbolSelectorInput && "symbol-selector-wrapper")} cmdk-input-wrapper="">
-    {!isSymbolSelectorInput && <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />}
+  <div className={cn("flex items-center border-b px-3", isSymbolSelectorInput && "symbol-selector-input-wrapper")} cmdk-input-wrapper="">
+    {!isSymbolSelectorInput && <Search className="mr-2 h-4 w-4 shrink-0 opacity-50 search-icon" />}
     <CommandPrimitive.Input
       ref={ref}
       className={cn(

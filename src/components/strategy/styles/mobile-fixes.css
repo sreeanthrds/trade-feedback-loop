@@ -65,8 +65,10 @@
   /* Fix for symbol selector specific issues */
   .symbol-selector-popover {
     z-index: 9999 !important;
-    position: relative !important;
+    position: fixed !important; /* Change to fixed to prevent click-through */
     background-color: var(--background) !important;
+    width: auto !important;
+    max-width: 95vw !important;
   }
   
   /* Prevent click-through issues on selectors */
@@ -74,11 +76,7 @@
     pointer-events: auto !important;
     touch-action: auto !important;
     background-color: var(--background) !important;
-  }
-  
-  /* Hide the search icon in symbol selector input to prevent duplication */
-  .symbol-selector-wrapper .lucide-search {
-    display: none !important;
+    z-index: 9999 !important;
   }
 }
 
@@ -86,4 +84,15 @@
 [data-radix-popper-content-wrapper] {
   background-color: var(--background) !important;
   z-index: 9999 !important;
+}
+
+/* Special class to ensure symbol selector popover has a proper background */
+.symbol-selector-popover {
+  background-color: var(--background) !important;
+  z-index: 9999 !important;
+}
+
+/* Fix for dropdown icon duplication in symbol selector input */
+.symbol-selector-input-wrapper .search-icon {
+  display: none !important;
 }

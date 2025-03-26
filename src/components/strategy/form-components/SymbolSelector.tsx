@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -94,10 +93,18 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
   // Determine if the dropdown should be disabled
   const isDropdownDisabled = disabled || (instrumentType === 'options' && !underlyingType);
   
-  // Enhanced mobile touch handling
+  // Enhanced mobile touch handling with additional delay for mobile
   const handleSelectItem = (currentValue: string) => {
-    onChange(currentValue);
-    setOpen(false);
+    if (isMobile) {
+      // Add a small delay for mobile to ensure the touch event completes
+      setTimeout(() => {
+        onChange(currentValue);
+        setOpen(false);
+      }, 150);
+    } else {
+      onChange(currentValue);
+      setOpen(false);
+    }
   };
 
   return (
@@ -115,9 +122,18 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="symbol-selector-popover w-full p-0" align="start">
+      <PopoverContent 
+        className="symbol-selector-popover w-full p-0" 
+        align="start"
+        sideOffset={5}
+        onOpenAutoFocus={(e) => e.preventDefault()}
+        onCloseAutoFocus={(e) => e.preventDefault()}
+      >
         <Command className="symbol-selector-command">
-          <CommandInput placeholder="Search symbol..." className="h-9 symbol-selector-input" />
+          <CommandInput 
+            placeholder="Search symbol..." 
+            className="h-9 symbol-selector-input" 
+          />
           <CommandList className={isMobile ? "max-h-[40vh]" : "max-h-[300px]"}>
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup heading={getGroupHeading(instrumentType, underlyingType)}>
