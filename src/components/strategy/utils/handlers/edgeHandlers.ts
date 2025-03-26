@@ -1,6 +1,6 @@
 
 import { Edge, Node } from '@xyflow/react';
-import { toast } from 'sonner';
+import { toast } from "@/hooks/use-toast";
 
 export const createDeleteEdgeHandler = (
   edges: Edge[],
@@ -15,6 +15,9 @@ export const createDeleteEdgeHandler = (
     strategyStore.setEdges(newEdges);
     strategyStore.addHistoryItem(nodes, newEdges);
     
-    toast.success("Connection deleted");
+    toast({
+      title: "Edge deleted",
+      description: "Connection deleted"
+    });
   };
 };

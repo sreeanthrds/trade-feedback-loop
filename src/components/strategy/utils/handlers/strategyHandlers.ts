@@ -1,6 +1,6 @@
 
 import { Node, Edge } from '@xyflow/react';
-import { toast } from 'sonner';
+import { toast } from "@/hooks/use-toast";
 
 export const createResetStrategyHandler = (
   setNodes: (nodes: Node[]) => void,
@@ -17,7 +17,10 @@ export const createResetStrategyHandler = (
     strategyStore.resetHistory();
     closePanel();
     
-    toast.success("Strategy reset to initial state");
+    toast({
+      title: "Strategy reset",
+      description: "Strategy reset to initial state"
+    });
   };
 };
 
@@ -26,6 +29,9 @@ export const createImportSuccessHandler = (
   reactFlowInstance: any
 ) => {
   return () => {
-    toast.success("Strategy imported successfully");
+    toast({
+      title: "Import successful",
+      description: "Strategy imported successfully"
+    });
   };
 };

@@ -1,6 +1,6 @@
 
 import { NodeMouseHandler, Node, ReactFlowInstance, Edge } from '@xyflow/react';
-import { toast } from 'sonner';
+import { toast } from "@/hooks/use-toast";
 import { addNode, createEdgeBetweenNodes } from '../flowUtils';
 
 export const createNodeClickHandler = (
@@ -61,10 +61,17 @@ export const createAddNodeHandler = (
       strategyStore.setEdges(updatedEdges);
       strategyStore.addHistoryItem(updatedNodes, updatedEdges);
       
-      toast.success(`Added ${type.replace('Node', '')} node`);
+      toast({
+        title: "Node added",
+        description: `Added ${type.replace('Node', '')} node`
+      });
     } catch (error) {
       console.error('Error adding node:', error);
-      toast.error('Failed to add node');
+      toast({
+        title: "Error",
+        description: "Failed to add node",
+        variant: "destructive"
+      });
     }
   };
 };
@@ -131,10 +138,17 @@ export const createDeleteNodeHandler = (
       strategyStore.setEdges(newEdges);
       strategyStore.addHistoryItem(newNodes, newEdges);
       
-      toast.success("Node deleted");
+      toast({
+        title: "Node deleted",
+        description: "Node deleted"
+      });
     } catch (error) {
       console.error('Error deleting node:', error);
-      toast.error('Failed to delete node');
+      toast({
+        title: "Error",
+        description: "Failed to delete node",
+        variant: "destructive"
+      });
     }
   };
 };
