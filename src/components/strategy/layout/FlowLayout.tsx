@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { ResizablePanel, ResizablePanelGroup, ResizableHandle } from '@/components/ui/resizable';
-import NodeSidebar from '../NodeSidebar';
 import './FlowLayout.css';
 
 interface FlowLayoutProps {
@@ -32,15 +31,9 @@ const FlowLayout: React.FC<FlowLayoutProps> = ({
           </ResizablePanel>
         </ResizablePanelGroup>
       ) : (
-        <ResizablePanelGroup direction="horizontal" className="h-full">
-          <ResizablePanel defaultSize={15} minSize={10} id="sidebar-panel" order={1} className="nodrag">
-            <NodeSidebar onAddNode={(type) => {}} />
-          </ResizablePanel>
-          <ResizableHandle />
-          <ResizablePanel defaultSize={85} id="flow-panel" order={2}>
-            {children}
-          </ResizablePanel>
-        </ResizablePanelGroup>
+        <div className="h-full w-full">
+          {children}
+        </div>
       )}
     </div>
   );
