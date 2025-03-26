@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Node } from '@xyflow/react';
-import { GroupCondition } from '../../utils/conditionTypes';
+import { GroupCondition, createEmptyGroupCondition } from '../../utils/conditionTypes';
 
 interface UseSignalNodeFormProps {
   node: Node;
@@ -25,13 +25,7 @@ export const useSignalNodeForm = ({ node, updateNodeData }: UseSignalNodeFormPro
   // Initialize complex conditions data structure if it doesn't exist
   const initialConditions: GroupCondition[] = Array.isArray(nodeData.conditions) && nodeData.conditions.length > 0
     ? nodeData.conditions
-    : [
-        {
-          id: 'root',
-          groupLogic: 'AND',
-          conditions: []
-        }
-      ];
+    : [createEmptyGroupCondition()];
   
   const [conditions, setConditions] = useState<GroupCondition[]>(initialConditions);
 
@@ -63,17 +57,19 @@ export const useSignalNodeForm = ({ node, updateNodeData }: UseSignalNodeFormPro
     const safeNodeData = (node.data || {}) as SignalNodeData;
     setFormData({
       label: safeNodeData.label || 'Signal',
-      conditions: conditions
+      conditions: Array.isArray(safeNodeData.conditions) ? safeNodeData.conditions : [createEmptyGroupCondition()]
     });
     
-    if (Array.isArray(safeNodeData.conditions)) {
+    if (Array.isArray(safeNodeData.conditions) && safeNodeData.conditions.length > 0) {
       setConditions(safeNodeData.conditions);
     }
-  }, [node.data?.label]);
+  }, [node.data?.label, node.data?.conditions]);
 
   const updateConditions = useCallback((newConditions: GroupCondition[]) => {
-    setConditions(newConditions);
-    setFormData(prev => ({ ...prev, conditions: newConditions }));
+    // Ensure newConditions is always a valid array
+    const safeNewConditions = Array.isArray(newConditions) ? newConditions : [createEmptyGroupCondition()];
+    setConditions(safeNewConditions);
+    setFormData(prev => ({ ...prev, conditions: safeNewConditions }));
   }, []);
 
   return {

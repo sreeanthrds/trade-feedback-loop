@@ -31,7 +31,7 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
   // Ensure rootCondition has a valid conditions array
   const safeRootCondition: GroupCondition = {
     ...rootCondition,
-    id: rootCondition?.id || 'root',
+    id: rootCondition?.id || `group_${Math.random().toString(36).substr(2, 9)}`,
     groupLogic: rootCondition?.groupLogic || 'AND',
     conditions: Array.isArray(rootCondition?.conditions) ? rootCondition.conditions : []
   };

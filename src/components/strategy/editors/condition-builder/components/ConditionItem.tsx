@@ -25,10 +25,18 @@ const ConditionItem: React.FC<ConditionItemProps> = ({
   const safeCondition = condition || {};
   
   if ('groupLogic' in safeCondition) {
+    // Ensure the group condition has a valid conditions array
+    const groupCondition = {
+      ...safeCondition as GroupCondition,
+      conditions: Array.isArray((safeCondition as GroupCondition).conditions) 
+        ? (safeCondition as GroupCondition).conditions 
+        : []
+    };
+    
     // Render nested group condition
     return (
       <ConditionBuilder
-        rootCondition={safeCondition as GroupCondition}
+        rootCondition={groupCondition}
         updateConditions={(updated) => updateCondition(updated)}
         level={level + 1}
         parentUpdateFn={(updated) => updateCondition(updated)}

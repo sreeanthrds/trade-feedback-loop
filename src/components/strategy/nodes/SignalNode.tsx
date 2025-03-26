@@ -13,12 +13,17 @@ interface SignalNodeData {
 
 const SignalNode = ({ data }: { data: SignalNodeData }) => {
   const strategyStore = useStrategyStore();
-  const conditions = Array.isArray(data.conditions) ? data.conditions : [];
+  // Ensure data.conditions is a valid array
+  const safeData = {
+    ...data,
+    conditions: Array.isArray(data?.conditions) ? data.conditions : []
+  };
   
   // Determine if we have any conditions to display
-  const hasConditions = conditions.length > 0 && 
-    conditions[0].conditions && 
-    conditions[0].conditions.length > 0;
+  const hasConditions = safeData.conditions.length > 0 && 
+    safeData.conditions[0]?.conditions && 
+    Array.isArray(safeData.conditions[0]?.conditions) &&
+    safeData.conditions[0].conditions.length > 0;
   
   // Format complex conditions for display
   const conditionDisplay = useMemo(() => {
@@ -29,11 +34,11 @@ const SignalNode = ({ data }: { data: SignalNodeData }) => {
       const startNode = strategyStore.nodes.find(node => node.type === 'startNode');
       
       // Pass start node data to the condition formatter
-      return groupConditionToString(conditions[0], startNode?.data);
+      return groupConditionToString(safeData.conditions[0], startNode?.data);
     } catch (error) {
       return "Invalid condition structure";
     }
-  }, [hasConditions, conditions, strategyStore.nodes]);
+  }, [hasConditions, safeData.conditions, strategyStore.nodes]);
   
   return (
     <div className="px-3 py-2 rounded-md shadow-sm bg-white dark:bg-gray-800 border border-border">
@@ -45,7 +50,7 @@ const SignalNode = ({ data }: { data: SignalNodeData }) => {
       
       <div className="flex items-center mb-1.5">
         <Activity className="h-4 w-4 text-primary mr-1.5" />
-        <div className="font-medium text-xs">{data.label || "Signal"}</div>
+        <div className="font-medium text-xs">{safeData.label || "Signal"}</div>
       </div>
       
       {hasConditions && conditionDisplay ? (

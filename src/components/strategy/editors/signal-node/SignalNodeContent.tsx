@@ -8,7 +8,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import ConditionBuilder from '../condition-builder/ConditionBuilder';
-import { GroupCondition } from '../../utils/conditionTypes';
+import { GroupCondition, createEmptyGroupCondition } from '../../utils/conditionTypes';
 
 interface SignalNodeContentProps {
   conditions: GroupCondition[];
@@ -19,6 +19,14 @@ const SignalNodeContent: React.FC<SignalNodeContentProps> = ({
   conditions,
   updateConditions
 }) => {
+  // Ensure we have valid conditions to work with
+  const safeConditions = Array.isArray(conditions) && conditions.length > 0
+    ? conditions
+    : [createEmptyGroupCondition()];
+  
+  // Ensure the first condition is a valid group condition
+  const rootCondition = safeConditions[0];
+
   return (
     <div className="space-y-4 pt-2">
       <div className="flex items-center gap-2 mb-2">
@@ -38,7 +46,7 @@ const SignalNodeContent: React.FC<SignalNodeContentProps> = ({
       </div>
       
       <ConditionBuilder 
-        rootCondition={conditions[0]} 
+        rootCondition={rootCondition} 
         updateConditions={(updatedRoot) => {
           updateConditions([updatedRoot]);
         }}
