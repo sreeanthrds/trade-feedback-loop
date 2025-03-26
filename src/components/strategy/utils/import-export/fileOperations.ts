@@ -8,8 +8,12 @@ const getIndicatorDisplayName = (key: string, parameters: Record<string, any>) =
   // Extract base indicator name (before any underscore)
   const baseName = key.split('_')[0];
   
+  // Create a copy of parameters without indicator_name
+  const displayParams = { ...parameters };
+  delete displayParams.indicator_name;
+  
   // Format all parameters into a single, readable string - only values
-  const paramList = Object.values(parameters).join(',');
+  const paramList = Object.values(displayParams).join(',');
   
   return `${baseName}(${paramList})`;
 };
@@ -31,13 +35,15 @@ const transformNodeForExport = (node: Node) => {
     const indicatorDisplayMap = Object.fromEntries(
       transformedNode.data.indicators.map(indicator => {
         const params = indicatorParams[indicator];
-        const displayName = getIndicatorDisplayName(indicator, params);
         
         // Add indicator base name to params for backend reference
         const baseName = indicator.split('_')[0];
         if (params) {
           params.indicator_name = baseName;
         }
+        
+        // Get display name (this won't include the indicator_name we just added)
+        const displayName = getIndicatorDisplayName(indicator, params);
         
         return [indicator, displayName];
       })
