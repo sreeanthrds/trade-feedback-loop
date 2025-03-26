@@ -1,6 +1,7 @@
 
 import React, { Suspense, lazy } from 'react';
 import { ReactFlowProvider } from '@xyflow/react';
+import '@xyflow/react/dist/style.css'; // Add proper style import
 import './styles/index.css';
 import './styles/mobile-fixes.css';
 import StrategyFlowContent from './StrategyFlowContent';
