@@ -26,9 +26,6 @@ export const createAddNodeHandler = (
     // Create a new node, passing the parent node ID if available
     const { node: newNode, parentNode } = addNode(type, reactFlowInstance, reactFlowWrapper, nodes, parentNodeId);
     
-    console.log('Before adding node:', nodes.length, 'existing nodes');
-    console.log('Current nodes:', JSON.stringify(nodes.map(n => n.id)));
-    
     // IMPORTANT: Create a completely new array with ALL existing nodes plus the new one
     const updatedNodes = [...nodes, newNode];
     
@@ -39,17 +36,16 @@ export const createAddNodeHandler = (
       updatedEdges = [...edges, newEdge];
     }
     
-    console.log('After adding node:', updatedNodes.length, 'total nodes');
-    console.log('Updated nodes:', JSON.stringify(updatedNodes.map(n => n.id)));
-    
     // Update states with the combined nodes array
     setNodes(updatedNodes);
     setEdges(updatedEdges);
     
-    // Also update the global store
-    strategyStore.setNodes(updatedNodes);
-    strategyStore.setEdges(updatedEdges);
-    strategyStore.addHistoryItem(updatedNodes, updatedEdges);
+    // Also update the global store - batch these updates to reduce renders
+    queueMicrotask(() => {
+      strategyStore.setNodes(updatedNodes);
+      strategyStore.setEdges(updatedEdges);
+      strategyStore.addHistoryItem(updatedNodes, updatedEdges);
+    });
     
     toast.success(`Added ${type.replace('Node', '')} node`);
   };
@@ -69,8 +65,12 @@ export const createUpdateNodeDataHandler = (
     });
     
     setNodes(updatedNodes);
-    strategyStore.setNodes(updatedNodes);
-    strategyStore.addHistoryItem(updatedNodes, strategyStore.edges);
+    
+    // Batch updates to store to reduce renders
+    queueMicrotask(() => {
+      strategyStore.setNodes(updatedNodes);
+      strategyStore.addHistoryItem(updatedNodes, strategyStore.edges);
+    });
   };
 };
 
@@ -92,9 +92,13 @@ export const createDeleteNodeHandler = (
     
     setNodes(newNodes);
     setEdges(newEdges);
-    strategyStore.setNodes(newNodes);
-    strategyStore.setEdges(newEdges);
-    strategyStore.addHistoryItem(newNodes, newEdges);
+    
+    // Batch store updates
+    queueMicrotask(() => {
+      strategyStore.setNodes(newNodes);
+      strategyStore.setEdges(newEdges);
+      strategyStore.addHistoryItem(newNodes, newEdges);
+    });
     
     toast.success("Node deleted");
   };
@@ -110,8 +114,12 @@ export const createDeleteEdgeHandler = (
     const newEdges = edges.filter(edge => edge.id !== edgeId);
     
     setEdges(newEdges);
-    strategyStore.setEdges(newEdges);
-    strategyStore.addHistoryItem(nodes, newEdges);
+    
+    // Batch store updates
+    queueMicrotask(() => {
+      strategyStore.setEdges(newEdges);
+      strategyStore.addHistoryItem(nodes, newEdges);
+    });
     
     toast.success("Connection deleted");
   };
@@ -128,10 +136,15 @@ export const createResetStrategyHandler = (
     if (window.confirm("Are you sure you want to reset the strategy? All changes will be lost.")) {
       setNodes(initialNodes);
       setEdges([]);
-      strategyStore.setNodes(initialNodes);
-      strategyStore.setEdges([]);
-      strategyStore.resetHistory();
-      strategyStore.addHistoryItem(initialNodes, []);
+      
+      // Batch store updates
+      queueMicrotask(() => {
+        strategyStore.setNodes(initialNodes);
+        strategyStore.setEdges([]);
+        strategyStore.resetHistory();
+        strategyStore.addHistoryItem(initialNodes, []);
+      });
+      
       closePanel();
       toast.success("Strategy reset to initial state");
     }
@@ -142,21 +155,20 @@ export const createImportSuccessHandler = (
   reactFlowInstance: ReactFlowInstance
 ) => {
   return () => {
-    // Force a layout update after import with a slightly longer delay
-    // to ensure all elements are properly loaded
-    setTimeout(() => {
+    // Use requestAnimationFrame for smoother animations
+    requestAnimationFrame(() => {
       if (reactFlowInstance) {
         // First fit view normally
         reactFlowInstance.fitView({
           padding: 0.2,
           includeHiddenNodes: false,
-          duration: 600
+          duration: 400 // Reduced from 600 for faster animation
         });
         
         // Then zoom out by an additional 15%
         setTimeout(() => {
           const { zoom } = reactFlowInstance.getViewport();
-          const newZoom = zoom * 0.85; // 15% more zoomed out
+          const newZoom = zoom * 0.85;
           
           reactFlowInstance.setViewport(
             { 
@@ -164,10 +176,10 @@ export const createImportSuccessHandler = (
               y: reactFlowInstance.getViewport().y, 
               zoom: newZoom 
             }, 
-            { duration: 200 }
+            { duration: 150 } // Reduced from 200 for faster animation
           );
-        }, 650); // Apply after the initial fit animation completes
+        }, 450); // Reduced from 650 for faster transition
       }
-    }, 300);
+    });
   };
 };
