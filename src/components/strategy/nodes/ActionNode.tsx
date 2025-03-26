@@ -48,7 +48,7 @@ const ActionNode = ({ data, id }: { data: ActionNodeData, id: string }) => {
     const intervalId = setInterval(fetchStartNodeSymbol, 200);
 
     return () => clearInterval(intervalId);
-  }, [getNodes]);
+  }, [getNodes, startNodeSymbol]);
   
   const getActionIcon = () => {
     switch (data.actionType) {
@@ -112,7 +112,7 @@ const ActionNode = ({ data, id }: { data: ActionNodeData, id: string }) => {
   };
   
   return (
-    <div className="px-4 py-2 rounded-md bg-background/95">
+    <div className="px-4 py-2 rounded-md bg-background/95 border border-border/50">
       <Handle
         type="target"
         position={Position.Top}

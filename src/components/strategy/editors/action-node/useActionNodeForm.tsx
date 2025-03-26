@@ -1,5 +1,4 @@
-
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Node, useReactFlow } from '@xyflow/react';
 import { NodeData, StartNodeData } from './types';
 
@@ -18,7 +17,7 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
   const previousInstrumentTypeRef = useRef<string | undefined>(undefined);
   const initializedRef = useRef(false);
   
-  // Set default values if not present
+  // Set default values if not present - this runs only once
   useEffect(() => {
     if (!initializedRef.current) {
       const defaultValues: Partial<NodeData> = {
@@ -45,6 +44,11 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
       }
     }
   }, [node.id, nodeData, updateNodeData]);
+  
+  // Keep orderType and showLimitPrice in sync
+  useEffect(() => {
+    setShowLimitPrice(nodeData?.orderType === 'limit');
+  }, [nodeData?.orderType]);
   
   // Get the start node to access its instrument
   useEffect(() => {
@@ -87,85 +91,95 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
     fetchStartNodeData();
 
     // Set up an interval to check for changes - more frequent updates for better responsiveness
-    const intervalId = setInterval(fetchStartNodeData, 200);
+    const intervalId = setInterval(fetchStartNodeData, 100);
 
     return () => clearInterval(intervalId);
   }, [getNodes, node.id, updateNodeData, hasOptionTrading]);
   
-  const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Create memoized handler functions that will remain stable across renders
+  const handleLabelChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     updateNodeData(node.id, { label: e.target.value });
-  };
+  }, [node.id, updateNodeData]);
 
-  const handleActionTypeChange = (value: string) => {
+  const handleActionTypeChange = useCallback((value: string) => {
     updateNodeData(node.id, { 
       actionType: value,
       // Reset position type if changing to alert
       ...(value === 'alert' && { positionType: undefined })
     });
-  };
+  }, [node.id, updateNodeData]);
   
-  const handlePositionTypeChange = (value: string) => {
+  const handlePositionTypeChange = useCallback((value: string) => {
     updateNodeData(node.id, { positionType: value });
-  };
+  }, [node.id, updateNodeData]);
   
-  const handleOrderTypeChange = (value: string) => {
+  const handleOrderTypeChange = useCallback((value: string) => {
     setShowLimitPrice(value === 'limit');
     updateNodeData(node.id, { 
       orderType: value,
       // Reset limit price if changing to market
       ...(value === 'market' && { limitPrice: undefined })
     });
-  };
+  }, [node.id, updateNodeData]);
   
-  const handleLimitPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    updateNodeData(node.id, { limitPrice: parseFloat(e.target.value) || 0 });
-  };
+  const handleLimitPriceChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseFloat(e.target.value);
+    if (!isNaN(value)) {
+      updateNodeData(node.id, { limitPrice: value });
+    }
+  }, [node.id, updateNodeData]);
   
-  const handleLotsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    updateNodeData(node.id, { lots: parseInt(e.target.value) || 1 });
-  };
+  const handleLotsChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value);
+    if (!isNaN(value) && value > 0) {
+      updateNodeData(node.id, { lots: value });
+    }
+  }, [node.id, updateNodeData]);
   
-  const handleProductTypeChange = (value: string) => {
+  const handleProductTypeChange = useCallback((value: string) => {
     updateNodeData(node.id, { productType: value });
-  };
+  }, [node.id, updateNodeData]);
   
-  const handleExpiryChange = (value: string) => {
+  const handleExpiryChange = useCallback((value: string) => {
     updateNodeData(node.id, { 
       optionDetails: {
-        ...nodeData.optionDetails,
+        ...nodeData?.optionDetails,
         expiry: value
       }
     });
-  };
+  }, [node.id, nodeData?.optionDetails, updateNodeData]);
   
-  const handleStrikeTypeChange = (value: string) => {
+  const handleStrikeTypeChange = useCallback((value: string) => {
     updateNodeData(node.id, { 
       optionDetails: {
-        ...nodeData.optionDetails,
+        ...nodeData?.optionDetails,
         strikeType: value,
         // Reset strike value if not premium
         ...(value !== 'premium' && { strikeValue: undefined })
       }
     });
-  };
+  }, [node.id, nodeData?.optionDetails, updateNodeData]);
   
-  const handleStrikeValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleStrikeValueChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseFloat(e.target.value);
+    if (!isNaN(value)) {
+      updateNodeData(node.id, { 
+        optionDetails: {
+          ...nodeData?.optionDetails,
+          strikeValue: value
+        }
+      });
+    }
+  }, [node.id, nodeData?.optionDetails, updateNodeData]);
+  
+  const handleOptionTypeChange = useCallback((value: string) => {
     updateNodeData(node.id, { 
       optionDetails: {
-        ...nodeData.optionDetails,
-        strikeValue: parseFloat(e.target.value) || 0
-      }
-    });
-  };
-  
-  const handleOptionTypeChange = (value: string) => {
-    updateNodeData(node.id, { 
-      optionDetails: {
-        ...nodeData.optionDetails,
+        ...nodeData?.optionDetails,
         optionType: value
       }
     });
-  };
+  }, [node.id, nodeData?.optionDetails, updateNodeData]);
 
   return {
     nodeData,

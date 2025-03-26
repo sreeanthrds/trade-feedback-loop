@@ -20,6 +20,14 @@ interface NodePanelProps {
 const NodePanel = ({ node, updateNodeData, onClose }: NodePanelProps) => {
   const isMobile = useIsMobile();
 
+  // Every time a node is updated, add a timestamp to force React to rerender
+  const updateNodeDataWithTimestamp = (id: string, data: any) => {
+    updateNodeData(id, {
+      ...data,
+      _lastUpdated: Date.now() // Add timestamp to force updates
+    });
+  };
+
   const renderEditor = () => {
     switch (node.type) {
       case 'startNode':
@@ -27,7 +35,7 @@ const NodePanel = ({ node, updateNodeData, onClose }: NodePanelProps) => {
       case 'signalNode':
         return <SignalNodeEditor node={node} updateNodeData={updateNodeData} />;
       case 'actionNode':
-        return <ActionNodeEditor node={node} updateNodeData={updateNodeData} />;
+        return <ActionNodeEditor node={node} updateNodeData={updateNodeDataWithTimestamp} />;
       case 'endNode':
         return <EndNodeEditor node={node} updateNodeData={updateNodeData} />;
       case 'forceEndNode':

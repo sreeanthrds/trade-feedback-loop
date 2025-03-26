@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Node } from '@xyflow/react';
 import { NodeDetailsPanel } from './shared';
 import { useActionNodeForm } from './action-node/useActionNodeForm';
@@ -28,6 +28,14 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
     handleStrikeValueChange,
     handleOptionTypeChange
   } = useActionNodeForm({ node, updateNodeData });
+
+  // Force the node to update visually when any change happens
+  useEffect(() => {
+    // Just touching the node data to trigger an update
+    if (nodeData) {
+      updateNodeData(node.id, { ...nodeData });
+    }
+  }, [nodeData]);
 
   // Get the appropriate info message based on the action type
   const getActionInfoTooltip = () => {
