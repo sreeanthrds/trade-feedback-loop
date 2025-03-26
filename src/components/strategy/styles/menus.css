@@ -33,3 +33,18 @@
 .react-flow__node [data-radix-popper-content-wrapper] {
   width: auto !important;
 }
+
+/* Fix for CommandItem in mobile view */
+@media (max-width: 768px) {
+  [cmdk-item] {
+    min-height: 44px !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+  
+  [cmdk-list] {
+    max-height: 40vh !important;
+    -webkit-overflow-scrolling: touch;
+  }
+}

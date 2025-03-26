@@ -5,20 +5,46 @@
   [cmdk-item] {
     padding: 10px !important;
     margin: 2px 0 !important;
+    min-height: 44px !important; /* Minimum recommended touch target size */
   }
 
   /* Fix mobile selection issues */
   [data-mobile-selectable="true"] {
     touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
   }
 
   /* Ensure popover content has background and proper z-index */
   [data-radix-popper-content-wrapper] {
     z-index: 9999 !important;
+    background-color: var(--background) !important;
   }
 
   /* Better scrolling for mobile dropdowns */
   .max-h-\[40vh\] {
     -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
   }
+  
+  /* Fix touch detection on CommandItem elements */
+  [cmdk-item] {
+    cursor: pointer !important;
+    user-select: none !important;
+  }
+  
+  /* Ensure backdrops work properly */
+  [data-state="open"] > [data-radix-popper-content-wrapper] {
+    position: fixed !important;
+  }
+  
+  /* Proper tap handling for mobile Symbol Selector */
+  .command-item-mobile {
+    padding: 12px !important;
+  }
+}
+
+/* Fix for dropdown portal overlays */
+[data-radix-popper-content-wrapper] {
+  background-color: var(--background) !important;
+  z-index: 9999 !important;
 }

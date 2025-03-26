@@ -94,10 +94,18 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
   // Determine if the dropdown should be disabled
   const isDropdownDisabled = disabled || (instrumentType === 'options' && !underlyingType);
   
-  // Handle item selection
+  // Handle item selection - fixed for mobile
   const handleSelectItem = (currentValue: string) => {
-    onChange(currentValue);
-    setOpen(false);
+    // Use a small timeout for mobile to ensure the event is captured properly
+    if (isMobile) {
+      setTimeout(() => {
+        onChange(currentValue);
+        setOpen(false);
+      }, 50);
+    } else {
+      onChange(currentValue);
+      setOpen(false);
+    }
   };
 
   return (
@@ -129,7 +137,10 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
                   key={symbol.value}
                   value={symbol.value}
                   onSelect={handleSelectItem}
-                  className="flex items-center"
+                  className={cn(
+                    "flex items-center",
+                    isMobile && "py-3" // Increase touch target size on mobile
+                  )}
                   data-mobile-selectable={isMobile ? "true" : undefined}
                 >
                   <span>{symbol.value}</span>
