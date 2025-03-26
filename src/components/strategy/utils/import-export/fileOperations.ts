@@ -26,16 +26,24 @@ export const exportStrategyToFile = (nodes: Node[], edges: Edge[]) => {
   
   // Transform indicator names to display names in start nodes
   nodesCopy.forEach((node: Node) => {
-    if (node.type === 'startNode' && node.data.indicators && node.data.indicatorParameters) {
-      // Create a new array of indicator display names
-      const displayIndicators = node.data.indicators.map((indicator: string) => 
-        getIndicatorDisplayName(indicator, node.data.indicatorParameters)
-      );
+    if (node.type === 'startNode' && node.data) {
+      // Type assertions and safety checks
+      const nodeData = node.data as { 
+        indicators?: string[]; 
+        indicatorParameters?: Record<string, Record<string, any>>; 
+      };
       
-      // Keep the original indicators array for reference
-      node.data.originalIndicators = node.data.indicators;
-      // Replace with display names
-      node.data.indicators = displayIndicators;
+      if (Array.isArray(nodeData.indicators) && nodeData.indicatorParameters) {
+        // Create a new array of indicator display names
+        const displayIndicators = nodeData.indicators.map((indicator: string) => 
+          getIndicatorDisplayName(indicator, nodeData.indicatorParameters)
+        );
+        
+        // Keep the original indicators array for reference
+        node.data.originalIndicators = nodeData.indicators;
+        // Replace with display names
+        node.data.indicators = displayIndicators;
+      }
     }
   });
   
@@ -83,9 +91,12 @@ export const importStrategyFromEvent = (
         
         // Restore original indicators if present
         nodes.forEach((node: Node) => {
-          if (node.type === 'startNode' && node.data.originalIndicators) {
-            node.data.indicators = node.data.originalIndicators;
-            delete node.data.originalIndicators;
+          if (node.type === 'startNode' && node.data) {
+            const nodeData = node.data as { originalIndicators?: string[] };
+            if (nodeData.originalIndicators) {
+              node.data.indicators = nodeData.originalIndicators;
+              delete node.data.originalIndicators;
+            }
           }
         });
         
