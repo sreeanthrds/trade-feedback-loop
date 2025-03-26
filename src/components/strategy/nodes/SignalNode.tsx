@@ -4,6 +4,7 @@ import { Handle, Position } from '@xyflow/react';
 import { Activity } from 'lucide-react';
 import { GroupCondition, groupConditionToString } from '../utils/conditionTypes';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
+import { getIndicatorNameForDisplay } from '../utils/indicatorUtils';
 
 interface SignalNodeData {
   label?: string;

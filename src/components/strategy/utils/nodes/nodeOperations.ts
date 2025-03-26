@@ -74,8 +74,11 @@ export const getIndicatorMap = (startNode: Node | undefined): Record<string, str
     return {};
   }
   
-  return startNode.data.indicators.reduce((acc, indicator) => {
-    acc[indicator] = getIndicatorDisplayName(indicator, startNode.data.indicatorParameters);
+  const indicators = startNode.data.indicators as string[];
+  const indicatorParameters = startNode.data.indicatorParameters as Record<string, Record<string, any>>;
+  
+  return indicators.reduce((acc, indicator) => {
+    acc[indicator] = getIndicatorDisplayName(indicator, indicatorParameters);
     return acc;
   }, {} as Record<string, string>);
 };

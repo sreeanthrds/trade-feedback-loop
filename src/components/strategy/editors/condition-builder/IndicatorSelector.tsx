@@ -89,24 +89,9 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
     return outputParameters[baseIndicator] || [];
   };
   
-  // This function is now consistent with the same function in StartNode.tsx
-  const getIndicatorDisplayName = (key: string) => {
+  const getStartNodeParameters = () => {
     const startNode = strategyStore.nodes.find(node => node.type === 'startNode');
-    if (!startNode || !startNode.data || !startNode.data.indicatorParameters) return key;
-    
-    // Extract base indicator name (before any underscore)
-    const baseName = key.split('_')[0];
-    
-    if (startNode.data.indicatorParameters[key]) {
-      const params = startNode.data.indicatorParameters[key];
-      
-      // Format all parameters into a single, readable string - only values
-      const paramList = Object.values(params).join(',');
-      
-      return `${baseName}(${paramList})`;
-    }
-    
-    return key;
+    return startNode?.data?.indicatorParameters || {};
   };
   
   return (
@@ -122,8 +107,7 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
               <div className="flex items-center gap-2">
                 <ExpressionIcon type="indicator" subType={indicatorExpr.parameter} />
                 <span>
-                  {getIndicatorDisplayName(indicatorExpr.name, 
-                    strategyStore.nodes.find(node => node.type === 'startNode')?.data?.indicatorParameters)}
+                  {getIndicatorDisplayName(indicatorExpr.name, getStartNodeParameters())}
                 </span>
               </div>
             )}
@@ -136,8 +120,7 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
                 <div className="flex items-center gap-2">
                   <ExpressionIcon type="indicator" />
                   <span>
-                    {getIndicatorDisplayName(indicator, 
-                      strategyStore.nodes.find(node => node.type === 'startNode')?.data?.indicatorParameters)}
+                    {getIndicatorDisplayName(indicator, getStartNodeParameters())}
                   </span>
                 </div>
               </SelectItem>

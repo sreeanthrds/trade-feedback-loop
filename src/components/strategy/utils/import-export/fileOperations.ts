@@ -8,7 +8,7 @@ export const exportStrategyToFile = (nodes: Node[], edges: Edge[]) => {
   const startNode = nodes.find(node => node.type === 'startNode');
   let indicatorDisplayNames = {};
   
-  if (startNode && startNode.data.indicators && startNode.data.indicatorParameters) {
+  if (startNode && startNode.data && startNode.data.indicators && Array.isArray(startNode.data.indicators)) {
     indicatorDisplayNames = getIndicatorDisplayNames(
       startNode.data.indicators, 
       startNode.data.indicatorParameters
@@ -58,7 +58,11 @@ export const importStrategyFromEvent = (
     try {
       const result = e.target?.result as string;
       if (!result) {
-        toast.error("Failed to read file");
+        toast({
+          title: "Error",
+          description: "Failed to read file",
+          variant: "destructive"
+        });
         return;
       }
       
@@ -88,7 +92,11 @@ export const importStrategyFromEvent = (
         
         // Only proceed if we have valid connections
         if (validatedEdges.some((edge: Edge) => !edge.source || !edge.target)) {
-          toast.error("Invalid edge connections in imported file");
+          toast({
+            title: "Error",
+            description: "Invalid edge connections in imported file",
+            variant: "destructive"
+          });
           return;
         }
         
@@ -97,14 +105,25 @@ export const importStrategyFromEvent = (
         setEdges(validatedEdges);
         resetHistory();
         addHistoryItem(validatedNodes, validatedEdges);
-        toast.success("Strategy imported successfully");
+        toast({
+          title: "Success",
+          description: "Strategy imported successfully"
+        });
         success = true;
       } else {
-        toast.error("Invalid strategy file format");
+        toast({
+          title: "Error",
+          description: "Invalid strategy file format",
+          variant: "destructive"
+        });
       }
     } catch (error) {
       console.error("Import error:", error);
-      toast.error("Failed to parse strategy file");
+      toast({
+        title: "Error",
+        description: "Failed to parse strategy file",
+        variant: "destructive"
+      });
     }
   };
   

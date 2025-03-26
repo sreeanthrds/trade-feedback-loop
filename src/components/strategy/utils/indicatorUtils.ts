@@ -15,8 +15,13 @@ export const getIndicatorDisplayName = (key: string, indicatorParameters?: Recor
   if (indicatorParameters[key]) {
     const params = indicatorParameters[key];
     
+    // Skip internal parameters that start with underscore
+    const visibleParams = Object.entries(params)
+      .filter(([paramName]) => !paramName.startsWith('_'))
+      .map(([_, value]) => value);
+    
     // Format all parameters into a single, readable string - only values
-    const paramList = Object.values(params).join(',');
+    const paramList = visibleParams.join(',');
     
     return `${baseName}(${paramList})`;
   }
@@ -35,4 +40,22 @@ export const getIndicatorDisplayNames = (
     acc[indicator] = getIndicatorDisplayName(indicator, indicatorParameters);
     return acc;
   }, {} as Record<string, string>);
+};
+
+/**
+ * Extracts indicator display name for use in condition builder and nodes
+ * This is consistent with the names shown in the UI
+ */
+export const getIndicatorNameForDisplay = (
+  indicator: string,
+  startNodeData?: any
+): string => {
+  if (!startNodeData || !startNodeData.indicatorParameters) {
+    return indicator;
+  }
+  
+  return getIndicatorDisplayName(
+    indicator, 
+    startNodeData.indicatorParameters
+  );
 };
