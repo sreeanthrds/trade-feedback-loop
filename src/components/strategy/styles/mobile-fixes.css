@@ -3,33 +3,42 @@
 @media (max-width: 768px) {
   /* Increase touch target size for mobile */
   [cmdk-item] {
-    padding: 10px !important;
+    padding: 12px !important;
     margin: 2px 0 !important;
-    min-height: 44px !important; /* Minimum recommended touch target size */
+    min-height: 48px !important; /* Even larger touch target size */
+    display: flex !important;
+    align-items: center !important;
   }
 
   /* Fix mobile selection issues */
   [data-mobile-selectable="true"] {
     touch-action: manipulation !important;
     -webkit-tap-highlight-color: transparent !important;
+    -webkit-touch-callout: none !important;
+    user-select: none !important;
   }
 
   /* Ensure popover content has background and proper z-index */
   [data-radix-popper-content-wrapper] {
     z-index: 9999 !important;
     background-color: var(--background) !important;
+    position: fixed !important;
+    width: auto !important;
+    max-width: 95vw !important;
   }
 
   /* Better scrolling for mobile dropdowns */
   .max-h-\[40vh\] {
     -webkit-overflow-scrolling: touch;
     overflow-scrolling: touch;
+    max-height: 50vh !important; /* Slightly larger on mobile */
   }
   
   /* Fix touch detection on CommandItem elements */
   [cmdk-item] {
     cursor: pointer !important;
     user-select: none !important;
+    -webkit-touch-callout: none !important;
   }
   
   /* Ensure backdrops work properly */
@@ -39,11 +48,27 @@
   
   /* Proper tap handling for mobile Symbol Selector */
   .command-item-mobile {
-    padding: 12px !important;
+    padding: 16px !important;
+  }
+  
+  /* Fix command group rendering on mobile */
+  [cmdk-group] {
+    overflow: visible !important;
+  }
+  
+  [cmdk-group-heading] {
+    padding: 8px 12px !important;
+    font-weight: 600 !important;
+  }
+  
+  /* Fix for lists in command dialogs */
+  [cmdk-list] {
+    padding: 8px !important;
+    overflow-y: auto !important;
   }
 }
 
-/* Fix for dropdown portal overlays */
+/* Fix for dropdown portal overlays - applied to all viewports */
 [data-radix-popper-content-wrapper] {
   background-color: var(--background) !important;
   z-index: 9999 !important;

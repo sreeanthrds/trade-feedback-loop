@@ -37,14 +37,33 @@
 /* Fix for CommandItem in mobile view */
 @media (max-width: 768px) {
   [cmdk-item] {
-    min-height: 44px !important;
+    min-height: 48px !important;
     cursor: pointer !important;
     user-select: none !important;
     -webkit-tap-highlight-color: transparent !important;
+    -webkit-touch-callout: none !important;
   }
   
   [cmdk-list] {
-    max-height: 40vh !important;
+    max-height: 50vh !important;
     -webkit-overflow-scrolling: touch;
+    overflow-y: auto !important;
+  }
+  
+  /* Force proper rendering of popover contents */
+  .command-item-mobile {
+    display: flex !important;
+    align-items: center !important;
+  }
+  
+  /* Ensure command components are properly rendered on iOS */
+  [cmdk-root], [cmdk-input], [cmdk-item], [cmdk-list] {
+    -webkit-appearance: none !important;
+  }
+  
+  /* Force visibility of popovers */
+  .popover-content-visible {
+    visibility: visible !important;
+    opacity: 1 !important;
   }
 }

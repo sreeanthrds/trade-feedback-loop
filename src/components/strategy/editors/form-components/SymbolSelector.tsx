@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Check, ChevronsUpDown, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -94,14 +93,14 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
   // Determine if the dropdown should be disabled
   const isDropdownDisabled = disabled || (instrumentType === 'options' && !underlyingType);
   
-  // Handle item selection - fixed for mobile
+  // Enhanced mobile touch handling
   const handleSelectItem = (currentValue: string) => {
-    // Use a small timeout for mobile to ensure the event is captured properly
+    // For mobile, use a longer timeout and prevent default behaviors
     if (isMobile) {
       setTimeout(() => {
         onChange(currentValue);
         setOpen(false);
-      }, 50);
+      }, 100); // Increased timeout for better mobile handling
     } else {
       onChange(currentValue);
       setOpen(false);
@@ -139,9 +138,9 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
                   onSelect={handleSelectItem}
                   className={cn(
                     "flex items-center",
-                    isMobile && "py-3" // Increase touch target size on mobile
+                    isMobile && "command-item-mobile py-4" // Increased padding for better touch targets
                   )}
-                  data-mobile-selectable={isMobile ? "true" : undefined}
+                  data-mobile-selectable="true"
                 >
                   <span>{symbol.value}</span>
                   <span className="ml-2 text-muted-foreground text-xs">
