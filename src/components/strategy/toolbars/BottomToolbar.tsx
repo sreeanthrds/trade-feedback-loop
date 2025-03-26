@@ -1,12 +1,13 @@
+
 import React, { useRef } from 'react';
 import { Panel } from '@xyflow/react';
 import { Save, Download, Upload, RotateCcw, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { saveStrategyToLocalStorage } from '../utils/storage/localStorageUtils';
 import { 
+  saveStrategyToLocalStorage, 
   exportStrategyToFile, 
   importStrategyFromEvent
-} from '../utils/import-export/fileOperations';
+} from '../utils/flowUtils';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
 
 interface BottomToolbarProps {
@@ -20,10 +21,12 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({ resetStrategy, onImportSu
 
   const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
     const success = importStrategyFromEvent(event, setNodes, setEdges, addHistoryItem, resetHistory);
+    // Reset the input value so the same file can be imported again if needed
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
     
+    // Notify parent component that import was successful
     if (success && onImportSuccess) {
       onImportSuccess();
     }
