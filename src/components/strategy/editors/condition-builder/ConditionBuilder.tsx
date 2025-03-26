@@ -28,9 +28,8 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
   allowRemove = false,
   index = 0
 }) => {
-  // Ensure rootCondition has a valid conditions array
+  // Ensure we have a complete, valid rootCondition with all required properties
   const safeRootCondition: GroupCondition = {
-    ...rootCondition,
     id: rootCondition?.id || `group_${Math.random().toString(36).substr(2, 9)}`,
     groupLogic: rootCondition?.groupLogic || 'AND',
     conditions: Array.isArray(rootCondition?.conditions) ? rootCondition.conditions : []
@@ -112,7 +111,7 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
 
       <div style={indentStyle} className="space-y-3 pt-2">
         {safeRootCondition.conditions.map((condition, idx) => (
-          <div key={condition.id || `condition-${idx}`} className="relative">
+          <div key={condition?.id || `condition-${idx}`} className="relative">
             <ConditionItem 
               condition={condition}
               index={idx}

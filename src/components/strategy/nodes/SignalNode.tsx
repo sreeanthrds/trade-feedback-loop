@@ -2,7 +2,7 @@
 import React, { memo, useMemo } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import { Activity } from 'lucide-react';
-import { GroupCondition, groupConditionToString } from '../utils/conditionTypes';
+import { GroupCondition, groupConditionToString, createEmptyGroupCondition } from '../utils/conditionTypes';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
 import { getIndicatorNameForDisplay } from '../utils/indicatorUtils';
 
@@ -13,16 +13,19 @@ interface SignalNodeData {
 
 const SignalNode = ({ data }: { data: SignalNodeData }) => {
   const strategyStore = useStrategyStore();
-  // Ensure data.conditions is a valid array
+  
+  // Ensure data is valid with default values
   const safeData = {
-    ...data,
-    conditions: Array.isArray(data?.conditions) ? data.conditions : []
+    label: data?.label || 'Signal',
+    conditions: Array.isArray(data?.conditions) && data.conditions.length > 0 
+      ? data.conditions 
+      : [createEmptyGroupCondition()]
   };
   
-  // Determine if we have any conditions to display
+  // Determine if we have any valid conditions to display
   const hasConditions = safeData.conditions.length > 0 && 
     safeData.conditions[0]?.conditions && 
-    Array.isArray(safeData.conditions[0]?.conditions) &&
+    Array.isArray(safeData.conditions[0].conditions) &&
     safeData.conditions[0].conditions.length > 0;
   
   // Format complex conditions for display
@@ -33,9 +36,18 @@ const SignalNode = ({ data }: { data: SignalNodeData }) => {
       // Find the start node to get indicator parameters
       const startNode = strategyStore.nodes.find(node => node.type === 'startNode');
       
+      // Ensure the first condition is a valid group condition
+      const rootCondition = safeData.conditions[0];
+      const validRootCondition: GroupCondition = {
+        id: rootCondition?.id || `group_${Math.random().toString(36).substr(2, 9)}`,
+        groupLogic: rootCondition?.groupLogic || 'AND',
+        conditions: Array.isArray(rootCondition?.conditions) ? rootCondition.conditions : []
+      };
+      
       // Pass start node data to the condition formatter
-      return groupConditionToString(safeData.conditions[0], startNode?.data);
+      return groupConditionToString(validRootCondition, startNode?.data);
     } catch (error) {
+      console.error("Error formatting condition:", error);
       return "Invalid condition structure";
     }
   }, [hasConditions, safeData.conditions, strategyStore.nodes]);
@@ -50,7 +62,7 @@ const SignalNode = ({ data }: { data: SignalNodeData }) => {
       
       <div className="flex items-center mb-1.5">
         <Activity className="h-4 w-4 text-primary mr-1.5" />
-        <div className="font-medium text-xs">{safeData.label || "Signal"}</div>
+        <div className="font-medium text-xs">{safeData.label}</div>
       </div>
       
       {hasConditions && conditionDisplay ? (
