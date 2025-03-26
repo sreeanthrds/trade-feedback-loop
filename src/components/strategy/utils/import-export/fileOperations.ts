@@ -1,9 +1,45 @@
-
 import { Node, Edge } from '@xyflow/react';
 import { toast } from 'sonner';
 
+const getIndicatorDisplayName = (key: string, indicatorParameters?: Record<string, Record<string, any>>) => {
+  if (!indicatorParameters) return key;
+  
+  // Extract base indicator name (before any underscore)
+  const baseName = key.split('_')[0];
+  
+  // If we have parameters for this indicator
+  if (indicatorParameters[key]) {
+    const params = indicatorParameters[key];
+    
+    // Format all parameters into a single, readable string - only values
+    const paramList = Object.values(params).join(',');
+    
+    return `${baseName}(${paramList})`;
+  }
+  
+  return key;
+};
+
 export const exportStrategyToFile = (nodes: Node[], edges: Edge[]) => {
-  const strategy = { nodes, edges };
+  // Create a deep copy of nodes to modify
+  const nodesCopy = JSON.parse(JSON.stringify(nodes));
+  
+  // Transform indicator names to display names in start nodes
+  nodesCopy.forEach((node: Node) => {
+    if (node.type === 'startNode' && node.data.indicators && node.data.indicatorParameters) {
+      // Create a new array of indicator display names
+      const displayIndicators = node.data.indicators.map((indicator: string) => 
+        getIndicatorDisplayName(indicator, node.data.indicatorParameters)
+      );
+      
+      // Keep the original indicators array for reference
+      node.data.originalIndicators = node.data.indicators;
+      // Replace with display names
+      node.data.indicators = displayIndicators;
+    }
+  });
+  
+  const strategy = { nodes: nodesCopy, edges };
   const blob = new Blob([JSON.stringify(strategy, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -44,6 +80,14 @@ export const importStrategyFromEvent = (
         // Make a deep copy to ensure we're not importing references
         const nodes = JSON.parse(JSON.stringify(imported.nodes));
         const edges = JSON.parse(JSON.stringify(imported.edges));
+        
+        // Restore original indicators if present
+        nodes.forEach((node: Node) => {
+          if (node.type === 'startNode' && node.data.originalIndicators) {
+            node.data.indicators = node.data.originalIndicators;
+            delete node.data.originalIndicators;
+          }
+        });
         
         // Ensure each node has appropriate properties
         const validatedNodes = nodes.map((node: Node) => ({
