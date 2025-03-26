@@ -19,6 +19,7 @@ export const useStartNodeData = ({
   const [hasOptionTrading, setHasOptionTrading] = useState(false);
   const previousSymbolRef = useRef<string | undefined>(startNodeSymbol);
   const previousInstrumentTypeRef = useRef<string | undefined>(undefined);
+  const nodeUpdateMadeRef = useRef(false);
   
   // Get the start node to access its instrument - with reduced polling frequency
   useEffect(() => {
@@ -33,7 +34,13 @@ export const useStartNodeData = ({
         
         // If instrument type changed from options to something else, we need to clear option details
         if (previousInstrumentTypeRef.current === 'options' && data.tradingInstrument?.type !== 'options') {
-          updateNodeData(nodeId, { optionDetails: undefined });
+          if (!nodeUpdateMadeRef.current) {
+            updateNodeData(nodeId, { optionDetails: undefined });
+            nodeUpdateMadeRef.current = true;
+            setTimeout(() => {
+              nodeUpdateMadeRef.current = false;
+            }, 100);
+          }
         }
         
         // Update the previous instrument type reference
@@ -50,8 +57,12 @@ export const useStartNodeData = ({
           previousSymbolRef.current = data.symbol;
           
           // Also update the node data if the symbol changed
-          if (data.symbol) {
+          if (data.symbol && !nodeUpdateMadeRef.current) {
             updateNodeData(nodeId, { instrument: data.symbol });
+            nodeUpdateMadeRef.current = true;
+            setTimeout(() => {
+              nodeUpdateMadeRef.current = false;
+            }, 100);
           }
         }
       }
@@ -60,8 +71,8 @@ export const useStartNodeData = ({
     // Initial fetch
     fetchStartNodeData();
 
-    // Set up an interval with reduced frequency (from 100ms to 500ms)
-    const intervalId = setInterval(fetchStartNodeData, 500);
+    // Set up an interval with reduced frequency (from 100ms to 1000ms for better performance)
+    const intervalId = setInterval(fetchStartNodeData, 1000);
 
     return () => clearInterval(intervalId);
   }, [getNodes, nodeId, updateNodeData, hasOptionTrading]);

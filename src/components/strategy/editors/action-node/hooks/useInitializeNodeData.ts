@@ -73,12 +73,10 @@ export const useInitializeNodeData = ({
         if (Object.keys(defaultValues).length > 0) {
           updateNodeData(nodeId, defaultValues);
         }
-        
-        initializedRef.current = true;
-      } else {
-        // Mark as initialized if everything is already set
-        initializedRef.current = true;
       }
+      
+      // Mark as initialized regardless of update
+      initializedRef.current = true;
     }
   }, [nodeId, nodeData, updateNodeData]);
 };

@@ -1,5 +1,5 @@
 
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect, useState, useRef } from 'react';
 import { Handle, Position, useReactFlow } from '@xyflow/react';
 import { SlidersHorizontal, AlertTriangle, X, ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
 
@@ -31,16 +31,9 @@ const ActionNode = ({ data, id }: { data: ActionNodeData, id: string }) => {
   
   // Make a copy of data to prevent potential null reference issues
   const safeData = { ...data };
+  const intervalRef = useRef<number | null>(null);
   
-  // Force rerender when data changes
-  useEffect(() => {
-    if (safeData && safeData._lastUpdated) {
-      // This will trigger a re-render when the _lastUpdated timestamp changes
-      console.log('Action node data updated:', safeData._lastUpdated);
-    }
-  }, [safeData, safeData?._lastUpdated]);
-  
-  // Get the start node symbol to display
+  // Get the start node symbol to display with optimized polling
   useEffect(() => {
     const fetchStartNodeSymbol = () => {
       const nodes = getNodes();
@@ -56,11 +49,18 @@ const ActionNode = ({ data, id }: { data: ActionNodeData, id: string }) => {
     // Initial fetch
     fetchStartNodeSymbol();
 
-    // Set up an interval to check for changes
-    const intervalId = setInterval(fetchStartNodeSymbol, 200);
+    // Set up an interval with reduced frequency (500ms instead of 200ms)
+    if (!intervalRef.current) {
+      intervalRef.current = window.setInterval(fetchStartNodeSymbol, 500);
+    }
 
-    return () => clearInterval(intervalId);
-  }, [getNodes, startNodeSymbol]);
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [getNodes]);
   
   const getActionIcon = () => {
     switch (safeData.actionType) {

@@ -50,11 +50,13 @@ const ReactFlowCanvas = memo(({
   // Only fit view on initial load or when explicitly requested (import)
   useEffect(() => {
     if (initialLoadRef.current && nodes.length > 0 && reactFlowInstance) {
-      // Initial load fit view - but with a shorter timeout
-      setTimeout(() => {
+      // Initial load fit view - use a debounce approach
+      const timeoutId = setTimeout(() => {
         fitViewWithCustomZoom();
         initialLoadRef.current = false;
-      }, 200);
+      }, 300);
+      
+      return () => clearTimeout(timeoutId);
     }
   }, [nodes, edges, reactFlowInstance, fitViewWithCustomZoom]);
 
@@ -90,7 +92,7 @@ const ReactFlowCanvas = memo(({
         fitViewOptions={{
           padding: 0.3,
           includeHiddenNodes: false,
-          duration: 400, // Reduced from 600
+          duration: 300,
           maxZoom: 0.85
         }}
       >
