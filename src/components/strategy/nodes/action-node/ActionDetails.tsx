@@ -63,7 +63,11 @@ const ActionDetails: React.FC<ActionDetailsProps> = ({ data, startNodeSymbol }) 
           
           <div className="flex justify-between">
             <span className="text-foreground/60">Strike:</span>
-            <span className="font-medium">{data.optionDetails.strikeType || 'ATM'}</span>
+            <span className="font-medium">
+              {data.optionDetails.strikeType === 'premium' 
+                ? `Premium ₹${data.optionDetails.strikeValue || 100}` 
+                : data.optionDetails.strikeType || 'ATM'}
+            </span>
           </div>
           
           <div className="flex justify-between">

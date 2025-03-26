@@ -68,6 +68,7 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
       setStrikeDistance('');
     } else if (value === 'premium') {
       onStrikeTypeChange(value);
+      // Also update the strike value when switching to premium
       onStrikeValueChange({ target: { value: premiumValue.toString() } } as React.ChangeEvent<HTMLInputElement>);
       setStrikeDistance('');
     } else if (value === 'ITM' || value === 'OTM') {
@@ -89,6 +90,16 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
       onStrikeValueChange(e);
     }
   };
+
+  // Ensure we update the strike value when the component mounts if premium is selected
+  useEffect(() => {
+    if (strikeCategory === 'premium' && optionDetails?.strikeType === 'premium') {
+      // Set a default value if none exists
+      if (!optionDetails.strikeValue) {
+        onStrikeValueChange({ target: { value: premiumValue.toString() } } as React.ChangeEvent<HTMLInputElement>);
+      }
+    }
+  }, []);
 
   const expiryOptions = [
     { value: 'W0', label: 'Current Week (W0)' },
@@ -161,7 +172,7 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
           id="premium-value"
           type="number"
           min={1}
-          value={optionDetails?.strikeValue || premiumValue || 100}
+          value={optionDetails?.strikeValue || premiumValue}
           onChange={handlePremiumValueChange}
           placeholder="Enter target premium"
         />

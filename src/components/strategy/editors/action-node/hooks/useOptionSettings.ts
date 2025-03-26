@@ -39,11 +39,19 @@ export const useOptionSettings = ({
   
   const handleStrikeTypeChange = useCallback((value: string) => {
     ensureOptionDetails();
+    // For premium type, ensure we initialize with default strike value if not already set
+    const updatedOptions = { 
+      ...nodeData.optionDetails,
+      strikeType: value
+    };
+    
+    // If changing to premium type and no strike value is set, set a default
+    if (value === 'premium' && !nodeData.optionDetails?.strikeValue) {
+      updatedOptions.strikeValue = 100;
+    }
+    
     updateNodeData(nodeId, { 
-      optionDetails: {
-        ...nodeData.optionDetails,
-        strikeType: value
-      }
+      optionDetails: updatedOptions
     });
   }, [nodeId, nodeData.optionDetails, updateNodeData, ensureOptionDetails]);
   
