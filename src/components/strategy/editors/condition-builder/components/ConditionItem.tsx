@@ -45,8 +45,13 @@ const ConditionItem: React.FC<ConditionItemProps> = ({
     );
   }
   
-  // Check if this is a group condition (has groupLogic and conditions array)
-  if ('groupLogic' in condition && condition.groupLogic) {
+  // Type guard function to check if the condition is a GroupCondition
+  const isGroupCondition = (cond: Condition | GroupCondition): cond is GroupCondition => {
+    return 'groupLogic' in cond && 'conditions' in cond;
+  };
+  
+  // Check if this is a group condition using the type guard
+  if (isGroupCondition(condition)) {
     // Ensure the group condition has all required properties
     const safeGroupCondition: GroupCondition = {
       id: condition.id || `group_${Math.random().toString(36).substr(2, 9)}`,
@@ -66,6 +71,7 @@ const ConditionItem: React.FC<ConditionItemProps> = ({
       />
     );
   } else {
+    // Now TypeScript knows this is a Condition type, not GroupCondition
     // Ensure the condition has all required properties for a single condition
     const safeCondition: Condition = {
       id: condition.id || `cond_${Math.random().toString(36).substr(2, 9)}`,
