@@ -2,7 +2,8 @@
 import React from 'react';
 import { 
   Expression, 
-  ConstantExpression
+  ConstantExpression,
+  isConstantExpression
 } from '../../../utils/conditionTypes';
 import { Input } from '@/components/ui/input';
 
@@ -15,28 +16,31 @@ const ConstantValueEditor: React.FC<ConstantValueEditorProps> = ({
   expression,
   updateExpression
 }) => {
-  if (expression.type !== 'constant') {
+  if (!isConstantExpression(expression)) {
     return null;
   }
 
-  const constantExpr = expression as ConstantExpression;
+  const constExpr = expression as ConstantExpression;
   
-  // Update constant value
-  const updateConstantValue = (value: string) => {
-    // Try to convert to number if possible
-    const numValue = !isNaN(Number(value)) ? Number(value) : value;
-    updateExpression({
-      ...constantExpr,
-      value: numValue
-    });
+  const updateValue = (value: string) => {
+    const numberValue = !isNaN(Number(value)) ? Number(value) : value;
+    const updated: ConstantExpression = {
+      ...constExpr,
+      value: numberValue
+    };
+    updateExpression(updated);
   };
   
   return (
-    <Input
-      value={constantExpr.value.toString()}
-      onChange={(e) => updateConstantValue(e.target.value)}
-      className="h-8"
-    />
+    <div>
+      <Input
+        type="text"
+        value={constExpr.value}
+        onChange={(e) => updateValue(e.target.value)}
+        className="h-8"
+        placeholder="Enter value"
+      />
+    </div>
   );
 };
 

@@ -18,6 +18,21 @@ const ConditionPreview: React.FC<ConditionPreviewProps> = ({
 }) => {
   const strategyStore = useStrategyStore();
   
+  if (!rootCondition) {
+    return (
+      <Card className="mt-4 bg-muted/40">
+        <CardHeader className="py-2 px-3">
+          <CardTitle className="text-xs font-medium">Preview</CardTitle>
+        </CardHeader>
+        <CardContent className="py-2 px-3">
+          <div className="text-sm font-mono text-muted-foreground">
+            No conditions defined
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+  
   // Get the start node to access indicator parameters
   const startNode = strategyStore.nodes.find(node => node.type === 'startNode');
   

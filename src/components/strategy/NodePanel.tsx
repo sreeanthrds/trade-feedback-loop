@@ -20,10 +20,21 @@ interface NodePanelProps {
 const NodePanel = memo(({ node, updateNodeData, onClose }: NodePanelProps) => {
   const isMobile = useIsMobile();
 
+  // Ensure node is valid before proceeding
+  if (!node || !node.id) {
+    console.error('Invalid node passed to NodePanel');
+    return (
+      <div className="p-4">
+        <div className="text-destructive">Invalid node data</div>
+        <Button onClick={onClose} className="mt-2">Close</Button>
+      </div>
+    );
+  }
+
   // Create stable update function to prevent re-renders
   const stableUpdateNodeData = useCallback((id: string, data: any) => {
     // Add timestamp only if it doesn't already have one
-    if (!data._lastUpdated) {
+    if (data && !data._lastUpdated) {
       data = {
         ...data,
         _lastUpdated: Date.now()
@@ -35,7 +46,8 @@ const NodePanel = memo(({ node, updateNodeData, onClose }: NodePanelProps) => {
   // Make sure node.data exists with a default fallback
   const safeNode = {
     ...node,
-    data: node.data || {}
+    data: node.data || {},
+    type: node.type || 'unknown'
   };
 
   const renderEditor = () => {
@@ -51,7 +63,7 @@ const NodePanel = memo(({ node, updateNodeData, onClose }: NodePanelProps) => {
       case 'forceEndNode':
         return <ForceEndNodeEditor node={safeNode} updateNodeData={stableUpdateNodeData} />;
       default:
-        return <div>Unknown node type</div>;
+        return <div>Unknown node type: {safeNode.type}</div>;
     }
   };
 

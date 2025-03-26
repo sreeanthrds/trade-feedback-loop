@@ -19,17 +19,30 @@ interface SignalNodeData {
 }
 
 export const useSignalNodeForm = ({ node, updateNodeData }: UseSignalNodeFormProps) => {
+  if (!node || !node.id) {
+    console.error('Invalid node passed to useSignalNodeForm');
+    return {
+      formData: { label: 'Signal', conditions: [createEmptyGroupCondition()] },
+      conditions: [createEmptyGroupCondition()],
+      handleLabelChange: () => {},
+      updateConditions: () => {}
+    };
+  }
+
   // Safely cast node.data with default fallback
   const nodeData = (node.data || {}) as SignalNodeData;
   
   // Initialize complex conditions data structure if it doesn't exist
   const initialConditions: GroupCondition[] = Array.isArray(nodeData.conditions) && nodeData.conditions.length > 0
     ? nodeData.conditions.map(cond => {
+        if (!cond) {
+          return createEmptyGroupCondition();
+        }
         // Ensure each condition has all required properties
         return {
-          id: cond?.id || `group_${Math.random().toString(36).substr(2, 9)}`,
-          groupLogic: cond?.groupLogic || 'AND',
-          conditions: Array.isArray(cond?.conditions) ? cond.conditions : []
+          id: cond.id || `group_${Math.random().toString(36).substr(2, 9)}`,
+          groupLogic: cond.groupLogic || 'AND',
+          conditions: Array.isArray(cond.conditions) ? cond.conditions : []
         };
       })
     : [createEmptyGroupCondition()];
@@ -42,6 +55,8 @@ export const useSignalNodeForm = ({ node, updateNodeData }: UseSignalNodeFormPro
   });
 
   const handleLabelChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e || !e.target) return;
+    
     const newValue = e.target.value;
     setFormData(prev => ({ ...prev, label: newValue }));
     updateNodeData(node.id, { ...nodeData, label: newValue });
@@ -51,7 +66,9 @@ export const useSignalNodeForm = ({ node, updateNodeData }: UseSignalNodeFormPro
   useEffect(() => {
     const timer = setTimeout(() => {
       // Ensure conditions is a valid array before updating node data
-      const safeConditions = Array.isArray(conditions) ? conditions : [createEmptyGroupCondition()];
+      const safeConditions = Array.isArray(conditions) && conditions.length > 0 
+        ? conditions 
+        : [createEmptyGroupCondition()];
       
       updateNodeData(node.id, { 
         ...nodeData,
@@ -70,11 +87,16 @@ export const useSignalNodeForm = ({ node, updateNodeData }: UseSignalNodeFormPro
     const safeFormData = {
       label: safeNodeData.label || 'Signal',
       conditions: Array.isArray(safeNodeData.conditions) && safeNodeData.conditions.length > 0
-        ? safeNodeData.conditions.map(cond => ({
-            id: cond?.id || `group_${Math.random().toString(36).substr(2, 9)}`,
-            groupLogic: cond?.groupLogic || 'AND',
-            conditions: Array.isArray(cond?.conditions) ? cond.conditions : []
-          }))
+        ? safeNodeData.conditions.map(cond => {
+            if (!cond) {
+              return createEmptyGroupCondition();
+            }
+            return {
+              id: cond.id || `group_${Math.random().toString(36).substr(2, 9)}`,
+              groupLogic: cond.groupLogic || 'AND',
+              conditions: Array.isArray(cond.conditions) ? cond.conditions : []
+            };
+          })
         : [createEmptyGroupCondition()]
     };
     
@@ -83,13 +105,23 @@ export const useSignalNodeForm = ({ node, updateNodeData }: UseSignalNodeFormPro
   }, [node.id]); // Only when node.id changes, not when nodeData changes
 
   const updateConditions = useCallback((newConditions: GroupCondition[]) => {
+    if (!Array.isArray(newConditions)) {
+      console.error('updateConditions called with non-array value:', newConditions);
+      return;
+    }
+    
     // Ensure newConditions is always a valid array with valid group conditions
-    const safeNewConditions = Array.isArray(newConditions) && newConditions.length > 0
-      ? newConditions.map(cond => ({
-          id: cond?.id || `group_${Math.random().toString(36).substr(2, 9)}`,
-          groupLogic: cond?.groupLogic || 'AND',
-          conditions: Array.isArray(cond?.conditions) ? cond.conditions : []
-        }))
+    const safeNewConditions = newConditions.length > 0
+      ? newConditions.map(cond => {
+          if (!cond) {
+            return createEmptyGroupCondition();
+          }
+          return {
+            id: cond.id || `group_${Math.random().toString(36).substr(2, 9)}`,
+            groupLogic: cond.groupLogic || 'AND',
+            conditions: Array.isArray(cond.conditions) ? cond.conditions : []
+          };
+        })
       : [createEmptyGroupCondition()];
     
     setConditions(safeNewConditions);

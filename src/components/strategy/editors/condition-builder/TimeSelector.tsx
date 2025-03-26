@@ -2,7 +2,8 @@
 import React from 'react';
 import { 
   Expression, 
-  TimeFunctionExpression
+  TimeFunctionExpression,
+  isTimeFunctionExpression
 } from '../../utils/conditionTypes';
 import { 
   Select,
@@ -22,7 +23,7 @@ const TimeSelector: React.FC<TimeSelectorProps> = ({
   expression,
   updateExpression
 }) => {
-  if (expression.type !== 'time_function') {
+  if (!isTimeFunctionExpression(expression)) {
     return null;
   }
 
@@ -30,21 +31,23 @@ const TimeSelector: React.FC<TimeSelectorProps> = ({
   
   // Update the time function
   const updateFunction = (value: string) => {
-    updateExpression({
+    const updated: TimeFunctionExpression = {
       ...timeExpr,
       function: value,
       // Reset parameters for functions that don't need them
       parameters: value === 'n_days_ago' ? (timeExpr.parameters || 1) : undefined
-    });
+    };
+    updateExpression(updated);
   };
   
   // Update days parameter for 'n_days_ago'
   const updateDaysParameter = (value: string) => {
     const numValue = parseInt(value) || 1;
-    updateExpression({
+    const updated: TimeFunctionExpression = {
       ...timeExpr,
       parameters: numValue
-    });
+    };
+    updateExpression(updated);
   };
   
   return (

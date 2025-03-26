@@ -38,14 +38,10 @@ const SignalNode = ({ data }: { data: SignalNodeData }) => {
       
       // Ensure the first condition is a valid group condition
       const rootCondition = safeData.conditions[0];
-      const validRootCondition: GroupCondition = {
-        id: rootCondition?.id || `group_${Math.random().toString(36).substr(2, 9)}`,
-        groupLogic: rootCondition?.groupLogic || 'AND',
-        conditions: Array.isArray(rootCondition?.conditions) ? rootCondition.conditions : []
-      };
+      if (!rootCondition) return "No conditions defined";
       
       // Pass start node data to the condition formatter
-      return groupConditionToString(validRootCondition, startNode?.data);
+      return groupConditionToString(rootCondition, startNode?.data);
     } catch (error) {
       console.error("Error formatting condition:", error);
       return "Invalid condition structure";

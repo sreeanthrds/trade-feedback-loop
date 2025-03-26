@@ -2,7 +2,8 @@
 import React from 'react';
 import { 
   Expression, 
-  MarketDataExpression
+  MarketDataExpression,
+  isMarketDataExpression
 } from '../../utils/conditionTypes';
 import { 
   Select,
@@ -21,7 +22,7 @@ const MarketDataSelector: React.FC<MarketDataSelectorProps> = ({
   expression,
   updateExpression
 }) => {
-  if (expression.type !== 'market_data') {
+  if (!isMarketDataExpression(expression)) {
     return null;
   }
 
@@ -29,10 +30,11 @@ const MarketDataSelector: React.FC<MarketDataSelectorProps> = ({
   
   // Update the field (Open, High, Low, Close, etc.)
   const updateField = (value: string) => {
-    updateExpression({
+    const updated: MarketDataExpression = {
       ...marketDataExpr,
       field: value
-    });
+    };
+    updateExpression(updated);
   };
   
   return (

@@ -3,8 +3,7 @@ import React from 'react';
 import { 
   Condition, 
   Expression,
-  ComparisonOperator,
-  createDefaultExpression
+  ComparisonOperator
 } from '../../utils/conditionTypes';
 import { 
   Select,

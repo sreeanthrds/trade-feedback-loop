@@ -22,13 +22,13 @@ const ExpressionTypeSelector: React.FC<ExpressionTypeSelectorProps> = ({
   return (
     <Select 
       value={type} 
-      onValueChange={(v) => onTypeChange(v as ExpressionType)}
+      onValueChange={(value) => onTypeChange(value as ExpressionType)}
     >
-      <SelectTrigger className="h-8">
-        <SelectValue>
+      <SelectTrigger className="h-8 w-full">
+        <SelectValue placeholder="Select type">
           <div className="flex items-center gap-2">
             <ExpressionIcon type={type} />
-            <span>{type}</span>
+            <span>{getExpressionTypeLabel(type)}</span>
           </div>
         </SelectValue>
       </SelectTrigger>
@@ -39,33 +39,48 @@ const ExpressionTypeSelector: React.FC<ExpressionTypeSelectorProps> = ({
             <span>Indicator</span>
           </div>
         </SelectItem>
+        
         <SelectItem value="market_data">
           <div className="flex items-center gap-2">
             <ExpressionIcon type="market_data" />
             <span>Market Data</span>
           </div>
         </SelectItem>
+        
         <SelectItem value="constant">
           <div className="flex items-center gap-2">
             <ExpressionIcon type="constant" />
             <span>Constant</span>
           </div>
         </SelectItem>
+        
         <SelectItem value="time_function">
           <div className="flex items-center gap-2">
             <ExpressionIcon type="time_function" />
-            <span>Time Function</span>
+            <span>Time</span>
           </div>
         </SelectItem>
+        
         <SelectItem value="expression">
           <div className="flex items-center gap-2">
             <ExpressionIcon type="expression" />
-            <span>Expression</span>
+            <span>Complex</span>
           </div>
         </SelectItem>
       </SelectContent>
     </Select>
   );
 };
+
+function getExpressionTypeLabel(type: ExpressionType): string {
+  switch (type) {
+    case 'indicator': return 'Indicator';
+    case 'market_data': return 'Market Data';
+    case 'constant': return 'Constant';
+    case 'time_function': return 'Time';
+    case 'expression': return 'Complex';
+    default: return 'Unknown';
+  }
+}
 
 export default ExpressionTypeSelector;

@@ -12,13 +12,6 @@ export interface Expression {
   type: ExpressionType;
 }
 
-// Expression value structure used in previous version
-export interface ExpressionValue {
-  type: ExpressionType;
-  value: any;
-  params?: Record<string, any>;
-}
-
 // Specific expression types
 export interface IndicatorExpression extends Expression {
   type: 'indicator';
@@ -82,6 +75,41 @@ export function isCondition(value: any): value is Condition {
     'lhs' in value && 
     'operator' in value && 
     'rhs' in value;
+}
+
+/**
+ * Type guard to check if an object is an IndicatorExpression
+ */
+export function isIndicatorExpression(expr: Expression): expr is IndicatorExpression {
+  return expr && expr.type === 'indicator';
+}
+
+/**
+ * Type guard to check if an object is a MarketDataExpression
+ */
+export function isMarketDataExpression(expr: Expression): expr is MarketDataExpression {
+  return expr && expr.type === 'market_data';
+}
+
+/**
+ * Type guard to check if an object is a ConstantExpression
+ */
+export function isConstantExpression(expr: Expression): expr is ConstantExpression {
+  return expr && expr.type === 'constant';
+}
+
+/**
+ * Type guard to check if an object is a TimeFunctionExpression
+ */
+export function isTimeFunctionExpression(expr: Expression): expr is TimeFunctionExpression {
+  return expr && expr.type === 'time_function';
+}
+
+/**
+ * Type guard to check if an object is a ComplexExpression
+ */
+export function isComplexExpression(expr: Expression): expr is ComplexExpression {
+  return expr && expr.type === 'expression';
 }
 
 /**
@@ -159,7 +187,7 @@ export const createEmptyGroupCondition = (): GroupCondition => ({
 /**
  * Convert an expression to a string for display
  */
-function expressionToString(expression: Expression, startNodeData?: any): string {
+export function expressionToString(expression: Expression | undefined, startNodeData?: any): string {
   if (!expression) return '?';
 
   switch (expression.type) {
@@ -204,7 +232,7 @@ function expressionToString(expression: Expression, startNodeData?: any): string
 /**
  * Convert a condition to a string for display
  */
-function conditionToString(condition: Condition, startNodeData?: any): string {
+export function conditionToString(condition: Condition | undefined, startNodeData?: any): string {
   if (!condition || !condition.lhs || !condition.operator || !condition.rhs) {
     return '?';
   }
@@ -218,7 +246,7 @@ function conditionToString(condition: Condition, startNodeData?: any): string {
 /**
  * Convert a group condition to a string for display
  */
-export function groupConditionToString(group: GroupCondition, startNodeData?: any): string {
+export function groupConditionToString(group: GroupCondition | undefined, startNodeData?: any): string {
   if (!group || !Array.isArray(group.conditions) || group.conditions.length === 0) {
     return '?';
   }

@@ -11,11 +11,18 @@ interface SignalNodeContentProps {
 }
 
 const SignalNodeContent: React.FC<SignalNodeContentProps> = ({ 
-  conditions = [], 
+  conditions, 
   updateConditions
 }) => {
-  // Ensure conditions is always an array
-  const safeConditions = Array.isArray(conditions) ? conditions : [];
+  // Ensure conditions is always a non-empty array
+  const safeConditions = Array.isArray(conditions) && conditions.length > 0 
+    ? conditions.map(condition => {
+        if (!condition) {
+          return createEmptyGroupCondition();
+        }
+        return condition;
+      })
+    : [createEmptyGroupCondition()];
   
   const handleAddConditionGroup = () => {
     const newConditions = [...safeConditions, createEmptyGroupCondition()];
@@ -23,6 +30,11 @@ const SignalNodeContent: React.FC<SignalNodeContentProps> = ({
   };
 
   const updateConditionGroup = (index: number, updatedGroup: GroupCondition) => {
+    if (index < 0 || index >= safeConditions.length) {
+      console.error('Invalid index for updating condition group', index);
+      return;
+    }
+    
     const newConditions = [...safeConditions];
     newConditions[index] = updatedGroup;
     updateConditions(newConditions);
@@ -42,7 +54,6 @@ const SignalNodeContent: React.FC<SignalNodeContentProps> = ({
     <div className="space-y-6">
       <div className="text-sm font-medium mb-2">Signal Conditions</div>
       
-      {/* Always ensure we have at least one condition group */}
       {safeConditions.length === 0 ? (
         <div className="text-sm text-muted-foreground py-2">
           No conditions defined. Add a condition group to define when this signal is triggered.

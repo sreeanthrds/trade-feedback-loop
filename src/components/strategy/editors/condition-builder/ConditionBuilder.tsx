@@ -29,10 +29,15 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
   index = 0
 }) => {
   // Ensure we have a complete, valid rootCondition with all required properties
+  if (!rootCondition) {
+    console.error('rootCondition is undefined in ConditionBuilder');
+    rootCondition = createEmptyGroupCondition();
+  }
+  
   const safeRootCondition: GroupCondition = {
-    id: rootCondition?.id || `group_${Math.random().toString(36).substr(2, 9)}`,
-    groupLogic: rootCondition?.groupLogic || 'AND',
-    conditions: Array.isArray(rootCondition?.conditions) ? rootCondition.conditions : []
+    id: rootCondition.id || `group_${Math.random().toString(36).substr(2, 9)}`,
+    groupLogic: rootCondition.groupLogic || 'AND',
+    conditions: Array.isArray(rootCondition.conditions) ? rootCondition.conditions : []
   };
 
   // Add a new single condition to this group
@@ -66,6 +71,11 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
 
   // Update a specific condition within this group
   const updateChildCondition = (index: number, updated: Condition | GroupCondition) => {
+    if (index < 0 || index >= safeRootCondition.conditions.length) {
+      console.error('Invalid index for updateChildCondition', index);
+      return;
+    }
+    
     const newConditions = [...safeRootCondition.conditions];
     newConditions[index] = updated;
     const updatedRoot = { ...safeRootCondition, conditions: newConditions };
@@ -76,6 +86,11 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
   const removeCondition = (index: number) => {
     // Don't remove the last condition
     if (safeRootCondition.conditions.length <= 1) {
+      return;
+    }
+    
+    if (index < 0 || index >= safeRootCondition.conditions.length) {
+      console.error('Invalid index for removeCondition', index);
       return;
     }
     

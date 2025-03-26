@@ -2,7 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import { 
   Expression, 
-  IndicatorExpression
+  IndicatorExpression,
+  isIndicatorExpression
 } from '../../utils/conditionTypes';
 import { 
   Select,
@@ -27,7 +28,7 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
   const strategyStore = useStrategyStore();
   const [availableIndicators, setAvailableIndicators] = useState<string[]>([]);
   
-  if (expression.type !== 'indicator') {
+  if (!isIndicatorExpression(expression)) {
     return null;
   }
 
@@ -44,18 +45,20 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
   }, [strategyStore.nodes]);
   
   const updateIndicatorName = (value: string) => {
-    updateExpression({
+    const updated: IndicatorExpression = {
       ...indicatorExpr,
       name: value,
       parameter: undefined
-    });
+    };
+    updateExpression(updated);
   };
   
   const updateParameter = (value: string) => {
-    updateExpression({
+    const updated: IndicatorExpression = {
       ...indicatorExpr,
       parameter: value
-    });
+    };
+    updateExpression(updated);
   };
   
   const hasMultipleOutputs = (indicator: string): boolean => {
@@ -97,22 +100,6 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
     return startNode.data.indicatorParameters;
   };
   
-  const mapToOptions = (indicators: string[] = [], indicatorParameters: unknown): { value: string; label: string }[] => {
-    if (!indicators.length) return [];
-
-    if (!isIndicatorParameters(indicatorParameters)) {
-      return indicators.map((indicator) => ({
-        value: indicator,
-        label: indicator
-      }));
-    }
-    
-    return indicators.map((indicator) => ({
-      value: indicator,
-      label: getIndicatorDisplayName(indicator, indicatorParameters)
-    }));
-  };
-
   const startNodeParameters = getStartNodeParameters();
 
   return (

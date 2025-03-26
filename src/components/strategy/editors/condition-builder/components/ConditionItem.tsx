@@ -2,7 +2,12 @@
 import React from 'react';
 import { Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { GroupCondition, Condition, isGroupCondition } from '../../../utils/conditionTypes';
+import { 
+  GroupCondition, 
+  Condition, 
+  isGroupCondition, 
+  createEmptyCondition 
+} from '../../../utils/conditionTypes';
 import ConditionBuilder from '../ConditionBuilder';
 import SingleConditionEditor from '../SingleConditionEditor';
 
@@ -63,9 +68,9 @@ const ConditionItem: React.FC<ConditionItemProps> = ({
   // Ensure our condition has all required properties
   const safeCondition: Condition = {
     id: condition.id || `condition_${Math.random().toString(36).substr(2, 9)}`,
-    lhs: condition.lhs || { type: 'indicator', value: '' },
+    lhs: condition.lhs || createDefaultExpression('indicator'),
     operator: condition.operator || '==',
-    rhs: condition.rhs || { type: 'constant', value: 0 }
+    rhs: condition.rhs || createDefaultExpression('constant')
   };
 
   // For simple conditions, render the SingleConditionEditor
