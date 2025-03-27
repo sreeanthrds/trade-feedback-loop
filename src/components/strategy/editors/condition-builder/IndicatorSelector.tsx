@@ -1,20 +1,11 @@
 
-import React, { useEffect, useState } from 'react';
-import { 
-  Expression, 
-  IndicatorExpression
-} from '../../utils/conditionTypes';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { useStrategyStore } from '@/hooks/use-strategy-store';
-import ExpressionIcon from './components/ExpressionIcon';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertTriangle } from 'lucide-react';
+import React from 'react';
+import { Expression, IndicatorExpression } from '../../utils/conditionTypes';
+import IndicatorDropdown from './indicator-selector/IndicatorDropdown';
+import IndicatorParameterSelector from './indicator-selector/IndicatorParameterSelector';
+import IndicatorWarning from './indicator-selector/IndicatorWarning';
+import EmptyIndicatorMessage from './indicator-selector/EmptyIndicatorMessage';
+import { useIndicatorUtils } from './indicator-selector/useIndicatorUtils';
 
 interface IndicatorSelectorProps {
   expression: Expression;
@@ -25,35 +16,17 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
   expression,
   updateExpression
 }) => {
-  const strategyStore = useStrategyStore();
-  const [availableIndicators, setAvailableIndicators] = useState<string[]>([]);
-  const [missingIndicator, setMissingIndicator] = useState(false);
-  
   if (expression.type !== 'indicator') {
     return null;
   }
 
   const indicatorExpr = expression as IndicatorExpression;
-  
-  useEffect(() => {
-    const startNode = strategyStore.nodes.find(node => node.type === 'startNode');
-    if (startNode && startNode.data && startNode.data.indicators && 
-        Array.isArray(startNode.data.indicators) && startNode.data.indicators.length > 0) {
-      setAvailableIndicators(startNode.data.indicators);
-      
-      // Check if the current indicator still exists in the start node
-      if (indicatorExpr.name && !startNode.data.indicators.includes(indicatorExpr.name)) {
-        setMissingIndicator(true);
-      } else {
-        setMissingIndicator(false);
-      }
-    } else {
-      setAvailableIndicators([]);
-      if (indicatorExpr.name) {
-        setMissingIndicator(true);
-      }
-    }
-  }, [strategyStore.nodes, indicatorExpr.name]);
+  const { 
+    availableIndicators, 
+    missingIndicator, 
+    hasMultipleOutputs, 
+    getIndicatorDisplayName 
+  } = useIndicatorUtils({ expression: indicatorExpr });
   
   const updateIndicatorName = (value: string) => {
     updateExpression({
@@ -70,139 +43,32 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
     });
   };
   
-  const hasMultipleOutputs = (indicator: string): boolean => {
-    if (!indicator) return false;
-    const baseIndicator = indicator.split('_')[0];
-    const multiOutputIndicators = [
-      'BollingerBands',
-      'MACD',
-      'Stochastic',
-      'ADX',
-      'Ichimoku',
-      'PivotPoints'  // Added PivotPoints to multi-output indicators
-    ];
-    return multiOutputIndicators.includes(baseIndicator);
-  };
-
-  const getParameterOptions = (indicator: string): string[] => {
-    if (!indicator) return [];
-    
-    const baseIndicator = indicator.split('_')[0];
-    
-    const outputParameters: Record<string, string[]> = {
-      'BollingerBands': ['UpperBand', 'MiddleBand', 'LowerBand'],
-      'MACD': ['MACD', 'Signal', 'Histogram'],
-      'Stochastic': ['SlowK', 'SlowD'],
-      'ADX': ['ADX', 'PlusDI', 'MinusDI'],
-      'Ichimoku': ['Tenkan', 'Kijun', 'SenkouA', 'SenkouB', 'Chikou'],
-      'PivotPoints': ['Pivot', 'R1', 'R2', 'R3', 'S1', 'S2', 'S3'] // Added PivotPoints parameters
-    };
-    
-    return outputParameters[baseIndicator] || [];
-  };
-  
-  // This function is now consistent with the same function in StartNode.tsx
-  const getIndicatorDisplayName = (key: string) => {
-    const startNode = strategyStore.nodes.find(node => node.type === 'startNode');
-    if (!startNode || !startNode.data || !startNode.data.indicatorParameters) return key;
-    
-    // Extract base indicator name (before any underscore)
-    const baseName = key.split('_')[0];
-    
-    if (startNode.data.indicatorParameters[key]) {
-      const params = startNode.data.indicatorParameters[key];
-      
-      // Create a copy without indicator_name
-      const displayParams = { ...params };
-      delete displayParams.indicator_name;
-      
-      // Format all parameters into a single, readable string - only values
-      const paramList = Object.values(displayParams).join(',');
-      
-      return `${baseName}(${paramList})`;
-    }
-    
-    return key;
-  };
-  
   return (
     <div className="space-y-2">
-      {missingIndicator && indicatorExpr.name && (
-        <Alert variant="destructive" className="py-2">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription className="text-xs">
-            Indicator <strong>{getIndicatorDisplayName(indicatorExpr.name)}</strong> is no longer 
-            available in the Start Node. Please select a different indicator.
-          </AlertDescription>
-        </Alert>
+      <IndicatorWarning 
+        indicatorName={indicatorExpr.name}
+        displayName={getIndicatorDisplayName(indicatorExpr.name)}
+        isMissing={missingIndicator}
+      />
+      
+      <IndicatorDropdown
+        indicatorName={indicatorExpr.name}
+        onIndicatorChange={updateIndicatorName}
+        availableIndicators={availableIndicators}
+        getIndicatorDisplayName={getIndicatorDisplayName}
+        isMissingIndicator={missingIndicator}
+      />
+      
+      {indicatorExpr.name && (
+        <IndicatorParameterSelector
+          indicator={indicatorExpr.name}
+          parameter={indicatorExpr.parameter}
+          onParameterChange={updateParameter}
+          hasMultipleOutputs={hasMultipleOutputs(indicatorExpr.name)}
+        />
       )}
       
-      <Select 
-        value={indicatorExpr.name} 
-        onValueChange={updateIndicatorName}
-        disabled={availableIndicators.length === 0}
-      >
-        <SelectTrigger className={`h-8 ${missingIndicator ? 'border-destructive' : ''}`}>
-          <SelectValue placeholder="Select indicator">
-            {indicatorExpr.name && (
-              <div className="flex items-center gap-2">
-                <ExpressionIcon type="indicator" subType={indicatorExpr.parameter} />
-                <span>{getIndicatorDisplayName(indicatorExpr.name)}</span>
-              </div>
-            )}
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent>
-          {availableIndicators.length > 0 ? (
-            availableIndicators.map((indicator) => (
-              <SelectItem key={indicator} value={indicator}>
-                <div className="flex items-center gap-2">
-                  <ExpressionIcon type="indicator" />
-                  <span>{getIndicatorDisplayName(indicator)}</span>
-                </div>
-              </SelectItem>
-            ))
-          ) : (
-            <div className="px-2 py-1.5 text-sm text-muted-foreground">
-              No indicators available
-            </div>
-          )}
-        </SelectContent>
-      </Select>
-      
-      {indicatorExpr.name && hasMultipleOutputs(indicatorExpr.name) && (
-        <Select 
-          value={indicatorExpr.parameter} 
-          onValueChange={updateParameter}
-        >
-          <SelectTrigger className="h-8">
-            <SelectValue placeholder="Select output">
-              {indicatorExpr.parameter && (
-                <div className="flex items-center gap-2">
-                  <ExpressionIcon type="indicator" subType={indicatorExpr.parameter} />
-                  <span>{indicatorExpr.parameter}</span>
-                </div>
-              )}
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {getParameterOptions(indicatorExpr.name).map((param) => (
-              <SelectItem key={param} value={param}>
-                <div className="flex items-center gap-2">
-                  <ExpressionIcon type="indicator" subType={param} />
-                  <span>{param}</span>
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
-      
-      {availableIndicators.length === 0 && (
-        <div className="text-xs text-muted-foreground mt-1">
-          No indicators selected. Configure indicators in the Start Node first.
-        </div>
-      )}
+      {availableIndicators.length === 0 && <EmptyIndicatorMessage />}
     </div>
   );
 };
