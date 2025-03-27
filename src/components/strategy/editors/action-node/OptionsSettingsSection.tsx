@@ -20,7 +20,6 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
   onStrikeValueChange,
   onOptionTypeChange
 }) => {
-  // Initialize local state with the props value or default
   const [strikeCategory, setStrikeCategory] = useState<'ATM' | 'ITM' | 'OTM' | 'premium'>(
     optionDetails?.strikeType === 'premium' ? 'premium' : 
     optionDetails?.strikeType?.startsWith('ITM') ? 'ITM' : 
@@ -39,7 +38,7 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
     : 100
   );
 
-  // Update local state when optionDetails props change
+  // Update local state when optionDetails changes
   useEffect(() => {
     if (optionDetails?.strikeType) {
       if (optionDetails.strikeType === 'ATM') {
@@ -90,10 +89,6 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
       setPremiumValue(value);
       onStrikeValueChange(e);
     }
-  };
-
-  const handleOptionTypeChange = (value: string) => {
-    onOptionTypeChange(value);
   };
 
   // Ensure we update the strike value when the component mounts if premium is selected
@@ -186,7 +181,7 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
       <RadioGroupField
         label="Option Type"
         value={optionDetails?.optionType || 'CE'}
-        onChange={handleOptionTypeChange}
+        onChange={onOptionTypeChange}
         options={[
           { value: 'CE', label: 'Call (CE)' },
           { value: 'PE', label: 'Put (PE)' }

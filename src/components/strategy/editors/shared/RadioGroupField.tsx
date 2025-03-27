@@ -30,28 +30,17 @@ const RadioGroupField: React.FC<RadioGroupFieldProps> = ({
 }) => {
   const layoutClass = layout === 'horizontal' ? 'flex gap-4' : 'flex flex-col space-y-1';
 
-  const handleRadioChange = (newValue: string) => {
-    onChange(newValue);
-  };
-
   return (
     <FormField label={label} description={description} className={className}>
       <RadioGroup 
         value={value} 
-        onValueChange={handleRadioChange}
+        onValueChange={onChange}
         className={layoutClass}
       >
         {options.map((option) => (
           <div className="flex items-center space-x-2" key={option.value}>
-            <RadioGroupItem 
-              value={option.value} 
-              id={`option-${option.value}`} 
-              checked={value === option.value}
-            />
-            <Label 
-              htmlFor={`option-${option.value}`} 
-              className="cursor-pointer"
-            >
+            <RadioGroupItem value={option.value} id={`option-${option.value}`} />
+            <Label htmlFor={`option-${option.value}`} className="cursor-pointer">
               {option.label}
             </Label>
           </div>

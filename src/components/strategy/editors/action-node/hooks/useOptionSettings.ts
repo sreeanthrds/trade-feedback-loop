@@ -22,43 +22,36 @@ export const useOptionSettings = ({
           expiry: 'W0',
           strikeType: 'ATM',
           optionType: 'CE'
-        },
-        _lastUpdated: Date.now() // Force update
+        }
       });
-      return true;
     }
-    return false;
   }, [nodeId, nodeData, updateNodeData]);
   
   const handleExpiryChange = useCallback((value: string) => {
-    const wasInitialized = ensureOptionDetails();
-    
+    ensureOptionDetails();
     updateNodeData(nodeId, { 
       optionDetails: {
-        ...(!wasInitialized ? nodeData.optionDetails : {}),
+        ...nodeData.optionDetails,
         expiry: value
-      },
-      _lastUpdated: Date.now() // Force update
+      }
     });
   }, [nodeId, nodeData.optionDetails, updateNodeData, ensureOptionDetails]);
   
   const handleStrikeTypeChange = useCallback((value: string) => {
-    const wasInitialized = ensureOptionDetails();
-    
+    ensureOptionDetails();
     // For premium type, ensure we initialize with default strike value if not already set
     const updatedOptions = { 
-      ...(!wasInitialized ? nodeData.optionDetails : {}),
+      ...nodeData.optionDetails,
       strikeType: value
     };
     
     // If changing to premium type and no strike value is set, set a default
-    if (value === 'premium' && (!nodeData.optionDetails?.strikeValue)) {
+    if (value === 'premium' && !nodeData.optionDetails?.strikeValue) {
       updatedOptions.strikeValue = 100;
     }
     
     updateNodeData(nodeId, { 
-      optionDetails: updatedOptions,
-      _lastUpdated: Date.now() // Force update
+      optionDetails: updatedOptions
     });
   }, [nodeId, nodeData.optionDetails, updateNodeData, ensureOptionDetails]);
   
@@ -70,21 +63,18 @@ export const useOptionSettings = ({
         optionDetails: {
           ...nodeData.optionDetails,
           strikeValue: value
-        },
-        _lastUpdated: Date.now() // Force update
+        }
       });
     }
   }, [nodeId, nodeData.optionDetails, updateNodeData, ensureOptionDetails]);
   
   const handleOptionTypeChange = useCallback((value: string) => {
-    const wasInitialized = ensureOptionDetails();
-    
+    ensureOptionDetails();
     updateNodeData(nodeId, { 
       optionDetails: {
-        ...(!wasInitialized ? nodeData.optionDetails : {}),
+        ...nodeData.optionDetails,
         optionType: value
-      },
-      _lastUpdated: Date.now() // Force update
+      }
     });
   }, [nodeId, nodeData.optionDetails, updateNodeData, ensureOptionDetails]);
   
