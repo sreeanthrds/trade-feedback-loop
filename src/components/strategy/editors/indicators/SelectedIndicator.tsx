@@ -1,25 +1,12 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { X, ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react';
+import { X, ChevronDown, ChevronUp } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import IndicatorForm from '../IndicatorForm';
 import { indicatorConfig } from '../../utils/indicatorConfig';
-import { useReactFlow } from '@xyflow/react';
-import { findIndicatorUsages, UsageReference } from '../../utils/dependency-tracking/usageFinder';
-import { toast } from "@/hooks/use-toast";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { UsageReference } from '../../utils/dependency-tracking/types';
+import RemoveIndicatorDialog from './RemoveIndicatorDialog';
 
 interface SelectedIndicatorProps {
   name: string;
@@ -28,6 +15,7 @@ interface SelectedIndicatorProps {
   onToggle: () => void;
   onRemove: () => void;
   onParameterChange: (paramName: string, value: any) => void;
+  findUsages: (indicatorName: string) => UsageReference[];
 }
 
 const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
@@ -36,9 +24,9 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
   isOpen,
   onToggle,
   onRemove,
-  onParameterChange
+  onParameterChange,
+  findUsages
 }) => {
-  const { getNodes } = useReactFlow();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [usages, setUsages] = useState<UsageReference[]>([]);
   
@@ -61,8 +49,7 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
 
   const handleRemoveClick = () => {
     // Find usages before showing dialog
-    const allNodes = getNodes();
-    const foundUsages = findIndicatorUsages(name, allNodes);
+    const foundUsages = findUsages(name);
     
     if (foundUsages.length > 0) {
       setUsages(foundUsages);
@@ -98,50 +85,22 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
               </Button>
             </CollapsibleTrigger>
             
-            <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleRemoveClick}
-                  className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Delete {getIndicatorDisplayName()}?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This indicator is currently used in the following places:
-                    <ul className="mt-2 space-y-1 text-sm">
-                      {usages.map((usage, index) => (
-                        <li key={index} className="flex items-center gap-2">
-                          <AlertTriangle className="h-4 w-4 text-warning" />
-                          <span>{usage.nodeName} ({usage.context})</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <Alert variant="destructive" className="mt-4">
-                      <AlertTriangle className="h-4 w-4" />
-                      <AlertTitle>Warning</AlertTitle>
-                      <AlertDescription>
-                        Deleting this indicator will break functionality in the nodes listed above.
-                      </AlertDescription>
-                    </Alert>
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction 
-                    onClick={confirmRemove}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  >
-                    Delete Anyway
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleRemoveClick}
+              className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+            
+            <RemoveIndicatorDialog
+              open={isDialogOpen}
+              onOpenChange={setIsDialogOpen}
+              indicatorDisplayName={getIndicatorDisplayName()}
+              usages={usages}
+              onConfirm={confirmRemove}
+            />
           </div>
         </div>
         <CollapsibleContent>
