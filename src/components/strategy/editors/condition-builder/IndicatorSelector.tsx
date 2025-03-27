@@ -15,7 +15,6 @@ import { useStrategyStore } from '@/hooks/use-strategy-store';
 import ExpressionIcon from './components/ExpressionIcon';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
-import { toast } from "@/hooks/use-toast";
 
 interface IndicatorSelectorProps {
   expression: Expression;
