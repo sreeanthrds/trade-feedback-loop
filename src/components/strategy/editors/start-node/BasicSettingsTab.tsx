@@ -37,7 +37,9 @@ const BasicSettingsTab: React.FC<BasicSettingsTabProps> = ({
 }) => {
   const { getNodes } = useReactFlow();
   const [isSymbolDialogOpen, setIsSymbolDialogOpen] = useState(false);
+  const [isPendingInstrumentTypeChange, setIsPendingInstrumentTypeChange] = useState(false);
   const [pendingSymbol, setPendingSymbol] = useState<string>('');
+  const [pendingInstrumentType, setPendingInstrumentType] = useState<'stock' | 'futures' | 'options'>('stock');
   const [symbolUsages, setSymbolUsages] = useState<any[]>([]);
   
   // Define radio options for instrument type
@@ -68,6 +70,7 @@ const BasicSettingsTab: React.FC<BasicSettingsTabProps> = ({
       // Show warning dialog
       setSymbolUsages(usages);
       setPendingSymbol(newSymbol);
+      setIsPendingInstrumentTypeChange(false);
       setIsSymbolDialogOpen(true);
     } else {
       // No usages, safe to change
@@ -75,8 +78,34 @@ const BasicSettingsTab: React.FC<BasicSettingsTabProps> = ({
     }
   };
 
-  const confirmSymbolChange = () => {
-    handleInputChange('symbol', pendingSymbol);
+  const handleInstrumentTypeChangeWithCheck = (type: 'stock' | 'futures' | 'options') => {
+    // If there's no current symbol or we're not changing to a different type, proceed normally
+    if (!formData.symbol || type === formData.tradingInstrument?.type) {
+      handleTradingInstrumentChange(type);
+      return;
+    }
+    
+    // Check if the current symbol is used anywhere
+    const usages = findInstrumentUsages(formData.symbol, getNodes());
+    
+    if (usages.length > 0) {
+      // Show warning dialog
+      setSymbolUsages(usages);
+      setPendingInstrumentType(type);
+      setIsPendingInstrumentTypeChange(true);
+      setIsSymbolDialogOpen(true);
+    } else {
+      // No usages, safe to change
+      handleTradingInstrumentChange(type);
+    }
+  };
+
+  const confirmChange = () => {
+    if (isPendingInstrumentTypeChange) {
+      handleTradingInstrumentChange(pendingInstrumentType);
+    } else {
+      handleInputChange('symbol', pendingSymbol);
+    }
     setIsSymbolDialogOpen(false);
   };
 
@@ -94,7 +123,7 @@ const BasicSettingsTab: React.FC<BasicSettingsTabProps> = ({
         label="Trading Instrument Type" 
         value={formData.tradingInstrument?.type || 'stock'}
         options={instrumentTypeOptions}
-        onChange={(value) => handleTradingInstrumentChange(value as 'stock' | 'futures' | 'options')}
+        onChange={(value) => handleInstrumentTypeChangeWithCheck(value as 'stock' | 'futures' | 'options')}
       />
       
       {formData.tradingInstrument?.type === 'options' && (
@@ -139,9 +168,16 @@ const BasicSettingsTab: React.FC<BasicSettingsTabProps> = ({
       <AlertDialog open={isSymbolDialogOpen} onOpenChange={setIsSymbolDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Change Trading Symbol?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {isPendingInstrumentTypeChange 
+                ? "Change Trading Instrument Type?" 
+                : "Change Trading Symbol?"}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              The current symbol <strong>{formData.symbol}</strong> is being used in:
+              {isPendingInstrumentTypeChange 
+                ? `Changing instrument type to ${pendingInstrumentType} will reset the current symbol ${formData.symbol}` 
+                : `The current symbol ${formData.symbol} is being used in:`}
+              
               <ul className="mt-2 space-y-1 text-sm">
                 {symbolUsages.map((usage, index) => (
                   <li key={index} className="flex items-center gap-2">
@@ -151,13 +187,15 @@ const BasicSettingsTab: React.FC<BasicSettingsTabProps> = ({
                 ))}
               </ul>
               <p className="mt-4">
-                Changing the symbol will affect all these nodes. Do you want to continue?
+                {isPendingInstrumentTypeChange
+                  ? "Changing the instrument type will affect all these nodes and reset the symbol. Do you want to continue?"
+                  : "Changing the symbol will affect all these nodes. Do you want to continue?"}
               </p>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmSymbolChange}>
+            <AlertDialogAction onClick={confirmChange}>
               Continue
             </AlertDialogAction>
           </AlertDialogFooter>
