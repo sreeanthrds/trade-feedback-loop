@@ -1,6 +1,6 @@
 
 import { Node, Edge } from '@xyflow/react';
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/components/ui/toast";
 
 export const createResetStrategyHandler = (
   setNodes: (nodes: Node[]) => void,

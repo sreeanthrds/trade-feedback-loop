@@ -1,6 +1,6 @@
 
 import { Edge, Node } from '@xyflow/react';
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/components/ui/toast";
 
 export const createDeleteEdgeHandler = (
   edges: Edge[],

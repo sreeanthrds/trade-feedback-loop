@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { X, ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react';
@@ -19,6 +18,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { toast } from '@/components/ui/toast';
 
 interface SelectedIndicatorProps {
   name: string;
@@ -71,12 +71,24 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
     } else {
       // No usages, safe to remove
       onRemove();
+      
+      // Show a toast when indicator is removed
+      toast({
+        title: "Indicator removed",
+        description: `Removed ${name.split('_')[0]} indicator`
+      });
     }
   };
 
   const confirmRemove = () => {
     onRemove();
     setIsDialogOpen(false);
+    
+    // Show a toast when indicator is removed after confirmation
+    toast({
+      title: "Indicator removed",
+      description: `Removed ${name.split('_')[0]} indicator despite dependencies`
+    });
   };
 
   return (

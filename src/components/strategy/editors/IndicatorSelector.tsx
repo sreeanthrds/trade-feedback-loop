@@ -4,7 +4,7 @@ import { indicatorConfig } from '../utils/indicatorConfig';
 import AddIndicatorForm from './indicators/AddIndicatorForm';
 import SelectedIndicator from './indicators/SelectedIndicator';
 import NoIndicatorsMessage from './indicators/NoIndicatorsMessage';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/components/ui/toast';
 
 interface IndicatorSelectorProps {
   selectedIndicators: Record<string, Record<string, any>>;

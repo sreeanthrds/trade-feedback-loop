@@ -1,7 +1,7 @@
 
 import { useCallback, useRef, useEffect } from 'react';
 import { Node, Edge } from '@xyflow/react';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/toast';
 import { 
   createNodeClickHandler, 
   createAddNodeHandler, 
