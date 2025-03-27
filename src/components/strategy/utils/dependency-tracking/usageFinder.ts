@@ -51,33 +51,56 @@ export function findIndicatorUsages(indicator: string, nodes: Node[]): UsageRefe
 function searchConditionsForIndicator(conditions: any[], indicatorName: string): boolean {
   for (const condition of conditions) {
     // Group conditions
-    if (condition.type === 'group' && condition.children) {
-      if (searchConditionsForIndicator(condition.children, indicatorName)) {
+    if (condition.groupLogic && condition.conditions) {
+      if (searchConditionsForIndicator(condition.conditions, indicatorName)) {
         return true;
       }
     }
-    // Single condition with expressions
-    else if (condition.expressions) {
-      for (const expr of [condition.left, condition.right]) {
-        if (!expr) continue;
-        
-        if (expr.type === 'indicator' && expr.name === indicatorName) {
+    // Single condition with lhs/rhs
+    else if (condition.lhs || condition.rhs) {
+      // Check left-hand side expression
+      if (condition.lhs?.type === 'indicator' && condition.lhs?.name === indicatorName) {
+        return true;
+      }
+      
+      // Check right-hand side expression
+      if (condition.rhs?.type === 'indicator' && condition.rhs?.name === indicatorName) {
+        return true;
+      }
+      
+      // Check for complex expressions
+      if (condition.lhs?.type === 'expression') {
+        if (searchExpressionForIndicator(condition.lhs, indicatorName)) {
           return true;
         }
-        // For complex expressions that might contain nested indicator references
-        else if (expr.type === 'expression' && expr.expressions) {
-          const leftHasIndicator = expr.expressions.left?.type === 'indicator' && 
-                                  expr.expressions.left?.name === indicatorName;
-          
-          const rightHasIndicator = expr.expressions.right?.type === 'indicator' && 
-                                   expr.expressions.right?.name === indicatorName;
-          
-          if (leftHasIndicator || rightHasIndicator) {
-            return true;
-          }
+      }
+      
+      if (condition.rhs?.type === 'expression') {
+        if (searchExpressionForIndicator(condition.rhs, indicatorName)) {
+          return true;
         }
       }
     }
+  }
+  
+  return false;
+}
+
+/**
+ * Search for indicator usage in complex expressions
+ */
+function searchExpressionForIndicator(expression: any, indicatorName: string): boolean {
+  if (!expression) return false;
+  
+  // Direct indicator match
+  if (expression.type === 'indicator' && expression.name === indicatorName) {
+    return true;
+  }
+  
+  // Check nested expressions (left and right sides)
+  if (expression.type === 'expression') {
+    return searchExpressionForIndicator(expression.left, indicatorName) || 
+           searchExpressionForIndicator(expression.right, indicatorName);
   }
   
   return false;
