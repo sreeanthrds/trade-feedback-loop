@@ -23,10 +23,10 @@ export function findIndicatorUsages(indicator: string, nodes: Node[]): UsageRefe
     
     // Check signal nodes for indicator usage in conditions
     if (node.type === 'signalNode' && node.data) {
-      if (node.data.condition) {
+      if (node.data.conditions && Array.isArray(node.data.conditions)) {
         // Find any conditions using this indicator
-        const hasIndicatorInCondition = searchConditionForIndicator(
-          node.data.condition, 
+        const hasIndicatorInCondition = searchConditionsForIndicator(
+          node.data.conditions, 
           indicator
         );
         
@@ -48,41 +48,37 @@ export function findIndicatorUsages(indicator: string, nodes: Node[]): UsageRefe
 /**
  * Recursively searches through conditions for an indicator
  */
-function searchConditionForIndicator(condition: any, indicatorName: string): boolean {
-  if (!condition) return false;
-  
-  // Group conditions
-  if (condition.groupLogic && condition.conditions) {
-    for (const subCondition of condition.conditions) {
-      if (searchConditionForIndicator(subCondition, indicatorName)) {
+function searchConditionsForIndicator(conditions: any[], indicatorName: string): boolean {
+  for (const condition of conditions) {
+    // Group conditions
+    if (condition.groupLogic && condition.conditions) {
+      if (searchConditionsForIndicator(condition.conditions, indicatorName)) {
         return true;
       }
     }
-    return false;
-  }
-  
-  // Single condition with lhs/rhs
-  if (condition.lhs || condition.rhs) {
-    // Check left-hand side expression
-    if (condition.lhs?.type === 'indicator' && condition.lhs?.name === indicatorName) {
-      return true;
-    }
-    
-    // Check right-hand side expression
-    if (condition.rhs?.type === 'indicator' && condition.rhs?.name === indicatorName) {
-      return true;
-    }
-    
-    // Check for complex expressions
-    if (condition.lhs?.type === 'expression') {
-      if (searchExpressionForIndicator(condition.lhs, indicatorName)) {
+    // Single condition with lhs/rhs
+    else if (condition.lhs || condition.rhs) {
+      // Check left-hand side expression
+      if (condition.lhs?.type === 'indicator' && condition.lhs?.name === indicatorName) {
         return true;
       }
-    }
-    
-    if (condition.rhs?.type === 'expression') {
-      if (searchExpressionForIndicator(condition.rhs, indicatorName)) {
+      
+      // Check right-hand side expression
+      if (condition.rhs?.type === 'indicator' && condition.rhs?.name === indicatorName) {
         return true;
+      }
+      
+      // Check for complex expressions
+      if (condition.lhs?.type === 'expression') {
+        if (searchExpressionForIndicator(condition.lhs, indicatorName)) {
+          return true;
+        }
+      }
+      
+      if (condition.rhs?.type === 'expression') {
+        if (searchExpressionForIndicator(condition.rhs, indicatorName)) {
+          return true;
+        }
       }
     }
   }
