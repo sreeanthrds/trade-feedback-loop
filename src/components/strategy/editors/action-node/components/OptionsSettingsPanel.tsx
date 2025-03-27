@@ -7,6 +7,7 @@ import { NodeData } from '../types';
 type OptionDetailsType = NonNullable<NodeData['optionDetails']>;
 
 interface OptionsSettingsPanelProps {
+  hasOptionTrading?: boolean;
   optionDetails?: OptionDetailsType;
   onExpiryChange: (value: string) => void;
   onStrikeTypeChange: (value: string) => void;
@@ -15,12 +16,18 @@ interface OptionsSettingsPanelProps {
 }
 
 const OptionsSettingsPanel: React.FC<OptionsSettingsPanelProps> = ({
+  hasOptionTrading = true,
   optionDetails,
   onExpiryChange,
   onStrikeTypeChange,
   onStrikeValueChange,
   onOptionTypeChange
 }) => {
+  // If option trading is not available, don't render the panel
+  if (!hasOptionTrading) {
+    return null;
+  }
+
   return (
     <>
       <Separator className="my-4" />
