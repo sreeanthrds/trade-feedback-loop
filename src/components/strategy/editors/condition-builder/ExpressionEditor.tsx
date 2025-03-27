@@ -5,12 +5,14 @@ import {
   ExpressionType,
   createDefaultExpression
 } from '../../utils/conditionTypes';
-import MarketDataSelector from './MarketDataSelector';
-import IndicatorSelector from './IndicatorSelector';
-import TimeSelector from './TimeSelector';
-import ComplexExpressionEditor from './ComplexExpressionEditor';
 import ExpressionTypeSelector from './components/ExpressionTypeSelector';
-import ConstantValueEditor from './components/ConstantValueEditor';
+import {
+  IndicatorExpressionEditor,
+  MarketDataExpressionEditor,
+  ConstantExpressionEditor,
+  TimeExpressionEditor,
+  ComplexExpressionEditorWrapper
+} from './expression-editors';
 
 interface ExpressionEditorProps {
   expression: Expression;
@@ -33,35 +35,35 @@ const ExpressionEditor: React.FC<ExpressionEditorProps> = ({
     switch (expression.type) {
       case 'indicator':
         return (
-          <IndicatorSelector
+          <IndicatorExpressionEditor
             expression={expression}
             updateExpression={updateExpression}
           />
         );
       case 'market_data':
         return (
-          <MarketDataSelector
+          <MarketDataExpressionEditor
             expression={expression}
             updateExpression={updateExpression}
           />
         );
       case 'constant':
         return (
-          <ConstantValueEditor
+          <ConstantExpressionEditor
             expression={expression}
             updateExpression={updateExpression}
           />
         );
       case 'time_function':
         return (
-          <TimeSelector
+          <TimeExpressionEditor
             expression={expression}
             updateExpression={updateExpression}
           />
         );
       case 'expression':
         return (
-          <ComplexExpressionEditor
+          <ComplexExpressionEditorWrapper
             expression={expression}
             updateExpression={updateExpression}
           />

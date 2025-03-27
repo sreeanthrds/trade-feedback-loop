@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   InputField, 
   SelectField, 
@@ -9,18 +9,7 @@ import SymbolSelector from '../form-components/SymbolSelector';
 import { timeframeOptions, exchangeOptions } from '../../utils/indicatorConfig';
 import { useReactFlow } from '@xyflow/react';
 import { findInstrumentUsages } from '../../utils/dependency-tracking/usageFinder';
-import { 
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { AlertTriangle } from 'lucide-react';
-import { useState } from 'react';
+import SymbolChangeConfirmation from './components/SymbolChangeConfirmation';
 
 interface BasicSettingsTabProps {
   formData: any;
@@ -165,42 +154,15 @@ const BasicSettingsTab: React.FC<BasicSettingsTabProps> = ({
         />
       </div>
       
-      <AlertDialog open={isSymbolDialogOpen} onOpenChange={setIsSymbolDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {isPendingInstrumentTypeChange 
-                ? "Change Trading Instrument Type?" 
-                : "Change Trading Symbol?"}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {isPendingInstrumentTypeChange 
-                ? `Changing instrument type to ${pendingInstrumentType} will reset the current symbol ${formData.symbol}` 
-                : `The current symbol ${formData.symbol} is being used in:`}
-              
-              <ul className="mt-2 space-y-1 text-sm">
-                {symbolUsages.map((usage, index) => (
-                  <li key={index} className="flex items-center gap-2">
-                    <AlertTriangle className="h-4 w-4 text-warning" />
-                    <span>{usage.nodeName} ({usage.context})</span>
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-4">
-                {isPendingInstrumentTypeChange
-                  ? "Changing the instrument type will affect all these nodes and reset the symbol. Do you want to continue?"
-                  : "Changing the symbol will affect all these nodes. Do you want to continue?"}
-              </p>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmChange}>
-              Continue
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <SymbolChangeConfirmation
+        isOpen={isSymbolDialogOpen}
+        onOpenChange={setIsSymbolDialogOpen}
+        isPendingInstrumentTypeChange={isPendingInstrumentTypeChange}
+        pendingInstrumentType={pendingInstrumentType}
+        currentSymbol={formData.symbol}
+        symbolUsages={symbolUsages}
+        onConfirm={confirmChange}
+      />
     </div>
   );
 };
