@@ -2,7 +2,8 @@
 import React from 'react';
 import { 
   Expression, 
-  ExpressionType
+  ExpressionType,
+  createDefaultExpression
 } from '../../utils/conditionTypes';
 import ExpressionEditorRouter from './expression-router/ExpressionEditorRouter';
 import ExpressionTypeSelector from './components/ExpressionTypeSelector';
@@ -22,11 +23,11 @@ const ExpressionEditor: React.FC<ExpressionEditorProps> = ({
         <ExpressionTypeSelector
           type={expression.type}
           onTypeChange={(type) => {
-            // Type change logic is now handled directly here
-            updateExpression({
-              ...expression,
-              type
-            });
+            // When changing type, we need to create a proper default expression
+            // We need to maintain the existing ID to prevent issues with references
+            const newExpression = createDefaultExpression(type);
+            newExpression.id = expression.id;
+            updateExpression(newExpression);
           }}
         />
       </div>
