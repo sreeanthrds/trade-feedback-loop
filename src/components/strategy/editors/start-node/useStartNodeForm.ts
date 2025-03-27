@@ -62,6 +62,9 @@ export const useStartNodeForm = ({ node, updateNodeData }: UseStartNodeFormProps
   };
 
   const handleTradingInstrumentChange = (type: 'stock' | 'futures' | 'options') => {
+    // Note: The actual confirmation dialog is handled in the BasicSettingsTab component
+    // This function only processes the change after confirmation
+    
     const updatedInstrument = { 
       type,
       ...(type === 'options' ? { underlyingType: undefined } : {})

@@ -40,6 +40,9 @@ const BasicSettingsTab: React.FC<BasicSettingsTabProps> = ({
   const [pendingSymbol, setPendingSymbol] = useState<string>('');
   const [symbolUsages, setSymbolUsages] = useState<any[]>([]);
   
+  const [isInstrumentTypeDialogOpen, setIsInstrumentTypeDialogOpen] = useState(false);
+  const [pendingInstrumentType, setPendingInstrumentType] = useState<'stock' | 'futures' | 'options'>('stock');
+  
   // Define radio options for instrument type
   const instrumentTypeOptions = [
     { value: 'stock', label: 'Stock' },
@@ -79,6 +82,29 @@ const BasicSettingsTab: React.FC<BasicSettingsTabProps> = ({
     handleInputChange('symbol', pendingSymbol);
     setIsSymbolDialogOpen(false);
   };
+  
+  const handleInstrumentTypeChange = (type: 'stock' | 'futures' | 'options') => {
+    // If the instrument type is changing, and we have a symbol, check for usages
+    if (type !== formData.tradingInstrument?.type && formData.symbol) {
+      const usages = findInstrumentUsages(formData.symbol, getNodes());
+      
+      if (usages.length > 0) {
+        // Show warning dialog
+        setSymbolUsages(usages);
+        setPendingInstrumentType(type);
+        setIsInstrumentTypeDialogOpen(true);
+        return;
+      }
+    }
+    
+    // No symbol or no usages, safe to change
+    handleTradingInstrumentChange(type);
+  };
+  
+  const confirmInstrumentTypeChange = () => {
+    handleTradingInstrumentChange(pendingInstrumentType);
+    setIsInstrumentTypeDialogOpen(false);
+  };
 
   return (
     <div className="space-y-4">
@@ -94,7 +120,7 @@ const BasicSettingsTab: React.FC<BasicSettingsTabProps> = ({
         label="Trading Instrument Type" 
         value={formData.tradingInstrument?.type || 'stock'}
         options={instrumentTypeOptions}
-        onChange={(value) => handleTradingInstrumentChange(value as 'stock' | 'futures' | 'options')}
+        onChange={(value) => handleInstrumentTypeChange(value as 'stock' | 'futures' | 'options')}
       />
       
       {formData.tradingInstrument?.type === 'options' && (
@@ -136,6 +162,7 @@ const BasicSettingsTab: React.FC<BasicSettingsTabProps> = ({
         />
       </div>
       
+      {/* Symbol change confirmation dialog */}
       <AlertDialog open={isSymbolDialogOpen} onOpenChange={setIsSymbolDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -158,6 +185,35 @@ const BasicSettingsTab: React.FC<BasicSettingsTabProps> = ({
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={confirmSymbolChange}>
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      
+      {/* Instrument type change confirmation dialog */}
+      <AlertDialog open={isInstrumentTypeDialogOpen} onOpenChange={setIsInstrumentTypeDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Change Instrument Type?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Changing the instrument type will clear the current symbol <strong>{formData.symbol}</strong>, which is being used in:
+              <ul className="mt-2 space-y-1 text-sm">
+                {symbolUsages.map((usage, index) => (
+                  <li key={index} className="flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4 text-warning" />
+                    <span>{usage.nodeName} ({usage.context})</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-4">
+                This will affect all these nodes. Do you want to continue?
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmInstrumentTypeChange}>
               Continue
             </AlertDialogAction>
           </AlertDialogFooter>
