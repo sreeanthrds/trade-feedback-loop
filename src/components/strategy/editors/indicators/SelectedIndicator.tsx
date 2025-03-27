@@ -52,7 +52,7 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
       // Just join all parameter values with commas, no parameter names
       const paramList = Object.values(displayParams).join(',');
       
-      return `${baseName} (${paramList})`;
+      return `${baseName}(${paramList})`;
     }
     
     return name;
