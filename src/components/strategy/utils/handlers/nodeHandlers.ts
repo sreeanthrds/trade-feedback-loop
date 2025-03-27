@@ -89,6 +89,14 @@ export const createUpdateNodeDataHandler = (
             ...data,
             _lastUpdated: Date.now() 
           };
+          
+          // If this is a start node and indicatorParameters were updated,
+          // ensure indicators array is updated to match
+          if (node.type === 'startNode' && data.indicatorParameters) {
+            // Set indicators array to match keys in indicatorParameters
+            updatedData.indicators = Object.keys(data.indicatorParameters);
+          }
+          
           return { ...node, data: updatedData };
         }
         return node;

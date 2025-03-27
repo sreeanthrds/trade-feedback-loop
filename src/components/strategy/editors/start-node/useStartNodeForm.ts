@@ -102,10 +102,11 @@ export const useStartNodeForm = ({ node, updateNodeData }: UseStartNodeFormProps
   };
   
   const handleIndicatorsChange = (indicatorParams: Record<string, Record<string, any>>) => {
+    // Create an updated form data object with both indicators and indicatorParameters
     const updatedFormData = {
       ...formData,
       indicatorParameters: indicatorParams,
-      indicators: Object.keys(indicatorParams)
+      indicators: Object.keys(indicatorParams) // Set indicators array from parameter keys
     };
     
     setFormData(updatedFormData);
