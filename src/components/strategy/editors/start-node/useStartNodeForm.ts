@@ -13,7 +13,6 @@ interface NodeData {
   };
   indicators?: string[];
   indicatorParameters?: Record<string, Record<string, any>>;
-  _lastUpdated?: number;
 }
 
 interface UseStartNodeFormProps {
@@ -57,16 +56,12 @@ export const useStartNodeForm = ({ node, updateNodeData }: UseStartNodeFormProps
     setTimeout(() => {
       updateNodeData(node.id, {
         ...formData,
-        [field]: value,
-        _lastUpdated: Date.now() // Add timestamp to force update
+        [field]: value
       });
     }, 100);
   };
 
   const handleTradingInstrumentChange = (type: 'stock' | 'futures' | 'options') => {
-    // Note: The actual confirmation dialog is handled in the BasicSettingsTab component
-    // This function only processes the change after confirmation
-    
     const updatedInstrument = { 
       type,
       ...(type === 'options' ? { underlyingType: undefined } : {})
@@ -81,10 +76,7 @@ export const useStartNodeForm = ({ node, updateNodeData }: UseStartNodeFormProps
     setFormData(updatedFormData);
     
     setTimeout(() => {
-      updateNodeData(node.id, {
-        ...updatedFormData,
-        _lastUpdated: Date.now() // Add timestamp to force update
-      });
+      updateNodeData(node.id, updatedFormData);
     }, 100);
   };
 
@@ -105,10 +97,7 @@ export const useStartNodeForm = ({ node, updateNodeData }: UseStartNodeFormProps
     setFormData(updatedFormData);
     
     setTimeout(() => {
-      updateNodeData(node.id, {
-        ...updatedFormData,
-        _lastUpdated: Date.now() // Add timestamp to force update
-      });
+      updateNodeData(node.id, updatedFormData);
     }, 100);
   };
   
@@ -123,10 +112,7 @@ export const useStartNodeForm = ({ node, updateNodeData }: UseStartNodeFormProps
     
     // Use a timeout to avoid multiple rapid updates
     setTimeout(() => {
-      updateNodeData(node.id, {
-        ...updatedFormData,
-        _lastUpdated: Date.now() // Add timestamp to force update
-      });
+      updateNodeData(node.id, updatedFormData);
     }, 100);
   };
   

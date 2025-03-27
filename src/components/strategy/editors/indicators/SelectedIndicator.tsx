@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { X, ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -18,7 +19,6 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { toast } from '@/components/ui/toast';
 
 interface SelectedIndicatorProps {
   name: string;
@@ -52,15 +52,13 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
       // Just join all parameter values with commas, no parameter names
       const paramList = Object.values(displayParams).join(',');
       
-      return `${baseName}(${paramList})`;
+      return `${baseName} (${paramList})`;
     }
     
     return name;
   };
 
-  const handleRemoveClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent triggering the collapsible toggle
-    
+  const handleRemoveClick = () => {
     // Find usages before showing dialog
     const allNodes = getNodes();
     const foundUsages = findIndicatorUsages(name, allNodes);
@@ -71,24 +69,12 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
     } else {
       // No usages, safe to remove
       onRemove();
-      
-      // Show a toast when indicator is removed
-      toast({
-        title: "Indicator removed",
-        description: `Removed ${name.split('_')[0]} indicator`
-      });
     }
   };
 
   const confirmRemove = () => {
     onRemove();
     setIsDialogOpen(false);
-    
-    // Show a toast when indicator is removed after confirmation
-    toast({
-      title: "Indicator removed",
-      description: `Removed ${name.split('_')[0]} indicator despite dependencies`
-    });
   };
 
   return (
@@ -111,14 +97,50 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
               </Button>
             </CollapsibleTrigger>
             
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleRemoveClick}
-              className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+            <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleRemoveClick}
+                  className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete {getIndicatorDisplayName()}?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This indicator is currently used in the following places:
+                    <ul className="mt-2 space-y-1 text-sm">
+                      {usages.map((usage, index) => (
+                        <li key={index} className="flex items-center gap-2">
+                          <AlertTriangle className="h-4 w-4 text-warning" />
+                          <span>{usage.nodeName} ({usage.context})</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <Alert variant="destructive" className="mt-4">
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertTitle>Warning</AlertTitle>
+                      <AlertDescription>
+                        Deleting this indicator will break functionality in the nodes listed above.
+                      </AlertDescription>
+                    </Alert>
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={confirmRemove}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Delete Anyway
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
         <CollapsibleContent>
@@ -131,43 +153,6 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
           </div>
         </CollapsibleContent>
       </Collapsible>
-      
-      <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete {getIndicatorDisplayName()}?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This indicator is currently used in the following places:
-              
-              <ul className="mt-2 space-y-1 text-sm">
-                {usages.map((usage, index) => (
-                  <li key={index} className="flex items-center gap-2">
-                    <AlertTriangle className="h-4 w-4 text-warning" />
-                    <span>{usage.nodeName} ({usage.context})</span>
-                  </li>
-                ))}
-              </ul>
-              
-              <Alert variant="destructive" className="mt-4">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertTitle>Warning</AlertTitle>
-                <AlertDescription>
-                  Deleting this indicator will break functionality in the nodes listed above.
-                </AlertDescription>
-              </Alert>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={confirmRemove}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete Anyway
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };

@@ -1,6 +1,6 @@
 
 import { NodeMouseHandler, Node, ReactFlowInstance, Edge } from '@xyflow/react';
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/hooks/use-toast";
 import { addNode, createEdgeBetweenNodes } from '../flowUtils';
 
 export const createNodeClickHandler = (

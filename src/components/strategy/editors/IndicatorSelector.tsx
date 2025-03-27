@@ -1,10 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { indicatorConfig } from '../utils/indicatorConfig';
 import AddIndicatorForm from './indicators/AddIndicatorForm';
 import SelectedIndicator from './indicators/SelectedIndicator';
 import NoIndicatorsMessage from './indicators/NoIndicatorsMessage';
-import { toast } from '@/components/ui/toast';
 
 interface IndicatorSelectorProps {
   selectedIndicators: Record<string, Record<string, any>>;
@@ -17,15 +16,6 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
 }) => {
   const [selectedIndicator, setSelectedIndicator] = useState<string>("");
   const [openStates, setOpenStates] = useState<Record<string, boolean>>({});
-  
-  // Initialize openStates with existing indicators
-  useEffect(() => {
-    const initialOpenStates: Record<string, boolean> = {};
-    Object.keys(selectedIndicators).forEach(name => {
-      initialOpenStates[name] = openStates[name] || false;
-    });
-    setOpenStates(initialOpenStates);
-  }, [selectedIndicators]);
   
   const handleAddIndicator = () => {
     if (!selectedIndicator) return;
@@ -59,23 +49,11 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
     });
     
     setSelectedIndicator("");
-    
-    toast({
-      title: "Indicator added",
-      description: `Added ${selectedIndicator} indicator`
-    });
   };
   
   const handleRemoveIndicator = (indicatorName: string) => {
-    console.log("Removing indicator:", indicatorName);
     const { [indicatorName]: removed, ...rest } = selectedIndicators;
     onChange(rest);
-    
-    // Show toast to indicate indicator was removed
-    toast({
-      title: "Indicator removed",
-      description: `Removed ${indicatorName.split('_')[0]} indicator`
-    });
   };
   
   const handleParameterChange = (indicatorName: string, paramName: string, value: any) => {
