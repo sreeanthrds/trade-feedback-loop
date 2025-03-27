@@ -20,6 +20,7 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
   onStrikeValueChange,
   onOptionTypeChange
 }) => {
+  // Initialize local state with the props value or default
   const [strikeCategory, setStrikeCategory] = useState<'ATM' | 'ITM' | 'OTM' | 'premium'>(
     optionDetails?.strikeType === 'premium' ? 'premium' : 
     optionDetails?.strikeType?.startsWith('ITM') ? 'ITM' : 
@@ -38,7 +39,7 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
     : 100
   );
 
-  // Update local state when optionDetails changes
+  // Update local state when optionDetails props change
   useEffect(() => {
     if (optionDetails?.strikeType) {
       if (optionDetails.strikeType === 'ATM') {

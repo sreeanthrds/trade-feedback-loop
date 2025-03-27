@@ -39,8 +39,16 @@ const RadioGroupField: React.FC<RadioGroupFieldProps> = ({
       >
         {options.map((option) => (
           <div className="flex items-center space-x-2" key={option.value}>
-            <RadioGroupItem value={option.value} id={`option-${option.value}`} />
-            <Label htmlFor={`option-${option.value}`} className="cursor-pointer">
+            <RadioGroupItem 
+              value={option.value} 
+              id={`option-${option.value}`} 
+              checked={value === option.value}
+            />
+            <Label 
+              htmlFor={`option-${option.value}`} 
+              className="cursor-pointer"
+              onClick={() => onChange(option.value)}
+            >
               {option.label}
             </Label>
           </div>
