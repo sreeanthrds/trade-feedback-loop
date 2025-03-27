@@ -92,6 +92,10 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
     }
   };
 
+  const handleOptionTypeChange = (value: string) => {
+    onOptionTypeChange(value);
+  };
+
   // Ensure we update the strike value when the component mounts if premium is selected
   useEffect(() => {
     if (strikeCategory === 'premium' && optionDetails?.strikeType === 'premium') {
@@ -182,7 +186,7 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
       <RadioGroupField
         label="Option Type"
         value={optionDetails?.optionType || 'CE'}
-        onChange={onOptionTypeChange}
+        onChange={handleOptionTypeChange}
         options={[
           { value: 'CE', label: 'Call (CE)' },
           { value: 'PE', label: 'Put (PE)' }

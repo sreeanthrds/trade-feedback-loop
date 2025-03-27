@@ -30,11 +30,15 @@ const RadioGroupField: React.FC<RadioGroupFieldProps> = ({
 }) => {
   const layoutClass = layout === 'horizontal' ? 'flex gap-4' : 'flex flex-col space-y-1';
 
+  const handleRadioChange = (newValue: string) => {
+    onChange(newValue);
+  };
+
   return (
     <FormField label={label} description={description} className={className}>
       <RadioGroup 
         value={value} 
-        onValueChange={onChange}
+        onValueChange={handleRadioChange}
         className={layoutClass}
       >
         {options.map((option) => (
@@ -47,7 +51,6 @@ const RadioGroupField: React.FC<RadioGroupFieldProps> = ({
             <Label 
               htmlFor={`option-${option.value}`} 
               className="cursor-pointer"
-              onClick={() => onChange(option.value)}
             >
               {option.label}
             </Label>

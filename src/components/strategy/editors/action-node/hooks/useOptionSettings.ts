@@ -22,7 +22,8 @@ export const useOptionSettings = ({
           expiry: 'W0',
           strikeType: 'ATM',
           optionType: 'CE'
-        }
+        },
+        _lastUpdated: Date.now() // Force update
       });
       return true;
     }
@@ -36,7 +37,8 @@ export const useOptionSettings = ({
       optionDetails: {
         ...(!wasInitialized ? nodeData.optionDetails : {}),
         expiry: value
-      }
+      },
+      _lastUpdated: Date.now() // Force update
     });
   }, [nodeId, nodeData.optionDetails, updateNodeData, ensureOptionDetails]);
   
@@ -55,7 +57,8 @@ export const useOptionSettings = ({
     }
     
     updateNodeData(nodeId, { 
-      optionDetails: updatedOptions
+      optionDetails: updatedOptions,
+      _lastUpdated: Date.now() // Force update
     });
   }, [nodeId, nodeData.optionDetails, updateNodeData, ensureOptionDetails]);
   
@@ -67,7 +70,8 @@ export const useOptionSettings = ({
         optionDetails: {
           ...nodeData.optionDetails,
           strikeValue: value
-        }
+        },
+        _lastUpdated: Date.now() // Force update
       });
     }
   }, [nodeId, nodeData.optionDetails, updateNodeData, ensureOptionDetails]);
@@ -79,7 +83,8 @@ export const useOptionSettings = ({
       optionDetails: {
         ...(!wasInitialized ? nodeData.optionDetails : {}),
         optionType: value
-      }
+      },
+      _lastUpdated: Date.now() // Force update
     });
   }, [nodeId, nodeData.optionDetails, updateNodeData, ensureOptionDetails]);
   

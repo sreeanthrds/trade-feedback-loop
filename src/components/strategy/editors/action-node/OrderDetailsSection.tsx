@@ -35,13 +35,28 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
   onLotsChange,
   onProductTypeChange
 }) => {
+  // Handle position type change
+  const handlePositionTypeChange = (value: string) => {
+    onPositionTypeChange(value);
+  };
+
+  // Handle order type change
+  const handleOrderTypeChange = (value: string) => {
+    onOrderTypeChange(value);
+  };
+
+  // Handle product type change
+  const handleProductTypeChange = (value: string) => {
+    onProductTypeChange(value);
+  };
+
   return (
     <div className="space-y-4">
       {actionType === 'entry' && (
         <RadioGroupField
           label="Position Type"
           value={positionType || 'buy'}
-          onChange={onPositionTypeChange}
+          onChange={handlePositionTypeChange}
           options={[
             { value: 'buy', label: 'Buy' },
             { value: 'sell', label: 'Sell' }
@@ -54,7 +69,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
         label="Order Type"
         id="order-type"
         value={orderType || 'market'}
-        onChange={onOrderTypeChange}
+        onChange={handleOrderTypeChange}
         options={[
           { value: 'market', label: 'Market' },
           { value: 'limit', label: 'Limit' }
@@ -88,7 +103,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
         label="Product Type"
         id="product-type"
         value={productType || 'intraday'}
-        onChange={onProductTypeChange}
+        onChange={handleProductTypeChange}
         options={[
           { value: 'intraday', label: 'Intraday (MIS)' },
           { value: 'carryForward', label: 'Carry Forward (CNC)' }
