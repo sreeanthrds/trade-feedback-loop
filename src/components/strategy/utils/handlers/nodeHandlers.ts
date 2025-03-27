@@ -1,4 +1,3 @@
-
 import { NodeMouseHandler, Node, ReactFlowInstance, Edge } from '@xyflow/react';
 import { toast } from "@/hooks/use-toast";
 import { addNode, createEdgeBetweenNodes } from '../flowUtils';
@@ -29,10 +28,8 @@ export const createAddNodeHandler = (
     }
     
     try {
-      // Create a new node, passing the parent node ID if available
       const { node: newNode, parentNode } = addNode(type, reactFlowInstance, reactFlowWrapper, nodes, parentNodeId);
       
-      // Defensive checks
       if (!newNode) {
         console.error('Failed to create new node');
         return;
@@ -40,10 +37,8 @@ export const createAddNodeHandler = (
       
       console.log('Before adding node:', nodes.length, 'existing nodes');
       
-      // IMPORTANT: Create a completely new array with ALL existing nodes plus the new one
       const updatedNodes = [...nodes, newNode];
       
-      // Create an edge if we have a parent node
       let updatedEdges = [...edges];
       if (parentNode) {
         const newEdge = createEdgeBetweenNodes(parentNode, newNode);
@@ -52,11 +47,9 @@ export const createAddNodeHandler = (
       
       console.log('After adding node:', updatedNodes.length, 'total nodes');
       
-      // Update states with the combined nodes array
       setNodes(updatedNodes);
       setEdges(updatedEdges);
       
-      // Also update the global store
       strategyStore.setNodes(updatedNodes);
       strategyStore.setEdges(updatedEdges);
       strategyStore.addHistoryItem(updatedNodes, updatedEdges);
@@ -90,7 +83,6 @@ export const createUpdateNodeDataHandler = (
     try {
       const updatedNodes = nodes.map((node) => {
         if (node.id === id) {
-          // Add timestamp to force rendering updates
           const updatedData = { 
             ...node.data, 
             ...data,
@@ -124,10 +116,8 @@ export const createDeleteNodeHandler = (
     }
     
     try {
-      // Remove the node
       const newNodes = nodes.filter(node => node.id !== nodeId);
       
-      // Remove any connected edges
       const newEdges = edges.filter(
         edge => edge.source !== nodeId && edge.target !== nodeId
       );

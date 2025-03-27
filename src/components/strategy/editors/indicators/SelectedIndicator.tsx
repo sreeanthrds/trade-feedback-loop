@@ -7,6 +7,7 @@ import IndicatorForm from '../IndicatorForm';
 import { indicatorConfig } from '../../utils/indicatorConfig';
 import { useReactFlow } from '@xyflow/react';
 import { findIndicatorUsages, UsageReference } from '../../utils/dependency-tracking/usageFinder';
+import { toast } from "@/hooks/use-toast";
 import {
   AlertDialog,
   AlertDialogAction,
