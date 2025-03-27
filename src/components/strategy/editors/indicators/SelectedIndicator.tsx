@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { X, ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -58,7 +58,7 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
     return name;
   };
 
-  const handleRemoveClick = (e) => {
+  const handleRemoveClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering the collapsible toggle
     
     // Find usages before showing dialog
@@ -126,6 +126,7 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
             <AlertDialogTitle>Delete {getIndicatorDisplayName()}?</AlertDialogTitle>
             <AlertDialogDescription>
               This indicator is currently used in the following places:
+              
               <ul className="mt-2 space-y-1 text-sm">
                 {usages.map((usage, index) => (
                   <li key={index} className="flex items-center gap-2">
@@ -134,6 +135,7 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
                   </li>
                 ))}
               </ul>
+              
               <Alert variant="destructive" className="mt-4">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertTitle>Warning</AlertTitle>

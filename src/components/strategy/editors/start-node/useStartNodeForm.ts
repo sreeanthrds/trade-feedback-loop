@@ -13,6 +13,7 @@ interface NodeData {
   };
   indicators?: string[];
   indicatorParameters?: Record<string, Record<string, any>>;
+  _lastUpdated?: number;
 }
 
 interface UseStartNodeFormProps {
@@ -56,7 +57,8 @@ export const useStartNodeForm = ({ node, updateNodeData }: UseStartNodeFormProps
     setTimeout(() => {
       updateNodeData(node.id, {
         ...formData,
-        [field]: value
+        [field]: value,
+        _lastUpdated: Date.now() // Add timestamp to force update
       });
     }, 100);
   };
@@ -79,7 +81,10 @@ export const useStartNodeForm = ({ node, updateNodeData }: UseStartNodeFormProps
     setFormData(updatedFormData);
     
     setTimeout(() => {
-      updateNodeData(node.id, updatedFormData);
+      updateNodeData(node.id, {
+        ...updatedFormData,
+        _lastUpdated: Date.now() // Add timestamp to force update
+      });
     }, 100);
   };
 
@@ -100,7 +105,10 @@ export const useStartNodeForm = ({ node, updateNodeData }: UseStartNodeFormProps
     setFormData(updatedFormData);
     
     setTimeout(() => {
-      updateNodeData(node.id, updatedFormData);
+      updateNodeData(node.id, {
+        ...updatedFormData,
+        _lastUpdated: Date.now() // Add timestamp to force update
+      });
     }, 100);
   };
   
@@ -115,7 +123,10 @@ export const useStartNodeForm = ({ node, updateNodeData }: UseStartNodeFormProps
     
     // Use a timeout to avoid multiple rapid updates
     setTimeout(() => {
-      updateNodeData(node.id, updatedFormData);
+      updateNodeData(node.id, {
+        ...updatedFormData,
+        _lastUpdated: Date.now() // Add timestamp to force update
+      });
     }, 100);
   };
   

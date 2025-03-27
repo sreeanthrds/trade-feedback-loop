@@ -33,7 +33,7 @@ export function findIndicatorUsages(indicator: string, nodes: Node[]): UsageRefe
         if (hasIndicatorInCondition) {
           usages.push({
             nodeId: node.id,
-            nodeName: node.data.label ? String(node.data.label) : 'Signal Node', // Fix: Ensure string type
+            nodeName: node.data.label ? String(node.data.label) : 'Signal Node', // Cast to string
             nodeType: 'signalNode',
             context: 'Signal condition'
           });
@@ -101,7 +101,7 @@ export function findInstrumentUsages(symbol: string, nodes: Node[]): UsageRefere
       if (node.data.instrument === symbol) {
         usages.push({
           nodeId: node.id,
-          nodeName: node.data.label ? String(node.data.label) : 'Action Node', // Fix: Ensure string type
+          nodeName: node.data.label ? String(node.data.label) : 'Action Node', // Cast to string
           nodeType: 'actionNode',
           context: 'Trading instrument'
         });
