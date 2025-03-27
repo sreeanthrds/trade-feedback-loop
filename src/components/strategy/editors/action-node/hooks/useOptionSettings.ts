@@ -24,29 +24,33 @@ export const useOptionSettings = ({
           optionType: 'CE'
         }
       });
+      return true;
     }
+    return false;
   }, [nodeId, nodeData, updateNodeData]);
   
   const handleExpiryChange = useCallback((value: string) => {
-    ensureOptionDetails();
+    const wasInitialized = ensureOptionDetails();
+    
     updateNodeData(nodeId, { 
       optionDetails: {
-        ...nodeData.optionDetails,
+        ...(!wasInitialized ? nodeData.optionDetails : {}),
         expiry: value
       }
     });
   }, [nodeId, nodeData.optionDetails, updateNodeData, ensureOptionDetails]);
   
   const handleStrikeTypeChange = useCallback((value: string) => {
-    ensureOptionDetails();
+    const wasInitialized = ensureOptionDetails();
+    
     // For premium type, ensure we initialize with default strike value if not already set
     const updatedOptions = { 
-      ...nodeData.optionDetails,
+      ...(!wasInitialized ? nodeData.optionDetails : {}),
       strikeType: value
     };
     
     // If changing to premium type and no strike value is set, set a default
-    if (value === 'premium' && !nodeData.optionDetails?.strikeValue) {
+    if (value === 'premium' && (!nodeData.optionDetails?.strikeValue)) {
       updatedOptions.strikeValue = 100;
     }
     
@@ -69,10 +73,11 @@ export const useOptionSettings = ({
   }, [nodeId, nodeData.optionDetails, updateNodeData, ensureOptionDetails]);
   
   const handleOptionTypeChange = useCallback((value: string) => {
-    ensureOptionDetails();
+    const wasInitialized = ensureOptionDetails();
+    
     updateNodeData(nodeId, { 
       optionDetails: {
-        ...nodeData.optionDetails,
+        ...(!wasInitialized ? nodeData.optionDetails : {}),
         optionType: value
       }
     });

@@ -12,6 +12,7 @@ const ActionNode = ({ data, id }: { data: any, id: string }) => {
       data={data} 
       startNodeSymbol={startNodeSymbol}
       isSymbolMissing={isSymbolMissing} 
+      id={id}
     />
   );
 };

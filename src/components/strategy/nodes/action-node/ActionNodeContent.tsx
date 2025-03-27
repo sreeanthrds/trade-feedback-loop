@@ -11,12 +11,14 @@ interface ActionNodeContentProps {
   data: ActionNodeData;
   startNodeSymbol?: string;
   isSymbolMissing?: boolean;
+  id?: string;
 }
 
 const ActionNodeContent: React.FC<ActionNodeContentProps> = ({ 
   data, 
   startNodeSymbol,
-  isSymbolMissing 
+  isSymbolMissing,
+  id
 }) => {
   return (
     <div className={`px-4 py-2 rounded-md bg-background/95 border ${isSymbolMissing ? 'border-destructive/50' : 'border-border/50'}`}>
