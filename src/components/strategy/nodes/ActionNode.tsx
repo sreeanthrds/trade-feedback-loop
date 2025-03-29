@@ -8,7 +8,22 @@ import { ActionNodeData } from './action-node/types';
 // Properly type the NodeProps with ActionNodeData
 const ActionNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const startNodeSymbol = useStartNodeSymbol();
-  const nodeData = data as ActionNodeData;
+  
+  // Create a safe version of nodeData with default values for required fields
+  const nodeData = useMemo(() => {
+    const rawData = data as Record<string, unknown>;
+    return {
+      positions: Array.isArray(rawData.positions) ? rawData.positions : [],
+      requiresSymbol: rawData.requiresSymbol as boolean | undefined,
+      symbol: rawData.symbol as string | undefined,
+      updateNodeData: rawData.updateNodeData as ((id: string, data: Partial<ActionNodeData>) => void) | undefined,
+      // Include other fields from ActionNodeData as needed
+      actionType: rawData.actionType as 'entry' | 'exit' | 'alert' | undefined,
+      label: rawData.label as string | undefined,
+      instrument: rawData.instrument as string | undefined,
+      _lastUpdated: rawData._lastUpdated as number | undefined
+    } as ActionNodeData;
+  }, [data]);
   
   const isSymbolMissing = useMemo(() => {
     if (nodeData.positions && nodeData.positions.length > 0) {
@@ -20,10 +35,7 @@ const ActionNode: React.FC<NodeProps> = ({ id, data, selected }) => {
 
   return (
     <ActionNodeContent
-      data={{
-        ...nodeData,
-        positions: nodeData.positions || []  // Ensure positions is always defined
-      }}
+      data={nodeData}
       startNodeSymbol={startNodeSymbol}
       isSymbolMissing={isSymbolMissing}
       id={id}

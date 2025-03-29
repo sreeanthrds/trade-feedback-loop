@@ -28,6 +28,7 @@ interface NodeWrapperProps {
   zIndex?: number;
   selectable?: boolean;
   deletable?: boolean;
+  draggable?: boolean;  // Add the missing draggable property
   onDelete?: (id: string) => void;
   onAddNode?: (type: string, parentNodeId: string) => void;
   [key: string]: any;
@@ -92,11 +93,11 @@ const createNodeTypes = (
   updateNodeData?: (id: string, data: any) => void
 ): NodeTypes => {
   return {
-    startNode: (props) => <StartNodeWrapper {...props} onAddNode={onAddNode} />,
-    signalNode: (props) => <SignalNodeWrapper {...props} onDelete={onDeleteNode} onAddNode={onAddNode} />,
-    actionNode: (props) => <ActionNodeWrapper {...props} onDelete={onDeleteNode} onAddNode={onAddNode} updateNodeData={updateNodeData} />,
-    endNode: (props) => <EndNodeWrapper {...props} onDelete={onDeleteNode} />,
-    forceEndNode: (props) => <ForceEndNodeWrapper {...props} onDelete={onDeleteNode} />
+    startNode: (props) => <StartNodeWrapper {...props} draggable={true} onAddNode={onAddNode} />,
+    signalNode: (props) => <SignalNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} onAddNode={onAddNode} />,
+    actionNode: (props) => <ActionNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} onAddNode={onAddNode} updateNodeData={updateNodeData} />,
+    endNode: (props) => <EndNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} />,
+    forceEndNode: (props) => <ForceEndNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} />
   };
 };
 
