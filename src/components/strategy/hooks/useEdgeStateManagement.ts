@@ -16,7 +16,9 @@ export function useEdgeStateManagement(initialEdges: Edge[] = [], strategyStore:
         ? updatedEdges(prevEdges)
         : updatedEdges;
       
-      strategyStore.setEdges(newEdges);
+      if (strategyStore) {
+        strategyStore.setEdges(newEdges);
+      }
       return newEdges;
     });
   }, [setLocalEdges, strategyStore]);
@@ -28,7 +30,10 @@ export function useEdgeStateManagement(initialEdges: Edge[] = [], strategyStore:
       
       const newEdges = addEdge(params, edges);
       setEdges(newEdges);
-      strategyStore.addHistoryItem(strategyStore.nodes, newEdges);
+      
+      if (strategyStore) {
+        strategyStore.addHistoryItem(strategyStore.nodes, newEdges);
+      }
     },
     [edges, setEdges, strategyStore]
   );

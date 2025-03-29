@@ -19,6 +19,7 @@ const StrategyFlowContent = () => {
   // Store handlers in a ref to prevent render-time updates
   const handlersRef = useRef(null);
   
+  // Get flow state
   const {
     nodes,
     edges,
@@ -28,7 +29,6 @@ const StrategyFlowContent = () => {
     reactFlowInstance,
     onNodesChange,
     onEdgesChange,
-    onConnect,
     setSelectedNode,
     setIsPanelOpen,
     setNodes,
@@ -51,9 +51,15 @@ const StrategyFlowContent = () => {
     }
   }, []);
   
-  const handleAddNode = useCallback((type, parentId) => {
+  const onConnect = useCallback((params) => {
+    if (handlersRef.current && handlersRef.current.onConnect) {
+      handlersRef.current.onConnect(params, nodes);
+    }
+  }, [nodes]);
+  
+  const handleAddNode = useCallback((type, parentId, initialData) => {
     if (handlersRef.current) {
-      handlersRef.current.handleAddNode(type, parentId);
+      handlersRef.current.handleAddNode(type, parentId, initialData);
     }
   }, []);
   

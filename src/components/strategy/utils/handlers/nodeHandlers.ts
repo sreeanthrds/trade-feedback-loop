@@ -68,12 +68,27 @@ export const createAddNodeHandler = (
     const newNode = createNode(type, id, newNodePosition, initialNodeData);
 
     // Add the new node
-    storeUpdater.addNode(newNode);
+    const updatedNodes = [...nodes, newNode];
+    setNodes(updatedNodes);
     
     // If we have a parent node, create an edge connecting them
     if (parentNodeId) {
       const newEdge = createNewEdge(parentNodeId, id);
-      storeUpdater.addEdge(newEdge);
+      const updatedEdges = [...edges, newEdge];
+      setEdges(updatedEdges);
+      
+      // Update store if available
+      if (storeUpdater) {
+        storeUpdater.setNodes(updatedNodes);
+        storeUpdater.setEdges(updatedEdges);
+        storeUpdater.addHistoryItem(updatedNodes, updatedEdges);
+      }
+    } else {
+      // Update store if available
+      if (storeUpdater) {
+        storeUpdater.setNodes(updatedNodes);
+        storeUpdater.addHistoryItem(updatedNodes, edges);
+      }
     }
   };
 };
@@ -84,7 +99,26 @@ export const createUpdateNodeDataHandler = (
   storeUpdater: any
 ) => {
   return (id: string, newData: Record<string, any>) => {
-    storeUpdater.updateNodeData(id, newData);
+    const updatedNodes = nodes.map(node => {
+      if (node.id === id) {
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            ...newData
+          }
+        };
+      }
+      return node;
+    });
+    
+    setNodes(updatedNodes);
+    
+    // Update store if available
+    if (storeUpdater) {
+      storeUpdater.setNodes(updatedNodes);
+      storeUpdater.addHistoryItem(updatedNodes, storeUpdater.edges);
+    }
   };
 };
 
@@ -96,6 +130,22 @@ export const createDeleteNodeHandler = (
   storeUpdater: any
 ) => {
   return (id: string) => {
-    storeUpdater.deleteNode(id);
+    // Remove the node
+    const updatedNodes = nodes.filter(node => node.id !== id);
+    
+    // Remove any edges connected to this node
+    const updatedEdges = edges.filter(
+      edge => edge.source !== id && edge.target !== id
+    );
+    
+    setNodes(updatedNodes);
+    setEdges(updatedEdges);
+    
+    // Update store if available
+    if (storeUpdater) {
+      storeUpdater.setNodes(updatedNodes);
+      storeUpdater.setEdges(updatedEdges);
+      storeUpdater.addHistoryItem(updatedNodes, updatedEdges);
+    }
   };
 };

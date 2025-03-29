@@ -17,7 +17,7 @@ export const useFlowHandlers = () => {
   // Get state from hooks
   const reactFlowInstance = useReactFlow();
   const { nodes, setNodes, reactFlowWrapper } = useNodeStateManagement();
-  const { edges, setEdges, onConnect: baseOnConnect } = useEdgeStateManagement([], useStrategyStore());
+  const { edges, setEdges, onConnect } = useEdgeStateManagement([], useStrategyStore());
   const { isPanelOpen, setSelectedNode, setIsPanelOpen } = usePanelState();
   const strategyStore = useStrategyStore();
 
@@ -77,6 +77,7 @@ export const useFlowHandlers = () => {
 
     // Edge handlers
     handleDeleteEdge,
+    onConnect,
 
     // Panel handlers
     handlePanelClose: closePanel,
