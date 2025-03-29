@@ -1,6 +1,10 @@
 
 /* Ensure dropdown content is visible */
-.react-flow__node .dropdown-content {
+[data-radix-popper-content-wrapper] {
+  z-index: 9999 !important;
+}
+
+.dropdown-content {
   z-index: 9999;
   background-color: var(--background);
   border: 1px solid var(--border);
@@ -8,7 +12,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Fix for context menu submenu positioning */
+/* Fix for dropdown menu positioning */
 [data-state="open"] > [data-radix-popper-content-wrapper] {
   z-index: 9999 !important;
   background-color: var(--background) !important;
@@ -20,24 +24,6 @@
   border: 1px solid var(--border);
   border-radius: 0.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* Fix for submenu positioning */
-[data-radix-menu-content] {
-  z-index: 9999 !important;
-  background-color: var(--background) !important;
-}
-
-/* Prevent click-through and ensure proper layering */
-.context-menu-content {
-  isolation: isolate;
-  pointer-events: auto !important;
-}
-
-/* Ensure submenus are visible and interactive */
-[data-radix-popper-content-wrapper] {
-  pointer-events: auto !important;
-  z-index: 9999 !important;
 }
 
 /* Mobile-specific fixes */
