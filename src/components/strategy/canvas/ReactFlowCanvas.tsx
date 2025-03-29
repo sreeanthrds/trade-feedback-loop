@@ -14,8 +14,10 @@ import {
   DropdownMenuSub,
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Play, Activity, SlidersHorizontal, StopCircle, AlertTriangle, ArrowUpCircle, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface ReactFlowCanvasProps {
   flowRef: React.RefObject<HTMLDivElement>;
@@ -80,10 +82,15 @@ const ReactFlowCanvas = ({
   return (
     <div className="h-full w-full" ref={flowRef}>
       <DropdownMenu>
-        <DropdownMenuTrigger className="fixed top-4 left-4 z-10 px-4 py-2 bg-background border rounded-md hover:bg-accent">
-          Add Node
+        <DropdownMenuTrigger asChild>
+          <Button 
+            className="fixed top-4 left-4 z-10 px-4 py-2 bg-background border rounded-md hover:bg-accent"
+            variant="outline"
+          >
+            Add Node
+          </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56">
+        <DropdownMenuContent className="w-56 dropdown-content">
           <DropdownMenuItem onClick={() => onAddNode('startNode')} className="flex items-center">
             <Play className="h-4 w-4 mr-2 text-emerald-500" />
             <span>Add Start Node</span>
@@ -94,12 +101,14 @@ const ReactFlowCanvas = ({
             <span>Add Signal Node</span>
           </DropdownMenuItem>
           
+          <DropdownMenuSeparator />
+          
           <DropdownMenuSub>
             <DropdownMenuSubTrigger className="flex items-center">
               <SlidersHorizontal className="h-4 w-4 mr-2 text-amber-600" />
               <span>Add Action Node</span>
             </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent>
+            <DropdownMenuSubContent className="dropdown-menu-sub-content">
               <DropdownMenuItem onClick={() => onAddNode('actionNode', undefined, { actionType: 'entry' })}>
                 <div className="flex items-center">
                   <ArrowUpCircle className="h-4 w-4 mr-2 text-emerald-500" />
@@ -120,6 +129,8 @@ const ReactFlowCanvas = ({
               </DropdownMenuItem>
             </DropdownMenuSubContent>
           </DropdownMenuSub>
+          
+          <DropdownMenuSeparator />
           
           <DropdownMenuItem onClick={() => onAddNode('endNode')} className="flex items-center">
             <StopCircle className="h-4 w-4 mr-2 text-rose-600" />
