@@ -23,12 +23,15 @@ interface NodeWrapperProps {
   id: string;
   data: any;
   type: string;
-  selected: boolean;      // Changed from optional to required
-  dragging: boolean;      // Changed from optional to required
-  zIndex: number;         // Changed from optional to required
-  selectable: boolean;    // Changed from optional to required
-  deletable: boolean;     // Changed from optional to required
-  draggable: boolean;     // Already required
+  selected: boolean;
+  dragging: boolean;
+  zIndex: number;
+  selectable: boolean;
+  deletable: boolean;
+  draggable: boolean;
+  isConnectable: boolean;         // Add this required property
+  positionAbsoluteX: number;      // Add this required property
+  positionAbsoluteY: number;      // Add this required property
   onDelete?: (id: string) => void;
   onAddNode?: (type: string, parentNodeId: string) => void;
   [key: string]: any;
