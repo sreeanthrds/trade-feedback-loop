@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { ActionNodeData } from './types';
-import { CircleDollarSign, Bell, ArrowRightLeft } from 'lucide-react';
+import { CircleDollarSign, Bell, ArrowRightLeft, Activity } from 'lucide-react';
 
 interface ActionIconProps {
   data: ActionNodeData;
@@ -29,7 +29,7 @@ const ActionIcon: React.FC<ActionIconProps> = ({ data }) => {
   } else if (data.actionType === 'alert') {
     Icon = Bell; // Bell for alert notifications
   } else {
-    Icon = CircleDollarSign; // Default fallback
+    Icon = Activity; // Default fallback for unknown types
   }
 
   return (
