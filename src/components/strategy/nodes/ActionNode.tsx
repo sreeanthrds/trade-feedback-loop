@@ -6,23 +6,28 @@ import { useStartNodeSymbol } from './action-node/useStartNodeSymbol';
 import { ActionNodeData } from './action-node/types';
 
 // Properly type the NodeProps with ActionNodeData
-const ActionNode: React.FC<NodeProps<ActionNodeData>> = ({ id, data, selected }) => {
+const ActionNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const startNodeSymbol = useStartNodeSymbol();
+  const nodeData = data as ActionNodeData;
+  
   const isSymbolMissing = useMemo(() => {
-    if (data.positions && data.positions.length > 0) {
+    if (nodeData.positions && nodeData.positions.length > 0) {
       // For positions-based action nodes, we don't show the symbol missing warning
       return false;
     }
-    return data.requiresSymbol !== false && !data.symbol && !startNodeSymbol;
-  }, [data.requiresSymbol, data.symbol, startNodeSymbol, data.positions]);
+    return nodeData.requiresSymbol !== false && !nodeData.symbol && !startNodeSymbol;
+  }, [nodeData.requiresSymbol, nodeData.symbol, startNodeSymbol, nodeData.positions]);
 
   return (
     <ActionNodeContent
-      data={data}
+      data={{
+        ...nodeData,
+        positions: nodeData.positions || []  // Ensure positions is always defined
+      }}
       startNodeSymbol={startNodeSymbol}
       isSymbolMissing={isSymbolMissing}
       id={id}
-      updateNodeData={data.updateNodeData}
+      updateNodeData={nodeData.updateNodeData}
     />
   );
 };

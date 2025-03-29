@@ -52,7 +52,7 @@ const SignalNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, ...rest }
 SignalNodeWrapper.displayName = 'SignalNodeWrapper';
 
 const ActionNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNodeData, ...rest }: NodeWrapperProps & { updateNodeData?: (id: string, data: any) => void }) => {
-  // Enhance data with updateNodeData function
+  // Enhance data with updateNodeData function and ensure positions is always defined
   const enhancedData = React.useMemo(() => ({
     ...data,
     updateNodeData,

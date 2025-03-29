@@ -46,6 +46,25 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
   const handleClosePositionDialog = () => {
     setEditingPosition(null);
   };
+
+  // Handle option details updates safely
+  const handleOptionDetailsChange = (optionUpdates: Record<string, any>) => {
+    if (!editingPosition || !updateNodeData) return;
+    
+    const updatedOptionDetails = {
+      ...editingPosition.optionDetails,
+      ...optionUpdates
+    };
+    
+    const updatedPositions = data.positions?.map(pos => 
+      pos.id === editingPosition.id ? { 
+        ...pos, 
+        optionDetails: updatedOptionDetails 
+      } : pos
+    ) || [];
+    
+    updateNodeData(id, { positions: updatedPositions });
+  };
   
   return (
     <div className={`px-4 py-2 rounded-md bg-background/95 border ${isSymbolMissing ? 'border-destructive/50' : 'border-border/50'}`}>
@@ -132,41 +151,16 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
           onLotsChange={(e) => handlePositionChange({ lots: parseInt(e.target.value) || 1 })}
           onProductTypeChange={(value) => handlePositionChange({ productType: value as 'intraday' | 'carryForward' })}
           onExpiryChange={(value) => {
-            const updatedOptionDetails = editingPosition.optionDetails 
-              ? { ...editingPosition.optionDetails, expiry: value }
-              : { expiry: value };
-            
-            handlePositionChange({ 
-              optionDetails: updatedOptionDetails
-            });
+            handleOptionDetailsChange({ expiry: value });
           }}
           onStrikeTypeChange={(value) => {
-            const updatedOptionDetails = editingPosition.optionDetails 
-              ? { ...editingPosition.optionDetails, strikeType: value as any }
-              : { strikeType: value as any };
-            
-            handlePositionChange({ 
-              optionDetails: updatedOptionDetails
-            });
+            handleOptionDetailsChange({ strikeType: value as any });
           }}
           onStrikeValueChange={(e) => {
-            const value = parseFloat(e.target.value) || 0;
-            const updatedOptionDetails = editingPosition.optionDetails 
-              ? { ...editingPosition.optionDetails, strikeValue: value }
-              : { strikeValue: value };
-            
-            handlePositionChange({ 
-              optionDetails: updatedOptionDetails
-            });
+            handleOptionDetailsChange({ strikeValue: parseFloat(e.target.value) || 0 });
           }}
           onOptionTypeChange={(value) => {
-            const updatedOptionDetails = editingPosition.optionDetails 
-              ? { ...editingPosition.optionDetails, optionType: value as 'CE' | 'PE' }
-              : { optionType: value as 'CE' | 'PE' };
-            
-            handlePositionChange({ 
-              optionDetails: updatedOptionDetails
-            });
+            handleOptionDetailsChange({ optionType: value as 'CE' | 'PE' });
           }}
         />
       )}
