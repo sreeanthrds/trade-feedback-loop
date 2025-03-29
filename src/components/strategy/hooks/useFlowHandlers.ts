@@ -1,52 +1,32 @@
 
-import { useRef, useEffect } from 'react';
-import { Node, Edge } from '@xyflow/react';
+import { useCallback } from 'react';
+import { useReactFlow, Connection, Edge, Node } from '@xyflow/react';
+import { useNodeStateManagement } from './useNodeStateManagement';
+import { useEdgeStateManagement } from './useEdgeStateManagement';
+import { useStrategyStore } from '@/hooks/use-strategy-store';
+import { usePanelState } from './usePanelState';
+import { toast } from '@/hooks/use-toast';
 import {
   useNodeHandlers,
   useEdgeHandlers,
   usePanelHandlers,
-  useStrategyHandlers
+  useStrategyHandlers,
 } from './flow-handlers';
 
-interface UseFlowHandlersProps {
-  nodes: Node[];
-  edges: Edge[];
-  selectedNode: Node | null;
-  isPanelOpen: boolean;
-  reactFlowWrapper: React.RefObject<HTMLDivElement>;
-  reactFlowInstance: any;
-  setSelectedNode: (node: Node | null) => void;
-  setIsPanelOpen: (isOpen: boolean) => void;
-  setNodes: (nodes: Node[]) => void;
-  setEdges: (edges: Edge[]) => void;
-  strategyStore: any;
-}
+export const useFlowHandlers = () => {
+  // Get state from hooks
+  const reactFlowInstance = useReactFlow();
+  const { nodes, setNodes, reactFlowWrapper } = useNodeStateManagement();
+  const { edges, setEdges } = useEdgeStateManagement();
+  const { setSelectedNode, setIsPanelOpen } = usePanelState();
+  const strategyStore = useStrategyStore();
 
-export const useFlowHandlers = (props: UseFlowHandlersProps) => {
-  const {
-    nodes,
-    edges,
-    reactFlowInstance,
-    reactFlowWrapper,
-    setSelectedNode,
-    setIsPanelOpen,
-    setNodes,
-    setEdges,
-    strategyStore
-  } = props;
-
-  // Create panel handlers first since closePanel is needed for strategy handlers
-  const { closePanel } = usePanelHandlers({
-    setIsPanelOpen,
-    setSelectedNode
-  });
-
-  // Initialize node handlers
+  // Create handlers using the handler factory hooks
   const {
     onNodeClick,
-    handleAddNode,
+    handleAddNode: nodeHandlersAddNode,
     updateNodeData,
-    handleDeleteNode
+    handleDeleteNode,
   } = useNodeHandlers({
     nodes,
     edges,
@@ -56,37 +36,60 @@ export const useFlowHandlers = (props: UseFlowHandlersProps) => {
     setIsPanelOpen,
     setNodes,
     setEdges,
-    strategyStore
-  });
-
-  // Initialize edge handlers
-  const { handleDeleteEdge } = useEdgeHandlers({
-    edges,
-    nodes,
-    setEdges,
-    strategyStore
-  });
-
-  // Initialize strategy handlers
-  const {
-    resetStrategy,
-    handleImportSuccess
-  } = useStrategyHandlers({
     strategyStore,
-    setNodes,
-    setEdges,
-    reactFlowInstance,
-    closePanel
   });
+
+  const { onEdgeClick, onConnect, onEdgeUpdate, onEdgeUpdateEnd } =
+    useEdgeHandlers({
+      edges,
+      setEdges,
+      setSelectedNode,
+      setIsPanelOpen,
+      strategyStore,
+    });
+
+  const { handlePanelClose } = usePanelHandlers({
+    setSelectedNode,
+    setIsPanelOpen,
+  });
+
+  const { handleSaveStrategy, handleLoadStrategy, handleClearStrategy } =
+    useStrategyHandlers({
+      reactFlowInstance,
+      setNodes,
+      setEdges,
+      setSelectedNode,
+      setIsPanelOpen,
+      strategyStore,
+    });
+
+  // Wrap addNode handler to handle initialNodeData
+  const handleAddNode = useCallback(
+    (type: string, parentNodeId?: string, initialNodeData?: Record<string, any>) => {
+      nodeHandlersAddNode(type, parentNodeId, initialNodeData);
+    },
+    [nodeHandlersAddNode]
+  );
 
   return {
+    // Node handlers
     onNodeClick,
     handleAddNode,
     updateNodeData,
     handleDeleteNode,
-    handleDeleteEdge,
-    closePanel,
-    resetStrategy,
-    handleImportSuccess
+
+    // Edge handlers
+    onEdgeClick,
+    onConnect,
+    onEdgeUpdate,
+    onEdgeUpdateEnd,
+
+    // Panel handlers
+    handlePanelClose,
+
+    // Strategy handlers
+    handleSaveStrategy,
+    handleLoadStrategy,
+    handleClearStrategy,
   };
 };
