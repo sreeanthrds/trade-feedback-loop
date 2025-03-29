@@ -23,17 +23,23 @@ export const useActionTypeHandler = (
         label = 'Action';
     }
 
+    // Use timestamp to force update, along with additional fields to ensure change detection
+    const updateTime = Date.now();
     updateNodeData(node.id, { 
       actionType, 
       label,
-      _lastUpdated: Date.now() // Add timestamp to force update
+      _lastUpdated: updateTime,
+      _forceUpdate: Math.random().toString(36).substring(7) // Add random string to ensure update
     });
   }, [node.id, updateNodeData]);
 
   const handleLabelChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    // Use timestamp to force update, along with additional fields to ensure change detection
+    const updateTime = Date.now();
     updateNodeData(node.id, { 
       label: e.target.value,
-      _lastUpdated: Date.now() // Add timestamp to force update
+      _lastUpdated: updateTime,
+      _forceUpdate: Math.random().toString(36).substring(7) // Add random string to ensure update
     });
   }, [node.id, updateNodeData]);
 

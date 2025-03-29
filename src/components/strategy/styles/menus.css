@@ -61,3 +61,23 @@
   position: relative !important;
   z-index: 10001 !important;
 }
+
+/* Better dropdown handling for touch devices */
+.touch-friendly-dropdown {
+  min-height: 44px;
+  padding: 8px 12px;
+}
+
+/* Enhanced visibility for dropdown items */
+[role="menuitem"] {
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+}
+
+/* Improved focus states for menu items */
+[role="menuitem"]:focus,
+[role="menuitem"]:hover {
+  background-color: var(--accent) !important;
+  color: var(--accent-foreground) !important;
+  outline: none;
+}
