@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { Node } from '@xyflow/react';
 import { NodeData, Position } from './types';
@@ -46,7 +47,7 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
     return `pos-${timestamp}`;
   };
 
-  // Generate a VPI with node ID prefix + pos number
+  // Generate a simplified VPI with node ID prefix + position number
   const generateVPI = () => {
     const nodePrefix = node.id.replace(/[^a-zA-Z0-9-]/g, '');
     const positionCount = (nodeData?.positions?.length || 0) + 1;
