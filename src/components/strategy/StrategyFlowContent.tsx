@@ -37,19 +37,7 @@ const StrategyFlowContent = () => {
   } = useFlowState();
 
   // Create handlers but don't cause renders when they're updated
-  const handlers = useFlowHandlers({
-    nodes,
-    edges,
-    selectedNode,
-    isPanelOpen,
-    reactFlowWrapper,
-    reactFlowInstance,
-    setSelectedNode,
-    setIsPanelOpen,
-    setNodes,
-    setEdges,
-    strategyStore
-  });
+  const handlers = useFlowHandlers();
   
   // Update the ref without causing renders
   useEffect(() => {
@@ -89,7 +77,7 @@ const StrategyFlowContent = () => {
   
   const closePanel = useCallback(() => {
     if (handlersRef.current) {
-      handlersRef.current.closePanel();
+      handlersRef.current.handlePanelClose();
     }
   }, []);
   
@@ -167,12 +155,7 @@ const StrategyFlowContent = () => {
   ]);
 
   return (
-    <FlowLayout
-      isPanelOpen={isPanelOpen}
-      selectedNode={selectedNode}
-      onClosePanel={closePanel}
-      nodePanelComponent={nodePanelComponent}
-    >
+    <FlowLayout nodePanelComponent={nodePanelComponent}>
       <ReactFlowCanvas {...flowCanvasProps} />
     </FlowLayout>
   );

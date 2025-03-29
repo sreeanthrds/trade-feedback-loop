@@ -1,4 +1,6 @@
+
 import { Node, XYPosition } from '@xyflow/react';
+import { nanoid } from 'nanoid';
 
 // Default node data used when creating new nodes
 const defaultNodeData = {
@@ -24,6 +26,28 @@ const defaultNodeData = {
     label: 'Force End',
     closeAllPositions: true
   }
+};
+
+// Initial nodes for a new strategy
+export const initialNodes: Node[] = [
+  {
+    id: 'start-1',
+    type: 'startNode',
+    position: { x: 350, y: 50 },
+    data: { ...defaultNodeData.startNode }
+  }
+];
+
+// Helper function to add a new node to existing nodes
+export const addNode = (
+  nodes: Node[],
+  type: string,
+  position: XYPosition,
+  initialNodeData?: Record<string, any>
+): Node => {
+  const id = nanoid(6);
+  const newNode = createNode(type, id, position, initialNodeData);
+  return newNode;
 };
 
 /**

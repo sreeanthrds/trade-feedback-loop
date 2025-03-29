@@ -16,10 +16,11 @@ import {
 export const useFlowHandlers = () => {
   // Get state from hooks
   const reactFlowInstance = useReactFlow();
-  const { nodes, setNodes, reactFlowWrapper } = useNodeStateManagement();
+  const { nodes, setNodes } = useNodeStateManagement();
   const { edges, setEdges } = useEdgeStateManagement();
   const { setSelectedNode, setIsPanelOpen } = usePanelState();
   const strategyStore = useStrategyStore();
+  const reactFlowWrapper = { current: null }; // Provide a default value
 
   // Create handlers using the handler factory hooks
   const {
@@ -39,29 +40,25 @@ export const useFlowHandlers = () => {
     strategyStore,
   });
 
-  const { onEdgeClick, onConnect, onEdgeUpdate, onEdgeUpdateEnd } =
-    useEdgeHandlers({
-      edges,
-      setEdges,
-      setSelectedNode,
-      setIsPanelOpen,
-      strategyStore,
-    });
+  const { handleDeleteEdge } = useEdgeHandlers({
+    edges,
+    nodes,
+    setEdges,
+    strategyStore,
+  });
 
-  const { handlePanelClose } = usePanelHandlers({
+  const { closePanel } = usePanelHandlers({
     setSelectedNode,
     setIsPanelOpen,
   });
 
-  const { handleSaveStrategy, handleLoadStrategy, handleClearStrategy } =
-    useStrategyHandlers({
-      reactFlowInstance,
-      setNodes,
-      setEdges,
-      setSelectedNode,
-      setIsPanelOpen,
-      strategyStore,
-    });
+  const { resetStrategy, handleImportSuccess } = useStrategyHandlers({
+    strategyStore,
+    setNodes,
+    setEdges,
+    reactFlowInstance,
+    closePanel,
+  });
 
   // Wrap addNode handler to handle initialNodeData
   const handleAddNode = useCallback(
@@ -79,17 +76,13 @@ export const useFlowHandlers = () => {
     handleDeleteNode,
 
     // Edge handlers
-    onEdgeClick,
-    onConnect,
-    onEdgeUpdate,
-    onEdgeUpdateEnd,
+    handleDeleteEdge,
 
     // Panel handlers
-    handlePanelClose,
+    handlePanelClose: closePanel,
 
     // Strategy handlers
-    handleSaveStrategy,
-    handleLoadStrategy,
-    handleClearStrategy,
+    resetStrategy,
+    handleImportSuccess,
   };
 };

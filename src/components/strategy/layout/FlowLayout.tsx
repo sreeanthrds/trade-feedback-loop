@@ -1,11 +1,23 @@
+
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { NodeSidebar } from '../NodeSidebar';
-import { usePanelState } from '@/hooks/use-panel-state';
-import { useFlowHandlers } from '@/hooks/useFlowHandlers';
+import NodeSidebar from '../NodeSidebar';
+import { usePanelState } from '../hooks/usePanelState';
+import { useFlowHandlers } from '../hooks/useFlowHandlers';
 import './FlowLayout.css';
 
-const FlowLayout = ({ children }: { children: React.ReactNode }) => {
+interface FlowLayoutProps {
+  children: React.ReactNode;
+  isPanelOpen?: boolean;
+  selectedNode?: any;
+  onClosePanel?: () => void;
+  nodePanelComponent?: React.ReactNode;
+}
+
+const FlowLayout = ({ 
+  children,
+  nodePanelComponent
+}: FlowLayoutProps) => {
   const { isPanelOpen, selectedNode } = usePanelState();
   const [menuCollapsed, setMenuCollapsed] = useState(false);
   const { handleAddNode } = useFlowHandlers();
@@ -39,7 +51,7 @@ const FlowLayout = ({ children }: { children: React.ReactNode }) => {
         {children}
         {isPanelOpen && selectedNode && (
           <div className="flow-layout-panel">
-            {/* The NodePanel component will be rendered here */}
+            {nodePanelComponent}
           </div>
         )}
       </div>

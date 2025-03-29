@@ -1,6 +1,7 @@
 
 import { Node, Edge, Connection } from '@xyflow/react';
 import { toast } from "@/hooks/use-toast";
+import { nanoid } from 'nanoid';
 
 export const createEdgeBetweenNodes = (
   sourceNode: Node,
@@ -11,6 +12,20 @@ export const createEdgeBetweenNodes = (
     id: `e-${sourceNode.id}-${targetNode.id}`,
     source: sourceNode.id,
     target: targetNode.id,
+    type: edgeType,
+    animated: true
+  };
+};
+
+export const createNewEdge = (
+  sourceId: string,
+  targetId: string,
+  edgeType: string = 'default'
+): Edge => {
+  return {
+    id: `e-${sourceId}-${targetId}-${nanoid(4)}`,
+    source: sourceId,
+    target: targetId,
     type: edgeType,
     animated: true
   };

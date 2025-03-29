@@ -1,7 +1,7 @@
 
 import { useCallback, useRef, useEffect } from 'react';
 import { Edge, Node } from '@xyflow/react';
-import { createDeleteEdgeHandler } from '../../utils/handlers';
+import { toast } from '@/hooks/use-toast';
 
 interface UseEdgeHandlersProps {
   edges: Edge[];
@@ -30,13 +30,13 @@ export const useEdgeHandlers = ({
   
   // Create stable handler for deleting edges
   const handleDeleteEdge = useCallback((id: string) => {
-    const handler = createDeleteEdgeHandler(
-      edgesRef.current,
-      setEdges,
-      storeRef.current,
-      nodesRef.current
-    );
-    handler(id);
+    const filteredEdges = edgesRef.current.filter(edge => edge.id !== id);
+    setEdges(filteredEdges);
+    storeRef.current.setEdges(filteredEdges);
+    toast({
+      title: "Edge deleted",
+      description: "The connection has been removed",
+    });
   }, [setEdges]);
 
   return {

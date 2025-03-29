@@ -1,3 +1,4 @@
+
 import React, { useCallback, memo, useState } from 'react';
 import { Play, Activity, SlidersHorizontal, StopCircle, AlertTriangle, ArrowUpCircle, X } from 'lucide-react';
 import { 
@@ -89,7 +90,7 @@ const nodeTypes: NodeTypeItem[] = [
   }
 ];
 
-const NodeSidebar = memo(({ onAddNode }: NodeSidebarProps) => {
+const NodeSidebar = ({ onAddNode }: NodeSidebarProps) => {
   const [openActionMenu, setOpenActionMenu] = useState(false);
 
   const handleNodeClick = useCallback((type: string, e: React.MouseEvent) => {
@@ -198,8 +199,6 @@ const NodeSidebar = memo(({ onAddNode }: NodeSidebarProps) => {
       </div>
     </div>
   );
-});
-
-NodeSidebar.displayName = 'NodeSidebar';
+};
 
 export default NodeSidebar;
