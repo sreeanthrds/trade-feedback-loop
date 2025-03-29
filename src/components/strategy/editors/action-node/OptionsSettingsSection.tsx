@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { RadioGroupField, SelectField, InputField } from '../shared';
 import { Position } from './types';
@@ -17,6 +18,7 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
   onStrikeValueChange,
   onOptionTypeChange
 }) => {
+  // Ensure optionDetails is never undefined
   const optionDetails = position.optionDetails || {};
   
   const [strikeCategory, setStrikeCategory] = useState<'ATM' | 'ITM' | 'OTM' | 'premium'>(
@@ -95,43 +97,6 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
       }
     }
   }, []);
-
-  const expiryOptions = [
-    { value: 'W0', label: 'Current Week (W0)' },
-    { value: 'W1', label: 'Next Week (W1)' },
-    { value: 'W2', label: 'Week 2 (W2)' },
-    { value: 'W3', label: 'Week 3 (W3)' },
-    { value: 'W4', label: 'Week 4 (W4)' },
-    { value: 'M0', label: 'Current Month (M0)' },
-    { value: 'M1', label: 'Next Month (M1)' },
-    { value: 'M2', label: 'Month 2 (M2)' },
-    { value: 'Q0', label: 'Current Quarter (Q0)' },
-    { value: 'Q1', label: 'Next Quarter (Q1)' },
-    { value: 'Y0', label: 'Current Year (Y0)' },
-    { value: 'Y1', label: 'Next Year (Y1)' }
-  ];
-
-  const strikeCategoryOptions = [
-    { value: 'ATM', label: 'At The Money (ATM)' },
-    { value: 'ITM', label: 'In The Money (ITM)' },
-    { value: 'OTM', label: 'Out of The Money (OTM)' },
-    { value: 'premium', label: 'Closest Premium' }
-  ];
-
-  const generateStrikeDistanceOptions = () => {
-    if (strikeCategory === 'ITM') {
-      return Array.from({ length: 15 }, (_, i) => ({
-        value: `ITM${i + 1}`,
-        label: `${i + 1} Strike${i > 0 ? 's' : ''} ITM`
-      }));
-    } else if (strikeCategory === 'OTM') {
-      return Array.from({ length: 15 }, (_, i) => ({
-        value: `OTM${i + 1}`,
-        label: `${i + 1} Strike${i > 0 ? 's' : ''} OTM`
-      }));
-    }
-    return [];
-  };
 
   return (
     <div className="space-y-4">

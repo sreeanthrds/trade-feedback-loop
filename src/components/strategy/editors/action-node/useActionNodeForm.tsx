@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { Node } from '@xyflow/react';
 import { NodeData, Position } from './types';
@@ -63,7 +64,12 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
       positionType: 'buy',
       orderType: 'market',
       lots: 1,
-      productType: 'intraday'
+      productType: 'intraday',
+      optionDetails: {
+        expiry: 'W0',
+        strikeType: 'ATM',
+        optionType: 'CE'
+      }
     };
   };
 
@@ -135,6 +141,10 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
       positions: updatedPositions,
       _lastUpdated: Date.now()
     });
+    
+    // Log for debugging
+    console.log('Added new position:', newPosition);
+    console.log('Updated positions:', updatedPositions);
     
     return newPosition;
   }, [node.id, nodeData.positions, updateNodeData]);

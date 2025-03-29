@@ -75,15 +75,21 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
   };
 
   const onAddPosition = () => {
+    console.log("Adding position from ActionNodeEditor");
     const newPosition = handleAddPosition();
-    setSelectedPosition(newPosition);
+    if (newPosition) {
+      console.log("New position created:", newPosition);
+      setSelectedPosition(newPosition);
+    } else {
+      console.error("Failed to create new position");
+    }
   };
 
   const onDeletePosition = (id: string) => {
     handleDeletePosition(id);
     // If we deleted the selected position, select another one or null
     if (selectedPosition?.id === id) {
-      const remainingPositions = nodeData?.positions.filter(p => p.id !== id) || [];
+      const remainingPositions = nodeData?.positions?.filter(p => p.id !== id) || [];
       setSelectedPosition(remainingPositions.length > 0 ? remainingPositions[0] : null);
     }
   };
@@ -118,7 +124,16 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
                 <PositionEditor 
                   position={selectedPosition}
                   hasOptionTrading={hasOptionTrading}
-                  onPositionChange={handlePositionUpdate}
+                  onPositionChange={(updates) => handlePositionUpdate(selectedPosition.id, updates)}
+                  onPositionTypeChange={handlePositionTypeChange}
+                  onOrderTypeChange={handleOrderTypeChange}
+                  onLimitPriceChange={handleLimitPriceChange}
+                  onLotsChange={handleLotsChange}
+                  onProductTypeChange={handleProductTypeChange}
+                  onExpiryChange={handleExpiryChange}
+                  onStrikeTypeChange={handleStrikeTypeChange}
+                  onStrikeValueChange={handleStrikeValueChange}
+                  onOptionTypeChange={handleOptionTypeChange}
                 />
               )}
             </>
