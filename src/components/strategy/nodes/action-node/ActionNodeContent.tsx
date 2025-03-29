@@ -11,12 +11,14 @@ interface ActionNodeContentProps {
   data: ActionNodeData;
   startNodeSymbol?: string;
   isSymbolMissing?: boolean;
+  id: string;
 }
 
 const ActionNodeContent: React.FC<ActionNodeContentProps> = ({ 
   data, 
   startNodeSymbol,
-  isSymbolMissing 
+  isSymbolMissing,
+  id
 }) => {
   // Count positions for each priority level
   const positionsByPriority = data.positions?.length > 0 
@@ -82,6 +84,11 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
       ) : (
         <ActionDetails data={data} startNodeSymbol={startNodeSymbol} />
       )}
+      
+      {/* Display node ID */}
+      <div className="text-[9px] text-muted-foreground mt-2 text-right">
+        ID: {id}
+      </div>
       
       <Handle
         type="source"

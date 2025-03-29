@@ -18,7 +18,8 @@ const ActionNode = ({ data, id }: { data: ActionNodeData, id: string }) => {
     <ActionNodeContent 
       data={safeData} 
       startNodeSymbol={startNodeSymbol}
-      isSymbolMissing={isSymbolMissing} 
+      isSymbolMissing={isSymbolMissing}
+      id={id}
     />
   );
 };

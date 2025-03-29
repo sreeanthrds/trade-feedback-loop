@@ -7,9 +7,10 @@ interface EndNodeProps {
   data: {
     label?: string;
   };
+  id: string;
 }
 
-const EndNode = ({ data }: EndNodeProps) => {
+const EndNode = ({ data, id }: EndNodeProps) => {
   return (
     <div className="px-3 py-2 rounded-md">
       <Handle
@@ -24,6 +25,11 @@ const EndNode = ({ data }: EndNodeProps) => {
           <div className="font-medium text-xs">{data.label || "End"}</div>
           <div className="text-[10px] text-foreground/60">Strategy End Point</div>
         </div>
+      </div>
+      
+      {/* Display node ID */}
+      <div className="text-[9px] text-muted-foreground mt-2 text-right">
+        ID: {id}
       </div>
     </div>
   );

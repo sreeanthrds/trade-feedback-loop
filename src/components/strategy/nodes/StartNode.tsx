@@ -1,4 +1,3 @@
-
 import React, { memo } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import { Play, Calendar, Building, BarChart, LineChart } from 'lucide-react';
@@ -16,9 +15,10 @@ interface StartNodeProps {
     indicators?: string[];
     indicatorParameters?: Record<string, Record<string, any>>;
   };
+  id: string;
 }
 
-const StartNode = ({ data }: StartNodeProps) => {
+const StartNode = ({ data, id }: StartNodeProps) => {
   // Helper to get a readable display name for an indicator
   const getIndicatorDisplayName = (key: string) => {
     if (!data.indicatorParameters) return key;
@@ -122,6 +122,10 @@ const StartNode = ({ data }: StartNodeProps) => {
             </div>
           </div>
         )}
+        
+        <div className="text-[9px] text-muted-foreground mt-1 text-right">
+          ID: {id}
+        </div>
       </div>
       
       <Handle

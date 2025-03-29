@@ -10,7 +10,12 @@ interface SignalNodeData {
   conditions?: GroupCondition[];
 }
 
-const SignalNode = ({ data }: { data: SignalNodeData }) => {
+interface SignalNodeProps {
+  data: SignalNodeData;
+  id: string;
+}
+
+const SignalNode = ({ data, id }: SignalNodeProps) => {
   const strategyStore = useStrategyStore();
   const conditions = Array.isArray(data.conditions) ? data.conditions : [];
   
@@ -58,6 +63,11 @@ const SignalNode = ({ data }: { data: SignalNodeData }) => {
           No conditions set
         </div>
       )}
+      
+      {/* Display node ID */}
+      <div className="text-[9px] text-muted-foreground mt-1 text-right">
+        ID: {id}
+      </div>
       
       <Handle
         type="source"
