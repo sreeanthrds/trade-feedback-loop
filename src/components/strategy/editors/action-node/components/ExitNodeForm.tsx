@@ -15,7 +15,8 @@ interface ExitNodeFormProps {
   updateNodeData: (id: string, data: any) => void;
 }
 
-const ExitNodeForm: React.FC<ExitNodeFormProps> = ({ node, updateNodeData }) => {
+// Use React.memo to prevent unnecessary re-renders
+const ExitNodeForm: React.FC<ExitNodeFormProps> = React.memo(({ node, updateNodeData }) => {
   const {
     exitConditionType,
     orderType,
@@ -27,7 +28,10 @@ const ExitNodeForm: React.FC<ExitNodeFormProps> = ({ node, updateNodeData }) => 
     handleLimitPriceChange,
     handleMultipleOrdersToggle,
     updateExitConditionField
-  } = useExitNodeForm({ node, updateNodeData });
+  } = useExitNodeForm({ 
+    node, 
+    updateNodeData 
+  });
 
   return (
     <div className="space-y-4">
@@ -99,12 +103,13 @@ const ExitNodeForm: React.FC<ExitNodeFormProps> = ({ node, updateNodeData }) => 
               description="Price at which the limit order will be placed"
             />
           )}
-          
-          {/* Add more order settings as needed */}
         </TabsContent>
       </Tabs>
     </div>
   );
-};
+});
+
+// Add display name
+ExitNodeForm.displayName = 'ExitNodeForm';
 
 export default ExitNodeForm;

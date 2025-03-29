@@ -30,7 +30,7 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
   const nodeData = node.data || {};
   const rawExitNodeData = nodeData.exitNodeData as ExitNodeData | null || null;
   
-  // Track initialization state to prevent infinite updates
+  // Track if we've done initialization
   const initializedRef = useRef(false);
   
   // Initialize with a properly typed version of the data
@@ -63,15 +63,20 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
   );
   
   // Initialize node data only once if needed
+  // This must run only once, so we don't use any dependencies
   useEffect(() => {
+    // Only run this initialization if we haven't already and if the node doesn't have exitNodeData
     if (!initializedRef.current && !nodeData.exitNodeData) {
+      // Set the initialized flag before doing the update to prevent potential loop
+      initializedRef.current = true;
+      
+      // Now it's safe to update node data
       updateNodeData(node.id, {
         ...nodeData,
         exitNodeData: defaultExitNodeData
       });
-      initializedRef.current = true;
     }
-  }, []); // Keep empty dependency array to run only once
+  }, []); // Empty dependency array ensures this only runs once
   
   // Update exit condition type
   const handleExitConditionTypeChange = useCallback((type: ExitConditionType) => {
@@ -135,7 +140,7 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
       ...nodeData,
       exitNodeData: updatedExitNodeData
     });
-  }, [nodeData, node.id, updateNodeData]);
+  }, [nodeData, node.id, updateNodeData, defaultExitNodeData]);
   
   // Update order type
   const handleOrderTypeChange = useCallback((type: ExitOrderType) => {
@@ -163,7 +168,7 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
       ...nodeData,
       exitNodeData: updatedExitNodeData
     });
-  }, [nodeData, node.id, updateNodeData]);
+  }, [nodeData, node.id, updateNodeData, defaultExitNodeData]);
   
   // Update limit price
   const handleLimitPriceChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -192,7 +197,7 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
         exitNodeData: updatedExitNodeData
       });
     }
-  }, [nodeData, node.id, updateNodeData]);
+  }, [nodeData, node.id, updateNodeData, defaultExitNodeData]);
   
   // Toggle multiple orders
   const handleMultipleOrdersToggle = useCallback(() => {
@@ -220,10 +225,11 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
       ...nodeData,
       exitNodeData: updatedExitNodeData
     });
-  }, [multipleOrders, nodeData, node.id, updateNodeData]);
+  }, [multipleOrders, nodeData, node.id, updateNodeData, defaultExitNodeData]);
   
   // Update exit condition field
   const updateExitConditionField = useCallback((field: string, value: any) => {
+    // Create a new object to avoid mutating the original
     const updatedCondition = {
       ...exitCondition,
       [field]: value
@@ -245,7 +251,7 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
       ...nodeData,
       exitNodeData: updatedExitNodeData
     });
-  }, [exitCondition, nodeData, node.id, updateNodeData]);
+  }, [exitCondition, nodeData, node.id, updateNodeData, defaultExitNodeData]);
   
   return {
     exitConditionType,
