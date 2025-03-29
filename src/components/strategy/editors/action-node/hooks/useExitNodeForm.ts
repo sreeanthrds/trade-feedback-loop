@@ -28,7 +28,7 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
 
   // Get exit node data from node or use default
   const nodeData = node.data || {};
-  const exitNodeData = nodeData.exitNodeData || defaultExitNodeData;
+  const exitNodeData: ExitNodeData = nodeData.exitNodeData as ExitNodeData || defaultExitNodeData;
   
   // State for exit node form
   const [exitConditionType, setExitConditionType] = useState<ExitConditionType>(
@@ -100,8 +100,8 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
     setExitCondition(newCondition);
     
     // Update node data
-    const updatedExitNodeData = {
-      ...exitNodeData,
+    const updatedExitNodeData: ExitNodeData = {
+      ...(exitNodeData as ExitNodeData),
       exitCondition: newCondition
     };
     
@@ -116,15 +116,15 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
     setOrderType(type);
     
     const updatedOrderConfig: ExitOrderConfig = {
-      ...exitNodeData.orderConfig,
+      ...(exitNodeData.orderConfig as ExitOrderConfig),
       orderType: type,
       // Clear limit price if switching to market order
       ...(type === 'market' && { limitPrice: undefined })
     };
     
     // Update node data
-    const updatedExitNodeData = {
-      ...exitNodeData,
+    const updatedExitNodeData: ExitNodeData = {
+      ...(exitNodeData as ExitNodeData),
       orderConfig: updatedOrderConfig
     };
     
@@ -140,14 +140,14 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
     setLimitPrice(isNaN(value) ? undefined : value);
     
     if (!isNaN(value)) {
-      const updatedOrderConfig = {
-        ...exitNodeData.orderConfig,
+      const updatedOrderConfig: ExitOrderConfig = {
+        ...(exitNodeData.orderConfig as ExitOrderConfig),
         limitPrice: value
       };
       
       // Update node data
-      const updatedExitNodeData = {
-        ...exitNodeData,
+      const updatedExitNodeData: ExitNodeData = {
+        ...(exitNodeData as ExitNodeData),
         orderConfig: updatedOrderConfig
       };
       
@@ -164,11 +164,13 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
     setMultipleOrders(newValue);
     
     // Update node data
-    const updatedExitNodeData = {
-      ...exitNodeData,
+    const updatedExitNodeData: ExitNodeData = {
+      ...(exitNodeData as ExitNodeData),
       multipleOrders: newValue,
       // Initialize orders array if enabling multiple orders
-      orders: newValue && !exitNodeData.orders ? [exitNodeData.orderConfig] : exitNodeData.orders
+      orders: newValue && !(exitNodeData as ExitNodeData).orders 
+        ? [(exitNodeData as ExitNodeData).orderConfig] 
+        : (exitNodeData as ExitNodeData).orders
     };
     
     updateNodeData(node.id, {
@@ -187,8 +189,8 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
     setExitCondition(updatedCondition);
     
     // Update node data
-    const updatedExitNodeData = {
-      ...exitNodeData,
+    const updatedExitNodeData: ExitNodeData = {
+      ...(exitNodeData as ExitNodeData),
       exitCondition: updatedCondition
     };
     
