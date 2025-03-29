@@ -107,3 +107,4 @@ export interface ExitNodeData {
   multipleOrders?: boolean;
   orders?: ExitOrderConfig[];
 }
+

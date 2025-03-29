@@ -20,7 +20,7 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
   const defaultExitNodeData = useMemo(() => ({
     exitCondition: {
       type: 'all_positions' as ExitConditionType
-    },
+    } as ExitCondition, // Cast to ExitCondition
     orderConfig: {
       orderType: 'market' as ExitOrderType
     }
@@ -64,7 +64,7 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
   );
   
   const [exitCondition, setExitCondition] = useState<ExitCondition>(
-    initialExitNodeData.exitCondition || { type: 'all_positions' }
+    initialExitNodeData.exitCondition || { type: 'all_positions' } as ExitCondition
   );
   
   // Initialize node data only once if needed
@@ -89,46 +89,46 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
     switch (type) {
       case 'vpi':
       case 'vpt':
-        newCondition = { type, identifier: '' };
+        newCondition = { type, identifier: '' } as ExitCondition;
         break;
       case 'all_positions':
-        newCondition = { type };
+        newCondition = { type } as ExitCondition;
         break;
       case 'realized_pnl':
       case 'unrealized_pnl':
-        newCondition = { type, value: 100, direction: 'above' };
+        newCondition = { type, value: 100, direction: 'above' } as ExitCondition;
         break;
       case 'premium_change':
       case 'position_value_change':
-        newCondition = { type, percentage: 10, direction: 'increase' };
+        newCondition = { type, percentage: 10, direction: 'increase' } as ExitCondition;
         break;
       case 'price_target':
-        newCondition = { type, price: 0, direction: 'above' };
+        newCondition = { type, price: 0, direction: 'above' } as ExitCondition;
         break;
       case 'indicator_underlying':
       case 'indicator_contract':
-        newCondition = { type, indicator: 'RSI', condition: 'above', value: 70 };
+        newCondition = { type, indicator: 'RSI', condition: 'above', value: 70 } as ExitCondition;
         break;
       case 'time_based':
-        newCondition = { type, minutes: 30 };
+        newCondition = { type, minutes: 30 } as ExitCondition;
         break;
       case 'market_close':
-        newCondition = { type, minutesBefore: 15 };
+        newCondition = { type, minutesBefore: 15 } as ExitCondition;
         break;
       case 'limit_to_market':
-        newCondition = { type, waitSeconds: 60 };
+        newCondition = { type, waitSeconds: 60 } as ExitCondition;
         break;
       case 'rolling':
-        newCondition = { type, daysBeforeExpiry: 2 };
+        newCondition = { type, daysBeforeExpiry: 2 } as ExitCondition;
         break;
       default:
-        newCondition = { type: 'all_positions' };
+        newCondition = { type: 'all_positions' } as ExitCondition;
     }
     
     setExitCondition(newCondition);
     
     // Create updated exit node data with type safety
-    const currentExitNodeData = nodeData.exitNodeData as ExitNodeData || defaultExitNodeData;
+    const currentExitNodeData = (nodeData.exitNodeData as ExitNodeData) || defaultExitNodeData;
     
     // Create updated object
     const updatedExitNodeData: ExitNodeData = {
@@ -148,7 +148,7 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
     setOrderType(type);
     
     // Get current exit node data safely
-    const currentExitNodeData = nodeData.exitNodeData as ExitNodeData || defaultExitNodeData;
+    const currentExitNodeData = (nodeData.exitNodeData as ExitNodeData) || defaultExitNodeData;
     
     // Update order config
     const updatedOrderConfig: ExitOrderConfig = {
@@ -178,7 +178,7 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
     
     if (!isNaN(value)) {
       // Get current exit node data safely
-      const currentExitNodeData = nodeData.exitNodeData as ExitNodeData || defaultExitNodeData;
+      const currentExitNodeData = (nodeData.exitNodeData as ExitNodeData) || defaultExitNodeData;
       
       // Update order config
       const updatedOrderConfig: ExitOrderConfig = {
@@ -206,7 +206,7 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
     setMultipleOrders(newValue);
     
     // Get current exit node data safely
-    const currentExitNodeData = nodeData.exitNodeData as ExitNodeData || defaultExitNodeData;
+    const currentExitNodeData = (nodeData.exitNodeData as ExitNodeData) || defaultExitNodeData;
     
     // Determine orders array
     const ordersArray = newValue && !currentExitNodeData.orders 
@@ -239,7 +239,7 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
     setExitCondition(updatedCondition);
     
     // Get current exit node data safely
-    const currentExitNodeData = nodeData.exitNodeData as ExitNodeData || defaultExitNodeData;
+    const currentExitNodeData = (nodeData.exitNodeData as ExitNodeData) || defaultExitNodeData;
     
     // Create updated exit node data
     const updatedExitNodeData: ExitNodeData = {
