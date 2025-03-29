@@ -8,3 +8,4 @@ export * from './usePositionHandlers';
 export * from './usePositionManagement';
 export * from './useVpiValidation';
 export * from './useActionTypeHandler';
+export * from './useVpiTagManagement';
