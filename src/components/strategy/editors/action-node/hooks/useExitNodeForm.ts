@@ -1,0 +1,223 @@
+
+import { useState, useCallback, useEffect } from 'react';
+import { Node } from '@xyflow/react';
+import { toast } from "@/hooks/use-toast";
+import { 
+  ExitConditionType, 
+  ExitOrderType, 
+  ExitCondition, 
+  ExitOrderConfig,
+  ExitNodeData
+} from '../types/exitNodeTypes';
+
+interface UseExitNodeFormProps {
+  node: Node;
+  updateNodeData: (id: string, data: any) => void;
+}
+
+export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) => {
+  // Default exit node data if none exists
+  const defaultExitNodeData: ExitNodeData = {
+    exitCondition: {
+      type: 'all_positions'
+    },
+    orderConfig: {
+      orderType: 'market'
+    }
+  };
+
+  // Get exit node data from node or use default
+  const nodeData = node.data || {};
+  const exitNodeData = nodeData.exitNodeData || defaultExitNodeData;
+  
+  // State for exit node form
+  const [exitConditionType, setExitConditionType] = useState<ExitConditionType>(
+    exitNodeData.exitCondition?.type || 'all_positions'
+  );
+  
+  const [orderType, setOrderType] = useState<ExitOrderType>(
+    exitNodeData.orderConfig?.orderType || 'market'
+  );
+  
+  const [limitPrice, setLimitPrice] = useState<number | undefined>(
+    exitNodeData.orderConfig?.limitPrice
+  );
+  
+  const [multipleOrders, setMultipleOrders] = useState<boolean>(
+    exitNodeData.multipleOrders || false
+  );
+  
+  const [exitCondition, setExitCondition] = useState<ExitCondition>(
+    exitNodeData.exitCondition || { type: 'all_positions' }
+  );
+  
+  // Update exit condition type
+  const handleExitConditionTypeChange = useCallback((type: ExitConditionType) => {
+    setExitConditionType(type);
+    
+    // Create default condition for the new type
+    let newCondition: ExitCondition;
+    
+    switch (type) {
+      case 'vpi':
+      case 'vpt':
+        newCondition = { type, identifier: '' };
+        break;
+      case 'all_positions':
+        newCondition = { type };
+        break;
+      case 'realized_pnl':
+      case 'unrealized_pnl':
+        newCondition = { type, value: 100, direction: 'above' };
+        break;
+      case 'premium_change':
+      case 'position_value_change':
+        newCondition = { type, percentage: 10, direction: 'increase' };
+        break;
+      case 'price_target':
+        newCondition = { type, price: 0, direction: 'above' };
+        break;
+      case 'indicator_underlying':
+      case 'indicator_contract':
+        newCondition = { type, indicator: 'RSI', condition: 'above', value: 70 };
+        break;
+      case 'time_based':
+        newCondition = { type, minutes: 30 };
+        break;
+      case 'market_close':
+        newCondition = { type, minutesBefore: 15 };
+        break;
+      case 'limit_to_market':
+        newCondition = { type, waitSeconds: 60 };
+        break;
+      case 'rolling':
+        newCondition = { type, daysBeforeExpiry: 2 };
+        break;
+      default:
+        newCondition = { type: 'all_positions' };
+    }
+    
+    setExitCondition(newCondition);
+    
+    // Update node data
+    const updatedExitNodeData = {
+      ...exitNodeData,
+      exitCondition: newCondition
+    };
+    
+    updateNodeData(node.id, {
+      ...nodeData,
+      exitNodeData: updatedExitNodeData
+    });
+  }, [exitNodeData, nodeData, node.id, updateNodeData]);
+  
+  // Update order type
+  const handleOrderTypeChange = useCallback((type: ExitOrderType) => {
+    setOrderType(type);
+    
+    const updatedOrderConfig: ExitOrderConfig = {
+      ...exitNodeData.orderConfig,
+      orderType: type,
+      // Clear limit price if switching to market order
+      ...(type === 'market' && { limitPrice: undefined })
+    };
+    
+    // Update node data
+    const updatedExitNodeData = {
+      ...exitNodeData,
+      orderConfig: updatedOrderConfig
+    };
+    
+    updateNodeData(node.id, {
+      ...nodeData,
+      exitNodeData: updatedExitNodeData
+    });
+  }, [exitNodeData, nodeData, node.id, updateNodeData]);
+  
+  // Update limit price
+  const handleLimitPriceChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseFloat(e.target.value);
+    setLimitPrice(isNaN(value) ? undefined : value);
+    
+    if (!isNaN(value)) {
+      const updatedOrderConfig = {
+        ...exitNodeData.orderConfig,
+        limitPrice: value
+      };
+      
+      // Update node data
+      const updatedExitNodeData = {
+        ...exitNodeData,
+        orderConfig: updatedOrderConfig
+      };
+      
+      updateNodeData(node.id, {
+        ...nodeData,
+        exitNodeData: updatedExitNodeData
+      });
+    }
+  }, [exitNodeData, nodeData, node.id, updateNodeData]);
+  
+  // Toggle multiple orders
+  const handleMultipleOrdersToggle = useCallback(() => {
+    const newValue = !multipleOrders;
+    setMultipleOrders(newValue);
+    
+    // Update node data
+    const updatedExitNodeData = {
+      ...exitNodeData,
+      multipleOrders: newValue,
+      // Initialize orders array if enabling multiple orders
+      orders: newValue && !exitNodeData.orders ? [exitNodeData.orderConfig] : exitNodeData.orders
+    };
+    
+    updateNodeData(node.id, {
+      ...nodeData,
+      exitNodeData: updatedExitNodeData
+    });
+  }, [multipleOrders, exitNodeData, nodeData, node.id, updateNodeData]);
+  
+  // Update exit condition field
+  const updateExitConditionField = useCallback((field: string, value: any) => {
+    const updatedCondition = {
+      ...exitCondition,
+      [field]: value
+    };
+    
+    setExitCondition(updatedCondition);
+    
+    // Update node data
+    const updatedExitNodeData = {
+      ...exitNodeData,
+      exitCondition: updatedCondition
+    };
+    
+    updateNodeData(node.id, {
+      ...nodeData,
+      exitNodeData: updatedExitNodeData
+    });
+  }, [exitCondition, exitNodeData, nodeData, node.id, updateNodeData]);
+  
+  // Initialize node data if needed
+  useEffect(() => {
+    if (!nodeData.exitNodeData) {
+      updateNodeData(node.id, {
+        ...nodeData,
+        exitNodeData: defaultExitNodeData
+      });
+    }
+  }, [nodeData, node.id, updateNodeData]);
+  
+  return {
+    exitConditionType,
+    orderType,
+    limitPrice,
+    multipleOrders,
+    exitCondition,
+    handleExitConditionTypeChange,
+    handleOrderTypeChange,
+    handleLimitPriceChange,
+    handleMultipleOrdersToggle,
+    updateExitConditionField
+  };
+};

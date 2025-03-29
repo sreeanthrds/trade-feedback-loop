@@ -9,6 +9,7 @@ import PositionDialog from './action-node/components/PositionDialog';
 import InstrumentPanel from './action-node/components/InstrumentPanel';
 import ActionTypeSelector from './action-node/ActionTypeSelector';
 import AlertMessage from './action-node/AlertMessage';
+import ExitNodeForm from './action-node/components/ExitNodeForm';
 import { toast } from "@/hooks/use-toast";
 
 interface ActionNodeEditorProps {
@@ -103,6 +104,33 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
     setIsPositionDialogOpen(false);
   };
 
+  // Render different content based on action type
+  const renderActionContent = () => {
+    if (nodeData?.actionType === 'alert') {
+      return <AlertMessage />;
+    }
+
+    // Render specialized exit node form
+    if (nodeData?.actionType === 'exit') {
+      return <ExitNodeForm node={node} updateNodeData={updateNodeData} />;
+    }
+
+    // For entry nodes, continue with the positions list
+    return (
+      <>
+        <InstrumentPanel startNodeSymbol={startNodeSymbol} />
+        
+        <PositionsList 
+          positions={nodeData?.positions || []}
+          selectedPosition={selectedPosition}
+          onSelectPosition={handlePositionSelect}
+          onAddPosition={onAddPosition}
+          onDeletePosition={onDeletePosition}
+        />
+      </>
+    );
+  };
+
   return (
     <>
       <NodeDetailsPanel
@@ -116,21 +144,7 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
               onActionTypeChange={handleActionTypeChange}
             />
             
-            {nodeData?.actionType === 'alert' ? (
-              <AlertMessage />
-            ) : (
-              <>
-                <InstrumentPanel startNodeSymbol={startNodeSymbol} />
-                
-                <PositionsList 
-                  positions={nodeData?.positions || []}
-                  selectedPosition={selectedPosition}
-                  onSelectPosition={handlePositionSelect}
-                  onAddPosition={onAddPosition}
-                  onDeletePosition={onDeletePosition}
-                />
-              </>
-            )}
+            {renderActionContent()}
           </div>
         }
       />
