@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useCallback, memo } from 'react';
 import { ReactFlow, useReactFlow } from '@xyflow/react';
 import TopToolbar from '../toolbars/TopToolbar';
@@ -19,7 +18,7 @@ interface ReactFlowCanvasProps {
   onImportSuccess: () => void;
   onDeleteNode: (id: string) => void;
   onDeleteEdge: (id: string) => void;
-  onAddNode: (type: string, parentNodeId?: string) => void;
+  onAddNode: (type: string, parentNodeId?: string, initialNodeData?: Record<string, any>) => void;
   updateNodeData?: (id: string, data: any) => void;
   nodeTypes: any;
   edgeTypes: any;

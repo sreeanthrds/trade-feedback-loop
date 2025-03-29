@@ -57,9 +57,9 @@ const StrategyFlowContent = () => {
     }
   }, [nodes]);
   
-  const handleAddNode = useCallback((type, parentId, initialData) => {
+  const handleAddNode = useCallback((type: string, parentNodeId?: string, initialNodeData?: Record<string, any>) => {
     if (handlersRef.current) {
-      handlersRef.current.handleAddNode(type, parentId, initialData);
+      handlersRef.current.handleAddNode(type, parentNodeId, initialNodeData);
     }
   }, []);
   
