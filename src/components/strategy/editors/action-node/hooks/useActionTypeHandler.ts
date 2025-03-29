@@ -27,7 +27,12 @@ export const useActionTypeHandler = (
     });
   }, [node.id, updateNodeData]);
 
+  const handleLabelChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    updateNodeData(node.id, { label: e.target.value });
+  }, [node.id, updateNodeData]);
+
   return {
-    handleActionTypeChange
+    handleActionTypeChange,
+    handleLabelChange
   };
 };
