@@ -8,7 +8,7 @@ import {
   ExitCondition, 
   ExitOrderConfig,
   ExitNodeData
-} from '../types/exitNodeTypes';
+} from '../exit-node/types';
 
 interface UseExitNodeFormProps {
   node: Node;
