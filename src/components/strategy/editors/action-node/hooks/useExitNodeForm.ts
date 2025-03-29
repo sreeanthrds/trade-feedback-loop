@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { Node } from '@xyflow/react';
 import { toast } from "@/hooks/use-toast";
 import { 
@@ -28,7 +28,11 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
 
   // Get exit node data from node or use default
   const nodeData = node.data || {};
-  const exitNodeData: ExitNodeData = nodeData.exitNodeData as ExitNodeData || defaultExitNodeData;
+  const rawExitNodeData = nodeData.exitNodeData || null;
+  const exitNodeData: ExitNodeData = rawExitNodeData || defaultExitNodeData;
+  
+  // Refs to prevent infinite loops
+  const initializedRef = useRef(false);
   
   // State for exit node form
   const [exitConditionType, setExitConditionType] = useState<ExitConditionType>(
@@ -50,6 +54,17 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
   const [exitCondition, setExitCondition] = useState<ExitCondition>(
     exitNodeData.exitCondition || { type: 'all_positions' }
   );
+  
+  // Initialize node data if needed - only run once
+  useEffect(() => {
+    if (!initializedRef.current && !nodeData.exitNodeData) {
+      updateNodeData(node.id, {
+        ...nodeData,
+        exitNodeData: defaultExitNodeData
+      });
+      initializedRef.current = true;
+    }
+  }, [nodeData, node.id, updateNodeData]);
   
   // Update exit condition type
   const handleExitConditionTypeChange = useCallback((type: ExitConditionType) => {
@@ -99,9 +114,10 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
     
     setExitCondition(newCondition);
     
-    // Update node data
+    // Create a properly typed updated object
+    const currentExitNodeData = nodeData.exitNodeData || defaultExitNodeData;
     const updatedExitNodeData: ExitNodeData = {
-      ...(exitNodeData as ExitNodeData),
+      ...currentExitNodeData,
       exitCondition: newCondition
     };
     
@@ -109,14 +125,18 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
       ...nodeData,
       exitNodeData: updatedExitNodeData
     });
-  }, [exitNodeData, nodeData, node.id, updateNodeData]);
+  }, [nodeData, node.id, updateNodeData]);
   
   // Update order type
   const handleOrderTypeChange = useCallback((type: ExitOrderType) => {
     setOrderType(type);
     
+    // Get current config or default
+    const currentExitNodeData = nodeData.exitNodeData || defaultExitNodeData;
+    const currentOrderConfig = currentExitNodeData.orderConfig || { orderType: 'market' };
+    
     const updatedOrderConfig: ExitOrderConfig = {
-      ...(exitNodeData.orderConfig as ExitOrderConfig),
+      ...currentOrderConfig,
       orderType: type,
       // Clear limit price if switching to market order
       ...(type === 'market' && { limitPrice: undefined })
@@ -124,7 +144,7 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
     
     // Update node data
     const updatedExitNodeData: ExitNodeData = {
-      ...(exitNodeData as ExitNodeData),
+      ...currentExitNodeData,
       orderConfig: updatedOrderConfig
     };
     
@@ -132,7 +152,7 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
       ...nodeData,
       exitNodeData: updatedExitNodeData
     });
-  }, [exitNodeData, nodeData, node.id, updateNodeData]);
+  }, [nodeData, node.id, updateNodeData]);
   
   // Update limit price
   const handleLimitPriceChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -140,14 +160,18 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
     setLimitPrice(isNaN(value) ? undefined : value);
     
     if (!isNaN(value)) {
+      // Get current config or default
+      const currentExitNodeData = nodeData.exitNodeData || defaultExitNodeData;
+      const currentOrderConfig = currentExitNodeData.orderConfig || { orderType: 'market' };
+      
       const updatedOrderConfig: ExitOrderConfig = {
-        ...(exitNodeData.orderConfig as ExitOrderConfig),
+        ...currentOrderConfig,
         limitPrice: value
       };
       
       // Update node data
       const updatedExitNodeData: ExitNodeData = {
-        ...(exitNodeData as ExitNodeData),
+        ...currentExitNodeData,
         orderConfig: updatedOrderConfig
       };
       
@@ -156,28 +180,31 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
         exitNodeData: updatedExitNodeData
       });
     }
-  }, [exitNodeData, nodeData, node.id, updateNodeData]);
+  }, [nodeData, node.id, updateNodeData]);
   
   // Toggle multiple orders
   const handleMultipleOrdersToggle = useCallback(() => {
     const newValue = !multipleOrders;
     setMultipleOrders(newValue);
     
+    // Get current data or default
+    const currentExitNodeData = nodeData.exitNodeData || defaultExitNodeData;
+    
     // Update node data
     const updatedExitNodeData: ExitNodeData = {
-      ...(exitNodeData as ExitNodeData),
+      ...currentExitNodeData,
       multipleOrders: newValue,
       // Initialize orders array if enabling multiple orders
-      orders: newValue && !(exitNodeData as ExitNodeData).orders 
-        ? [(exitNodeData as ExitNodeData).orderConfig] 
-        : (exitNodeData as ExitNodeData).orders
+      orders: newValue && !currentExitNodeData.orders 
+        ? [currentExitNodeData.orderConfig || { orderType: 'market' }] 
+        : currentExitNodeData.orders
     };
     
     updateNodeData(node.id, {
       ...nodeData,
       exitNodeData: updatedExitNodeData
     });
-  }, [multipleOrders, exitNodeData, nodeData, node.id, updateNodeData]);
+  }, [multipleOrders, nodeData, node.id, updateNodeData]);
   
   // Update exit condition field
   const updateExitConditionField = useCallback((field: string, value: any) => {
@@ -188,9 +215,12 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
     
     setExitCondition(updatedCondition);
     
+    // Get current data or default
+    const currentExitNodeData = nodeData.exitNodeData || defaultExitNodeData;
+    
     // Update node data
     const updatedExitNodeData: ExitNodeData = {
-      ...(exitNodeData as ExitNodeData),
+      ...currentExitNodeData,
       exitCondition: updatedCondition
     };
     
@@ -198,17 +228,7 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
       ...nodeData,
       exitNodeData: updatedExitNodeData
     });
-  }, [exitCondition, exitNodeData, nodeData, node.id, updateNodeData]);
-  
-  // Initialize node data if needed
-  useEffect(() => {
-    if (!nodeData.exitNodeData) {
-      updateNodeData(node.id, {
-        ...nodeData,
-        exitNodeData: defaultExitNodeData
-      });
-    }
-  }, [nodeData, node.id, updateNodeData]);
+  }, [exitCondition, nodeData, node.id, updateNodeData]);
   
   return {
     exitConditionType,
