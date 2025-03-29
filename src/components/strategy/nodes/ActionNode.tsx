@@ -1,27 +1,28 @@
 
-import React, { memo } from 'react';
+import React, { useMemo } from 'react';
+import { NodeProps } from '@xyflow/react';
 import ActionNodeContent from './action-node/ActionNodeContent';
 import { useStartNodeSymbol } from './action-node/useStartNodeSymbol';
-import { ActionNodeData } from './action-node/types';
 
-const ActionNode = ({ data, id }: { data: ActionNodeData, id: string }) => {
-  const startNodeSymbol = useStartNodeSymbol(data.instrument);
-  const isSymbolMissing = data.instrument && !startNodeSymbol;
-  
-  // Ensure positions array exists
-  const safeData = {
-    ...data,
-    positions: data.positions || []
-  };
-  
+const ActionNode: React.FC<NodeProps> = ({ id, data, selected }) => {
+  const startNodeSymbol = useStartNodeSymbol();
+  const isSymbolMissing = useMemo(() => {
+    if (data.positions && data.positions.length > 0) {
+      // For positions-based action nodes, we don't show the symbol missing warning
+      return false;
+    }
+    return data.requiresSymbol !== false && !data.symbol && !startNodeSymbol;
+  }, [data.requiresSymbol, data.symbol, startNodeSymbol, data.positions]);
+
   return (
-    <ActionNodeContent 
-      data={safeData} 
+    <ActionNodeContent
+      data={data}
       startNodeSymbol={startNodeSymbol}
       isSymbolMissing={isSymbolMissing}
       id={id}
+      updateNodeData={data.updateNodeData}
     />
   );
 };
 
-export default memo(ActionNode);
+export default ActionNode;

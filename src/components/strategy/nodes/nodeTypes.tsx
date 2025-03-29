@@ -46,13 +46,21 @@ const SignalNodeWrapper = React.memo(({ data, id, onDelete, onAddNode }: NodeWra
 ));
 SignalNodeWrapper.displayName = 'SignalNodeWrapper';
 
-const ActionNodeWrapper = React.memo(({ data, id, onDelete, onAddNode }: NodeWrapperProps) => (
-  <div className="group">
-    <MemoizedActionNode data={data} id={id} />
-    <MemoizedNodeControls node={{ id, type: 'actionNode', data }} onDelete={onDelete} />
-    <MemoizedNodeConnectControls showOn="action" onAddNode={onAddNode} parentNodeId={id} />
-  </div>
-));
+const ActionNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNodeData }: NodeWrapperProps & { updateNodeData?: (id: string, data: any) => void }) => {
+  // Enhance data with updateNodeData function
+  const enhancedData = React.useMemo(() => ({
+    ...data,
+    updateNodeData
+  }), [data, updateNodeData]);
+  
+  return (
+    <div className="group">
+      <MemoizedActionNode data={enhancedData} id={id} />
+      <MemoizedNodeControls node={{ id, type: 'actionNode', data }} onDelete={onDelete} />
+      <MemoizedNodeConnectControls showOn="action" onAddNode={onAddNode} parentNodeId={id} />
+    </div>
+  );
+});
 ActionNodeWrapper.displayName = 'ActionNodeWrapper';
 
 const EndNodeWrapper = React.memo(({ data, id, onDelete }: NodeWrapperProps) => (
@@ -74,12 +82,13 @@ ForceEndNodeWrapper.displayName = 'ForceEndNodeWrapper';
 // Create a function to generate nodeTypes with stable renderer functions
 const createNodeTypes = (
   onDeleteNode: (id: string) => void, 
-  onAddNode: (type: string, parentNodeId: string) => void
+  onAddNode: (type: string, parentNodeId: string) => void,
+  updateNodeData?: (id: string, data: any) => void
 ): NodeTypes => {
   return {
     startNode: (props) => <StartNodeWrapper {...props} onAddNode={onAddNode} />,
     signalNode: (props) => <SignalNodeWrapper {...props} onDelete={onDeleteNode} onAddNode={onAddNode} />,
-    actionNode: (props) => <ActionNodeWrapper {...props} onDelete={onDeleteNode} onAddNode={onAddNode} />,
+    actionNode: (props) => <ActionNodeWrapper {...props} onDelete={onDeleteNode} onAddNode={onAddNode} updateNodeData={updateNodeData} />,
     endNode: (props) => <EndNodeWrapper {...props} onDelete={onDeleteNode} />,
     forceEndNode: (props) => <ForceEndNodeWrapper {...props} onDelete={onDeleteNode} />
   };

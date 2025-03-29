@@ -106,8 +106,15 @@ const StrategyFlowContent = () => {
   }, []);
 
   // Create node types and edge types once
-  const nodeTypes = useMemo(() => createNodeTypes(handleDeleteNode, handleAddNode), [handleDeleteNode, handleAddNode]);
-  const edgeTypes = useMemo(() => createEdgeTypes(handleDeleteEdge), [handleDeleteEdge]);
+  const nodeTypes = useMemo(() => 
+    createNodeTypes(handleDeleteNode, handleAddNode, updateNodeData), 
+    [handleDeleteNode, handleAddNode, updateNodeData]
+  );
+  
+  const edgeTypes = useMemo(() => 
+    createEdgeTypes(handleDeleteEdge), 
+    [handleDeleteEdge]
+  );
 
   // Create NodePanel component if needed
   const nodePanelComponent = useMemo(() => {
@@ -139,6 +146,7 @@ const StrategyFlowContent = () => {
     onDeleteNode: handleDeleteNode,
     onDeleteEdge: handleDeleteEdge,
     onAddNode: handleAddNode,
+    updateNodeData,
     nodeTypes,
     edgeTypes
   }), [
@@ -153,6 +161,7 @@ const StrategyFlowContent = () => {
     handleDeleteNode,
     handleDeleteEdge,
     handleAddNode,
+    updateNodeData,
     nodeTypes,
     edgeTypes
   ]);

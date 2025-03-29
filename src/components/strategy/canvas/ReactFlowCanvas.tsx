@@ -20,6 +20,7 @@ interface ReactFlowCanvasProps {
   onDeleteNode: (id: string) => void;
   onDeleteEdge: (id: string) => void;
   onAddNode: (type: string, parentNodeId?: string) => void;
+  updateNodeData?: (id: string, data: any) => void;
   nodeTypes: any;
   edgeTypes: any;
 }
@@ -41,6 +42,7 @@ const ReactFlowCanvas = memo(({
   onDeleteNode,
   onDeleteEdge,
   onAddNode,
+  updateNodeData,
   nodeTypes,
   edgeTypes
 }: ReactFlowCanvasProps) => {

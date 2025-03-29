@@ -1,27 +1,52 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import ActionIcon from './ActionIcon';
 import ActionLabel from './ActionLabel';
 import ActionDetails from './ActionDetails';
 import { ActionNodeData } from './types';
 import { AlertTriangle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Edit2 } from 'lucide-react';
+import PositionDialog from '../../editors/action-node/components/PositionDialog';
+import { Position as PositionType } from '../../editors/action-node/types';
 
 interface ActionNodeContentProps {
   data: ActionNodeData;
   startNodeSymbol?: string;
   isSymbolMissing?: boolean;
   id: string;
+  updateNodeData?: (id: string, data: Partial<ActionNodeData>) => void;
 }
 
 const ActionNodeContent: React.FC<ActionNodeContentProps> = ({ 
   data, 
   startNodeSymbol,
   isSymbolMissing,
-  id
+  id,
+  updateNodeData
 }) => {
   // Sort positions by priority
   const sortedPositions = [...(data.positions || [])].sort((a, b) => a.priority - b.priority);
+  const [editingPosition, setEditingPosition] = useState<PositionType | null>(null);
+  
+  const handleEditPosition = (position: PositionType) => {
+    setEditingPosition({...position});
+  };
+  
+  const handlePositionChange = (updates: Partial<PositionType>) => {
+    if (!editingPosition || !updateNodeData) return;
+    
+    const updatedPositions = data.positions?.map(pos => 
+      pos.id === editingPosition.id ? { ...pos, ...updates } : pos
+    ) || [];
+    
+    updateNodeData(id, { positions: updatedPositions });
+  };
+
+  const handleClosePositionDialog = () => {
+    setEditingPosition(null);
+  };
   
   return (
     <div className={`px-4 py-2 rounded-md bg-background/95 border ${isSymbolMissing ? 'border-destructive/50' : 'border-border/50'}`}>
@@ -52,9 +77,21 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
             <div key={position.id} className="text-xs border-t pt-1 first:border-t-0 first:pt-0">
               <div className="flex justify-between items-center">
                 <span className="font-medium">Position {index + 1}</span>
-                <span className="text-xs text-muted-foreground">
-                  Priority: {position.priority}
-                </span>
+                <div className="flex items-center gap-1">
+                  <span className="text-xs text-muted-foreground">
+                    Priority: {position.priority}
+                  </span>
+                  {updateNodeData && (
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-5 w-5" 
+                      onClick={() => handleEditPosition(position)}
+                    >
+                      <Edit2 className="h-3 w-3" />
+                    </Button>
+                  )}
+                </div>
               </div>
               <div className="flex items-center gap-1 flex-wrap">
                 <span>{position.positionType === 'buy' ? 'Buy' : 'Sell'}</span>
@@ -81,6 +118,26 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
       <div className="text-[9px] text-muted-foreground mt-2 text-right">
         ID: {id}
       </div>
+      
+      {/* Position Dialog */}
+      {editingPosition && updateNodeData && (
+        <PositionDialog
+          position={editingPosition}
+          isOpen={!!editingPosition}
+          onClose={handleClosePositionDialog}
+          hasOptionTrading={data.hasOptionTrading || false}
+          onPositionChange={handlePositionChange}
+          onPositionTypeChange={(value) => handlePositionChange({ positionType: value as any })}
+          onOrderTypeChange={(value) => handlePositionChange({ orderType: value as any })}
+          onLimitPriceChange={(e) => handlePositionChange({ limitPrice: parseFloat(e.target.value) || 0 })}
+          onLotsChange={(e) => handlePositionChange({ lots: parseInt(e.target.value) || 1 })}
+          onProductTypeChange={(value) => handlePositionChange({ productType: value as any })}
+          onExpiryChange={(value) => handlePositionChange({ expiry: value })}
+          onStrikeTypeChange={(value) => handlePositionChange({ strikeType: value as any })}
+          onStrikeValueChange={(e) => handlePositionChange({ strikeValue: parseFloat(e.target.value) || 0 })}
+          onOptionTypeChange={(value) => handlePositionChange({ optionType: value as any })}
+        />
+      )}
       
       <Handle
         type="source"
