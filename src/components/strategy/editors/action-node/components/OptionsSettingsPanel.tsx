@@ -1,11 +1,9 @@
 
 import React from 'react';
-import { Separator } from '@/components/ui/separator';
-import OptionsSettingsSection from '../OptionsSettingsSection';
 import { Position } from '../types';
+import OptionsSettingsSection from '../OptionsSettingsSection';
 
 interface OptionsSettingsPanelProps {
-  hasOptionTrading: boolean;
   position: Position;
   onExpiryChange: (value: string) => void;
   onStrikeTypeChange: (value: string) => void;
@@ -14,19 +12,16 @@ interface OptionsSettingsPanelProps {
 }
 
 const OptionsSettingsPanel: React.FC<OptionsSettingsPanelProps> = ({
-  hasOptionTrading,
   position,
   onExpiryChange,
   onStrikeTypeChange,
   onStrikeValueChange,
   onOptionTypeChange
 }) => {
-  if (!hasOptionTrading) return null;
-  
   return (
-    <>
-      <Separator className="my-4" />
+    <div className="space-y-4">
       <h3 className="text-sm font-medium">Options Settings</h3>
+      
       <OptionsSettingsSection 
         position={position}
         onExpiryChange={onExpiryChange}
@@ -34,7 +29,7 @@ const OptionsSettingsPanel: React.FC<OptionsSettingsPanelProps> = ({
         onStrikeValueChange={onStrikeValueChange}
         onOptionTypeChange={onOptionTypeChange}
       />
-    </>
+    </div>
   );
 };
 

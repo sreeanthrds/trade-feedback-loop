@@ -59,10 +59,12 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
     setSelectedPosition(position);
   };
 
-  const handlePositionUpdate = (id: string, updates: Partial<Position>) => {
+  const handlePositionUpdate = (updates: Partial<Position>) => {
+    if (!selectedPosition) return;
+    
     // We only check if the user is manually changing the VPI
     // System-generated VPIs are handled in useActionNodeForm
-    if (updates.vpi && updates.vpi !== selectedPosition?.vpi && !validateVpiUniqueness(updates.vpi, id)) {
+    if (updates.vpi && updates.vpi !== selectedPosition?.vpi && !validateVpiUniqueness(updates.vpi, selectedPosition.id)) {
       toast({
         title: "Duplicate VPI",
         description: "This Virtual Position ID is already in use. Please choose a unique identifier.",
@@ -71,7 +73,7 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
       return;
     }
 
-    handlePositionChange(id, updates);
+    handlePositionChange(selectedPosition.id, updates);
   };
 
   const onAddPosition = () => {
@@ -124,7 +126,7 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
                 <PositionEditor 
                   position={selectedPosition}
                   hasOptionTrading={hasOptionTrading}
-                  onPositionChange={(updates) => handlePositionUpdate(selectedPosition.id, updates)}
+                  onPositionChange={handlePositionUpdate}
                   onPositionTypeChange={handlePositionTypeChange}
                   onOrderTypeChange={handleOrderTypeChange}
                   onLimitPriceChange={handleLimitPriceChange}

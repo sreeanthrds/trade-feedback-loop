@@ -7,97 +7,45 @@ import OptionsSettingsPanel from './OptionsSettingsPanel';
 interface PositionEditorProps {
   position: Position;
   hasOptionTrading: boolean;
-  onPositionChange: (id: string, updates: Partial<Position>) => void;
+  onPositionChange: (updates: Partial<Position>) => void;
+  onPositionTypeChange: (value: string) => void;
+  onOrderTypeChange: (value: string) => void;
+  onLimitPriceChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onLotsChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onProductTypeChange: (value: string) => void;
+  onExpiryChange: (value: string) => void;
+  onStrikeTypeChange: (value: string) => void;
+  onStrikeValueChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onOptionTypeChange: (value: string) => void;
 }
 
 const PositionEditor: React.FC<PositionEditorProps> = ({
   position,
   hasOptionTrading,
-  onPositionChange
+  onPositionChange,
+  onPositionTypeChange,
+  onOrderTypeChange,
+  onLimitPriceChange,
+  onLotsChange,
+  onProductTypeChange,
+  onExpiryChange,
+  onStrikeTypeChange,
+  onStrikeValueChange,
+  onOptionTypeChange
 }) => {
   const handleVpiChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onPositionChange(position.id, { vpi: e.target.value });
+    onPositionChange({ vpi: e.target.value });
   };
 
   const handleVptChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onPositionChange(position.id, { vpt: e.target.value });
+    onPositionChange({ vpt: e.target.value });
   };
 
   const handlePriorityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const priority = parseInt(e.target.value);
     if (!isNaN(priority) && priority > 0) {
-      onPositionChange(position.id, { priority });
+      onPositionChange({ priority });
     }
-  };
-
-  const handlePositionTypeChange = (value: string) => {
-    onPositionChange(position.id, { positionType: value as 'buy' | 'sell' });
-  };
-
-  const handleOrderTypeChange = (value: string) => {
-    onPositionChange(position.id, { 
-      orderType: value as 'market' | 'limit',
-      ...(value === 'market' && { limitPrice: undefined })
-    });
-  };
-
-  const handleLimitPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value === '' ? '' : parseFloat(e.target.value);
-    if (value === '' || !isNaN(value)) {
-      onPositionChange(position.id, { limitPrice: value as number });
-    }
-  };
-
-  const handleLotsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
-    if (!isNaN(value) && value > 0) {
-      onPositionChange(position.id, { lots: value });
-    }
-  };
-
-  const handleProductTypeChange = (value: string) => {
-    onPositionChange(position.id, { productType: value as 'intraday' | 'carryForward' });
-  };
-
-  const handleExpiryChange = (value: string) => {
-    onPositionChange(position.id, { 
-      optionDetails: {
-        ...position.optionDetails,
-        expiry: value
-      }
-    });
-  };
-
-  const handleStrikeTypeChange = (value: string) => {
-    // Ensure value is one of the allowed strikeType values
-    const validatedValue = value as Position['optionDetails']['strikeType'];
-    onPositionChange(position.id, { 
-      optionDetails: {
-        ...position.optionDetails,
-        strikeType: validatedValue
-      }
-    });
-  };
-
-  const handleStrikeValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value === '' ? undefined : parseFloat(e.target.value);
-    onPositionChange(position.id, { 
-      optionDetails: {
-        ...position.optionDetails,
-        strikeValue: value
-      }
-    });
-  };
-
-  const handleOptionTypeChange = (value: string) => {
-    // Ensure value is one of the allowed optionType values
-    const validatedValue = value as 'CE' | 'PE';
-    onPositionChange(position.id, { 
-      optionDetails: {
-        ...position.optionDetails,
-        optionType: validatedValue
-      }
-    });
   };
 
   // Display limit price input conditionally
@@ -141,7 +89,7 @@ const PositionEditor: React.FC<PositionEditorProps> = ({
       <RadioGroupField
         label="Position Type"
         value={position.positionType || 'buy'}
-        onChange={handlePositionTypeChange}
+        onChange={onPositionTypeChange}
         options={[
           { value: 'buy', label: 'Buy' },
           { value: 'sell', label: 'Sell' }
@@ -153,7 +101,7 @@ const PositionEditor: React.FC<PositionEditorProps> = ({
         label="Order Type"
         id="order-type"
         value={position.orderType || 'market'}
-        onChange={handleOrderTypeChange}
+        onChange={onOrderTypeChange}
         options={[
           { value: 'market', label: 'Market' },
           { value: 'limit', label: 'Limit' }
@@ -166,7 +114,7 @@ const PositionEditor: React.FC<PositionEditorProps> = ({
           id="limit-price"
           type="number"
           value={position.limitPrice === undefined ? '' : position.limitPrice}
-          onChange={handleLimitPriceChange}
+          onChange={onLimitPriceChange}
           placeholder="Enter limit price"
           min={0.01}
           step={0.01}
@@ -179,7 +127,7 @@ const PositionEditor: React.FC<PositionEditorProps> = ({
         type="number"
         min={1}
         value={position.lots || 1}
-        onChange={handleLotsChange}
+        onChange={onLotsChange}
         placeholder="Number of lots"
       />
       
@@ -187,7 +135,7 @@ const PositionEditor: React.FC<PositionEditorProps> = ({
         label="Product Type"
         id="product-type"
         value={position.productType || 'intraday'}
-        onChange={handleProductTypeChange}
+        onChange={onProductTypeChange}
         options={[
           { value: 'intraday', label: 'Intraday (MIS)' },
           { value: 'carryForward', label: 'Carry Forward (CNC)' }
@@ -196,12 +144,11 @@ const PositionEditor: React.FC<PositionEditorProps> = ({
       
       {hasOptionTrading && (
         <OptionsSettingsPanel 
-          hasOptionTrading={hasOptionTrading}
           position={position}
-          onExpiryChange={handleExpiryChange}
-          onStrikeTypeChange={handleStrikeTypeChange}
-          onStrikeValueChange={handleStrikeValueChange}
-          onOptionTypeChange={handleOptionTypeChange}
+          onExpiryChange={onExpiryChange}
+          onStrikeTypeChange={onStrikeTypeChange}
+          onStrikeValueChange={onStrikeValueChange}
+          onOptionTypeChange={onOptionTypeChange}
         />
       )}
     </div>
