@@ -1,12 +1,13 @@
 
 import React from 'react';
-import { NodeData } from './types';
+import { NodeData, Position } from './types';
 import ActionContent from './components/ActionContent';
 
 interface ActionNodeContentProps {
   nodeData: NodeData;
   showLimitPrice: boolean;
   hasOptionTrading: boolean;
+  selectedPosition: Position;
   startNodeSymbol?: string;
   onActionTypeChange: (value: string) => void;
   onPositionTypeChange: (value: string) => void;

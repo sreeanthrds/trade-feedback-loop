@@ -28,4 +28,12 @@ export interface NodeData {
 
 export interface StartNodeData {
   symbol?: string;
+  timeframe?: string;
+  exchange?: string;
+  tradingInstrument?: {
+    type: 'stock' | 'futures' | 'options';
+    underlyingType?: 'index' | 'indexFuture' | 'stock';
+  };
+  indicators?: string[];
+  indicatorParameters?: Record<string, Record<string, any>>;
 }

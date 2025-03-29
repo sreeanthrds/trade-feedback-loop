@@ -37,10 +37,14 @@ export const useOptionSettings = ({
   
   const handleStrikeTypeChange = useCallback((value: string) => {
     ensureOptionDetails();
+    
+    // Make sure we validate the value to match the expected type
+    const validatedStrikeType = value as Position['optionDetails']['strikeType'];
+    
     // For premium type, ensure we initialize with default strike value if not already set
     const updatedOptions = { 
       ...position.optionDetails,
-      strikeType: value
+      strikeType: validatedStrikeType
     };
     
     // If changing to premium type and no strike value is set, set a default
@@ -68,10 +72,13 @@ export const useOptionSettings = ({
   
   const handleOptionTypeChange = useCallback((value: string) => {
     ensureOptionDetails();
+    // Make sure we validate the value to match the expected type
+    const validatedOptionType = value as 'CE' | 'PE';
+    
     onPositionChange({ 
       optionDetails: {
         ...position.optionDetails,
-        optionType: value
+        optionType: validatedOptionType
       }
     });
   }, [position.optionDetails, onPositionChange, ensureOptionDetails]);

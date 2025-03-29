@@ -69,10 +69,12 @@ const PositionEditor: React.FC<PositionEditorProps> = ({
   };
 
   const handleStrikeTypeChange = (value: string) => {
+    // Ensure value is one of the allowed strikeType values
+    const validatedValue = value as Position['optionDetails']['strikeType'];
     onPositionChange(position.id, { 
       optionDetails: {
         ...position.optionDetails,
-        strikeType: value as any
+        strikeType: validatedValue
       }
     });
   };
@@ -88,10 +90,12 @@ const PositionEditor: React.FC<PositionEditorProps> = ({
   };
 
   const handleOptionTypeChange = (value: string) => {
+    // Ensure value is one of the allowed optionType values
+    const validatedValue = value as 'CE' | 'PE';
     onPositionChange(position.id, { 
       optionDetails: {
         ...position.optionDetails,
-        optionType: value as 'CE' | 'PE'
+        optionType: validatedValue
       }
     });
   };
@@ -193,7 +197,7 @@ const PositionEditor: React.FC<PositionEditorProps> = ({
       {hasOptionTrading && (
         <OptionsSettingsPanel 
           hasOptionTrading={hasOptionTrading}
-          optionDetails={position.optionDetails}
+          position={position}
           onExpiryChange={handleExpiryChange}
           onStrikeTypeChange={handleStrikeTypeChange}
           onStrikeValueChange={handleStrikeValueChange}

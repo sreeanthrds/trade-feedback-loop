@@ -119,15 +119,6 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
                   position={selectedPosition}
                   hasOptionTrading={hasOptionTrading}
                   onPositionChange={handlePositionUpdate}
-                  onPositionTypeChange={handlePositionTypeChange}
-                  onOrderTypeChange={handleOrderTypeChange}
-                  onLimitPriceChange={handleLimitPriceChange}
-                  onLotsChange={handleLotsChange}
-                  onProductTypeChange={handleProductTypeChange}
-                  onExpiryChange={handleExpiryChange}
-                  onStrikeTypeChange={handleStrikeTypeChange}
-                  onStrikeValueChange={handleStrikeValueChange}
-                  onOptionTypeChange={handleOptionTypeChange}
                 />
               )}
             </>

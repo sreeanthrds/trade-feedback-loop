@@ -50,6 +50,7 @@ export const useStartNodeData = ({
           const data = startNode.data as StartNodeData;
           
           // Check for options trading
+          // Safe access with optional chaining
           const optionsEnabled = data.tradingInstrument?.type === 'options';
           
           // If instrument type changed from options to something else, clear option details
