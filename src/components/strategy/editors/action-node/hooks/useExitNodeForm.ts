@@ -30,6 +30,9 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
   const nodeData = node.data || {};
   const rawExitNodeData = nodeData.exitNodeData as ExitNodeData | null || null;
   
+  // Track initialization state to prevent infinite updates
+  const initializedRef = useRef(false);
+  
   // Initialize with a properly typed version of the data
   const initialExitNodeData: ExitNodeData = rawExitNodeData ? {
     exitCondition: rawExitNodeData.exitCondition || defaultExitNodeData.exitCondition,
@@ -37,9 +40,6 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
     multipleOrders: rawExitNodeData.multipleOrders || false,
     orders: rawExitNodeData.orders || undefined
   } : defaultExitNodeData;
-  
-  // Track initialization state to prevent infinite updates
-  const initializedRef = useRef(false);
   
   // State for exit node form
   const [exitConditionType, setExitConditionType] = useState<ExitConditionType>(
@@ -71,7 +71,7 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
       });
       initializedRef.current = true;
     }
-  }, [nodeData, node.id, updateNodeData]);
+  }, []);
   
   // Update exit condition type
   const handleExitConditionTypeChange = useCallback((type: ExitConditionType) => {
