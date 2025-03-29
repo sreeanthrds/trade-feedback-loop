@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { Node } from '@xyflow/react';
 import { toast } from "@/hooks/use-toast";
 import { 
@@ -17,14 +17,14 @@ interface UseExitNodeFormProps {
 
 export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) => {
   // Default exit node data if none exists
-  const defaultExitNodeData: ExitNodeData = {
+  const defaultExitNodeData = useMemo(() => ({
     exitCondition: {
-      type: 'all_positions'
+      type: 'all_positions' as ExitConditionType
     },
     orderConfig: {
-      orderType: 'market'
+      orderType: 'market' as ExitOrderType
     }
-  };
+  }), []);
 
   // Get exit node data from node or use default
   const nodeData = node.data || {};
@@ -34,12 +34,17 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
   const initializedRef = useRef(false);
   
   // Initialize with a properly typed version of the data
-  const initialExitNodeData: ExitNodeData = rawExitNodeData ? {
-    exitCondition: rawExitNodeData.exitCondition || defaultExitNodeData.exitCondition,
-    orderConfig: rawExitNodeData.orderConfig || defaultExitNodeData.orderConfig,
-    multipleOrders: rawExitNodeData.multipleOrders || false,
-    orders: rawExitNodeData.orders || undefined
-  } : defaultExitNodeData;
+  const initialExitNodeData = useMemo(() => {
+    if (rawExitNodeData) {
+      return {
+        exitCondition: rawExitNodeData.exitCondition || defaultExitNodeData.exitCondition,
+        orderConfig: rawExitNodeData.orderConfig || defaultExitNodeData.orderConfig,
+        multipleOrders: rawExitNodeData.multipleOrders || false,
+        orders: rawExitNodeData.orders || undefined
+      };
+    }
+    return defaultExitNodeData;
+  }, [rawExitNodeData, defaultExitNodeData]);
   
   // State for exit node form
   const [exitConditionType, setExitConditionType] = useState<ExitConditionType>(
@@ -72,7 +77,7 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
         exitNodeData: defaultExitNodeData
       });
     }
-  }, [node.id, nodeData, updateNodeData, defaultExitNodeData]); // Add proper dependencies
+  }, [node.id, nodeData, updateNodeData]); // Remove defaultExitNodeData from dependencies
   
   // Update exit condition type
   const handleExitConditionTypeChange = useCallback((type: ExitConditionType) => {
