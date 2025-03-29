@@ -5,9 +5,6 @@ import './FlowLayout.css';
 
 interface FlowLayoutProps {
   children: React.ReactNode;
-  isPanelOpen?: boolean;
-  selectedNode?: any;
-  onClosePanel?: () => void;
   nodePanelComponent?: React.ReactNode;
 }
 
