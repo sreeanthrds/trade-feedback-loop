@@ -28,7 +28,7 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
 
   // Get exit node data from node or use default
   const nodeData = node.data || {};
-  const rawExitNodeData = nodeData.exitNodeData || null;
+  const rawExitNodeData = nodeData.exitNodeData as ExitNodeData | null || null;
   
   // Initialize with a properly typed version of the data
   const initialExitNodeData: ExitNodeData = rawExitNodeData ? {
@@ -123,9 +123,10 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
     
     // Get current exit node data safely
     const currentExitNodeData = nodeData.exitNodeData ? { 
-      ...nodeData.exitNodeData,
-      exitCondition: nodeData.exitNodeData.exitCondition || defaultExitNodeData.exitCondition,
-      orderConfig: nodeData.exitNodeData.orderConfig || defaultExitNodeData.orderConfig
+      exitCondition: (nodeData.exitNodeData as ExitNodeData).exitCondition || defaultExitNodeData.exitCondition,
+      orderConfig: (nodeData.exitNodeData as ExitNodeData).orderConfig || defaultExitNodeData.orderConfig,
+      multipleOrders: (nodeData.exitNodeData as ExitNodeData).multipleOrders || false,
+      orders: (nodeData.exitNodeData as ExitNodeData).orders
     } : defaultExitNodeData;
     
     // Create updated object
@@ -147,9 +148,10 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
     
     // Get current exit node data safely
     const currentExitNodeData = nodeData.exitNodeData ? { 
-      ...nodeData.exitNodeData,
-      exitCondition: nodeData.exitNodeData.exitCondition || defaultExitNodeData.exitCondition, 
-      orderConfig: nodeData.exitNodeData.orderConfig || defaultExitNodeData.orderConfig
+      exitCondition: (nodeData.exitNodeData as ExitNodeData).exitCondition || defaultExitNodeData.exitCondition,
+      orderConfig: (nodeData.exitNodeData as ExitNodeData).orderConfig || defaultExitNodeData.orderConfig,
+      multipleOrders: (nodeData.exitNodeData as ExitNodeData).multipleOrders || false,
+      orders: (nodeData.exitNodeData as ExitNodeData).orders
     } : defaultExitNodeData;
     
     // Update order config
@@ -181,9 +183,10 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
     if (!isNaN(value)) {
       // Get current exit node data safely
       const currentExitNodeData = nodeData.exitNodeData ? { 
-        ...nodeData.exitNodeData,
-        exitCondition: nodeData.exitNodeData.exitCondition || defaultExitNodeData.exitCondition,
-        orderConfig: nodeData.exitNodeData.orderConfig || defaultExitNodeData.orderConfig
+        exitCondition: (nodeData.exitNodeData as ExitNodeData).exitCondition || defaultExitNodeData.exitCondition,
+        orderConfig: (nodeData.exitNodeData as ExitNodeData).orderConfig || defaultExitNodeData.orderConfig,
+        multipleOrders: (nodeData.exitNodeData as ExitNodeData).multipleOrders || false,
+        orders: (nodeData.exitNodeData as ExitNodeData).orders
       } : defaultExitNodeData;
       
       // Update order config
@@ -213,9 +216,10 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
     
     // Get current exit node data safely
     const currentExitNodeData = nodeData.exitNodeData ? { 
-      ...nodeData.exitNodeData,
-      exitCondition: nodeData.exitNodeData.exitCondition || defaultExitNodeData.exitCondition,
-      orderConfig: nodeData.exitNodeData.orderConfig || defaultExitNodeData.orderConfig
+      exitCondition: (nodeData.exitNodeData as ExitNodeData).exitCondition || defaultExitNodeData.exitCondition,
+      orderConfig: (nodeData.exitNodeData as ExitNodeData).orderConfig || defaultExitNodeData.orderConfig,
+      multipleOrders: (nodeData.exitNodeData as ExitNodeData).multipleOrders || false,
+      orders: (nodeData.exitNodeData as ExitNodeData).orders
     } : defaultExitNodeData;
     
     // Determine orders array
@@ -249,9 +253,10 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
     
     // Get current exit node data safely
     const currentExitNodeData = nodeData.exitNodeData ? { 
-      ...nodeData.exitNodeData,
-      exitCondition: nodeData.exitNodeData.exitCondition || defaultExitNodeData.exitCondition,
-      orderConfig: nodeData.exitNodeData.orderConfig || defaultExitNodeData.orderConfig
+      exitCondition: (nodeData.exitNodeData as ExitNodeData).exitCondition || defaultExitNodeData.exitCondition,
+      orderConfig: (nodeData.exitNodeData as ExitNodeData).orderConfig || defaultExitNodeData.orderConfig,
+      multipleOrders: (nodeData.exitNodeData as ExitNodeData).multipleOrders || false,
+      orders: (nodeData.exitNodeData as ExitNodeData).orders
     } : defaultExitNodeData;
     
     // Create updated exit node data
