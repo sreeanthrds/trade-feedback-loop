@@ -83,6 +83,19 @@
     background-color: var(--background) !important;
     z-index: 9999 !important;
   }
+  
+  /* Fix dialog sizing on small screens */
+  [role="dialog"] {
+    max-height: 90vh !important;
+    max-width: 95vw !important;
+    width: auto !important;
+  }
+  
+  /* Ensure scrollbars work properly in dialogs */
+  .dialog-scroll-area {
+    max-height: calc(90vh - 120px) !important;
+    overflow-y: auto !important;
+  }
 }
 
 /* Fix for dropdown portal overlays - applied to all viewports */

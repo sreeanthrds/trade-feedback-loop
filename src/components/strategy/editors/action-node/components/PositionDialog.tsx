@@ -4,6 +4,7 @@ import { Position } from '../types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import PositionEditor from './PositionEditor';
 import { X } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface PositionDialogProps {
   position: Position | null;
@@ -42,28 +43,30 @@ const PositionDialog: React.FC<PositionDialogProps> = ({
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
+      <DialogContent className="w-[95vw] max-w-[450px] h-auto max-h-[90vh] p-4">
+        <DialogHeader className="mb-2">
           <DialogTitle>Edit Position {position.priority}</DialogTitle>
           <DialogClose onClick={onClose} className="absolute right-4 top-4" />
         </DialogHeader>
         
-        <div className="p-4">
-          <PositionEditor
-            position={position}
-            hasOptionTrading={hasOptionTrading}
-            onPositionChange={onPositionChange}
-            onPositionTypeChange={onPositionTypeChange}
-            onOrderTypeChange={onOrderTypeChange}
-            onLimitPriceChange={onLimitPriceChange}
-            onLotsChange={onLotsChange}
-            onProductTypeChange={onProductTypeChange}
-            onExpiryChange={onExpiryChange}
-            onStrikeTypeChange={onStrikeTypeChange}
-            onStrikeValueChange={onStrikeValueChange}
-            onOptionTypeChange={onOptionTypeChange}
-          />
-        </div>
+        <ScrollArea className="h-[calc(90vh-120px)] pr-4">
+          <div className="pb-2">
+            <PositionEditor
+              position={position}
+              hasOptionTrading={hasOptionTrading}
+              onPositionChange={onPositionChange}
+              onPositionTypeChange={onPositionTypeChange}
+              onOrderTypeChange={onOrderTypeChange}
+              onLimitPriceChange={onLimitPriceChange}
+              onLotsChange={onLotsChange}
+              onProductTypeChange={onProductTypeChange}
+              onExpiryChange={onExpiryChange}
+              onStrikeTypeChange={onStrikeTypeChange}
+              onStrikeValueChange={onStrikeValueChange}
+              onOptionTypeChange={onOptionTypeChange}
+            />
+          </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
