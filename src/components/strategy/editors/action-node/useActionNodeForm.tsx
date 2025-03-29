@@ -46,10 +46,11 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
     return `pos-${timestamp}`;
   };
 
-  // Generate a simplified VPI - just pos1, pos2, etc.
+  // Generate a VPI with node ID prefix + pos number
   const generateVPI = () => {
+    const nodePrefix = node.id.replace(/[^a-zA-Z0-9-]/g, '');
     const positionCount = (nodeData?.positions?.length || 0) + 1;
-    return `pos${positionCount}`;
+    return `${nodePrefix}-pos${positionCount}`;
   };
 
   // Create a default position

@@ -1,4 +1,3 @@
-
 import { Node, ReactFlowInstance } from '@xyflow/react';
 import { toast } from "@/hooks/use-toast";
 
@@ -23,16 +22,13 @@ export const addNode = (
     y: (reactFlowWrapper.current?.clientHeight || 600) / 2,
   });
   
-  // If we have a parent node ID, offset the new node from the parent
   const parentNode = parentNodeId ? nodes.find(node => node.id === parentNodeId) : undefined;
   
   if (parentNode) {
-    // Position the new node to the right of the parent node
     position.x = parentNode.position.x + 200;
     position.y = parentNode.position.y + 50;
   }
   
-  // Generate a more readable node ID based on type and counter
   const getNodeTypePrefix = () => {
     switch (type) {
       case 'startNode': return 'start';
@@ -44,16 +40,13 @@ export const addNode = (
     }
   };
   
-  // Count existing nodes of this type to generate sequential IDs
   const typePrefix = getNodeTypePrefix();
   const existingNodesOfType = nodes.filter(node => node.id.startsWith(typePrefix));
   const nodeCount = existingNodesOfType.length + 1;
   
-  // Generate final node ID with timestamp for uniqueness
-  const timestamp = Date.now().toString().slice(-4); // Use last 4 digits of timestamp
+  const timestamp = Date.now().toString().slice(-4);
   const nodeId = `${typePrefix}-${nodeCount}-${timestamp}`;
   
-  // Set default data based on node type
   let defaultData: any = { 
     label: type === 'startNode' 
       ? 'Start' 
@@ -66,13 +59,11 @@ export const addNode = (
             : 'Action'
   };
   
-  // Add specific default values for action nodes
   if (type === 'actionNode') {
-    // Create a default position with a simplified VPI
     const positionId = `pos-${timestamp}`;
     const defaultPosition = {
       id: positionId,
-      vpi: `pos1`, // Simplified VPI format
+      vpi: `${nodeId}-pos1`,
       vpt: '',
       priority: 1,
       positionType: 'buy',
