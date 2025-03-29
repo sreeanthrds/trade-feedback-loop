@@ -1,5 +1,4 @@
-
-import React, { useEffect, useRef, useCallback, memo, useState } from 'react';
+import React, { useEffect, useRef, useCallback, memo } from 'react';
 import { ReactFlow, useReactFlow, Node, Edge } from '@xyflow/react';
 import TopToolbar from '../toolbars/TopToolbar';
 import BottomToolbar from '../toolbars/BottomToolbar';
@@ -35,11 +34,10 @@ interface ReactFlowCanvasProps {
   edgeTypes: any;
 }
 
-// Memoize the toolbars to prevent unnecessary renders
 const MemoizedTopToolbar = memo(TopToolbar);
 const MemoizedBottomToolbar = memo(BottomToolbar);
 
-const ReactFlowCanvas = memo(({
+const ReactFlowCanvas = ({
   flowRef,
   nodes,
   edges,
@@ -60,16 +58,13 @@ const ReactFlowCanvas = memo(({
   const initialLoadRef = useRef(true);
   const { fitViewWithCustomZoom } = useViewportUtils();
   const { isNodeDraggingRef, handleNodesChange } = useDragHandling();
-  
-  // Custom nodes change handler with drag detection
+
   const customNodesChangeHandler = useCallback((changes) => {
     handleNodesChange(changes, onNodesChange);
   }, [handleNodesChange, onNodesChange]);
 
-  // Only fit view on initial load or when explicitly requested (import)
   useEffect(() => {
     if (initialLoadRef.current && nodes.length > 0 && reactFlowInstance) {
-      // Initial load fit view - use a debounce approach
       const timeoutId = setTimeout(() => {
         fitViewWithCustomZoom();
         initialLoadRef.current = false;
@@ -79,28 +74,7 @@ const ReactFlowCanvas = memo(({
     }
   }, [nodes, edges, reactFlowInstance, fitViewWithCustomZoom]);
 
-  // Simple function to determine node class name for minimap
   const nodeClassName = useCallback((node) => node.type, []);
-
-  const handleAddStartNode = () => {
-    onAddNode('startNode');
-  };
-
-  const handleAddSignalNode = () => {
-    onAddNode('signalNode');
-  };
-
-  const handleAddActionNodeWithType = (actionType: 'entry' | 'exit' | 'alert') => {
-    onAddNode('actionNode', undefined, { actionType });
-  };
-
-  const handleAddEndNode = () => {
-    onAddNode('endNode');
-  };
-
-  const handleAddForceEndNode = () => {
-    onAddNode('forceEndNode');
-  };
 
   return (
     <div className="h-full w-full" ref={flowRef}>
@@ -138,7 +112,6 @@ const ReactFlowCanvas = memo(({
             }}
           >
             <CanvasControls nodeClassName={nodeClassName} />
-            
             <MemoizedTopToolbar />
             <MemoizedBottomToolbar 
               resetStrategy={resetStrategy} 
@@ -146,63 +119,51 @@ const ReactFlowCanvas = memo(({
             />
           </ReactFlow>
         </ContextMenuTrigger>
+
         <ContextMenuContent className="w-56">
-          <ContextMenuItem
-            onClick={handleAddStartNode}
-            className="flex items-center cursor-pointer"
-          >
+          <ContextMenuItem onClick={() => onAddNode('startNode')} className="flex items-center">
             <Play className="h-4 w-4 mr-2 text-emerald-500" />
             <span>Add Start Node</span>
           </ContextMenuItem>
-          <ContextMenuItem
-            onClick={handleAddSignalNode}
-            className="flex items-center cursor-pointer"
-          >
+          
+          <ContextMenuItem onClick={() => onAddNode('signalNode')} className="flex items-center">
             <Activity className="h-4 w-4 mr-2 text-blue-600" />
             <span>Add Signal Node</span>
           </ContextMenuItem>
           
           <ContextMenuSub>
-            <ContextMenuSubTrigger className="flex items-center cursor-pointer">
+            <ContextMenuSubTrigger className="flex items-center">
               <SlidersHorizontal className="h-4 w-4 mr-2 text-amber-600" />
               <span>Add Action Node</span>
             </ContextMenuSubTrigger>
-            <ContextMenuSubContent className="w-48">
-              <ContextMenuItem 
-                onClick={() => handleAddActionNodeWithType('entry')}
-                className="flex items-center"
-              >
-                <ArrowUpCircle className="h-4 w-4 mr-2 text-emerald-500" />
-                <span>Entry Order</span>
+            <ContextMenuSubContent>
+              <ContextMenuItem onClick={() => onAddNode('actionNode', undefined, { actionType: 'entry' })}>
+                <div className="flex items-center">
+                  <ArrowUpCircle className="h-4 w-4 mr-2 text-emerald-500" />
+                  <span>Entry Order</span>
+                </div>
               </ContextMenuItem>
-              <ContextMenuItem 
-                onClick={() => handleAddActionNodeWithType('exit')}
-                className="flex items-center"
-              >
-                <X className="h-4 w-4 mr-2 text-amber-600" />
-                <span>Exit Order</span>
+              <ContextMenuItem onClick={() => onAddNode('actionNode', undefined, { actionType: 'exit' })}>
+                <div className="flex items-center">
+                  <X className="h-4 w-4 mr-2 text-amber-600" />
+                  <span>Exit Order</span>
+                </div>
               </ContextMenuItem>
-              <ContextMenuItem 
-                onClick={() => handleAddActionNodeWithType('alert')}
-                className="flex items-center"
-              >
-                <AlertTriangle className="h-4 w-4 mr-2 text-amber-600" />
-                <span>Alert Only</span>
+              <ContextMenuItem onClick={() => onAddNode('actionNode', undefined, { actionType: 'alert' })}>
+                <div className="flex items-center">
+                  <AlertTriangle className="h-4 w-4 mr-2 text-amber-600" />
+                  <span>Alert Only</span>
+                </div>
               </ContextMenuItem>
             </ContextMenuSubContent>
           </ContextMenuSub>
           
-          <ContextMenuItem
-            onClick={handleAddEndNode}
-            className="flex items-center cursor-pointer"
-          >
+          <ContextMenuItem onClick={() => onAddNode('endNode')} className="flex items-center">
             <StopCircle className="h-4 w-4 mr-2 text-rose-600" />
             <span>Add End Node</span>
           </ContextMenuItem>
-          <ContextMenuItem
-            onClick={handleAddForceEndNode}
-            className="flex items-center cursor-pointer"
-          >
+          
+          <ContextMenuItem onClick={() => onAddNode('forceEndNode')} className="flex items-center">
             <AlertTriangle className="h-4 w-4 mr-2 text-purple-500" />
             <span>Add Force End Node</span>
           </ContextMenuItem>
@@ -210,7 +171,7 @@ const ReactFlowCanvas = memo(({
       </ContextMenu>
     </div>
   );
-});
+};
 
 ReactFlowCanvas.displayName = 'ReactFlowCanvas';
 

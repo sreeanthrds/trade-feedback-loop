@@ -8,31 +8,10 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Ensure dropdown menu items are visible and interactive */
-.react-flow__node .dropdown-menu-item {
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.react-flow__node .dropdown-menu-item:hover {
-  background-color: var(--accent);
-}
-
-/* Override z-index for dropdown menus to ensure they appear above nodes */
-.react-flow__node .react-flow__node-dropdown {
-  z-index: 9999 !important;
-}
-
-/* Fix for dropdown portals to be visible */
-[data-radix-popper-content-wrapper] {
-  z-index: 9999 !important;
-}
-
 /* Fix for context menu submenu positioning */
 [data-state="open"] > [data-radix-popper-content-wrapper] {
-  background-color: var(--background) !important;
   z-index: 9999 !important;
+  background-color: var(--background) !important;
 }
 
 /* Ensure action node submenu is visible and has proper styling */
@@ -43,52 +22,32 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Ensure submenu content is positioned correctly */
-.radix-submenu {
-  position: relative;
-}
-
 /* Fix for submenu positioning */
 [data-radix-menu-content] {
   z-index: 9999 !important;
   background-color: var(--background) !important;
 }
 
-/* Adjust dropdown width for node connect controls */
-.react-flow__node [data-radix-popper-content-wrapper] {
-  width: auto !important;
+/* Prevent click-through and ensure proper layering */
+.context-menu-content {
+  isolation: isolate;
+  pointer-events: auto !important;
 }
 
-/* Fix for CommandItem in mobile view */
+/* Ensure submenus are visible and interactive */
+[data-radix-popper-content-wrapper] {
+  pointer-events: auto !important;
+  z-index: 9999 !important;
+}
+
+/* Mobile-specific fixes */
 @media (max-width: 768px) {
-  [cmdk-item] {
-    min-height: 48px !important;
-    cursor: pointer !important;
-    user-select: none !important;
-    -webkit-tap-highlight-color: transparent !important;
-    -webkit-touch-callout: none !important;
-  }
-  
-  [cmdk-list] {
-    max-height: 50vh !important;
+  [role="menu"] {
+    touch-action: none;
     -webkit-overflow-scrolling: touch;
-    overflow-y: auto !important;
   }
   
-  /* Force proper rendering of popover contents */
-  .command-item-mobile {
-    display: flex !important;
-    align-items: center !important;
-  }
-  
-  /* Ensure command components are properly rendered on iOS */
-  [cmdk-root], [cmdk-input], [cmdk-item], [cmdk-list] {
-    -webkit-appearance: none !important;
-  }
-  
-  /* Force visibility of popovers */
-  .popover-content-visible {
-    visibility: visible !important;
-    opacity: 1 !important;
+  [data-radix-popper-content-wrapper] {
+    position: fixed !important;
   }
 }
