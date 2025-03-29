@@ -4,12 +4,11 @@ import { Handle, Position } from '@xyflow/react';
 import ActionIcon from './ActionIcon';
 import ActionLabel from './ActionLabel';
 import ActionDetails from './ActionDetails';
-import { ActionNodeData } from './types';
+import { ActionNodeData, Position as PositionType } from './types';
 import { AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Edit2 } from 'lucide-react';
 import PositionDialog from '../../editors/action-node/components/PositionDialog';
-import { Position as PositionType } from '../../editors/action-node/types';
 
 interface ActionNodeContentProps {
   data: ActionNodeData;
@@ -127,67 +126,47 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
           onClose={handleClosePositionDialog}
           hasOptionTrading={true}
           onPositionChange={handlePositionChange}
-          onPositionTypeChange={(value) => handlePositionChange({ positionType: value as any })}
-          onOrderTypeChange={(value) => handlePositionChange({ orderType: value as any })}
+          onPositionTypeChange={(value) => handlePositionChange({ positionType: value as 'buy' | 'sell' })}
+          onOrderTypeChange={(value) => handlePositionChange({ orderType: value as 'market' | 'limit' })}
           onLimitPriceChange={(e) => handlePositionChange({ limitPrice: parseFloat(e.target.value) || 0 })}
           onLotsChange={(e) => handlePositionChange({ lots: parseInt(e.target.value) || 1 })}
-          onProductTypeChange={(value) => handlePositionChange({ productType: value as any })}
+          onProductTypeChange={(value) => handlePositionChange({ productType: value as 'intraday' | 'carryForward' })}
           onExpiryChange={(value) => {
-            if (!editingPosition.optionDetails) {
-              handlePositionChange({ 
-                optionDetails: { expiry: value } 
-              });
-            } else {
-              handlePositionChange({ 
-                optionDetails: { 
-                  ...editingPosition.optionDetails, 
-                  expiry: value 
-                } 
-              });
-            }
+            const updatedOptionDetails = editingPosition.optionDetails 
+              ? { ...editingPosition.optionDetails, expiry: value }
+              : { expiry: value };
+            
+            handlePositionChange({ 
+              optionDetails: updatedOptionDetails
+            });
           }}
           onStrikeTypeChange={(value) => {
-            if (!editingPosition.optionDetails) {
-              handlePositionChange({ 
-                optionDetails: { strikeType: value as any } 
-              });
-            } else {
-              handlePositionChange({ 
-                optionDetails: { 
-                  ...editingPosition.optionDetails, 
-                  strikeType: value as any 
-                } 
-              });
-            }
+            const updatedOptionDetails = editingPosition.optionDetails 
+              ? { ...editingPosition.optionDetails, strikeType: value as any }
+              : { strikeType: value as any };
+            
+            handlePositionChange({ 
+              optionDetails: updatedOptionDetails
+            });
           }}
           onStrikeValueChange={(e) => {
             const value = parseFloat(e.target.value) || 0;
-            if (!editingPosition.optionDetails) {
-              handlePositionChange({ 
-                optionDetails: { strikeValue: value } 
-              });
-            } else {
-              handlePositionChange({ 
-                optionDetails: { 
-                  ...editingPosition.optionDetails, 
-                  strikeValue: value 
-                } 
-              });
-            }
+            const updatedOptionDetails = editingPosition.optionDetails 
+              ? { ...editingPosition.optionDetails, strikeValue: value }
+              : { strikeValue: value };
+            
+            handlePositionChange({ 
+              optionDetails: updatedOptionDetails
+            });
           }}
           onOptionTypeChange={(value) => {
-            if (!editingPosition.optionDetails) {
-              handlePositionChange({ 
-                optionDetails: { optionType: value as 'CE' | 'PE' } 
-              });
-            } else {
-              handlePositionChange({ 
-                optionDetails: { 
-                  ...editingPosition.optionDetails, 
-                  optionType: value as 'CE' | 'PE' 
-                } 
-              });
-            }
+            const updatedOptionDetails = editingPosition.optionDetails 
+              ? { ...editingPosition.optionDetails, optionType: value as 'CE' | 'PE' }
+              : { optionType: value as 'CE' | 'PE' };
+            
+            handlePositionChange({ 
+              optionDetails: updatedOptionDetails
+            });
           }}
         />
       )}

@@ -55,7 +55,8 @@ const ActionNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNod
   // Enhance data with updateNodeData function
   const enhancedData = React.useMemo(() => ({
     ...data,
-    updateNodeData
+    updateNodeData,
+    positions: data.positions || [] // Ensure positions is always defined
   }), [data, updateNodeData]);
   
   return (
