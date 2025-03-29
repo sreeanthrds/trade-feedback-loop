@@ -16,11 +16,10 @@ import {
 export const useFlowHandlers = () => {
   // Get state from hooks
   const reactFlowInstance = useReactFlow();
-  const { nodes, setNodes } = useNodeStateManagement();
-  const { edges, setEdges } = useEdgeStateManagement();
-  const { setSelectedNode, setIsPanelOpen } = usePanelState();
+  const { nodes, setNodes, reactFlowWrapper } = useNodeStateManagement();
+  const { edges, setEdges, onConnect: baseOnConnect } = useEdgeStateManagement();
+  const { isPanelOpen, setSelectedNode, setIsPanelOpen } = usePanelState();
   const strategyStore = useStrategyStore();
-  const reactFlowWrapper = { current: null }; // Provide a default value
 
   // Create handlers using the handler factory hooks
   const {
