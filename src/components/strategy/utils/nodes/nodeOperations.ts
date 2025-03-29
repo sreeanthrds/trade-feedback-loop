@@ -68,11 +68,11 @@ export const addNode = (
   
   // Add specific default values for action nodes
   if (type === 'actionNode') {
-    // Create a default position with a readable VPI
+    // Create a default position with a simplified VPI
     const positionId = `pos-${timestamp}`;
     const defaultPosition = {
       id: positionId,
-      vpi: `${nodeId}-pos1`, // Create a readable VPI based on node ID
+      vpi: `pos1`, // Simplified VPI format
       vpt: '',
       priority: 1,
       positionType: 'buy',
