@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef, useCallback, memo } from 'react';
+import React, { useEffect, useRef, useCallback, memo, useState } from 'react';
 import { ReactFlow, useReactFlow, Node, Edge } from '@xyflow/react';
 import TopToolbar from '../toolbars/TopToolbar';
 import BottomToolbar from '../toolbars/BottomToolbar';
@@ -11,6 +11,9 @@ import {
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuTrigger,
+  ContextMenuSub,
+  ContextMenuSubTrigger,
+  ContextMenuSubContent,
 } from '@/components/ui/context-menu';
 import { Play, Activity, SlidersHorizontal, StopCircle, AlertTriangle, ArrowUpCircle, X } from 'lucide-react';
 
@@ -87,7 +90,7 @@ const ReactFlowCanvas = memo(({
     onAddNode('signalNode');
   };
 
-  const handleAddActionNode = (actionType: 'entry' | 'exit' | 'alert') => {
+  const handleAddActionNodeWithType = (actionType: 'entry' | 'exit' | 'alert') => {
     onAddNode('actionNode', undefined, { actionType });
   };
 
@@ -158,37 +161,37 @@ const ReactFlowCanvas = memo(({
             <Activity className="h-4 w-4 mr-2 text-blue-600" />
             <span>Add Signal Node</span>
           </ContextMenuItem>
-          <ContextMenuItem
-            className="flex items-center cursor-pointer relative group"
-          >
-            <SlidersHorizontal className="h-4 w-4 mr-2 text-amber-600" />
-            <span>Add Action Node</span>
-            
-            {/* Action Node Sub-menu */}
-            <div className="invisible group-hover:visible absolute left-full top-0 bg-popover border rounded-md shadow-md p-1 w-48">
-              <div 
-                className="flex items-center px-2 py-1.5 text-sm rounded-sm cursor-pointer hover:bg-accent hover:text-accent-foreground"
-                onClick={() => handleAddActionNode('entry')}
+          
+          <ContextMenuSub>
+            <ContextMenuSubTrigger className="flex items-center cursor-pointer">
+              <SlidersHorizontal className="h-4 w-4 mr-2 text-amber-600" />
+              <span>Add Action Node</span>
+            </ContextMenuSubTrigger>
+            <ContextMenuSubContent className="w-48">
+              <ContextMenuItem 
+                onClick={() => handleAddActionNodeWithType('entry')}
+                className="flex items-center"
               >
                 <ArrowUpCircle className="h-4 w-4 mr-2 text-emerald-500" />
                 <span>Entry Order</span>
-              </div>
-              <div 
-                className="flex items-center px-2 py-1.5 text-sm rounded-sm cursor-pointer hover:bg-accent hover:text-accent-foreground"
-                onClick={() => handleAddActionNode('exit')}
+              </ContextMenuItem>
+              <ContextMenuItem 
+                onClick={() => handleAddActionNodeWithType('exit')}
+                className="flex items-center"
               >
                 <X className="h-4 w-4 mr-2 text-amber-600" />
                 <span>Exit Order</span>
-              </div>
-              <div 
-                className="flex items-center px-2 py-1.5 text-sm rounded-sm cursor-pointer hover:bg-accent hover:text-accent-foreground"
-                onClick={() => handleAddActionNode('alert')}
+              </ContextMenuItem>
+              <ContextMenuItem 
+                onClick={() => handleAddActionNodeWithType('alert')}
+                className="flex items-center"
               >
                 <AlertTriangle className="h-4 w-4 mr-2 text-amber-600" />
                 <span>Alert Only</span>
-              </div>
-            </div>
-          </ContextMenuItem>
+              </ContextMenuItem>
+            </ContextMenuSubContent>
+          </ContextMenuSub>
+          
           <ContextMenuItem
             onClick={handleAddEndNode}
             className="flex items-center cursor-pointer"

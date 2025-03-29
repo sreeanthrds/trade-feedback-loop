@@ -29,6 +29,31 @@
   z-index: 9999 !important;
 }
 
+/* Fix for context menu submenu positioning */
+[data-state="open"] > [data-radix-popper-content-wrapper] {
+  background-color: var(--background) !important;
+  z-index: 9999 !important;
+}
+
+/* Ensure action node submenu is visible and has proper styling */
+[role="menu"] {
+  background-color: var(--background) !important;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Ensure submenu content is positioned correctly */
+.radix-submenu {
+  position: relative;
+}
+
+/* Fix for submenu positioning */
+[data-radix-menu-content] {
+  z-index: 9999 !important;
+  background-color: var(--background) !important;
+}
+
 /* Adjust dropdown width for node connect controls */
 .react-flow__node [data-radix-popper-content-wrapper] {
   width: auto !important;
