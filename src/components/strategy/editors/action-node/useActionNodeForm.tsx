@@ -1,14 +1,13 @@
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Node } from '@xyflow/react';
-import { NodeData } from './types';
+import { NodeData, Position } from './types';
 import { 
   useInitializeNodeData,
   useStartNodeData,
-  useActionNodeHandlers,
-  useOptionSettings,
-  useOrderType
+  useOptionSettings
 } from './hooks';
+import { toast } from "@/hooks/use-toast";
+import { useStrategyStore } from '@/hooks/use-strategy-store';
 
 interface UseActionNodeFormProps {
   node: Node;
@@ -18,6 +17,9 @@ interface UseActionNodeFormProps {
 export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormProps) => {
   // Safely cast node data with defaults
   const nodeData = (node.data || {}) as NodeData;
+  
+  // Get all nodes for VPI validation
+  const nodes = useStrategyStore(state => state.nodes);
   
   // Initialize node data with default values
   useInitializeNodeData({
@@ -33,27 +35,7 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
     initialInstrument: nodeData?.instrument
   });
   
-  // Order type related state
-  const { showLimitPrice } = useOrderType({
-    orderType: nodeData?.orderType
-  });
-  
-  // Action node event handlers
-  const {
-    handleLabelChange,
-    handleActionTypeChange,
-    handlePositionTypeChange,
-    handleOrderTypeChange,
-    handleLimitPriceChange,
-    handleLotsChange,
-    handleProductTypeChange
-  } = useActionNodeHandlers({
-    nodeId: node.id,
-    updateNodeData,
-    nodeData
-  });
-  
-  // Options settings handlers
+  // Options settings handlers (kept for compatibility but now used per position)
   const {
     handleExpiryChange,
     handleStrikeTypeChange,
@@ -65,26 +47,133 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
     nodeData
   });
 
-  // Force an update when action type changes
+  // Generate a unique ID for positions
+  const generateUniqueId = () => `pos-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
+  // Create a default position
+  const createDefaultPosition = (): Position => ({
+    id: generateUniqueId(),
+    vpi: '', 
+    vpt: '',
+    priority: (nodeData?.positions?.length || 0) + 1,
+    positionType: 'buy',
+    orderType: 'market',
+    lots: 1,
+    productType: 'intraday'
+  });
+
+  // Ensure positions array exists in data
   useEffect(() => {
-    if (nodeData?.actionType === 'alert' && nodeData?.positionType) {
-      // Reset position type when switching to alert
-      updateNodeData(node.id, { positionType: undefined });
+    if (!nodeData.positions) {
+      updateNodeData(node.id, { 
+        positions: [createDefaultPosition()]
+      });
     }
-  }, [nodeData?.actionType, nodeData?.positionType, node.id, updateNodeData]);
+  }, [node.id, nodeData.positions, updateNodeData]);
+
+  // Handler for label changes
+  const handleLabelChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    updateNodeData(node.id, { label: e.target.value });
+  }, [node.id, updateNodeData]);
+
+  // Handler for action type changes
+  const handleActionTypeChange = useCallback((value: string) => {
+    updateNodeData(node.id, { 
+      actionType: value,
+      // Reset positions if changing to alert
+      ...(value === 'alert' && { positions: [] })
+    });
+  }, [node.id, updateNodeData]);
+
+  // Handler for position changes
+  const handlePositionChange = useCallback((positionId: string, updates: Partial<Position>) => {
+    updateNodeData(node.id, { 
+      positions: (nodeData.positions || []).map(pos => 
+        pos.id === positionId ? { ...pos, ...updates } : pos
+      )
+    });
+  }, [node.id, nodeData.positions, updateNodeData]);
+
+  // Handler for adding a new position
+  const handleAddPosition = useCallback(() => {
+    const newPosition = createDefaultPosition();
+    updateNodeData(node.id, { 
+      positions: [...(nodeData.positions || []), newPosition]
+    });
+    return newPosition;
+  }, [node.id, nodeData.positions, updateNodeData]);
+
+  // Handler for deleting a position
+  const handleDeletePosition = useCallback((positionId: string) => {
+    const updatedPositions = (nodeData.positions || []).filter(pos => pos.id !== positionId);
+    
+    // If we're deleting the last position and this is an entry/exit node, create a default one
+    if (updatedPositions.length === 0 && nodeData.actionType !== 'alert') {
+      updateNodeData(node.id, { positions: [createDefaultPosition()] });
+      toast({
+        title: "Position deleted",
+        description: "Added a default position since at least one is required."
+      });
+    } else {
+      updateNodeData(node.id, { positions: updatedPositions });
+      toast({
+        title: "Position deleted",
+        description: "Position has been removed from this action node."
+      });
+    }
+  }, [node.id, nodeData.positions, nodeData.actionType, updateNodeData]);
+
+  // Validate that a VPI is unique across the entire strategy
+  const validateVpiUniqueness = useCallback((vpi: string, currentPositionId: string) => {
+    // Empty VPI is always valid
+    if (!vpi.trim()) return true;
+    
+    // Check all nodes in the strategy
+    for (const checkNode of nodes) {
+      // Skip non-action nodes
+      if (checkNode.type !== 'actionNode') continue;
+      
+      // Check all positions in this node
+      const actionNodeData = checkNode.data as any;
+      if (actionNodeData.positions) {
+        for (const position of actionNodeData.positions) {
+          // Skip the current position
+          if (position.id === currentPositionId) continue;
+          
+          // If we find a matching VPI, it's not unique
+          if (position.vpi === vpi) {
+            return false;
+          }
+        }
+      }
+    }
+    
+    return true;
+  }, [nodes]);
+
+  // Force update when action type changes
+  useEffect(() => {
+    if (nodeData?.actionType === 'alert' && nodeData?.positions?.length > 0) {
+      // Reset positions when switching to alert
+      updateNodeData(node.id, { positions: [] });
+    } else if ((nodeData?.actionType === 'entry' || nodeData?.actionType === 'exit') && 
+               (!nodeData?.positions || nodeData.positions.length === 0)) {
+      // Ensure at least one position for entry/exit nodes
+      updateNodeData(node.id, { positions: [createDefaultPosition()] });
+    }
+  }, [nodeData?.actionType, nodeData?.positions, node.id, updateNodeData]);
 
   return {
     nodeData,
-    showLimitPrice,
     hasOptionTrading,
     startNodeSymbol,
     handleLabelChange,
     handleActionTypeChange,
-    handlePositionTypeChange,
-    handleOrderTypeChange,
-    handleLimitPriceChange,
-    handleLotsChange,
-    handleProductTypeChange,
+    handlePositionChange,
+    handleAddPosition,
+    handleDeletePosition,
+    validateVpiUniqueness,
+    // Keep these for backward compatibility
     handleExpiryChange,
     handleStrikeTypeChange,
     handleStrikeValueChange,

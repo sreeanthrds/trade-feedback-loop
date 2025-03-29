@@ -84,20 +84,32 @@ export const createUpdateNodeDataHandler = (
     try {
       const updatedNodes = nodes.map((node) => {
         if (node.id === id) {
-          const updatedData = { 
-            ...node.data, 
-            ...data,
-            _lastUpdated: Date.now() 
-          };
+          // Handle specific merge cases for positions
+          let mergedData;
+          if (data.positions && node.data && node.data.positions) {
+            // For positions, we want to do a special merge
+            mergedData = { 
+              ...node.data, 
+              ...data,
+              _lastUpdated: Date.now() 
+            };
+          } else {
+            // For other data, do a regular merge
+            mergedData = { 
+              ...node.data, 
+              ...data,
+              _lastUpdated: Date.now() 
+            };
+          }
           
           // If this is a start node and indicatorParameters were updated,
           // ensure indicators array is updated to match
           if (node.type === 'startNode' && data.indicatorParameters) {
             // Set indicators array to match keys in indicatorParameters
-            updatedData.indicators = Object.keys(data.indicatorParameters);
+            mergedData.indicators = Object.keys(data.indicatorParameters);
           }
           
-          return { ...node, data: updatedData };
+          return { ...node, data: mergedData };
         }
         return node;
       });

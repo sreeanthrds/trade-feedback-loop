@@ -18,6 +18,17 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
   startNodeSymbol,
   isSymbolMissing 
 }) => {
+  // Count positions for each priority level
+  const positionsByPriority = data.positions?.length > 0 
+    ? data.positions.reduce((acc, pos) => {
+        acc[pos.priority] = (acc[pos.priority] || 0) + 1;
+        return acc;
+      }, {} as Record<number, number>)
+    : {};
+    
+  // Sort positions by priority
+  const sortedPositions = [...(data.positions || [])].sort((a, b) => a.priority - b.priority);
+  
   return (
     <div className={`px-4 py-2 rounded-md bg-background/95 border ${isSymbolMissing ? 'border-destructive/50' : 'border-border/50'}`}>
       <Handle
@@ -40,7 +51,29 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
         </div>
       )}
       
-      <ActionDetails data={data} startNodeSymbol={startNodeSymbol} />
+      {/* Display multiple positions */}
+      {sortedPositions.length > 0 ? (
+        <div className="space-y-2">
+          {sortedPositions.map((position, index) => (
+            <div key={position.id} className="text-xs border-t pt-1 first:border-t-0 first:pt-0">
+              <div className="flex justify-between items-center">
+                <span className="font-medium">Position {index + 1}</span>
+                <span className="text-xs text-muted-foreground">
+                  Priority: {position.priority}
+                </span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span>{position.positionType === 'buy' ? 'Buy' : 'Sell'}</span>
+                <span>{position.lots || 1} lot{(position.lots || 1) > 1 ? 's' : ''}</span>
+                {position.vpi && <span className="text-xs bg-primary/10 px-1 rounded">VPI: {position.vpi}</span>}
+                {position.vpt && <span className="text-xs bg-secondary/10 px-1 rounded">Tag: {position.vpt}</span>}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <ActionDetails data={data} startNodeSymbol={startNodeSymbol} />
+      )}
       
       <Handle
         type="source"

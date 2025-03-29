@@ -1,3 +1,4 @@
+
 import { Node, ReactFlowInstance } from '@xyflow/react';
 import { toast } from "@/hooks/use-toast";
 
@@ -46,13 +47,22 @@ export const addNode = (
   
   // Add specific default values for action nodes
   if (type === 'actionNode') {
-    defaultData = {
-      ...defaultData,
-      actionType: 'entry',
+    // Create a default position
+    const defaultPosition = {
+      id: `pos-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      vpi: '', 
+      vpt: '',
+      priority: 1,
       positionType: 'buy',
       orderType: 'market',
       lots: 1,
       productType: 'intraday'
+    };
+
+    defaultData = {
+      ...defaultData,
+      actionType: 'entry',
+      positions: [defaultPosition]
     };
   }
   
