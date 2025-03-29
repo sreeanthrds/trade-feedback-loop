@@ -9,7 +9,7 @@ import PositionDialog from './action-node/components/PositionDialog';
 import InstrumentPanel from './action-node/components/InstrumentPanel';
 import ActionTypeSelector from './action-node/ActionTypeSelector';
 import AlertMessage from './action-node/AlertMessage';
-import ExitNodeForm from './action-node/components/ExitNodeForm';
+import { ExitNodeForm } from './action-node/exit-node';
 import { toast } from "@/hooks/use-toast";
 
 interface ActionNodeEditorProps {

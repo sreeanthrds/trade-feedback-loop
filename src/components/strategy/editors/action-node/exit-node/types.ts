@@ -13,8 +13,6 @@ export type ExitConditionType =
   | 'indicator_contract'
   | 'time_based'
   | 'market_close'
-  | 'partial_execution'
-  | 'cancel_threshold'
   | 'limit_to_market'
   | 'rolling';
 

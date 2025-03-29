@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Node } from '@xyflow/react';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SelectField from '../../shared/SelectField';
@@ -7,7 +8,6 @@ import InputField from '../../shared/InputField';
 import SwitchField from '../../shared/SwitchField';
 import { useExitNodeForm } from './useExitNodeForm';
 import ExitConditionForm from './ExitConditionForm';
-import { Node } from '@xyflow/react';
 
 interface ExitNodeFormProps {
   node: Node;
