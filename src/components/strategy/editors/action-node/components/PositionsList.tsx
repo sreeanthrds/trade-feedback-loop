@@ -48,13 +48,13 @@ const PositionsList: React.FC<PositionsListProps> = ({
             <div 
               key={position.id} 
               className={`p-2 border rounded-md cursor-pointer hover:bg-accent/50 transition-colors ${
-                selectedPosition?.id === position.id ? 'bg-accent border-accent' : ''
+                selectedPosition?.id === position.id ? 'bg-accent border-primary' : ''
               }`}
               onClick={() => onSelectPosition(position)}
             >
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="px-1.5 py-0 h-5">
+                  <Badge variant={selectedPosition?.id === position.id ? "default" : "outline"} className="px-1.5 py-0 h-5">
                     P{position.priority}
                   </Badge>
                   <span className="font-medium">

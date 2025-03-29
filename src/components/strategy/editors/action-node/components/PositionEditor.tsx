@@ -3,6 +3,7 @@ import React from 'react';
 import { Position } from '../types';
 import { InputField, RadioGroupField, SelectField } from '../../shared';
 import OptionsSettingsPanel from './OptionsSettingsPanel';
+import { Separator } from '@/components/ui/separator';
 
 interface PositionEditorProps {
   position: Position;
@@ -52,8 +53,15 @@ const PositionEditor: React.FC<PositionEditorProps> = ({
   const showLimitPrice = position.orderType === 'limit';
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-sm font-medium">Position Details</h3>
+    <div className="space-y-4 p-4 border rounded-md border-primary/30 bg-accent/20">
+      <div className="flex justify-between items-center">
+        <h3 className="text-sm font-medium">Position Details</h3>
+        <div className="text-xs text-muted-foreground">
+          Editing position P{position.priority}
+        </div>
+      </div>
+      
+      <Separator />
       
       <div className="grid grid-cols-2 gap-4">
         <InputField
@@ -145,6 +153,7 @@ const PositionEditor: React.FC<PositionEditorProps> = ({
       {hasOptionTrading && (
         <OptionsSettingsPanel 
           position={position}
+          hasOptionTrading={hasOptionTrading}
           onExpiryChange={onExpiryChange}
           onStrikeTypeChange={onStrikeTypeChange}
           onStrikeValueChange={onStrikeValueChange}
