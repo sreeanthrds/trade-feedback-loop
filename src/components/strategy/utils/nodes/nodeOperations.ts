@@ -16,7 +16,7 @@ const defaultNodeData = {
   },
   actionNode: {
     label: 'Action',
-    actionType: 'entry',
+    actionType: 'entry', // Default action type
     positions: []
   },
   endNode: {
@@ -68,6 +68,21 @@ export const createNode = (
   const data = initialNodeData 
     ? { ...baseData, ...initialNodeData } 
     : baseData;
+    
+  // Set specific action node labels based on action type
+  if (type === 'actionNode' && initialNodeData?.actionType) {
+    switch (initialNodeData.actionType) {
+      case 'entry':
+        data.label = 'Entry Order';
+        break;
+      case 'exit':
+        data.label = 'Exit Order';
+        break;
+      case 'alert':
+        data.label = 'Alert';
+        break;
+    }
+  }
 
   return {
     id,
