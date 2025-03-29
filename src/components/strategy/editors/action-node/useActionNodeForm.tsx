@@ -49,7 +49,7 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
 
   // Generate a simplified VPI with node ID prefix + position number
   const generateVPI = () => {
-    const nodePrefix = node.id.replace(/[^a-zA-Z0-9-]/g, '');
+    const nodePrefix = node.id.split('-').slice(0, 2).join('-'); // Get only "action-1" part
     const positionCount = (nodeData?.positions?.length || 0) + 1;
     return `${nodePrefix}-pos${positionCount}`;
   };

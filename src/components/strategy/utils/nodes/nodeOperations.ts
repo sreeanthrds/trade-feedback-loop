@@ -45,8 +45,7 @@ export const addNode = (
   const existingNodesOfType = nodes.filter(node => node.id.startsWith(typePrefix));
   const nodeCount = existingNodesOfType.length + 1;
   
-  const timestamp = Date.now().toString().slice(-4);
-  const nodeId = `${typePrefix}-${nodeCount}-${timestamp}`;
+  const nodeId = `${typePrefix}-${nodeCount}`;
   
   let defaultData: any = { 
     label: type === 'startNode' 
@@ -61,7 +60,7 @@ export const addNode = (
   };
   
   if (type === 'actionNode') {
-    const positionId = `pos-${timestamp}`;
+    const positionId = `pos-${Date.now().toString().slice(-6)}`;
     const defaultPosition = {
       id: positionId,
       vpi: `${nodeId}-pos1`,
