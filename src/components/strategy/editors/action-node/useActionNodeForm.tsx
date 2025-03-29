@@ -258,9 +258,12 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
       }),
     
     handleStrikeTypeChange: (value: string) => {
+      // Make sure we validate the value to match the expected type
+      const validatedValue = value as Position['optionDetails']['strikeType'];
+      
       const updatedDetails = {
         ...selectedPosition.optionDetails,
-        strikeType: value
+        strikeType: validatedValue
       };
       
       // If changing to premium type and no strike value is set, set a default
@@ -283,13 +286,17 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
       }
     },
     
-    handleOptionTypeChange: (value: string) => 
+    handleOptionTypeChange: (value: string) => {
+      // Make sure we validate the value to match the expected type
+      const validatedValue = value as 'CE' | 'PE';
+      
       handleSelectedPositionChange({ 
         optionDetails: {
           ...selectedPosition.optionDetails,
-          optionType: value as 'CE' | 'PE'
+          optionType: validatedValue
         }
-      })
+      });
+    }
   } : {
     handlePositionTypeChange: () => {},
     handleOrderTypeChange: () => {},

@@ -1,9 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { RadioGroupField, SelectField, InputField } from '../shared';
 import { Position } from './types';
-
-type OptionDetailsType = NonNullable<Position['optionDetails']>;
 
 interface OptionsSettingsSectionProps {
   position: Position;
@@ -40,7 +37,6 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
     : 100
   );
 
-  // Update local state when optionDetails changes
   useEffect(() => {
     if (optionDetails.strikeType) {
       if (optionDetails.strikeType === 'ATM') {
@@ -70,7 +66,6 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
       setStrikeDistance('');
     } else if (value === 'premium') {
       onStrikeTypeChange(value);
-      // Also update the strike value when switching to premium
       onStrikeValueChange({ target: { value: premiumValue.toString() } } as React.ChangeEvent<HTMLInputElement>);
       setStrikeDistance('');
     } else if (value === 'ITM' || value === 'OTM') {
@@ -93,10 +88,8 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
     }
   };
 
-  // Ensure we update the strike value when the component mounts if premium is selected
   useEffect(() => {
     if (strikeCategory === 'premium' && optionDetails.strikeType === 'premium') {
-      // Set a default value if none exists
       if (!optionDetails.strikeValue) {
         onStrikeValueChange({ target: { value: premiumValue.toString() } } as React.ChangeEvent<HTMLInputElement>);
       }
