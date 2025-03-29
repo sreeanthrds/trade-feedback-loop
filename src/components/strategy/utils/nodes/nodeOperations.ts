@@ -32,8 +32,26 @@ export const addNode = (
     position.y = parentNode.position.y + 50;
   }
   
-  // Generate a new node ID
-  const nodeId = `${type}-${Date.now()}`;
+  // Generate a more readable node ID based on type and counter
+  const getNodeTypePrefix = () => {
+    switch (type) {
+      case 'startNode': return 'start';
+      case 'signalNode': return 'signal';
+      case 'actionNode': return 'action';
+      case 'endNode': return 'end';
+      case 'forceEndNode': return 'force-end';
+      default: return type.replace('Node', '').toLowerCase();
+    }
+  };
+  
+  // Count existing nodes of this type to generate sequential IDs
+  const typePrefix = getNodeTypePrefix();
+  const existingNodesOfType = nodes.filter(node => node.id.startsWith(typePrefix));
+  const nodeCount = existingNodesOfType.length + 1;
+  
+  // Generate final node ID with timestamp for uniqueness
+  const timestamp = Date.now().toString().slice(-4); // Use last 4 digits of timestamp
+  const nodeId = `${typePrefix}-${nodeCount}-${timestamp}`;
   
   // Set default data based on node type
   let defaultData: any = { 
@@ -50,11 +68,11 @@ export const addNode = (
   
   // Add specific default values for action nodes
   if (type === 'actionNode') {
-    // Create a default position with a system-generated VPI
-    const positionId = `pos-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    // Create a default position with a readable VPI
+    const positionId = `pos-${timestamp}`;
     const defaultPosition = {
       id: positionId,
-      vpi: `${nodeId}-1`, // Use readable nodeId in the VPI
+      vpi: `${nodeId}-pos1`, // Create a readable VPI based on node ID
       vpt: '',
       priority: 1,
       positionType: 'buy',

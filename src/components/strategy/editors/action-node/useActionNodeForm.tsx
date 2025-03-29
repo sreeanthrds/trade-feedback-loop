@@ -42,13 +42,16 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
   });
   
   // Generate a unique ID for positions
-  const generateUniqueId = () => `pos-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  const generateUniqueId = () => {
+    const timestamp = Date.now().toString().slice(-6); // Use last 6 digits of timestamp
+    return `pos-${timestamp}`;
+  };
 
   // Generate a readable VPI using node ID and position number
   const generateVPI = () => {
     const nodePrefix = node.id.replace(/[^a-zA-Z0-9-]/g, '');
     const positionCount = (nodeData?.positions?.length || 0) + 1;
-    return `${nodePrefix}-${positionCount}`;
+    return `${nodePrefix}-pos${positionCount}`;
   };
 
   // Create a default position
