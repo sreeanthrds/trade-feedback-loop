@@ -18,6 +18,8 @@ export const useStartNodeData = ({
   const [startNodeSymbol, setStartNodeSymbol] = useState<string | undefined>(initialInstrument);
   const [hasOptionTrading, setHasOptionTrading] = useState(false);
   const [isSymbolMissing, setIsSymbolMissing] = useState(false);
+  
+  // Use refs to prevent these values from causing re-renders when they change
   const previousSymbolRef = useRef<string | undefined>(startNodeSymbol);
   const previousInstrumentTypeRef = useRef<string | undefined>(undefined);
   const nodeUpdateMadeRef = useRef(false);
@@ -50,7 +52,6 @@ export const useStartNodeData = ({
           const data = startNode.data as StartNodeData;
           
           // Check for options trading
-          // Safe access with optional chaining
           const optionsEnabled = data.tradingInstrument?.type === 'options';
           
           // If instrument type changed from options to something else, clear option details
@@ -67,22 +68,21 @@ export const useStartNodeData = ({
           // Update the previous instrument type reference
           previousInstrumentTypeRef.current = data.tradingInstrument?.type;
           
-          // Update options trading state
+          // Update options trading state - only update state if it actually changed
           if (hasOptionTrading !== optionsEnabled) {
             setHasOptionTrading(optionsEnabled || false);
           }
           
           // Check if the action node has an instrument, but start node doesn't
-          if (initialInstrument && !data.symbol) {
-            setIsSymbolMissing(true);
-          } else {
-            setIsSymbolMissing(false);
+          const newSymbolMissingState = Boolean(initialInstrument && !data.symbol);
+          if (isSymbolMissing !== newSymbolMissingState) {
+            setIsSymbolMissing(newSymbolMissingState);
           }
           
           // Get and set the instrument from the start node only if it changed
           if (data.symbol !== previousSymbolRef.current) {
-            setStartNodeSymbol(data.symbol);
             previousSymbolRef.current = data.symbol;
+            setStartNodeSymbol(data.symbol);
             
             // Also update the node data if the symbol changed
             if (data.symbol && !nodeUpdateMadeRef.current) {
@@ -99,22 +99,23 @@ export const useStartNodeData = ({
         updateInProgressRef.current = false;
       }
     };
-
-    // Initial fetch
+    
+    // Run once immediately
     fetchStartNodeData();
-
-    // Set up a less frequent polling interval (once every 2 seconds)
+    
+    // Then set up interval, but only if it doesn't already exist
     if (intervalRef.current === null) {
       intervalRef.current = window.setInterval(fetchStartNodeData, 2000);
     }
-
+    
+    // Clean up interval on unmount or when dependencies change
     return () => {
       if (intervalRef.current !== null) {
         window.clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
     };
-  }, []);  // Empty dependency array to run only once on mount
+  }, []); // Empty dependency array because we want to run this setup only once
   
   return { startNodeSymbol, hasOptionTrading, isSymbolMissing };
 };

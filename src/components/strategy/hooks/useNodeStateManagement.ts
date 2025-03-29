@@ -33,9 +33,12 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
         
         // Apply the pending update once the drag is complete
         if (pendingNodesUpdate.current) {
-          strategyStore.setNodes(pendingNodesUpdate.current);
-          strategyStore.addHistoryItem(pendingNodesUpdate.current, strategyStore.edges);
-          pendingNodesUpdate.current = null;
+          // Use setTimeout to break the React update cycle
+          setTimeout(() => {
+            strategyStore.setNodes(pendingNodesUpdate.current);
+            strategyStore.addHistoryItem(pendingNodesUpdate.current, strategyStore.edges);
+            pendingNodesUpdate.current = null;
+          }, 0);
         }
       }
     }
@@ -67,9 +70,10 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
           updateTimeoutRef.current = null;
         }
         
-        // Schedule the update to the store
+        // Schedule the update to the store with setTimeout to break the React update cycle
         updateTimeoutRef.current = window.setTimeout(() => {
           strategyStore.setNodes(newNodes);
+          updateTimeoutRef.current = null;
         }, 50);
       } else {
         pendingNodesUpdate.current = newNodes;
