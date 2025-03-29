@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { ActionNodeData } from './types';
-import { CircleDollarSign, Bell, Activity } from 'lucide-react';
+import { CircleDollarSign, Bell, ArrowRightLeft } from 'lucide-react';
 
 interface ActionIconProps {
   data: ActionNodeData;
@@ -19,15 +19,17 @@ const ActionIcon: React.FC<ActionIconProps> = ({ data }) => {
     iconColor = 'text-amber-500';
   }
 
-  // Determine which icon to show based only on action type
+  // Determine which icon to show based on action type
   let Icon;
   
-  if (data.actionType === 'entry' || data.actionType === 'exit') {
-    Icon = CircleDollarSign;
+  if (data.actionType === 'entry') {
+    Icon = CircleDollarSign; // Dollar sign for entry (money in)
+  } else if (data.actionType === 'exit') {
+    Icon = ArrowRightLeft; // Exchange arrows for exit (transition out)
   } else if (data.actionType === 'alert') {
-    Icon = Bell;
+    Icon = Bell; // Bell for alert notifications
   } else {
-    Icon = Activity; // Default fallback
+    Icon = CircleDollarSign; // Default fallback
   }
 
   return (
