@@ -1,19 +1,13 @@
 
 import React from 'react';
 import { ActionNodeData } from './types';
-import { ArrowDown, ArrowUp, Bell, Activity } from 'lucide-react';
+import { CircleDollarSign, Bell, Activity } from 'lucide-react';
 
 interface ActionIconProps {
   data: ActionNodeData;
 }
 
 const ActionIcon: React.FC<ActionIconProps> = ({ data }) => {
-  // Check if there are multiple positions
-  const hasMultiplePositions = data.positions && data.positions.length > 1;
-  
-  // For backward compatibility or single position, check the first position
-  const firstPosition = data.positions && data.positions.length > 0 ? data.positions[0] : null;
-  
   // Set color based on action type
   let iconColor = '';
   
@@ -25,22 +19,15 @@ const ActionIcon: React.FC<ActionIconProps> = ({ data }) => {
     iconColor = 'text-amber-500';
   }
 
-  // Determine which icon to show
+  // Determine which icon to show based only on action type
   let Icon;
   
-  if (hasMultiplePositions) {
-    // Use a generic Activity icon for multiple positions
-    Icon = Activity;
-  } else if (data.actionType === 'entry' && firstPosition?.positionType === 'buy') {
-    Icon = ArrowUp;
-  } else if (data.actionType === 'entry' && firstPosition?.positionType === 'sell') {
-    Icon = ArrowDown;
-  } else if (data.actionType === 'exit') {
-    Icon = firstPosition?.positionType === 'buy' ? ArrowDown : ArrowUp;
+  if (data.actionType === 'entry' || data.actionType === 'exit') {
+    Icon = CircleDollarSign;
   } else if (data.actionType === 'alert') {
     Icon = Bell;
   } else {
-    Icon = Bell; // Default fallback
+    Icon = Activity; // Default fallback
   }
 
   return (
