@@ -1,14 +1,19 @@
 
-import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { Node } from '@xyflow/react';
-import { toast } from "@/hooks/use-toast";
 import { 
   ExitConditionType, 
   ExitOrderType, 
   ExitCondition, 
-  ExitOrderConfig,
   ExitNodeData
 } from './types';
+import {
+  useExitNodeBase,
+  useExitNodeInitialization,
+  useExitConditionType,
+  useOrderSettings,
+  useMultipleOrders,
+  useExitConditionField
+} from './hooks';
 
 interface UseExitNodeFormProps {
   node: Node;
@@ -16,243 +21,66 @@ interface UseExitNodeFormProps {
 }
 
 export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) => {
-  // Default exit node data if none exists - memoize to avoid recreating on every render
-  const defaultExitNodeData = useMemo(() => ({
-    exitCondition: {
-      type: 'all_positions' as ExitConditionType
-    } as ExitCondition, // Cast to ExitCondition to satisfy type constraints
-    orderConfig: {
-      orderType: 'market' as ExitOrderType
-    }
-  }), []);
-
-  // Get exit node data from node or use default
-  const nodeData = node.data || {};
-  const rawExitNodeData = (nodeData.exitNodeData as ExitNodeData | null) || null;
+  // Use base hook for state management
+  const {
+    nodeData,
+    defaultExitNodeData,
+    initializedRef,
+    exitConditionType,
+    setExitConditionType,
+    orderType,
+    setOrderType,
+    limitPrice,
+    setLimitPrice,
+    multipleOrders,
+    setMultipleOrders,
+    exitCondition,
+    setExitCondition
+  } = useExitNodeBase({ node, updateNodeData });
   
-  // Track if we've done initialization
-  const initializedRef = useRef(false);
+  // Use initialization hook
+  useExitNodeInitialization({
+    node,
+    updateNodeData,
+    initializedRef,
+    defaultExitNodeData
+  });
   
-  // Initialize with a properly typed version of the data
-  const initialExitNodeData = useMemo(() => {
-    if (rawExitNodeData) {
-      return {
-        exitCondition: rawExitNodeData.exitCondition || defaultExitNodeData.exitCondition,
-        orderConfig: rawExitNodeData.orderConfig || defaultExitNodeData.orderConfig,
-        multipleOrders: rawExitNodeData.multipleOrders || false,
-        orders: rawExitNodeData.orders || undefined
-      };
-    }
-    return defaultExitNodeData;
-  }, [rawExitNodeData, defaultExitNodeData]);
+  // Use condition type hook
+  const { handleExitConditionTypeChange } = useExitConditionType({
+    node,
+    updateNodeData,
+    setExitConditionType,
+    setExitCondition,
+    defaultExitNodeData
+  });
   
-  // State for exit node form
-  const [exitConditionType, setExitConditionType] = useState<ExitConditionType>(
-    initialExitNodeData.exitCondition?.type || 'all_positions'
-  );
+  // Use order settings hook
+  const { handleOrderTypeChange, handleLimitPriceChange } = useOrderSettings({
+    node,
+    updateNodeData,
+    setOrderType,
+    setLimitPrice,
+    defaultExitNodeData
+  });
   
-  const [orderType, setOrderType] = useState<ExitOrderType>(
-    initialExitNodeData.orderConfig?.orderType || 'market'
-  );
+  // Use multiple orders hook
+  const { handleMultipleOrdersToggle } = useMultipleOrders({
+    node,
+    updateNodeData,
+    multipleOrders,
+    setMultipleOrders,
+    defaultExitNodeData
+  });
   
-  const [limitPrice, setLimitPrice] = useState<number | undefined>(
-    initialExitNodeData.orderConfig?.limitPrice
-  );
-  
-  const [multipleOrders, setMultipleOrders] = useState<boolean>(
-    initialExitNodeData.multipleOrders || false
-  );
-  
-  const [exitCondition, setExitCondition] = useState<ExitCondition>(
-    initialExitNodeData.exitCondition || { type: 'all_positions' } as ExitCondition
-  );
-  
-  // Initialize node data only once if needed
-  useEffect(() => {
-    if (!initializedRef.current && !nodeData.exitNodeData) {
-      initializedRef.current = true;
-      
-      updateNodeData(node.id, {
-        ...nodeData,
-        exitNodeData: defaultExitNodeData
-      });
-    }
-  }, [node.id, nodeData, updateNodeData]); // Remove defaultExitNodeData from dependencies
-  
-  // Update exit condition type
-  const handleExitConditionTypeChange = useCallback((type: ExitConditionType) => {
-    setExitConditionType(type);
-    
-    // Create default condition for the new type
-    let newCondition: ExitCondition;
-    
-    switch (type) {
-      case 'vpi':
-      case 'vpt':
-        newCondition = { type, identifier: '' } as ExitCondition;
-        break;
-      case 'all_positions':
-        newCondition = { type } as ExitCondition;
-        break;
-      case 'realized_pnl':
-      case 'unrealized_pnl':
-        newCondition = { type, value: 100, direction: 'above' } as ExitCondition;
-        break;
-      case 'premium_change':
-      case 'position_value_change':
-        newCondition = { type, percentage: 10, direction: 'increase' } as ExitCondition;
-        break;
-      case 'price_target':
-        newCondition = { type, price: 0, direction: 'above' } as ExitCondition;
-        break;
-      case 'indicator_underlying':
-      case 'indicator_contract':
-        newCondition = { type, indicator: 'RSI', condition: 'above', value: 70 } as ExitCondition;
-        break;
-      case 'time_based':
-        newCondition = { type, minutes: 30 } as ExitCondition;
-        break;
-      case 'market_close':
-        newCondition = { type, minutesBefore: 15 } as ExitCondition;
-        break;
-      case 'limit_to_market':
-        newCondition = { type, waitSeconds: 60 } as ExitCondition;
-        break;
-      case 'rolling':
-        newCondition = { type, daysBeforeExpiry: 2 } as ExitCondition;
-        break;
-      default:
-        newCondition = { type: 'all_positions' } as ExitCondition;
-    }
-    
-    setExitCondition(newCondition);
-    
-    // Create updated exit node data with type safety
-    const currentExitNodeData = (nodeData.exitNodeData as ExitNodeData) || defaultExitNodeData;
-    
-    // Create updated object
-    const updatedExitNodeData: ExitNodeData = {
-      ...currentExitNodeData,
-      exitCondition: newCondition
-    };
-    
-    // Update node data
-    updateNodeData(node.id, {
-      ...nodeData,
-      exitNodeData: updatedExitNodeData
-    });
-  }, [nodeData, node.id, updateNodeData, defaultExitNodeData]);
-  
-  // Update order type
-  const handleOrderTypeChange = useCallback((type: ExitOrderType) => {
-    setOrderType(type);
-    
-    // Get current exit node data safely
-    const currentExitNodeData = (nodeData.exitNodeData as ExitNodeData) || defaultExitNodeData;
-    
-    // Update order config
-    const updatedOrderConfig: ExitOrderConfig = {
-      ...currentExitNodeData.orderConfig,
-      orderType: type,
-      // Clear limit price if switching to market order
-      ...(type === 'market' && { limitPrice: undefined })
-    };
-    
-    // Create updated exit node data
-    const updatedExitNodeData: ExitNodeData = {
-      ...currentExitNodeData,
-      orderConfig: updatedOrderConfig
-    };
-    
-    // Update node data
-    updateNodeData(node.id, {
-      ...nodeData,
-      exitNodeData: updatedExitNodeData
-    });
-  }, [nodeData, node.id, updateNodeData, defaultExitNodeData]);
-  
-  // Update limit price
-  const handleLimitPriceChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value);
-    setLimitPrice(isNaN(value) ? undefined : value);
-    
-    if (!isNaN(value)) {
-      // Get current exit node data safely
-      const currentExitNodeData = (nodeData.exitNodeData as ExitNodeData) || defaultExitNodeData;
-      
-      // Update order config
-      const updatedOrderConfig: ExitOrderConfig = {
-        ...currentExitNodeData.orderConfig,
-        limitPrice: value
-      };
-      
-      // Create updated exit node data
-      const updatedExitNodeData: ExitNodeData = {
-        ...currentExitNodeData,
-        orderConfig: updatedOrderConfig
-      };
-      
-      // Update node data
-      updateNodeData(node.id, {
-        ...nodeData,
-        exitNodeData: updatedExitNodeData
-      });
-    }
-  }, [nodeData, node.id, updateNodeData, defaultExitNodeData]);
-  
-  // Toggle multiple orders
-  const handleMultipleOrdersToggle = useCallback(() => {
-    const newValue = !multipleOrders;
-    setMultipleOrders(newValue);
-    
-    // Get current exit node data safely
-    const currentExitNodeData = (nodeData.exitNodeData as ExitNodeData) || defaultExitNodeData;
-    
-    // Determine orders array
-    const ordersArray = newValue && !currentExitNodeData.orders 
-      ? [currentExitNodeData.orderConfig] 
-      : currentExitNodeData.orders;
-    
-    // Create updated exit node data
-    const updatedExitNodeData: ExitNodeData = {
-      ...currentExitNodeData,
-      multipleOrders: newValue,
-      // Include orders array only if multiple orders is enabled
-      ...(newValue && { orders: ordersArray })
-    };
-    
-    // Update node data
-    updateNodeData(node.id, {
-      ...nodeData,
-      exitNodeData: updatedExitNodeData
-    });
-  }, [multipleOrders, nodeData, node.id, updateNodeData, defaultExitNodeData]);
-  
-  // Update exit condition field
-  const updateExitConditionField = useCallback((field: string, value: any) => {
-    // Create a new object to avoid mutating the original
-    const updatedCondition = {
-      ...exitCondition,
-      [field]: value
-    };
-    
-    setExitCondition(updatedCondition);
-    
-    // Get current exit node data safely
-    const currentExitNodeData = (nodeData.exitNodeData as ExitNodeData) || defaultExitNodeData;
-    
-    // Create updated exit node data
-    const updatedExitNodeData: ExitNodeData = {
-      ...currentExitNodeData,
-      exitCondition: updatedCondition
-    };
-    
-    // Update node data
-    updateNodeData(node.id, {
-      ...nodeData,
-      exitNodeData: updatedExitNodeData
-    });
-  }, [exitCondition, nodeData, node.id, updateNodeData, defaultExitNodeData]);
+  // Use exit condition field hook
+  const { updateExitConditionField } = useExitConditionField({
+    node,
+    updateNodeData,
+    exitCondition,
+    setExitCondition,
+    defaultExitNodeData
+  });
   
   return {
     exitConditionType,
