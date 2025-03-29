@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Node } from '@xyflow/react';
 import { NodeDetailsPanel } from './shared';
