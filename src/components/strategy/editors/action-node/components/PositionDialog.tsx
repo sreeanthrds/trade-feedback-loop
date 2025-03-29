@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Position } from '../types';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogDescription } from '@/components/ui/dialog';
 import PositionEditor from './PositionEditor';
 import { X } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -46,6 +46,7 @@ const PositionDialog: React.FC<PositionDialogProps> = ({
       <DialogContent className="w-[95vw] max-w-[450px] h-auto max-h-[90vh] p-4">
         <DialogHeader className="mb-2">
           <DialogTitle>Edit Position {position.priority}</DialogTitle>
+          <DialogDescription>Configure position details and parameters</DialogDescription>
           <DialogClose onClick={onClose} className="absolute right-4 top-4" />
         </DialogHeader>
         

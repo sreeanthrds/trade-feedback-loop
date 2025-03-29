@@ -126,23 +126,29 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
   const handlePositionChange = useCallback((positionId: string, updates: Partial<Position>) => {
     if (!nodeData.positions) return;
     
+    // Create a deep copy of the positions array to ensure React detects the changes
+    const updatedPositions = nodeData.positions.map(pos => 
+      pos.id === positionId ? { ...pos, ...updates } : pos
+    );
+    
     updateNodeData(node.id, { 
-      positions: nodeData.positions.map(pos => 
-        pos.id === positionId ? { ...pos, ...updates } : pos
-      ),
-      _lastUpdated: Date.now()
+      positions: updatedPositions,
+      _lastUpdated: Date.now() // Force React to detect changes
     });
+    
+    console.log('Updated positions:', updatedPositions);
   }, [node.id, nodeData.positions, updateNodeData]);
 
   // Handler for adding a new position
   const handleAddPosition = useCallback(() => {
     const newPosition = createDefaultPosition();
     
+    // Create a fresh array with all existing positions plus the new one
     const updatedPositions = [...(nodeData.positions || []), newPosition];
     
     updateNodeData(node.id, { 
       positions: updatedPositions,
-      _lastUpdated: Date.now()
+      _lastUpdated: Date.now() // Force update
     });
     
     // Log for debugging
