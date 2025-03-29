@@ -4,10 +4,11 @@ import { Separator } from '@/components/ui/separator';
 import ActionTypeSelector from '../ActionTypeSelector';
 import AlertMessage from '../AlertMessage';
 import ActionTabsContainer from './ActionTabsContainer';
-import { NodeData } from '../types';
+import { NodeData, Position } from '../types';
 
 interface ActionContentProps {
   nodeData: NodeData;
+  selectedPosition: Position;
   showLimitPrice: boolean;
   hasOptionTrading: boolean;
   startNodeSymbol?: string;
@@ -25,6 +26,7 @@ interface ActionContentProps {
 
 const ActionContent: React.FC<ActionContentProps> = ({
   nodeData,
+  selectedPosition,
   showLimitPrice,
   hasOptionTrading,
   startNodeSymbol,
@@ -55,6 +57,20 @@ const ActionContent: React.FC<ActionContentProps> = ({
     );
   }
 
+  if (!selectedPosition) {
+    return (
+      <div className="space-y-4">
+        <ActionTypeSelector 
+          actionType={nodeData.actionType}
+          onActionTypeChange={onActionTypeChange}
+        />
+        <div className="mt-4 p-4 text-center bg-muted/20 rounded-md">
+          Please select or add a position
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <ActionTypeSelector 
@@ -66,14 +82,9 @@ const ActionContent: React.FC<ActionContentProps> = ({
       
       <ActionTabsContainer 
         actionType={nodeData.actionType}
-        positionType={nodeData.positionType}
-        orderType={nodeData.orderType}
-        limitPrice={nodeData.limitPrice}
-        lots={nodeData.lots}
-        productType={nodeData.productType}
+        position={selectedPosition}
         startNodeSymbol={startNodeSymbol}
         hasOptionTrading={hasOptionTrading}
-        optionDetails={nodeData.optionDetails}
         onPositionTypeChange={onPositionTypeChange}
         onOrderTypeChange={onOrderTypeChange}
         onLimitPriceChange={onLimitPriceChange}

@@ -1,23 +1,21 @@
 
 import { useCallback } from 'react';
-import { NodeData } from '../types';
+import { Position } from '../types';
 
 interface UseOptionSettingsProps {
-  nodeId: string;
-  updateNodeData: (id: string, data: any) => void;
-  nodeData: NodeData;
+  position: Position;
+  onPositionChange: (updates: Partial<Position>) => void;
 }
 
 export const useOptionSettings = ({
-  nodeId,
-  updateNodeData,
-  nodeData
+  position,
+  onPositionChange
 }: UseOptionSettingsProps) => {
   // Create option details object if it doesn't exist
   const ensureOptionDetails = useCallback(() => {
-    if (!nodeData.optionDetails) {
-      // Initialize with defaults
-      updateNodeData(nodeId, { 
+    if (!position.optionDetails) {
+      // Initialize with defaults and update the position
+      onPositionChange({ 
         optionDetails: {
           expiry: 'W0',
           strikeType: 'ATM',
@@ -25,58 +23,58 @@ export const useOptionSettings = ({
         }
       });
     }
-  }, [nodeId, nodeData, updateNodeData]);
+  }, [position, onPositionChange]);
   
   const handleExpiryChange = useCallback((value: string) => {
     ensureOptionDetails();
-    updateNodeData(nodeId, { 
+    onPositionChange({ 
       optionDetails: {
-        ...nodeData.optionDetails,
+        ...position.optionDetails,
         expiry: value
       }
     });
-  }, [nodeId, nodeData.optionDetails, updateNodeData, ensureOptionDetails]);
+  }, [position.optionDetails, onPositionChange, ensureOptionDetails]);
   
   const handleStrikeTypeChange = useCallback((value: string) => {
     ensureOptionDetails();
     // For premium type, ensure we initialize with default strike value if not already set
     const updatedOptions = { 
-      ...nodeData.optionDetails,
+      ...position.optionDetails,
       strikeType: value
     };
     
     // If changing to premium type and no strike value is set, set a default
-    if (value === 'premium' && !nodeData.optionDetails?.strikeValue) {
+    if (value === 'premium' && !position.optionDetails?.strikeValue) {
       updatedOptions.strikeValue = 100;
     }
     
-    updateNodeData(nodeId, { 
+    onPositionChange({ 
       optionDetails: updatedOptions
     });
-  }, [nodeId, nodeData.optionDetails, updateNodeData, ensureOptionDetails]);
+  }, [position.optionDetails, onPositionChange, ensureOptionDetails]);
   
   const handleStrikeValueChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     ensureOptionDetails();
     const value = parseFloat(e.target.value);
     if (!isNaN(value)) {
-      updateNodeData(nodeId, { 
+      onPositionChange({ 
         optionDetails: {
-          ...nodeData.optionDetails,
+          ...position.optionDetails,
           strikeValue: value
         }
       });
     }
-  }, [nodeId, nodeData.optionDetails, updateNodeData, ensureOptionDetails]);
+  }, [position.optionDetails, onPositionChange, ensureOptionDetails]);
   
   const handleOptionTypeChange = useCallback((value: string) => {
     ensureOptionDetails();
-    updateNodeData(nodeId, { 
+    onPositionChange({ 
       optionDetails: {
-        ...nodeData.optionDetails,
+        ...position.optionDetails,
         optionType: value
       }
     });
-  }, [nodeId, nodeData.optionDetails, updateNodeData, ensureOptionDetails]);
+  }, [position.optionDetails, onPositionChange, ensureOptionDetails]);
   
   return {
     handleExpiryChange,

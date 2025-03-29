@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Node } from '@xyflow/react';
 import { NodeDetailsPanel } from './shared';
 import { useActionNodeForm } from './action-node/useActionNodeForm';
@@ -21,17 +21,25 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
     nodeData,
     hasOptionTrading,
     startNodeSymbol,
+    selectedPosition,
+    setSelectedPosition,
     handleLabelChange,
     handleActionTypeChange,
     handlePositionChange,
     handleAddPosition,
     handleDeletePosition,
-    validateVpiUniqueness
+    validateVpiUniqueness,
+    // Position-specific handlers
+    handlePositionTypeChange,
+    handleOrderTypeChange,
+    handleLimitPriceChange,
+    handleLotsChange,
+    handleProductTypeChange,
+    handleExpiryChange,
+    handleStrikeTypeChange,
+    handleStrikeValueChange,
+    handleOptionTypeChange
   } = useActionNodeForm({ node, updateNodeData });
-
-  const [selectedPosition, setSelectedPosition] = useState<Position | null>(
-    nodeData?.positions?.length > 0 ? nodeData.positions[0] : null
-  );
 
   // Get the appropriate info message based on the action type
   const getActionInfoTooltip = () => {
@@ -111,6 +119,15 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
                   position={selectedPosition}
                   hasOptionTrading={hasOptionTrading}
                   onPositionChange={handlePositionUpdate}
+                  onPositionTypeChange={handlePositionTypeChange}
+                  onOrderTypeChange={handleOrderTypeChange}
+                  onLimitPriceChange={handleLimitPriceChange}
+                  onLotsChange={handleLotsChange}
+                  onProductTypeChange={handleProductTypeChange}
+                  onExpiryChange={handleExpiryChange}
+                  onStrikeTypeChange={handleStrikeTypeChange}
+                  onStrikeValueChange={handleStrikeValueChange}
+                  onOptionTypeChange={handleOptionTypeChange}
                 />
               )}
             </>

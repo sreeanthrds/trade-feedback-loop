@@ -2,13 +2,11 @@
 import React from 'react';
 import { Separator } from '@/components/ui/separator';
 import OptionsSettingsSection from '../OptionsSettingsSection';
-import { NodeData } from '../types';
-
-type OptionDetailsType = NonNullable<NodeData['optionDetails']>;
+import { Position } from '../types';
 
 interface OptionsSettingsPanelProps {
   hasOptionTrading: boolean;
-  optionDetails?: OptionDetailsType;
+  position: Position;
   onExpiryChange: (value: string) => void;
   onStrikeTypeChange: (value: string) => void;
   onStrikeValueChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -17,7 +15,7 @@ interface OptionsSettingsPanelProps {
 
 const OptionsSettingsPanel: React.FC<OptionsSettingsPanelProps> = ({
   hasOptionTrading,
-  optionDetails,
+  position,
   onExpiryChange,
   onStrikeTypeChange,
   onStrikeValueChange,
@@ -30,7 +28,7 @@ const OptionsSettingsPanel: React.FC<OptionsSettingsPanelProps> = ({
       <Separator className="my-4" />
       <h3 className="text-sm font-medium">Options Settings</h3>
       <OptionsSettingsSection 
-        optionDetails={optionDetails}
+        position={position}
         onExpiryChange={onExpiryChange}
         onStrikeTypeChange={onStrikeTypeChange}
         onStrikeValueChange={onStrikeValueChange}

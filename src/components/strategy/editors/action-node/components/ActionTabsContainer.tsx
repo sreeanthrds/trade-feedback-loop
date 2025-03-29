@@ -4,24 +4,13 @@ import { Separator } from '@/components/ui/separator';
 import OrderDetailsPanel from './OrderDetailsPanel';
 import InstrumentPanel from './InstrumentPanel';
 import OptionsSettingsPanel from './OptionsSettingsPanel';
-import { NodeData } from '../types';
-
-type ActionType = NodeData['actionType'];
-type PositionType = NodeData['positionType'];
-type OrderType = NodeData['orderType'];
-type ProductType = NodeData['productType'];
-type OptionDetailsType = NodeData['optionDetails'];
+import { Position } from '../types';
 
 interface ActionTabsContainerProps {
-  actionType?: ActionType;
-  positionType?: PositionType;
-  orderType?: OrderType;
-  limitPrice?: number;
-  lots?: number;
-  productType?: ProductType;
+  actionType?: 'entry' | 'exit' | 'alert';
+  position: Position;
   startNodeSymbol?: string;
   hasOptionTrading: boolean;
-  optionDetails?: OptionDetailsType;
   onPositionTypeChange: (value: string) => void;
   onOrderTypeChange: (value: string) => void;
   onLimitPriceChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -35,14 +24,9 @@ interface ActionTabsContainerProps {
 
 const ActionTabsContainer: React.FC<ActionTabsContainerProps> = ({
   actionType,
-  positionType,
-  orderType,
-  limitPrice,
-  lots,
-  productType,
+  position,
   startNodeSymbol,
   hasOptionTrading,
-  optionDetails,
   onPositionTypeChange,
   onOrderTypeChange,
   onLimitPriceChange,
@@ -57,11 +41,7 @@ const ActionTabsContainer: React.FC<ActionTabsContainerProps> = ({
     <div className="space-y-6">
       <OrderDetailsPanel 
         actionType={actionType}
-        positionType={positionType}
-        orderType={orderType}
-        limitPrice={limitPrice}
-        lots={lots}
-        productType={productType}
+        position={position}
         onPositionTypeChange={onPositionTypeChange}
         onOrderTypeChange={onOrderTypeChange}
         onLimitPriceChange={onLimitPriceChange}
@@ -75,7 +55,7 @@ const ActionTabsContainer: React.FC<ActionTabsContainerProps> = ({
       
       <OptionsSettingsPanel 
         hasOptionTrading={hasOptionTrading}
-        optionDetails={optionDetails}
+        position={position}
         onExpiryChange={onExpiryChange}
         onStrikeTypeChange={onStrikeTypeChange}
         onStrikeValueChange={onStrikeValueChange}

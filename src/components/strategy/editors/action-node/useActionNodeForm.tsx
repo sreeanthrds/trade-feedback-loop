@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { Node } from '@xyflow/react';
 import { NodeData, Position } from './types';
@@ -16,8 +15,13 @@ interface UseActionNodeFormProps {
 }
 
 export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormProps) => {
-  // Safely cast node data with defaults
-  const nodeData = (node.data || {}) as NodeData;
+  // Convert node.data to NodeData type with positions array
+  const nodeData = node.data as unknown as NodeData;
+  
+  // Ensure positions exist
+  if (!nodeData.positions) {
+    nodeData.positions = [];
+  }
   
   // Get all nodes for VPI validation
   const nodes = useStrategyStore(state => state.nodes);
@@ -36,18 +40,6 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
     initialInstrument: nodeData?.instrument
   });
   
-  // Options settings handlers (kept for compatibility but now used per position)
-  const {
-    handleExpiryChange,
-    handleStrikeTypeChange,
-    handleStrikeValueChange,
-    handleOptionTypeChange
-  } = useOptionSettings({
-    nodeId: node.id,
-    updateNodeData,
-    nodeData
-  });
-
   // Generate a unique ID for positions
   const generateUniqueId = () => `pos-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
@@ -77,12 +69,35 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
 
   // Ensure positions array exists in data
   useEffect(() => {
-    if (!nodeData.positions) {
+    if (!nodeData.positions || nodeData.positions.length === 0) {
       updateNodeData(node.id, { 
         positions: [createDefaultPosition()]
       });
     }
   }, [node.id, nodeData.positions, updateNodeData]);
+
+  // State for selected position
+  const [selectedPosition, setSelectedPosition] = useState<Position | null>(
+    nodeData?.positions?.length > 0 ? nodeData.positions[0] : null
+  );
+
+  // Update selected position when positions change
+  useEffect(() => {
+    if (nodeData?.positions?.length > 0) {
+      const currentSelected = selectedPosition ? 
+        nodeData.positions.find(p => p.id === selectedPosition.id) : null;
+        
+      // If current selected position still exists, update it with latest data
+      if (currentSelected) {
+        setSelectedPosition(currentSelected);
+      } else {
+        // Otherwise select the first position
+        setSelectedPosition(nodeData.positions[0]);
+      }
+    } else {
+      setSelectedPosition(null);
+    }
+  }, [nodeData.positions, selectedPosition]);
 
   // Handler for label changes
   const handleLabelChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -100,8 +115,10 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
 
   // Handler for position changes
   const handlePositionChange = useCallback((positionId: string, updates: Partial<Position>) => {
+    if (!nodeData.positions) return;
+    
     updateNodeData(node.id, { 
-      positions: (nodeData.positions || []).map(pos => 
+      positions: nodeData.positions.map(pos => 
         pos.id === positionId ? { ...pos, ...updates } : pos
       ),
       _lastUpdated: Date.now()
@@ -124,7 +141,9 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
 
   // Handler for deleting a position
   const handleDeletePosition = useCallback((positionId: string) => {
-    const updatedPositions = (nodeData.positions || []).filter(pos => pos.id !== positionId);
+    if (!nodeData.positions) return;
+    
+    const updatedPositions = nodeData.positions.filter(pos => pos.id !== positionId);
     
     // If we're deleting the last position and this is an entry/exit node, create a default one
     if (updatedPositions.length === 0 && nodeData.actionType !== 'alert') {
@@ -195,20 +214,106 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
     }
   }, [nodeData?.actionType, nodeData?.positions, node.id, updateNodeData]);
 
+  // Handlers for the selected position
+  const handleSelectedPositionChange = useCallback((updates: Partial<Position>) => {
+    if (!selectedPosition) return;
+    
+    handlePositionChange(selectedPosition.id, updates);
+  }, [selectedPosition, handlePositionChange]);
+
+  // Generate position-specific handlers
+  const positionHandlers = selectedPosition ? {
+    handlePositionTypeChange: (value: string) => 
+      handleSelectedPositionChange({ positionType: value as 'buy' | 'sell' }),
+    
+    handleOrderTypeChange: (value: string) => 
+      handleSelectedPositionChange({ 
+        orderType: value as 'market' | 'limit',
+        ...(value === 'market' && { limitPrice: undefined })
+      }),
+    
+    handleLimitPriceChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value === '' ? undefined : parseFloat(e.target.value);
+      if (value === undefined || !isNaN(value)) {
+        handleSelectedPositionChange({ limitPrice: value });
+      }
+    },
+    
+    handleLotsChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = parseInt(e.target.value, 10);
+      if (!isNaN(value) && value > 0) {
+        handleSelectedPositionChange({ lots: value });
+      }
+    },
+    
+    handleProductTypeChange: (value: string) => 
+      handleSelectedPositionChange({ productType: value as 'intraday' | 'carryForward' }),
+    
+    handleExpiryChange: (value: string) => 
+      handleSelectedPositionChange({ 
+        optionDetails: {
+          ...selectedPosition.optionDetails,
+          expiry: value
+        }
+      }),
+    
+    handleStrikeTypeChange: (value: string) => {
+      const updatedDetails = {
+        ...selectedPosition.optionDetails,
+        strikeType: value
+      };
+      
+      // If changing to premium type and no strike value is set, set a default
+      if (value === 'premium' && !selectedPosition.optionDetails?.strikeValue) {
+        updatedDetails.strikeValue = 100;
+      }
+      
+      handleSelectedPositionChange({ optionDetails: updatedDetails });
+    },
+    
+    handleStrikeValueChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = parseFloat(e.target.value);
+      if (!isNaN(value)) {
+        handleSelectedPositionChange({ 
+          optionDetails: {
+            ...selectedPosition.optionDetails,
+            strikeValue: value
+          }
+        });
+      }
+    },
+    
+    handleOptionTypeChange: (value: string) => 
+      handleSelectedPositionChange({ 
+        optionDetails: {
+          ...selectedPosition.optionDetails,
+          optionType: value as 'CE' | 'PE'
+        }
+      })
+  } : {
+    handlePositionTypeChange: () => {},
+    handleOrderTypeChange: () => {},
+    handleLimitPriceChange: () => {},
+    handleLotsChange: () => {},
+    handleProductTypeChange: () => {},
+    handleExpiryChange: () => {},
+    handleStrikeTypeChange: () => {},
+    handleStrikeValueChange: () => {},
+    handleOptionTypeChange: () => {}
+  };
+
   return {
     nodeData,
     hasOptionTrading,
     startNodeSymbol,
+    selectedPosition,
+    setSelectedPosition,
     handleLabelChange,
     handleActionTypeChange,
     handlePositionChange,
     handleAddPosition,
     handleDeletePosition,
     validateVpiUniqueness,
-    // Keep these for backward compatibility
-    handleExpiryChange,
-    handleStrikeTypeChange,
-    handleStrikeValueChange,
-    handleOptionTypeChange
+    ...positionHandlers
   };
 };

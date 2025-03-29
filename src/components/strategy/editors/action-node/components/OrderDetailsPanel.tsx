@@ -1,20 +1,12 @@
 
 import React from 'react';
+import { Separator } from '@/components/ui/separator';
 import OrderDetailsSection from '../OrderDetailsSection';
-import { NodeData } from '../types';
-
-type ActionType = NodeData['actionType'];
-type PositionType = NodeData['positionType'];
-type OrderType = NodeData['orderType'];
-type ProductType = NodeData['productType'];
+import { Position } from '../types';
 
 interface OrderDetailsPanelProps {
-  actionType?: ActionType;
-  positionType?: PositionType;
-  orderType?: OrderType;
-  limitPrice?: number;
-  lots?: number;
-  productType?: ProductType;
+  actionType?: 'entry' | 'exit' | 'alert';
+  position: Position;
   onPositionTypeChange: (value: string) => void;
   onOrderTypeChange: (value: string) => void;
   onLimitPriceChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -24,11 +16,7 @@ interface OrderDetailsPanelProps {
 
 const OrderDetailsPanel: React.FC<OrderDetailsPanelProps> = ({
   actionType,
-  positionType,
-  orderType,
-  limitPrice,
-  lots,
-  productType,
+  position,
   onPositionTypeChange,
   onOrderTypeChange,
   onLimitPriceChange,
@@ -36,15 +24,11 @@ const OrderDetailsPanel: React.FC<OrderDetailsPanelProps> = ({
   onProductTypeChange
 }) => {
   return (
-    <div className="space-y-4">
-      <h3 className="text-sm font-medium">Order Details</h3>
+    <div>
+      <h3 className="text-sm font-medium mb-4">Order Details</h3>
       <OrderDetailsSection 
         actionType={actionType}
-        positionType={positionType}
-        orderType={orderType}
-        limitPrice={limitPrice}
-        lots={lots}
-        productType={productType}
+        position={position}
         onPositionTypeChange={onPositionTypeChange}
         onOrderTypeChange={onOrderTypeChange}
         onLimitPriceChange={onLimitPriceChange}

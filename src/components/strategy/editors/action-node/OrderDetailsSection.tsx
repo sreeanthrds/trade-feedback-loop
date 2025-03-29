@@ -1,20 +1,11 @@
 
 import React from 'react';
 import { RadioGroupField, SelectField, InputField } from '../shared';
-import { NodeData } from './types';
-
-type ActionType = NodeData['actionType'];
-type PositionType = NodeData['positionType'];
-type OrderType = NodeData['orderType'];
-type ProductType = NodeData['productType'];
+import { Position } from './types';
 
 interface OrderDetailsSectionProps {
-  actionType?: ActionType;
-  positionType?: PositionType;
-  orderType?: OrderType;
-  limitPrice?: number;
-  lots?: number;
-  productType?: ProductType;
+  actionType?: 'entry' | 'exit' | 'alert';
+  position: Position;
   onPositionTypeChange: (value: string) => void;
   onOrderTypeChange: (value: string) => void;
   onLimitPriceChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -24,11 +15,7 @@ interface OrderDetailsSectionProps {
 
 const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
   actionType,
-  positionType,
-  orderType,
-  limitPrice,
-  lots,
-  productType,
+  position,
   onPositionTypeChange,
   onOrderTypeChange,
   onLimitPriceChange,
@@ -40,7 +27,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
       {actionType === 'entry' && (
         <RadioGroupField
           label="Position Type"
-          value={positionType || 'buy'}
+          value={position.positionType || 'buy'}
           onChange={onPositionTypeChange}
           options={[
             { value: 'buy', label: 'Buy' },
@@ -53,7 +40,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
       <SelectField
         label="Order Type"
         id="order-type"
-        value={orderType || 'market'}
+        value={position.orderType || 'market'}
         onChange={onOrderTypeChange}
         options={[
           { value: 'market', label: 'Market' },
@@ -61,12 +48,12 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
         ]}
       />
       
-      {orderType === 'limit' && (
+      {position.orderType === 'limit' && (
         <InputField
           label="Limit Price"
           id="limit-price"
           type="number"
-          value={limitPrice === undefined ? '' : limitPrice}
+          value={position.limitPrice === undefined ? '' : position.limitPrice}
           onChange={onLimitPriceChange}
           placeholder="Enter limit price"
           min={0.01}
@@ -79,7 +66,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
         id="lots"
         type="number"
         min={1}
-        value={lots || 1}
+        value={position.lots || 1}
         onChange={onLotsChange}
         placeholder="Number of lots"
       />
@@ -87,7 +74,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
       <SelectField
         label="Product Type"
         id="product-type"
-        value={productType || 'intraday'}
+        value={position.productType || 'intraday'}
         onChange={onProductTypeChange}
         options={[
           { value: 'intraday', label: 'Intraday (MIS)' },

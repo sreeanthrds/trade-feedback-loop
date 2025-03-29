@@ -1,6 +1,6 @@
 
 import { useEffect, useRef } from 'react';
-import { NodeData } from '../types';
+import { NodeData, Position } from '../types';
 
 interface UseInitializeNodeDataProps {
   nodeData: NodeData;
@@ -21,12 +21,8 @@ export const useInitializeNodeData = ({
       // Check if initialization is needed
       const needsInitialization = 
         !nodeData?.actionType || 
-        !nodeData?.positionType || 
-        !nodeData?.orderType || 
-        !nodeData?.lots || 
-        !nodeData?.productType ||
-        (nodeData?.instrument?.includes('OPT') && !nodeData?.optionDetails) ||
-        (nodeData?.optionDetails && (!nodeData.optionDetails.expiry || !nodeData.optionDetails.strikeType || !nodeData.optionDetails.optionType));
+        !nodeData?.positions || 
+        nodeData.positions.length === 0;
       
       if (needsInitialization) {
         // Create a clean defaultValues object only with the needed properties
@@ -34,39 +30,37 @@ export const useInitializeNodeData = ({
         
         // Add defaults only for missing values
         if (!nodeData?.actionType) defaultValues.actionType = 'entry';
-        if (!nodeData?.positionType) defaultValues.positionType = 'buy';
-        if (!nodeData?.orderType) defaultValues.orderType = 'market';
-        if (!nodeData?.lots) defaultValues.lots = 1;
-        if (!nodeData?.productType) defaultValues.productType = 'intraday';
         
-        // Handle option details in a more optimized way
-        if (nodeData?.optionDetails) {
-          const optDefaults: any = {};
-          let needsOptionUpdate = false;
+        // Initialize positions array if needed
+        if (!nodeData?.positions || nodeData.positions.length === 0) {
+          // Generate position ID
+          const positionId = `pos-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+          // Generate VPI using node ID
+          const positionNumber = 1;
+          const vpi = `${nodeId}-${positionNumber}`;
           
-          if (!nodeData.optionDetails.expiry) {
-            optDefaults.expiry = 'W0';
-            needsOptionUpdate = true;
-          }
-          if (!nodeData.optionDetails.strikeType) {
-            optDefaults.strikeType = 'ATM';
-            needsOptionUpdate = true;
-          }
-          if (!nodeData.optionDetails.optionType) {
-            optDefaults.optionType = 'CE';
-            needsOptionUpdate = true;
-          }
-          
-          if (needsOptionUpdate) {
-            defaultValues.optionDetails = { ...nodeData.optionDetails, ...optDefaults };
-          }
-        } else if (nodeData?.instrument && nodeData?.instrument.includes('OPT')) {
-          // Initialize options data if it's an options instrument
-          defaultValues.optionDetails = {
-            expiry: 'W0',
-            strikeType: 'ATM',
-            optionType: 'CE'
+          // Create a default position
+          const defaultPosition: Position = {
+            id: positionId,
+            vpi: vpi,
+            vpt: '',
+            priority: 1,
+            positionType: 'buy',
+            orderType: 'market',
+            lots: 1,
+            productType: 'intraday'
           };
+          
+          // Add default option details if needed for option instruments
+          if (nodeData?.instrument && nodeData.instrument.includes('OPT')) {
+            defaultPosition.optionDetails = {
+              expiry: 'W0',
+              strikeType: 'ATM',
+              optionType: 'CE'
+            };
+          }
+          
+          defaultValues.positions = [defaultPosition];
         }
         
         // Only update if we have defaults to set

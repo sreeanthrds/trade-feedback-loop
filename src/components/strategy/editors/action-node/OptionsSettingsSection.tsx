@@ -1,12 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { RadioGroupField, SelectField, InputField } from '../shared';
-import { NodeData } from './types';
+import { Position } from './types';
 
-type OptionDetailsType = NonNullable<NodeData['optionDetails']>;
+type OptionDetailsType = NonNullable<Position['optionDetails']>;
 
 interface OptionsSettingsSectionProps {
-  optionDetails?: OptionDetailsType;
+  position: Position;
   onExpiryChange: (value: string) => void;
   onStrikeTypeChange: (value: string) => void;
   onStrikeValueChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -14,33 +14,35 @@ interface OptionsSettingsSectionProps {
 }
 
 const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
-  optionDetails,
+  position,
   onExpiryChange,
   onStrikeTypeChange,
   onStrikeValueChange,
   onOptionTypeChange
 }) => {
+  const optionDetails = position.optionDetails || {};
+  
   const [strikeCategory, setStrikeCategory] = useState<'ATM' | 'ITM' | 'OTM' | 'premium'>(
-    optionDetails?.strikeType === 'premium' ? 'premium' : 
-    optionDetails?.strikeType?.startsWith('ITM') ? 'ITM' : 
-    optionDetails?.strikeType?.startsWith('OTM') ? 'OTM' : 'ATM'
+    optionDetails.strikeType === 'premium' ? 'premium' : 
+    optionDetails.strikeType?.startsWith('ITM') ? 'ITM' : 
+    optionDetails.strikeType?.startsWith('OTM') ? 'OTM' : 'ATM'
   );
   
   const [strikeDistance, setStrikeDistance] = useState<string>(
-    optionDetails?.strikeType && 
+    optionDetails.strikeType && 
     (optionDetails.strikeType.startsWith('ITM') || optionDetails.strikeType.startsWith('OTM')) ? 
     optionDetails.strikeType : ''
   );
   
   const [premiumValue, setPremiumValue] = useState<number>(
-    optionDetails?.strikeType === 'premium' && optionDetails?.strikeValue 
+    optionDetails.strikeType === 'premium' && optionDetails.strikeValue 
     ? optionDetails.strikeValue 
     : 100
   );
 
   // Update local state when optionDetails changes
   useEffect(() => {
-    if (optionDetails?.strikeType) {
+    if (optionDetails.strikeType) {
       if (optionDetails.strikeType === 'ATM') {
         setStrikeCategory('ATM');
         setStrikeDistance('');
@@ -93,7 +95,7 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
 
   // Ensure we update the strike value when the component mounts if premium is selected
   useEffect(() => {
-    if (strikeCategory === 'premium' && optionDetails?.strikeType === 'premium') {
+    if (strikeCategory === 'premium' && optionDetails.strikeType === 'premium') {
       // Set a default value if none exists
       if (!optionDetails.strikeValue) {
         onStrikeValueChange({ target: { value: premiumValue.toString() } } as React.ChangeEvent<HTMLInputElement>);
@@ -143,9 +145,22 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
       <SelectField
         label="Expiry"
         id="expiry"
-        value={optionDetails?.expiry || 'W0'}
+        value={optionDetails.expiry || 'W0'}
         onChange={onExpiryChange}
-        options={expiryOptions}
+        options={[
+          { value: 'W0', label: 'Current Week (W0)' },
+          { value: 'W1', label: 'Next Week (W1)' },
+          { value: 'W2', label: 'Week 2 (W2)' },
+          { value: 'W3', label: 'Week 3 (W3)' },
+          { value: 'W4', label: 'Week 4 (W4)' },
+          { value: 'M0', label: 'Current Month (M0)' },
+          { value: 'M1', label: 'Next Month (M1)' },
+          { value: 'M2', label: 'Month 2 (M2)' },
+          { value: 'Q0', label: 'Current Quarter (Q0)' },
+          { value: 'Q1', label: 'Next Quarter (Q1)' },
+          { value: 'Y0', label: 'Current Year (Y0)' },
+          { value: 'Y1', label: 'Next Year (Y1)' }
+        ]}
       />
       
       <SelectField
@@ -153,7 +168,12 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
         id="strike-category"
         value={strikeCategory}
         onChange={handleStrikeCategoryChange}
-        options={strikeCategoryOptions}
+        options={[
+          { value: 'ATM', label: 'At The Money (ATM)' },
+          { value: 'ITM', label: 'In The Money (ITM)' },
+          { value: 'OTM', label: 'Out of The Money (OTM)' },
+          { value: 'premium', label: 'Closest Premium' }
+        ]}
       />
       
       {(strikeCategory === 'ITM' || strikeCategory === 'OTM') && (
@@ -162,7 +182,10 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
           id="strike-distance"
           value={strikeDistance}
           onChange={handleStrikeDistanceChange}
-          options={generateStrikeDistanceOptions()}
+          options={Array.from({ length: 15 }, (_, i) => ({
+            value: `${strikeCategory}${i + 1}`,
+            label: `${i + 1} Strike${i > 0 ? 's' : ''} ${strikeCategory}`
+          }))}
         />
       )}
       
@@ -172,7 +195,7 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
           id="premium-value"
           type="number"
           min={1}
-          value={optionDetails?.strikeValue || premiumValue}
+          value={optionDetails.strikeValue || premiumValue}
           onChange={handlePremiumValueChange}
           placeholder="Enter target premium"
         />
@@ -180,7 +203,7 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
       
       <RadioGroupField
         label="Option Type"
-        value={optionDetails?.optionType || 'CE'}
+        value={optionDetails.optionType || 'CE'}
         onChange={onOptionTypeChange}
         options={[
           { value: 'CE', label: 'Call (CE)' },

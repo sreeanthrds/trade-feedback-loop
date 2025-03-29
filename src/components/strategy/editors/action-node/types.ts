@@ -15,6 +15,7 @@ export interface Position {
     strikeValue?: number;
     optionType?: 'CE' | 'PE';
   };
+  _lastUpdated?: number; // Timestamp for forcing updates
 }
 
 export interface NodeData {
@@ -22,11 +23,9 @@ export interface NodeData {
   actionType?: 'entry' | 'exit' | 'alert';
   instrument?: string;
   positions: Position[];
+  _lastUpdated?: number; // Timestamp for forcing updates
 }
 
 export interface StartNodeData {
-  tradingInstrument?: {
-    type?: 'options' | 'futures' | 'stock' | 'index';
-  };
   symbol?: string;
 }
