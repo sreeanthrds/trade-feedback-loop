@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Node } from '@xyflow/react';
-import { ExitCondition, ExitConditionType, ExitNodeData } from './types';
+import { ExitCondition, ExitConditionType, ExitNodeData } from '../types/exitNodeTypes';
 
 interface UseExitNodeFormProps {
   node: Node;
@@ -11,7 +11,7 @@ interface UseExitNodeFormProps {
 export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) => {
   // Safely extract the node data
   const nodeData = node.data || {};
-  const exitNodeData = nodeData.exitNodeData || {} as ExitNodeData;
+  const exitNodeData = (nodeData.exitNodeData || {}) as ExitNodeData;
   
   // Get initial values with fallbacks
   const initialExitCondition = exitNodeData.exitCondition || { type: 'vpi' } as ExitCondition;
@@ -155,7 +155,7 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
 
   // Sync state with node data when it changes externally
   useEffect(() => {
-    const currentExitNodeData = nodeData.exitNodeData || {} as ExitNodeData;
+    const currentExitNodeData = nodeData.exitNodeData as ExitNodeData || {} as ExitNodeData;
     const currentExitCondition = currentExitNodeData.exitCondition || { type: 'vpi' } as ExitCondition;
     const currentOrderConfig = currentExitNodeData.orderConfig || { orderType: 'market' };
     
