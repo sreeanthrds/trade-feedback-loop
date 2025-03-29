@@ -8,24 +8,29 @@ interface ActionDetailsProps {
 }
 
 const ActionDetails: React.FC<ActionDetailsProps> = ({ data, startNodeSymbol }) => {
+  // For backward compatibility, if positions exist, show the first position's details
+  const firstPosition = data.positions && data.positions.length > 0 ? data.positions[0] : null;
+  
   const getLots = () => {
-    if (!data.lots) return "Not set";
-    return `${data.lots} lot${data.lots > 1 ? 's' : ''}`;
+    if (!firstPosition || !firstPosition.lots) return "Not set";
+    return `${firstPosition.lots} lot${firstPosition.lots > 1 ? 's' : ''}`;
   };
   
   const getOrderDetails = () => {
+    if (!firstPosition) return "Default settings";
+    
     const details = [];
     
-    if (data.orderType) {
-      details.push(`${data.orderType} order`);
+    if (firstPosition.orderType) {
+      details.push(`${firstPosition.orderType} order`);
     }
     
-    if (data.orderType === 'limit' && data.limitPrice) {
-      details.push(`@ ₹${data.limitPrice}`);
+    if (firstPosition.orderType === 'limit' && firstPosition.limitPrice) {
+      details.push(`@ ₹${firstPosition.limitPrice}`);
     }
     
-    if (data.productType) {
-      details.push(data.productType === 'intraday' ? 'MIS' : 'CNC');
+    if (firstPosition.productType) {
+      details.push(firstPosition.productType === 'intraday' ? 'MIS' : 'CNC');
     }
     
     return details.join(', ') || 'Default settings';
@@ -54,25 +59,25 @@ const ActionDetails: React.FC<ActionDetailsProps> = ({ data, startNodeSymbol }) 
         </div>
       )}
       
-      {data.optionDetails && (
+      {firstPosition && firstPosition.optionDetails && (
         <>
           <div className="flex justify-between">
             <span className="text-foreground/60">Expiry:</span>
-            <span className="font-medium">{data.optionDetails.expiry || 'W0'}</span>
+            <span className="font-medium">{firstPosition.optionDetails.expiry || 'W0'}</span>
           </div>
           
           <div className="flex justify-between">
             <span className="text-foreground/60">Strike:</span>
             <span className="font-medium">
-              {data.optionDetails.strikeType === 'premium' 
-                ? `Premium ₹${data.optionDetails.strikeValue || 100}` 
-                : data.optionDetails.strikeType || 'ATM'}
+              {firstPosition.optionDetails.strikeType === 'premium' 
+                ? `Premium ₹${firstPosition.optionDetails.strikeValue || 100}` 
+                : firstPosition.optionDetails.strikeType || 'ATM'}
             </span>
           </div>
           
           <div className="flex justify-between">
             <span className="text-foreground/60">Option Type:</span>
-            <span className="font-medium">{data.optionDetails.optionType || 'CE'}</span>
+            <span className="font-medium">{firstPosition.optionDetails.optionType || 'CE'}</span>
           </div>
         </>
       )}

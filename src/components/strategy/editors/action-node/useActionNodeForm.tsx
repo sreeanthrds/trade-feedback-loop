@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { Node } from '@xyflow/react';
 import { NodeData, Position } from './types';
@@ -50,17 +51,29 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
   // Generate a unique ID for positions
   const generateUniqueId = () => `pos-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
+  // Generate a readable VPI using node ID and position number
+  const generateVPI = () => {
+    const nodePrefix = node.id.replace(/[^a-zA-Z0-9-]/g, '');
+    const positionCount = (nodeData?.positions?.length || 0) + 1;
+    return `${nodePrefix}-${positionCount}`;
+  };
+
   // Create a default position
-  const createDefaultPosition = (): Position => ({
-    id: generateUniqueId(),
-    vpi: '', 
-    vpt: '',
-    priority: (nodeData?.positions?.length || 0) + 1,
-    positionType: 'buy',
-    orderType: 'market',
-    lots: 1,
-    productType: 'intraday'
-  });
+  const createDefaultPosition = (): Position => {
+    // Get next available priority
+    const nextPriority = (nodeData?.positions?.length || 0) + 1;
+    
+    return {
+      id: generateUniqueId(),
+      vpi: generateVPI(), 
+      vpt: '',
+      priority: nextPriority,
+      positionType: 'buy',
+      orderType: 'market',
+      lots: 1,
+      productType: 'intraday'
+    };
+  };
 
   // Ensure positions array exists in data
   useEffect(() => {
@@ -90,16 +103,22 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
     updateNodeData(node.id, { 
       positions: (nodeData.positions || []).map(pos => 
         pos.id === positionId ? { ...pos, ...updates } : pos
-      )
+      ),
+      _lastUpdated: Date.now()
     });
   }, [node.id, nodeData.positions, updateNodeData]);
 
   // Handler for adding a new position
   const handleAddPosition = useCallback(() => {
     const newPosition = createDefaultPosition();
+    
+    const updatedPositions = [...(nodeData.positions || []), newPosition];
+    
     updateNodeData(node.id, { 
-      positions: [...(nodeData.positions || []), newPosition]
+      positions: updatedPositions,
+      _lastUpdated: Date.now()
     });
+    
     return newPosition;
   }, [node.id, nodeData.positions, updateNodeData]);
 
@@ -109,13 +128,26 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
     
     // If we're deleting the last position and this is an entry/exit node, create a default one
     if (updatedPositions.length === 0 && nodeData.actionType !== 'alert') {
-      updateNodeData(node.id, { positions: [createDefaultPosition()] });
+      const newPosition = createDefaultPosition();
+      updateNodeData(node.id, { 
+        positions: [newPosition],
+        _lastUpdated: Date.now()
+      });
       toast({
         title: "Position deleted",
         description: "Added a default position since at least one is required."
       });
     } else {
-      updateNodeData(node.id, { positions: updatedPositions });
+      // Reindex the priorities if needed
+      const reindexedPositions = updatedPositions.map((pos, index) => ({
+        ...pos,
+        priority: index + 1
+      }));
+      
+      updateNodeData(node.id, { 
+        positions: reindexedPositions,
+        _lastUpdated: Date.now()
+      });
       toast({
         title: "Position deleted",
         description: "Position has been removed from this action node."

@@ -62,11 +62,19 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
                   Priority: {position.priority}
                 </span>
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 flex-wrap">
                 <span>{position.positionType === 'buy' ? 'Buy' : 'Sell'}</span>
                 <span>{position.lots || 1} lot{(position.lots || 1) > 1 ? 's' : ''}</span>
-                {position.vpi && <span className="text-xs bg-primary/10 px-1 rounded">VPI: {position.vpi}</span>}
-                {position.vpt && <span className="text-xs bg-secondary/10 px-1 rounded">Tag: {position.vpt}</span>}
+                {position.vpi && (
+                  <span className="text-xs bg-primary/10 px-1 rounded overflow-hidden text-ellipsis max-w-[120px]" title={position.vpi}>
+                    VPI: {position.vpi}
+                  </span>
+                )}
+                {position.vpt && (
+                  <span className="text-xs bg-secondary/10 px-1 rounded overflow-hidden text-ellipsis max-w-[120px]" title={position.vpt}>
+                    Tag: {position.vpt}
+                  </span>
+                )}
               </div>
             </div>
           ))}

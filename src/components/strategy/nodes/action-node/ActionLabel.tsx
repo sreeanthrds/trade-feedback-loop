@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ActionNodeData } from './types';
 
@@ -7,17 +6,32 @@ interface ActionLabelProps {
 }
 
 const ActionLabel: React.FC<ActionLabelProps> = ({ data }) => {
-  if (!data.actionType) return <span>Action</span>;
+  // For backward compatibility, check the first position if positions exist
+  const firstPosition = data.positions && data.positions.length > 0 ? data.positions[0] : null;
   
-  if (data.actionType === 'entry') {
-    return <span>{data.positionType === 'buy' ? 'Buy' : 'Sell'} Entry</span>;
-  } else if (data.actionType === 'exit') {
-    return <span>Exit Position</span>;
-  } else if (data.actionType === 'alert') {
-    return <span>Alert</span>;
+  // If there's a custom label, use it
+  if (data.label) {
+    return <>{data.label}</>;
   }
+
+  // Otherwise, build a default label based on the action type
+  let label;
   
-  return <span>{data.label || "Action"}</span>;
+  switch (data.actionType) {
+    case 'entry':
+      label = firstPosition?.positionType === 'buy' ? 'Buy' : 'Sell';
+      break;
+    case 'exit':
+      label = 'Exit Position';
+      break;
+    case 'alert':
+      label = 'Send Alert';
+      break;
+    default:
+      label = 'Action';
+  }
+
+  return <>{label}</>;
 };
 
 export default ActionLabel;

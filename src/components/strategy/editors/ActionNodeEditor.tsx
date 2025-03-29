@@ -52,8 +52,9 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
   };
 
   const handlePositionUpdate = (id: string, updates: Partial<Position>) => {
-    // Check VPI uniqueness if VPI is being updated
-    if (updates.vpi && !validateVpiUniqueness(updates.vpi, id)) {
+    // We only check if the user is manually changing the VPI
+    // System-generated VPIs are handled in useActionNodeForm
+    if (updates.vpi && updates.vpi !== selectedPosition?.vpi && !validateVpiUniqueness(updates.vpi, id)) {
       toast({
         title: "Duplicate VPI",
         description: "This Virtual Position ID is already in use. Please choose a unique identifier.",

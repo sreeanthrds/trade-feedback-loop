@@ -32,6 +32,9 @@ export const addNode = (
     position.y = parentNode.position.y + 50;
   }
   
+  // Generate a new node ID
+  const nodeId = `${type}-${Date.now()}`;
+  
   // Set default data based on node type
   let defaultData: any = { 
     label: type === 'startNode' 
@@ -47,10 +50,11 @@ export const addNode = (
   
   // Add specific default values for action nodes
   if (type === 'actionNode') {
-    // Create a default position
+    // Create a default position with a system-generated VPI
+    const positionId = `pos-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     const defaultPosition = {
-      id: `pos-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-      vpi: '', 
+      id: positionId,
+      vpi: `${nodeId}-1`, // Use readable nodeId in the VPI
       vpt: '',
       priority: 1,
       positionType: 'buy',
@@ -67,7 +71,7 @@ export const addNode = (
   }
   
   const newNode = {
-    id: `${type}-${Date.now()}`,
+    id: nodeId,
     type: type as any,
     position,
     data: defaultData
