@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useCallback, memo } from 'react';
 import { ReactFlow, useReactFlow } from '@xyflow/react';
 import TopToolbar from '../toolbars/TopToolbar';
@@ -70,12 +71,6 @@ const ReactFlowCanvas = memo(({
 
   // Simple function to determine node class name for minimap
   const nodeClassName = useCallback((node) => node.type, []);
-
-  // Prepare toolbar props
-  const bottomToolbarProps = useCallback(() => ({
-    resetStrategy,
-    onImportSuccess
-  }), [resetStrategy, onImportSuccess]);
 
   return (
     <div className="h-full w-full" ref={flowRef}>
