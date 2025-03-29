@@ -63,20 +63,16 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
   );
   
   // Initialize node data only once if needed
-  // This must run only once, so we don't use any dependencies
   useEffect(() => {
-    // Only run this initialization if we haven't already and if the node doesn't have exitNodeData
     if (!initializedRef.current && !nodeData.exitNodeData) {
-      // Set the initialized flag before doing the update to prevent potential loop
       initializedRef.current = true;
       
-      // Now it's safe to update node data
       updateNodeData(node.id, {
         ...nodeData,
         exitNodeData: defaultExitNodeData
       });
     }
-  }, []); // Empty dependency array ensures this only runs once
+  }, [node.id, nodeData, updateNodeData, defaultExitNodeData]); // Add proper dependencies
   
   // Update exit condition type
   const handleExitConditionTypeChange = useCallback((type: ExitConditionType) => {
