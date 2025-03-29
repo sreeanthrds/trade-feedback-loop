@@ -28,9 +28,11 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
   // Sort positions by priority
   const sortedPositions = [...(data.positions || [])].sort((a, b) => a.priority - b.priority);
   const [editingPosition, setEditingPosition] = useState<PositionType | null>(null);
+  const [isPositionDialogOpen, setIsPositionDialogOpen] = useState(false);
   
   const handleEditPosition = (position: PositionType) => {
     setEditingPosition({...position});
+    setIsPositionDialogOpen(true);
   };
   
   const handlePositionChange = (updates: Partial<PositionType>) => {
@@ -44,6 +46,7 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
   };
 
   const handleClosePositionDialog = () => {
+    setIsPositionDialogOpen(false);
     setEditingPosition(null);
   };
 
@@ -141,7 +144,7 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
       {editingPosition && updateNodeData && (
         <PositionDialog
           position={editingPosition}
-          isOpen={!!editingPosition}
+          isOpen={isPositionDialogOpen}
           onClose={handleClosePositionDialog}
           hasOptionTrading={true}
           onPositionChange={handlePositionChange}
