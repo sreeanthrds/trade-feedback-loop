@@ -22,31 +22,36 @@ const MemoizedNodeConnectControls = React.memo(NodeConnectControls);
 interface NodeWrapperProps {
   id: string;
   data: any;
+  type: string;
   selected?: boolean;
+  dragging?: boolean;
+  zIndex?: number;
+  selectable?: boolean;
+  deletable?: boolean;
   onDelete?: (id: string) => void;
   onAddNode?: (type: string, parentNodeId: string) => void;
   [key: string]: any;
 }
 
 // Create stable wrapper components
-const StartNodeWrapper = React.memo(({ data, id, onAddNode }: NodeWrapperProps) => (
+const StartNodeWrapper = React.memo(({ data, id, onAddNode, ...rest }: NodeWrapperProps) => (
   <div className="group">
-    <MemoizedStartNode data={data} id={id} />
+    <MemoizedStartNode data={data} id={id} {...rest} />
     <MemoizedNodeConnectControls showOn="start" onAddNode={onAddNode} parentNodeId={id} />
   </div>
 ));
 StartNodeWrapper.displayName = 'StartNodeWrapper';
 
-const SignalNodeWrapper = React.memo(({ data, id, onDelete, onAddNode }: NodeWrapperProps) => (
+const SignalNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, ...rest }: NodeWrapperProps) => (
   <div className="group">
-    <MemoizedSignalNode data={data} id={id} />
+    <MemoizedSignalNode data={data} id={id} {...rest} />
     <MemoizedNodeControls node={{ id, type: 'signalNode', data }} onDelete={onDelete} />
     <MemoizedNodeConnectControls showOn="signal" onAddNode={onAddNode} parentNodeId={id} />
   </div>
 ));
 SignalNodeWrapper.displayName = 'SignalNodeWrapper';
 
-const ActionNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNodeData }: NodeWrapperProps & { updateNodeData?: (id: string, data: any) => void }) => {
+const ActionNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNodeData, ...rest }: NodeWrapperProps & { updateNodeData?: (id: string, data: any) => void }) => {
   // Enhance data with updateNodeData function
   const enhancedData = React.useMemo(() => ({
     ...data,
@@ -55,7 +60,7 @@ const ActionNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNod
   
   return (
     <div className="group">
-      <MemoizedActionNode data={enhancedData} id={id} />
+      <MemoizedActionNode data={enhancedData} id={id} {...rest} />
       <MemoizedNodeControls node={{ id, type: 'actionNode', data }} onDelete={onDelete} />
       <MemoizedNodeConnectControls showOn="action" onAddNode={onAddNode} parentNodeId={id} />
     </div>
@@ -63,17 +68,17 @@ const ActionNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNod
 });
 ActionNodeWrapper.displayName = 'ActionNodeWrapper';
 
-const EndNodeWrapper = React.memo(({ data, id, onDelete }: NodeWrapperProps) => (
+const EndNodeWrapper = React.memo(({ data, id, onDelete, ...rest }: NodeWrapperProps) => (
   <div className="group">
-    <MemoizedEndNode data={data} id={id} />
+    <MemoizedEndNode data={data} id={id} {...rest} />
     <MemoizedNodeControls node={{ id, type: 'endNode', data }} onDelete={onDelete} />
   </div>
 ));
 EndNodeWrapper.displayName = 'EndNodeWrapper';
 
-const ForceEndNodeWrapper = React.memo(({ data, id, onDelete }: NodeWrapperProps) => (
+const ForceEndNodeWrapper = React.memo(({ data, id, onDelete, ...rest }: NodeWrapperProps) => (
   <div className="group">
-    <MemoizedForceEndNode data={data} id={id} />
+    <MemoizedForceEndNode data={data} id={id} {...rest} />
     <MemoizedNodeControls node={{ id, type: 'forceEndNode', data }} onDelete={onDelete} />
   </div>
 ));

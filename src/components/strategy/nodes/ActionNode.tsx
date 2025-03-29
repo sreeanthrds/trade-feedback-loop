@@ -3,8 +3,10 @@ import React, { useMemo } from 'react';
 import { NodeProps } from '@xyflow/react';
 import ActionNodeContent from './action-node/ActionNodeContent';
 import { useStartNodeSymbol } from './action-node/useStartNodeSymbol';
+import { ActionNodeData } from './action-node/types';
 
-const ActionNode: React.FC<NodeProps> = ({ id, data, selected }) => {
+// Properly type the NodeProps with ActionNodeData
+const ActionNode: React.FC<NodeProps<ActionNodeData>> = ({ id, data, selected }) => {
   const startNodeSymbol = useStartNodeSymbol();
   const isSymbolMissing = useMemo(() => {
     if (data.positions && data.positions.length > 0) {

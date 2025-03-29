@@ -125,17 +125,70 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
           position={editingPosition}
           isOpen={!!editingPosition}
           onClose={handleClosePositionDialog}
-          hasOptionTrading={data.hasOptionTrading || false}
+          hasOptionTrading={true}
           onPositionChange={handlePositionChange}
           onPositionTypeChange={(value) => handlePositionChange({ positionType: value as any })}
           onOrderTypeChange={(value) => handlePositionChange({ orderType: value as any })}
           onLimitPriceChange={(e) => handlePositionChange({ limitPrice: parseFloat(e.target.value) || 0 })}
           onLotsChange={(e) => handlePositionChange({ lots: parseInt(e.target.value) || 1 })}
           onProductTypeChange={(value) => handlePositionChange({ productType: value as any })}
-          onExpiryChange={(value) => handlePositionChange({ expiry: value })}
-          onStrikeTypeChange={(value) => handlePositionChange({ strikeType: value as any })}
-          onStrikeValueChange={(e) => handlePositionChange({ strikeValue: parseFloat(e.target.value) || 0 })}
-          onOptionTypeChange={(value) => handlePositionChange({ optionType: value as any })}
+          onExpiryChange={(value) => {
+            if (!editingPosition.optionDetails) {
+              handlePositionChange({ 
+                optionDetails: { expiry: value } 
+              });
+            } else {
+              handlePositionChange({ 
+                optionDetails: { 
+                  ...editingPosition.optionDetails, 
+                  expiry: value 
+                } 
+              });
+            }
+          }}
+          onStrikeTypeChange={(value) => {
+            if (!editingPosition.optionDetails) {
+              handlePositionChange({ 
+                optionDetails: { strikeType: value as any } 
+              });
+            } else {
+              handlePositionChange({ 
+                optionDetails: { 
+                  ...editingPosition.optionDetails, 
+                  strikeType: value as any 
+                } 
+              });
+            }
+          }}
+          onStrikeValueChange={(e) => {
+            const value = parseFloat(e.target.value) || 0;
+            if (!editingPosition.optionDetails) {
+              handlePositionChange({ 
+                optionDetails: { strikeValue: value } 
+              });
+            } else {
+              handlePositionChange({ 
+                optionDetails: { 
+                  ...editingPosition.optionDetails, 
+                  strikeValue: value 
+                } 
+              });
+            }
+          }}
+          onOptionTypeChange={(value) => {
+            if (!editingPosition.optionDetails) {
+              handlePositionChange({ 
+                optionDetails: { optionType: value as 'CE' | 'PE' } 
+              });
+            } else {
+              handlePositionChange({ 
+                optionDetails: { 
+                  ...editingPosition.optionDetails, 
+                  optionType: value as 'CE' | 'PE' 
+                } 
+              });
+            }
+          }}
         />
       )}
       

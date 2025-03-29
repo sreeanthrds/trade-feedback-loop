@@ -22,7 +22,10 @@ export interface ActionNodeData {
   label?: string;
   actionType?: 'entry' | 'exit' | 'alert';
   instrument?: string;
+  symbol?: string;
+  requiresSymbol?: boolean;
   positions: Position[];
+  updateNodeData?: (id: string, data: Partial<ActionNodeData>) => void;
   _lastUpdated?: number; // Timestamp for forcing updates
 }
 
