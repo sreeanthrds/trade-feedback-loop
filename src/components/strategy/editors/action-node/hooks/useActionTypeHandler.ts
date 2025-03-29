@@ -19,16 +19,22 @@ export const useActionTypeHandler = (
       case 'alert':
         label = 'Alert';
         break;
+      default:
+        label = 'Action';
     }
 
     updateNodeData(node.id, { 
       actionType, 
-      label
+      label,
+      _lastUpdated: Date.now() // Add timestamp to force update
     });
   }, [node.id, updateNodeData]);
 
   const handleLabelChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    updateNodeData(node.id, { label: e.target.value });
+    updateNodeData(node.id, { 
+      label: e.target.value,
+      _lastUpdated: Date.now() // Add timestamp to force update
+    });
   }, [node.id, updateNodeData]);
 
   return {

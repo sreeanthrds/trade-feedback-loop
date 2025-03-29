@@ -48,3 +48,16 @@
   overflow: visible !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
+
+/* Additional fixes for popover and dialogs */
+.popup-content, 
+.dialog-content {
+  z-index: 9999 !important;
+  background-color: var(--background) !important;
+}
+
+/* Fix for nested menus */
+.nested-menu {
+  position: relative !important;
+  z-index: 10001 !important;
+}
