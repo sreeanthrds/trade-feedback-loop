@@ -62,6 +62,7 @@ export const useFlowHandlers = () => {
   // Wrap addNode handler to handle initialNodeData
   const handleAddNode = useCallback(
     (type: string, parentNodeId?: string, initialNodeData?: Record<string, any>) => {
+      // Pass all parameters to the underlying handler
       nodeHandlersAddNode(type, parentNodeId, initialNodeData);
     },
     [nodeHandlersAddNode]
