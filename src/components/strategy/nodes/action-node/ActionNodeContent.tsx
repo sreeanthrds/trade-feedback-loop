@@ -20,14 +20,6 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
   isSymbolMissing,
   id
 }) => {
-  // Count positions for each priority level
-  const positionsByPriority = data.positions?.length > 0 
-    ? data.positions.reduce((acc, pos) => {
-        acc[pos.priority] = (acc[pos.priority] || 0) + 1;
-        return acc;
-      }, {} as Record<number, number>)
-    : {};
-    
   // Sort positions by priority
   const sortedPositions = [...(data.positions || [])].sort((a, b) => a.priority - b.priority);
   

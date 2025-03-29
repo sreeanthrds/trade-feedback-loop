@@ -1,11 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Node } from '@xyflow/react';
 import { NodeDetailsPanel } from './shared';
 import { useActionNodeForm } from './action-node/useActionNodeForm';
 import { Position } from './action-node/types';
 import PositionsList from './action-node/components/PositionsList';
-import PositionEditor from './action-node/components/PositionEditor';
+import PositionDialog from './action-node/components/PositionDialog';
 import InstrumentPanel from './action-node/components/InstrumentPanel';
 import ActionTypeSelector from './action-node/ActionTypeSelector';
 import AlertMessage from './action-node/AlertMessage';
@@ -17,6 +17,9 @@ interface ActionNodeEditorProps {
 }
 
 const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
+  // State for controlling the dialog
+  const [isPositionDialogOpen, setIsPositionDialogOpen] = useState(false);
+  
   const { 
     nodeData,
     hasOptionTrading,
@@ -57,6 +60,7 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
 
   const handlePositionSelect = (position: Position) => {
     setSelectedPosition(position);
+    setIsPositionDialogOpen(true);
   };
 
   const handlePositionUpdate = (updates: Partial<Position>) => {
@@ -77,11 +81,10 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
   };
 
   const onAddPosition = () => {
-    console.log("Adding position from ActionNodeEditor");
     const newPosition = handleAddPosition();
     if (newPosition) {
-      console.log("New position created:", newPosition);
       setSelectedPosition(newPosition);
+      setIsPositionDialogOpen(true);
     } else {
       console.error("Failed to create new position");
     }
@@ -89,60 +92,67 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
 
   const onDeletePosition = (id: string) => {
     handleDeletePosition(id);
-    // If we deleted the selected position, select another one or null
+    // If we deleted the selected position, close the dialog
     if (selectedPosition?.id === id) {
-      const remainingPositions = nodeData?.positions?.filter(p => p.id !== id) || [];
-      setSelectedPosition(remainingPositions.length > 0 ? remainingPositions[0] : null);
+      setIsPositionDialogOpen(false);
+      setSelectedPosition(null);
     }
   };
 
+  const closePositionDialog = () => {
+    setIsPositionDialogOpen(false);
+  };
+
   return (
-    <NodeDetailsPanel
-      nodeLabel={nodeData?.label || ''}
-      onLabelChange={handleLabelChange}
-      infoTooltip={getActionInfoTooltip()}
-      additionalContent={
-        <div className="space-y-6">
-          <ActionTypeSelector 
-            actionType={nodeData?.actionType}
-            onActionTypeChange={handleActionTypeChange}
-          />
-          
-          {nodeData?.actionType === 'alert' ? (
-            <AlertMessage />
-          ) : (
-            <>
-              <InstrumentPanel startNodeSymbol={startNodeSymbol} />
-              
-              <PositionsList 
-                positions={nodeData?.positions || []}
-                selectedPosition={selectedPosition}
-                onSelectPosition={handlePositionSelect}
-                onAddPosition={onAddPosition}
-                onDeletePosition={onDeletePosition}
-              />
-              
-              {selectedPosition && (
-                <PositionEditor 
-                  position={selectedPosition}
-                  hasOptionTrading={hasOptionTrading}
-                  onPositionChange={handlePositionUpdate}
-                  onPositionTypeChange={(value) => handlePositionTypeChange(value)}
-                  onOrderTypeChange={(value) => handleOrderTypeChange(value)}
-                  onLimitPriceChange={(e) => handleLimitPriceChange(e)}
-                  onLotsChange={(e) => handleLotsChange(e)}
-                  onProductTypeChange={(value) => handleProductTypeChange(value)}
-                  onExpiryChange={(value) => handleExpiryChange(value)}
-                  onStrikeTypeChange={(value) => handleStrikeTypeChange(value)}
-                  onStrikeValueChange={(e) => handleStrikeValueChange(e)}
-                  onOptionTypeChange={(value) => handleOptionTypeChange(value)}
+    <>
+      <NodeDetailsPanel
+        nodeLabel={nodeData?.label || ''}
+        onLabelChange={handleLabelChange}
+        infoTooltip={getActionInfoTooltip()}
+        additionalContent={
+          <div className="space-y-6">
+            <ActionTypeSelector 
+              actionType={nodeData?.actionType}
+              onActionTypeChange={handleActionTypeChange}
+            />
+            
+            {nodeData?.actionType === 'alert' ? (
+              <AlertMessage />
+            ) : (
+              <>
+                <InstrumentPanel startNodeSymbol={startNodeSymbol} />
+                
+                <PositionsList 
+                  positions={nodeData?.positions || []}
+                  selectedPosition={selectedPosition}
+                  onSelectPosition={handlePositionSelect}
+                  onAddPosition={onAddPosition}
+                  onDeletePosition={onDeletePosition}
                 />
-              )}
-            </>
-          )}
-        </div>
-      }
-    />
+              </>
+            )}
+          </div>
+        }
+      />
+      
+      {/* Position Dialog */}
+      <PositionDialog
+        position={selectedPosition}
+        isOpen={isPositionDialogOpen}
+        onClose={closePositionDialog}
+        hasOptionTrading={hasOptionTrading}
+        onPositionChange={handlePositionUpdate}
+        onPositionTypeChange={handlePositionTypeChange}
+        onOrderTypeChange={handleOrderTypeChange}
+        onLimitPriceChange={handleLimitPriceChange}
+        onLotsChange={handleLotsChange}
+        onProductTypeChange={handleProductTypeChange}
+        onExpiryChange={handleExpiryChange}
+        onStrikeTypeChange={handleStrikeTypeChange}
+        onStrikeValueChange={handleStrikeValueChange}
+        onOptionTypeChange={handleOptionTypeChange}
+      />
+    </>
   );
 };
 
