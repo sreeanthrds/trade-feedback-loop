@@ -73,7 +73,7 @@ const StrategyFlowContent = () => {
   }, [isPanelOpen, selectedNode, updateNodeData, closePanel]);
 
   // Memoize flow canvas props to prevent recreation on every render
-  const flowCanvasProps = {
+  const flowCanvasProps = useMemo(() => ({
     flowRef: reactFlowWrapper,
     nodes,
     edges,
@@ -89,7 +89,23 @@ const StrategyFlowContent = () => {
     updateNodeData,
     nodeTypes,
     edgeTypes
-  };
+  }), [
+    reactFlowWrapper,
+    nodes,
+    edges,
+    onNodesChange,
+    onEdgesChange,
+    onConnect,
+    onNodeClick,
+    resetStrategy,
+    handleImportSuccess,
+    handleDeleteNode,
+    handleDeleteEdge,
+    handleAddNode,
+    updateNodeData,
+    nodeTypes,
+    edgeTypes
+  ]);
 
   return (
     <FlowLayout
