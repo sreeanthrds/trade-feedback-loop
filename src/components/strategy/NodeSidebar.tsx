@@ -1,6 +1,6 @@
 
 import React, { useCallback, memo } from 'react';
-import { Play, Activity, ShoppingCart, LogOut, Bell, StopCircle, AlertTriangle, ArrowUpCircle, X } from 'lucide-react';
+import { Play, Activity, ShoppingCart, LogOut, Bell, StopCircle, AlertTriangle } from 'lucide-react';
 import { 
   Tooltip,
   TooltipContent,
@@ -56,8 +56,8 @@ const nodeTypes: NodeTypeItem[] = [
     type: 'alertNode',
     label: 'Alert Node',
     description: 'Generate notifications only',
-    icon: <Bell className="h-5 w-5 text-amber-600 dark:text-amber-400" />,
-    color: 'border-amber-600 dark:border-amber-400 bg-amber-600/10 dark:bg-amber-400/10',
+    icon: <Bell className="h-5 w-5 text-blue-600 dark:text-blue-400" />,
+    color: 'border-blue-600 dark:border-blue-400 bg-blue-600/10 dark:bg-blue-400/10',
     group: 'action'
   },
   {
@@ -88,10 +88,10 @@ const getNodeGroups = () => {
     return acc;
   }, {} as Record<string, NodeTypeItem[]>);
   
-  // Ensure default group is rendered first
+  // Return an object with typed keys
   return {
     default: grouped.default || [],
-    ...(grouped.action ? { action: grouped.action } : {})
+    action: grouped.action || []
   };
 };
 

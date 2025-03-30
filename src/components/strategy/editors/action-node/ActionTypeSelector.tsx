@@ -38,7 +38,7 @@ const ActionTypeSelector: React.FC<ActionTypeSelectorProps> = ({
             ${actionType === 'alert' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}
           onClick={() => onActionTypeChange('alert')}
         >
-          <Bell className="h-5 w-5 mb-1 text-amber-600 dark:text-amber-400" />
+          <Bell className="h-5 w-5 mb-1 text-blue-500 dark:text-blue-400" />
           <span className="text-xs">Alert Only</span>
         </div>
       </div>

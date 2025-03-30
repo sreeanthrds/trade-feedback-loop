@@ -53,10 +53,24 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
         ? updatedNodes(prevNodes) 
         : updatedNodes;
       
+      // Add or update timestamp to force re-render and ensure node stability
+      const nodesWithTimestamp = newNodes.map(node => ({
+        ...node,
+        data: {
+          ...node.data,
+          _lastUpdated: node.data?._lastUpdated || Date.now()
+        },
+        // Round position values to prevent floating point issues
+        position: {
+          x: Math.round(node.position.x),
+          y: Math.round(node.position.y)
+        }
+      }));
+      
       // Don't update store during dragging
       if (isDraggingRef.current) {
-        pendingNodesUpdate.current = newNodes;
-        return newNodes;
+        pendingNodesUpdate.current = nodesWithTimestamp;
+        return nodesWithTimestamp;
       }
       
       // Throttle updates to the store during frequent operations
@@ -72,14 +86,14 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
         
         // Schedule the update to the store with setTimeout to break the React update cycle
         updateTimeoutRef.current = window.setTimeout(() => {
-          strategyStore.setNodes(newNodes);
+          strategyStore.setNodes(nodesWithTimestamp);
           updateTimeoutRef.current = null;
         }, 50);
       } else {
-        pendingNodesUpdate.current = newNodes;
+        pendingNodesUpdate.current = nodesWithTimestamp;
       }
       
-      return newNodes;
+      return nodesWithTimestamp;
     });
   }, [setLocalNodes, strategyStore]);
 
