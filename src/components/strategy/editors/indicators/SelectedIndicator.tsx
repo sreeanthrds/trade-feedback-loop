@@ -31,7 +31,7 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
   
   // Get indicator config and usages outside of render to optimize
   const baseName = name.split('_')[0];
-  const indicator = indicatorConfig.find(ind => ind.id === baseName);
+  const indicator = indicatorConfig[baseName];
   const usages = findUsages(name);
   const hasUsages = usages.length > 0;
   
@@ -77,7 +77,7 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
               className="p-1 h-7 flex items-center justify-between w-full"
             >
               <div className="flex items-center gap-1 text-left">
-                <div className="text-sm font-medium">{indicator.name}</div>
+                <div className="text-sm font-medium">{indicator.function_name}</div>
                 <div className="text-xs text-muted-foreground">
                   {indicator.parameters.map(param => (
                     values[param.name] !== undefined && 
