@@ -9,6 +9,7 @@ import StrategyMetricExpressionEditor from './StrategyMetricExpressionEditor';
 import ExecutionDataExpressionEditor from './ExecutionDataExpressionEditor';
 import ExternalTriggerExpressionEditor from './ExternalTriggerExpressionEditor';
 
+// Export all components individually to allow tree-shaking
 export {
   IndicatorExpressionEditor,
   MarketDataExpressionEditor,
@@ -19,4 +20,17 @@ export {
   StrategyMetricExpressionEditor,
   ExecutionDataExpressionEditor,
   ExternalTriggerExpressionEditor
+};
+
+// Create a map for dynamic lookup to improve performance
+export const expressionEditorMap = {
+  indicator: IndicatorExpressionEditor,
+  marketData: MarketDataExpressionEditor,
+  time: TimeExpressionEditor,
+  complex: ComplexExpressionEditorWrapper,
+  constant: ConstantExpressionEditor,
+  positionData: PositionDataExpressionEditor,
+  strategyMetric: StrategyMetricExpressionEditor,
+  executionData: ExecutionDataExpressionEditor,
+  externalTrigger: ExternalTriggerExpressionEditor
 };

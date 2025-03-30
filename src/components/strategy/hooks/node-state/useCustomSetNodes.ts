@@ -32,6 +32,9 @@ export function useCustomSetNodes({
   processStoreUpdate,
   handleError
 }: CustomSetNodesProps) {
+  // Track consecutive updates counter to detect potential infinite loops
+  const consecutiveUpdatesRef = useMemo(() => ({ count: 0, lastUpdateTime: 0 }), []);
+  
   // Custom setNodes wrapper with improved throttling and cycle detection
   const setNodes = useCallback((updatedNodes: Node[] | ((prevNodes: Node[]) => Node[])) => {
     // If already in an update cycle, skip to prevent loops
@@ -60,6 +63,23 @@ export function useCustomSetNodes({
           return prevNodes;
         }
         
+        // Detect potential infinite update loop
+        const now = Date.now();
+        if (now - consecutiveUpdatesRef.lastUpdateTime < 500) {
+          consecutiveUpdatesRef.count++;
+          
+          // If we detect too many updates in quick succession, break the cycle
+          if (consecutiveUpdatesRef.count > 20) {
+            console.warn('Potential infinite update cycle detected in setNodes, breaking cycle');
+            consecutiveUpdatesRef.count = 0;
+            return prevNodes;
+          }
+        } else {
+          // Reset counter if enough time has passed between updates
+          consecutiveUpdatesRef.count = 0;
+        }
+        consecutiveUpdatesRef.lastUpdateTime = now;
+        
         // Quick length check to skip deeper comparison if obviously changed
         if (newNodes.length !== prevNodes.length) {
           console.log(`Node count changed: ${prevNodes.length} -> ${newNodes.length}`);
@@ -77,7 +97,7 @@ export function useCustomSetNodes({
           
           updateTimeoutRef.current = setTimeout(() => {
             processStoreUpdate(newNodes);
-          }, 1000); // Increased delay to reduce update frequency
+          }, 3000); // Increased from 1000ms to 3000ms
           
           return newNodes;
         }
@@ -97,9 +117,9 @@ export function useCustomSetNodes({
         }
         
         // Throttle updates to the store during frequent operations
-        const now = Date.now();
-        if (now - lastUpdateTimeRef.current > 2000) { // Significantly increased throttle time
-          lastUpdateTimeRef.current = now;
+        const updateTime = Date.now();
+        if (updateTime - lastUpdateTimeRef.current > 4000) { // Increased from 2000ms to 4000ms
+          lastUpdateTimeRef.current = updateTime;
           
           // Clear any pending timeout
           if (updateTimeoutRef.current !== null) {
@@ -111,7 +131,7 @@ export function useCustomSetNodes({
           console.log('Scheduling delayed update to store');
           updateTimeoutRef.current = setTimeout(() => {
             processStoreUpdate(newNodes);
-          }, 1000); // Increased delay to reduce update frequency
+          }, 3000); // Increased from 1000ms to 3000ms
         } else {
           console.log('Throttling update, storing for later processing');
           pendingNodesUpdate.current = newNodes;
@@ -133,7 +153,8 @@ export function useCustomSetNodes({
     updateCycleRef, 
     storeUpdateInProgressRef,
     processStoreUpdate,
-    handleError
+    handleError,
+    consecutiveUpdatesRef
   ]);
 
   // Return a stable reference to prevent re-renders

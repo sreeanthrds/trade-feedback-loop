@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { 
   Collapsible,
@@ -15,13 +15,30 @@ interface AdvancedFeatureToggleProps {
   defaultOpen?: boolean;
 }
 
-const AdvancedFeatureToggle: React.FC<AdvancedFeatureToggleProps> = ({
+const AdvancedFeatureToggle: React.FC<AdvancedFeatureToggleProps> = memo(({
   title,
   description,
   children,
   defaultOpen = false
 }) => {
   const [isOpen, setIsOpen] = React.useState(defaultOpen);
+
+  // Memoize the button content to prevent unnecessary re-renders
+  const buttonContent = React.useMemo(() => (
+    <>
+      <div className="flex flex-col items-start text-left">
+        <span className="text-sm font-medium">{title}</span>
+        {description && (
+          <span className="text-xs text-muted-foreground">{description}</span>
+        )}
+      </div>
+      {isOpen ? (
+        <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
+      ) : (
+        <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+      )}
+    </>
+  ), [title, description, isOpen]);
 
   return (
     <Collapsible 
@@ -34,17 +51,7 @@ const AdvancedFeatureToggle: React.FC<AdvancedFeatureToggleProps> = ({
           variant="ghost"
           className="flex w-full justify-between p-3 h-auto font-normal hover:bg-muted/50"
         >
-          <div className="flex flex-col items-start text-left">
-            <span className="text-sm font-medium">{title}</span>
-            {description && (
-              <span className="text-xs text-muted-foreground">{description}</span>
-            )}
-          </div>
-          {isOpen ? (
-            <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
-          ) : (
-            <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-          )}
+          {buttonContent}
         </Button>
       </CollapsibleTrigger>
       <CollapsibleContent className="px-3 pb-3">
@@ -52,6 +59,8 @@ const AdvancedFeatureToggle: React.FC<AdvancedFeatureToggleProps> = ({
       </CollapsibleContent>
     </Collapsible>
   );
-};
+});
+
+AdvancedFeatureToggle.displayName = 'AdvancedFeatureToggle';
 
 export default AdvancedFeatureToggle;

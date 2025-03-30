@@ -14,6 +14,7 @@ export function useNodeUpdateStore(strategyStore: any) {
   const nodeHashRef = useRef<string>('');
   const pendingUpdateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const batchedNodesRef = useRef<Node[] | null>(null);
+  const historyUpdateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   // Generate a more efficient hash of nodes to detect actual changes
   const generateNodesHash = (nodes: Node[]): string => {
@@ -28,8 +29,13 @@ export function useNodeUpdateStore(strategyStore: any) {
         const first = nodes[0];
         const last = nodes[nodes.length - 1];
         
-        samples.push(first.id, first.position.x, first.position.y);
-        samples.push(last.id, last.position.x, last.position.y);
+        if (first && first.position) {
+          samples.push(first.id, Math.round(first.position.x), Math.round(first.position.y));
+        }
+        
+        if (last && last.position) {
+          samples.push(last.id, Math.round(last.position.x), Math.round(last.position.y));
+        }
       }
       
       // Add node count for quick change detection
@@ -38,11 +44,14 @@ export function useNodeUpdateStore(strategyStore: any) {
       // Add a random middle node if available
       if (nodes.length > 2) {
         const mid = nodes[Math.floor(nodes.length / 2)];
-        samples.push(mid.id, mid.position.x, mid.position.y);
+        if (mid && mid.position) {
+          samples.push(mid.id, Math.round(mid.position.x), Math.round(mid.position.y));
+        }
       }
       
       return samples.join(':');
     } catch (error) {
+      console.error('Error generating node hash:', error);
       return Math.random().toString(); // Fallback to ensure update happens
     }
   };
@@ -58,12 +67,13 @@ export function useNodeUpdateStore(strategyStore: any) {
     
     // Validate nodes before attempting to update
     if (!newNodes || !Array.isArray(newNodes)) {
+      console.warn('Invalid nodes provided to processStoreUpdate');
       return;
     }
     
-    // Skip if we recently processed an update
+    // Skip if we recently processed an update - use much longer throttle period
     const now = Date.now();
-    if (now - lastUpdateTimeRef.current < 5000) { // Much longer throttle to reduce frequency
+    if (now - lastUpdateTimeRef.current < 8000) { // Increased from 5000ms to 8000ms
       // Queue the update to happen later
       batchedNodesRef.current = newNodes;
       
@@ -75,7 +85,7 @@ export function useNodeUpdateStore(strategyStore: any) {
             batchedNodesRef.current = null;
           }
           pendingUpdateTimerRef.current = null;
-        }, 5000 - (now - lastUpdateTimeRef.current)); // Schedule to run when throttle period ends
+        }, 8000 - (now - lastUpdateTimeRef.current)); // Schedule to run when throttle period ends
       }
       
       return;
@@ -84,6 +94,7 @@ export function useNodeUpdateStore(strategyStore: any) {
     // Check if nodes have actually changed using our simple hash function
     const newHash = generateNodesHash(newNodes);
     if (newHash === nodeHashRef.current) {
+      // Skip update if the nodes haven't meaningfully changed
       return;
     }
     
@@ -97,13 +108,18 @@ export function useNodeUpdateStore(strategyStore: any) {
       strategyStore.setNodes(newNodes);
       
       // Delay adding history to allow for batching of related changes
-      setTimeout(() => {
+      if (historyUpdateTimerRef.current) {
+        clearTimeout(historyUpdateTimerRef.current);
+      }
+      
+      historyUpdateTimerRef.current = setTimeout(() => {
         try {
           strategyStore.addHistoryItem(newNodes, strategyStore.edges);
+          historyUpdateTimerRef.current = null;
         } catch (historyError) {
           handleError(historyError, 'addHistoryItem');
         }
-      }, 1000);
+      }, 2000); // Increased from 1000ms to 2000ms
       
     } catch (error) {
       handleError(error, 'processStoreUpdate');
@@ -121,15 +137,15 @@ export function useNodeUpdateStore(strategyStore: any) {
           // Wait a bit before processing the batched update
           setTimeout(() => {
             processStoreUpdate(batchedNodes);
-          }, 1000);
+          }, 3000);
         }
-      }, 3000); // Much longer delay to reduce update frequency
+      }, 5000); // Increased from 3000ms to 5000ms
       
       // Set a brief skip period to avoid rapid double-updates
       skipNextUpdateRef.current = true;
       setTimeout(() => {
         skipNextUpdateRef.current = false;
-      }, 2000);
+      }, 3000); // Increased from 2000ms to 3000ms
     }
   }, [strategyStore]);
 
@@ -139,6 +155,15 @@ export function useNodeUpdateStore(strategyStore: any) {
       clearTimeout(pendingUpdateTimerRef.current);
       pendingUpdateTimerRef.current = null;
     }
+    
+    if (historyUpdateTimerRef.current !== null) {
+      clearTimeout(historyUpdateTimerRef.current);
+      historyUpdateTimerRef.current = null;
+    }
+    
+    updateCycleRef.current = false;
+    storeUpdateInProgressRef.current = false;
+    skipNextUpdateRef.current = false;
   }, []);
 
   return {

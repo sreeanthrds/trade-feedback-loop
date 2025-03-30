@@ -1,5 +1,5 @@
 
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useEffect } from 'react';
 import { Node } from '@xyflow/react';
 import { shouldUpdateNodes } from '../../utils/performanceUtils';
 import { useNodeUpdateStore } from './useNodeUpdateStore';
@@ -16,14 +16,24 @@ export function useNodeUpdates(strategyStore: any) {
     lastUpdateTimeRef,
     updateCycleRef,
     storeUpdateInProgressRef,
-    processStoreUpdate
+    processStoreUpdate,
+    cleanup: cleanupNodeUpdateStore
   } = useNodeUpdateStore(strategyStore);
   
   const {
     updateTimeoutRef,
     isProcessingChangesRef,
-    scheduleUpdate
+    scheduleUpdate,
+    cleanup: cleanupUpdateProcessing
   } = useUpdateProcessing();
+  
+  // Add cleanup effect to prevent memory leaks and lingering timers
+  useEffect(() => {
+    return () => {
+      cleanupNodeUpdateStore();
+      cleanupUpdateProcessing();
+    };
+  }, [cleanupNodeUpdateStore, cleanupUpdateProcessing]);
   
   // Return stable references to prevent re-renders
   return useMemo(() => ({

@@ -27,10 +27,16 @@ export function useUpdateProcessing() {
   }, []);
 
   const scheduleUpdate = useCallback((nodes: Node[], process: (nodes: Node[]) => void) => {
+    // Clear any existing timeouts to prevent multiple updates
     if (updateTimeoutRef.current) {
       clearTimeout(updateTimeoutRef.current);
+      updateTimeoutRef.current = null;
     }
     
+    // Set a flag to indicate that we're processing changes
+    isProcessingChangesRef.current = true;
+    
+    // Set a much longer timeout to reduce update frequency
     updateTimeoutRef.current = setTimeout(() => {
       try {
         process(nodes);
@@ -38,13 +44,33 @@ export function useUpdateProcessing() {
         handleError(error, 'scheduleUpdate');
       } finally {
         updateTimeoutRef.current = null;
+        
+        // Reset the processing flag after a delay to prevent rapid re-entry
+        setTimeout(() => {
+          isProcessingChangesRef.current = false;
+        }, 500);
       }
-    }, 1000);
+    }, 2000); // Increased from 1000ms to 2000ms to reduce update frequency
+  }, []);
+
+  const cleanup = useCallback(() => {
+    if (updateTimeoutRef.current) {
+      clearTimeout(updateTimeoutRef.current);
+      updateTimeoutRef.current = null;
+    }
+    
+    if (pendingProcessTimeoutRef.current) {
+      clearTimeout(pendingProcessTimeoutRef.current);
+      pendingProcessTimeoutRef.current = null;
+    }
+    
+    isProcessingChangesRef.current = false;
   }, []);
 
   return {
     updateTimeoutRef,
     isProcessingChangesRef,
-    scheduleUpdate
+    scheduleUpdate,
+    cleanup
   };
 }
