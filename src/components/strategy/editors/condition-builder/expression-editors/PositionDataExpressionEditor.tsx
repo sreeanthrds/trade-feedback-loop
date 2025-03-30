@@ -66,11 +66,11 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
       <div>
         <Label htmlFor="position-field" className="text-xs block mb-1">Position Field</Label>
         <Select 
-          value={positionExpr.field} 
+          value={positionExpr.field || ''} 
           onValueChange={updateField}
         >
           <SelectTrigger id="position-field" className="h-8">
-            <SelectValue />
+            <SelectValue placeholder="Select field" />
           </SelectTrigger>
           <SelectContent>
             {positionFields.map(field => (
