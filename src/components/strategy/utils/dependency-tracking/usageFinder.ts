@@ -25,18 +25,20 @@ export function findIndicatorUsages(indicator: string, nodes: Node[]): UsageRefe
   
   for (const node of relevantNodes) {
     // Check if conditions exist and the indicator is used
-    const hasIndicatorInCondition = searchConditionsForIndicator(
-      node.data.conditions, 
-      indicator
-    );
-    
-    if (hasIndicatorInCondition) {
-      usages.push({
-        nodeId: node.id,
-        nodeName: node.data.label ? String(node.data.label) : 'Signal Node',
-        nodeType: 'signalNode',
-        context: 'Signal condition'
-      });
+    if (node.data && Array.isArray(node.data.conditions)) {
+      const hasIndicatorInCondition = searchConditionsForIndicator(
+        node.data.conditions, 
+        indicator
+      );
+      
+      if (hasIndicatorInCondition) {
+        usages.push({
+          nodeId: node.id,
+          nodeName: node.data.label ? String(node.data.label) : 'Signal Node',
+          nodeType: 'signalNode',
+          context: 'Signal condition'
+        });
+      }
     }
   }
   
