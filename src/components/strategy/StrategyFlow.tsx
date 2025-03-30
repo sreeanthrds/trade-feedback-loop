@@ -1,15 +1,11 @@
 
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense } from 'react';
 import { ReactFlowProvider } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import './styles/index.css';
 import './styles/mobile-fixes.css';
 import './styles/menus.css';
-
-// Use a more efficient lazy loading approach with chunkName
-const StrategyFlowContent = lazy(() => 
-  import(/* webpackChunkName: "strategy-flow-content" */ './StrategyFlowContent')
-);
+import StrategyFlowContent from './StrategyFlowContent';
 
 const LoadingIndicator = () => (
   <div className="h-full w-full flex items-center justify-center bg-background/50">

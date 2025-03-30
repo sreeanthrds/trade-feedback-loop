@@ -1,25 +1,14 @@
 
-import React, { lazy, Suspense, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, Suspense, useMemo, useCallback } from 'react';
 import { useTheme } from '@/hooks/use-theme';
 import { useFlowState } from './hooks/useFlowState';
 import FlowLayout from './layout/FlowLayout';
 import ReactFlowCanvas from './canvas/ReactFlowCanvas';
 import { createNodeTypes } from './nodes/nodeTypes';
 import { createEdgeTypes } from './edges/edgeTypes';
+import NodePanel from './NodePanel'; // Import directly instead of using lazy loading
 import '@xyflow/react/dist/style.css';
 import './styles/menus.css';
-
-// Lazy load the NodePanel with prefetching
-const NodePanel = lazy(() => {
-  const panelPromise = import(/* webpackChunkName: "node-panel" */ './NodePanel');
-  // Prefetch related components when NodePanel is loaded
-  panelPromise.then(() => {
-    // Prefetch common node editors that will likely be needed
-    import(/* webpackChunkName: "action-node-editor" */ './editors/ActionNodeEditor');
-    import(/* webpackChunkName: "signal-node-editor" */ './editors/SignalNodeEditor');
-  });
-  return panelPromise;
-});
 
 const NodePanelLoading = () => (
   <div className="p-4 animate-pulse">
@@ -73,13 +62,11 @@ const StrategyFlowContent = () => {
   const nodePanelComponent = useMemo(() => {
     if (isPanelOpen && selectedNode) {
       return (
-        <Suspense fallback={<NodePanelLoading />}>
-          <NodePanel
-            node={selectedNode}
-            updateNodeData={updateNodeData}
-            onClose={closePanel}
-          />
-        </Suspense>
+        <NodePanel
+          node={selectedNode}
+          updateNodeData={updateNodeData}
+          onClose={closePanel}
+        />
       );
     }
     return null;
