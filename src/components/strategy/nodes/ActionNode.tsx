@@ -16,13 +16,13 @@ const ActionNode: React.FC<NodeProps> = ({ id, data, selected, type }) => {
     // Determine the action type based on node type or explicit setting
     let actionType = rawData.actionType as 'entry' | 'exit' | 'alert' | undefined;
     
-    // If actionType is not set, try to infer it from the id prefix
+    // If actionType is not set, try to infer it from the id prefix or type
     if (!actionType) {
-      if (id.startsWith('entry-')) {
+      if (type === 'entryNode' || id.startsWith('entry-')) {
         actionType = 'entry';
-      } else if (id.startsWith('exit-')) {
+      } else if (type === 'exitNode' || id.startsWith('exit-')) {
         actionType = 'exit';
-      } else if (id.startsWith('alert-')) {
+      } else if (type === 'alertNode' || id.startsWith('alert-')) {
         actionType = 'alert';
       }
     }
@@ -56,7 +56,7 @@ const ActionNode: React.FC<NodeProps> = ({ id, data, selected, type }) => {
       instrument: rawData.instrument as string | undefined,
       _lastUpdated: rawData._lastUpdated as number | undefined
     } as ActionNodeData;
-  }, [data, id]);
+  }, [data, id, type]);
   
   const isSymbolMissing = useMemo(() => {
     // For exit and alert nodes, we don't need a symbol
