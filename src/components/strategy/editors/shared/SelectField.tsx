@@ -3,6 +3,13 @@ import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { HelpCircle } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface SelectFieldProps {
   label: string;
@@ -14,6 +21,7 @@ interface SelectFieldProps {
   className?: string;
   disabled?: boolean;
   required?: boolean;
+  description?: string; // Added description property
 }
 
 const SelectField: React.FC<SelectFieldProps> = ({
@@ -25,7 +33,8 @@ const SelectField: React.FC<SelectFieldProps> = ({
   placeholder,
   className,
   disabled = false,
-  required = false
+  required = false,
+  description
 }) => {
   // Format options to ensure they have consistent structure
   const formattedOptions = options.map(option => 
@@ -36,10 +45,24 @@ const SelectField: React.FC<SelectFieldProps> = ({
 
   return (
     <div className="space-y-2">
-      <Label htmlFor={id} className="flex items-center">
-        {label}
-        {required && <span className="ml-1 text-red-500">*</span>}
-      </Label>
+      <div className="flex items-center gap-2">
+        <Label htmlFor={id} className="flex items-center">
+          {label}
+          {required && <span className="ml-1 text-red-500">*</span>}
+        </Label>
+        {description && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="max-w-xs text-xs">{description}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+      </div>
       <Select
         value={value}
         onValueChange={onChange}

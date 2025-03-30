@@ -17,6 +17,7 @@ const IndicatorExitForm: React.FC<IndicatorExitFormProps> = ({
     <div className="space-y-4">
       <SelectField
         label="Indicator"
+        id="indicator-type"
         value={exitCondition.indicator || 'RSI'}
         onChange={(value) => updateField('indicator', value)}
         options={[
@@ -31,6 +32,7 @@ const IndicatorExitForm: React.FC<IndicatorExitFormProps> = ({
       
       <SelectField
         label="Condition"
+        id="indicator-condition"
         value={exitCondition.condition || 'above'}
         onChange={(value) => updateField('condition', value)}
         options={[
@@ -43,6 +45,7 @@ const IndicatorExitForm: React.FC<IndicatorExitFormProps> = ({
       
       <InputField
         label="Value"
+        id="indicator-value"
         type="number"
         value={exitCondition.value === undefined ? '' : exitCondition.value}
         onChange={(e) => {

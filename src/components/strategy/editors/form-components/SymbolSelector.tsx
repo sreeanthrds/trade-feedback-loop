@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { Check, ChevronsUpDown, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -50,6 +51,7 @@ interface SymbolSelectorProps {
   disabled?: boolean;
   instrumentType?: 'stock' | 'futures' | 'options';
   underlyingType?: 'index' | 'indexFuture' | 'stock';
+  className?: string; // Added className property
 }
 
 const SymbolSelector: React.FC<SymbolSelectorProps> = ({
@@ -60,6 +62,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
   disabled = false,
   instrumentType = 'stock',
   underlyingType,
+  className
 }) => {
   const [open, setOpen] = useState(false);
   const isMobile = useIsMobile();
@@ -114,7 +117,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between h-9"
+          className={cn("w-full justify-between h-9", className)}
           disabled={isDropdownDisabled}
           id={id}
         >

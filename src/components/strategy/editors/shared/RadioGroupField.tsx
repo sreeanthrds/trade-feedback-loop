@@ -18,6 +18,7 @@ interface RadioGroupFieldProps {
   className?: string;
   disabled?: boolean;
   required?: boolean;
+  layout?: 'vertical' | 'horizontal'; // Added layout property
 }
 
 const RadioGroupField: React.FC<RadioGroupFieldProps> = ({
@@ -27,7 +28,8 @@ const RadioGroupField: React.FC<RadioGroupFieldProps> = ({
   onChange,
   className,
   disabled = false,
-  required = false
+  required = false,
+  layout = 'vertical' // Default to vertical layout
 }) => {
   return (
     <div className={cn("space-y-2", className)}>
@@ -38,7 +40,10 @@ const RadioGroupField: React.FC<RadioGroupFieldProps> = ({
       <RadioGroup
         value={value}
         onValueChange={onChange}
-        className="flex flex-col space-y-1"
+        className={cn(
+          "flex flex-col space-y-1",
+          layout === 'horizontal' && "flex-row space-x-4 space-y-0"
+        )}
         disabled={disabled}
       >
         {options.map((option) => (

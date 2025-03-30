@@ -3,6 +3,13 @@ import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import { HelpCircle } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface InputFieldProps {
   label: string;
@@ -16,6 +23,7 @@ interface InputFieldProps {
   min?: string | number;
   max?: string | number;
   step?: string | number;
+  description?: string; // Added description property
 }
 
 const InputField: React.FC<InputFieldProps> = ({
@@ -29,7 +37,8 @@ const InputField: React.FC<InputFieldProps> = ({
   required = false,
   min,
   max,
-  step
+  step,
+  description
 }) => {
   // For number inputs, handle empty value differently
   let inputValue = value;
@@ -39,10 +48,24 @@ const InputField: React.FC<InputFieldProps> = ({
 
   return (
     <div className="space-y-2">
-      <Label htmlFor={id} className="flex items-center">
-        {label}
-        {required && <span className="ml-1 text-red-500">*</span>}
-      </Label>
+      <div className="flex items-center gap-2">
+        <Label htmlFor={id} className="flex items-center">
+          {label}
+          {required && <span className="ml-1 text-red-500">*</span>}
+        </Label>
+        {description && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="max-w-xs text-xs">{description}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+      </div>
       <Input
         id={id}
         type={type}
