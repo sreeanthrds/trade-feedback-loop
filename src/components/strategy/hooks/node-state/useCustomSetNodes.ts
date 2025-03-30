@@ -9,7 +9,7 @@ interface CustomSetNodesProps {
   isDraggingRef: React.MutableRefObject<boolean>;
   pendingNodesUpdate: React.MutableRefObject<Node[] | null>;
   lastUpdateTimeRef: React.MutableRefObject<number>;
-  updateTimeoutRef: React.MutableRefObject<number | null>;
+  updateTimeoutRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>;
   updateCycleRef: React.MutableRefObject<boolean>;
   storeUpdateInProgressRef: React.MutableRefObject<boolean>;
   shouldUpdateNodes: (newNodes: any[], prevNodes: any[]) => boolean;

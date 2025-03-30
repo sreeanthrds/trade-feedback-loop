@@ -9,7 +9,7 @@ export function useDragDetection() {
   const isDraggingRef = useRef(false);
   const pendingNodesUpdate = useRef<any[] | null>(null);
   const lastDragEndTimeRef = useRef(0);
-  const dragUpdateTimeoutRef = useRef<number | null>(null);
+  const dragUpdateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dragStartPositionsRef = useRef<Map<string, {x: number, y: number}>>(new Map());
 
   // Enhanced node change handler with improved drag detection and throttling

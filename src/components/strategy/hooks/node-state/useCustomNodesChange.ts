@@ -9,7 +9,7 @@ export function useCustomNodesChange(onNodesChangeWithDragDetection, onNodesChan
   const isProcessingChangesRef = useRef(false);
   const lastProcessedTimeRef = useRef(0);
   const pendingChangesRef = useRef(null);
-  const processingTimeoutRef = useRef(null);
+  const processingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Enhanced node change handler with improved throttling
   const customNodesChangeHandler = useCallback((changes) => {
