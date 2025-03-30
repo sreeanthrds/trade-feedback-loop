@@ -5,7 +5,6 @@ import '@xyflow/react/dist/style.css';
 import './styles/index.css';
 import './styles/mobile-fixes.css';
 import './styles/menus.css';
-import StrategyFlowContent from './StrategyFlowContent';
 
 // Create a lazy-loaded version of StrategyFlowContent
 const LazyStrategyFlowContent = React.lazy(() => import('./StrategyFlowContent'));
