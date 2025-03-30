@@ -2,7 +2,7 @@
 import React from 'react';
 import { Node } from '@xyflow/react';
 import { NodeDetailsPanel } from './shared';
-import { ExitNodeForm } from './action-node/exit-node';
+import { ExitOrderForm } from './action-node/exit-node';
 
 interface ExitNodeEditorProps {
   node: Node;
@@ -29,7 +29,7 @@ const ExitNodeEditor = ({ node, updateNodeData }: ExitNodeEditorProps) => {
 
   // Get the appropriate info message
   const getActionInfoTooltip = () => {
-    return "Exit nodes close existing positions. Use these after entry nodes to define when to exit the market based on signals.";
+    return "Exit nodes close existing positions. Connect them to signal nodes to define when to exit the market based on conditions.";
   };
 
   // Ensure we always pass a string to nodeLabel by using explicit type check
@@ -41,7 +41,7 @@ const ExitNodeEditor = ({ node, updateNodeData }: ExitNodeEditorProps) => {
       onLabelChange={handleLabelChange}
       infoTooltip={getActionInfoTooltip()}
       additionalContent={
-        <ExitNodeForm node={node} updateNodeData={updateNodeData} />
+        <ExitOrderForm node={node} updateNodeData={updateNodeData} />
       }
     />
   );
