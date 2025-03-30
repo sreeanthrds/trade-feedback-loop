@@ -16,6 +16,16 @@ const TopToolbar: React.FC<TopToolbarProps> = ({ onReset, onImportSuccess }) => 
           <RefreshCw className="w-4 h-4 mr-2" />
           Reset
         </Button>
+        
+        <Button variant="outline" size="sm">
+          <Save className="w-4 h-4 mr-2" />
+          Save
+        </Button>
+        
+        <Button variant="outline" size="sm">
+          <Upload className="w-4 h-4 mr-2" />
+          Import
+        </Button>
       </div>
     </div>
   );

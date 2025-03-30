@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useCallback, memo } from 'react';
-import { ReactFlow, useReactFlow, Background, Controls } from '@xyflow/react';
+import { ReactFlow, useReactFlow, Background, Controls, BackgroundVariant } from '@xyflow/react';
 import { useDragHandling } from './useDragHandling';
 import { useViewportUtils } from './useViewportUtils';
 import CanvasControls from './CanvasControls';
