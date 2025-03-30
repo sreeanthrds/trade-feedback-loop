@@ -2,17 +2,10 @@
 import React from 'react';
 import { 
   Expression, 
-  ComplexExpression,
-  createDefaultExpression
+  ComplexExpression
 } from '../../utils/conditionTypes';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import ExpressionEditor from './ExpressionEditor';
+import OperationSelector from './components/OperationSelector';
+import ExpressionParts from './components/ExpressionParts';
 
 interface ComplexExpressionEditorProps {
   expression: Expression;
@@ -56,40 +49,18 @@ const ComplexExpressionEditor: React.FC<ComplexExpressionEditorProps> = ({
   return (
     <div className="space-y-3 border border-border rounded-md p-3 mt-2">
       {/* Operation selector */}
-      <Select 
-        value={complexExpr.operation} 
-        onValueChange={updateOperation}
-      >
-        <SelectTrigger className="h-8">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="+">Addition (+)</SelectItem>
-          <SelectItem value="-">Subtraction (-)</SelectItem>
-          <SelectItem value="*">Multiplication (×)</SelectItem>
-          <SelectItem value="/">Division (÷)</SelectItem>
-          <SelectItem value="%">Modulo (%)</SelectItem>
-        </SelectContent>
-      </Select>
+      <OperationSelector 
+        operation={complexExpr.operation}
+        updateOperation={updateOperation}
+      />
       
       {/* Left and right expressions */}
-      <div className="space-y-3">
-        <div>
-          <div className="text-xs text-muted-foreground mb-1">Left Expression</div>
-          <ExpressionEditor
-            expression={complexExpr.left}
-            updateExpression={updateLeft}
-          />
-        </div>
-        
-        <div>
-          <div className="text-xs text-muted-foreground mb-1">Right Expression</div>
-          <ExpressionEditor
-            expression={complexExpr.right}
-            updateExpression={updateRight}
-          />
-        </div>
-      </div>
+      <ExpressionParts
+        leftExpression={complexExpr.left}
+        rightExpression={complexExpr.right}
+        updateLeft={updateLeft}
+        updateRight={updateRight}
+      />
     </div>
   );
 };
