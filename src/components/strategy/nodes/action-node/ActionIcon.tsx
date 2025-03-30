@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { ActionNodeData } from './types';
-import { CircleDollarSign, Bell, ArrowRightLeft, Activity } from 'lucide-react';
+import { ShoppingCart, Bell, LogOut, Activity } from 'lucide-react';
 
 interface ActionIconProps {
   data: ActionNodeData;
@@ -23,9 +23,9 @@ const ActionIcon: React.FC<ActionIconProps> = ({ data }) => {
   let Icon;
   
   if (data.actionType === 'entry') {
-    Icon = CircleDollarSign; // Dollar sign for entry (money in)
+    Icon = ShoppingCart; // Shopping cart for entry
   } else if (data.actionType === 'exit') {
-    Icon = ArrowRightLeft; // Exchange arrows for exit (transition out)
+    Icon = LogOut; // Door exit for exit
   } else if (data.actionType === 'alert') {
     Icon = Bell; // Bell for alert notifications
   } else {

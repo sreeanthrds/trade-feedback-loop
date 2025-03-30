@@ -1,6 +1,6 @@
 
 import React, { useCallback, memo } from 'react';
-import { CircleDollarSign, ArrowRightLeft, StopCircle, AlertTriangle, Activity, Play } from 'lucide-react';
+import { ShoppingCart, LogOut, StopCircle, AlertTriangle, Activity, Play } from 'lucide-react';
 import { 
   Tooltip,
   TooltipContent,
@@ -39,14 +39,14 @@ const nodeTypes: NodeTypeItem[] = [
     type: 'entryNode',
     label: 'Entry Node',
     description: 'Execute buy/sell orders',
-    icon: <CircleDollarSign className="h-5 w-5 text-green-600 dark:text-green-400" />,
+    icon: <ShoppingCart className="h-5 w-5 text-green-600 dark:text-green-400" />,
     color: 'border-green-600 dark:border-green-400 bg-green-600/10 dark:bg-green-400/10'
   },
   {
     type: 'exitNode',
     label: 'Exit Node',
     description: 'Close positions',
-    icon: <ArrowRightLeft className="h-5 w-5 text-amber-600 dark:text-amber-400" />,
+    icon: <LogOut className="h-5 w-5 text-amber-600 dark:text-amber-400" />,
     color: 'border-amber-600 dark:border-amber-400 bg-amber-600/10 dark:bg-amber-400/10'
   },
   {
