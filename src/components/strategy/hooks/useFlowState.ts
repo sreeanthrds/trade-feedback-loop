@@ -1,6 +1,6 @@
 
-import { useRef, useMemo } from 'react';
-import { useReactFlow, Node as ReactFlowNode, Edge } from '@xyflow/react';
+import { useRef, useMemo, useCallback } from 'react';
+import { useReactFlow, Node as ReactFlowNode, Edge, useStore } from '@xyflow/react';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
 import { initialNodes } from '../utils/flowUtils';
 import { useNodeStateManagement } from './useNodeStateManagement';
@@ -54,10 +54,12 @@ export function useFlowState() {
     isInitialLoadRef
   );
   
-  // Create onConnect handler with nodes
-  const onConnect = useMemo(() => {
-    return (params) => baseOnConnect(params, nodes as ReactFlowNode[]);
-  }, [baseOnConnect, nodes]);
+  // Create onConnect handler with nodes - use useCallback to memoize
+  const onConnect = useCallback((params) => {
+    // Use the current nodes from the store to prevent stale closures
+    const currentNodes = useStore.getState().nodes;
+    baseOnConnect(params, currentNodes as ReactFlowNode[]);
+  }, [baseOnConnect]);
 
   return {
     nodes,

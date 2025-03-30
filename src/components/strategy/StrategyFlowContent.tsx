@@ -10,9 +10,9 @@ import NodePanel from './NodePanel';
 import { Card } from '@/components/ui/card';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
-import { BottomToolbar } from './toolbars/BottomToolbar';
-import { TopToolbar } from './toolbars/TopToolbar';
-import { NodeSidebar } from './NodeSidebar';
+import BottomToolbar from './toolbars/BottomToolbar';
+import TopToolbar from './toolbars/TopToolbar';
+import NodeSidebar from './NodeSidebar';
 import ReactFlowCanvas from './canvas/ReactFlowCanvas';
 
 const StrategyFlowContent: React.FC = () => {
@@ -62,7 +62,13 @@ const StrategyFlowContent: React.FC = () => {
             nodeTypes={nodeTypes}
             edgeTypes={edgeTypes}
             onNodeClick={onNodeClick}
-            reactFlowWrapper={flowState.reactFlowWrapper}
+            flowRef={flowState.reactFlowWrapper}
+            resetStrategy={resetStrategy}
+            onImportSuccess={handleImportSuccess}
+            onDeleteNode={handleDeleteNode}
+            onDeleteEdge={handleDeleteEdge}
+            onAddNode={handleAddNode}
+            updateNodeData={updateNodeData}
           />
           
           <Sheet open={flowState.isPanelOpen} onOpenChange={flowState.setIsPanelOpen}>
@@ -103,7 +109,13 @@ const StrategyFlowContent: React.FC = () => {
               nodeTypes={nodeTypes}
               edgeTypes={edgeTypes}
               onNodeClick={onNodeClick}
-              reactFlowWrapper={flowState.reactFlowWrapper}
+              flowRef={flowState.reactFlowWrapper}
+              resetStrategy={resetStrategy}
+              onImportSuccess={handleImportSuccess}
+              onDeleteNode={handleDeleteNode}
+              onDeleteEdge={handleDeleteEdge}
+              onAddNode={handleAddNode}
+              updateNodeData={updateNodeData}
             />
           </div>
           

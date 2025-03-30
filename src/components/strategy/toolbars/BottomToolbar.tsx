@@ -1,83 +1,21 @@
 
-import React, { useRef } from 'react';
-import { Panel } from '@xyflow/react';
-import { Save, Download, Upload, RotateCcw, Play } from 'lucide-react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
-import { 
-  saveStrategyToLocalStorage, 
-  exportStrategyToFile, 
-  importStrategyFromEvent
-} from '../utils/flowUtils';
-import { useStrategyStore } from '@/hooks/use-strategy-store';
+import { ZoomIn, ZoomOut, Maximize } from 'lucide-react';
 
-interface BottomToolbarProps {
-  resetStrategy: () => void;
-  onImportSuccess?: () => void;
-}
-
-const BottomToolbar: React.FC<BottomToolbarProps> = ({ resetStrategy, onImportSuccess }) => {
-  const { nodes, edges, setNodes, setEdges, addHistoryItem, resetHistory } = useStrategyStore();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const success = importStrategyFromEvent(event, setNodes, setEdges, addHistoryItem, resetHistory);
-    // Reset the input value so the same file can be imported again if needed
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-    
-    // Notify parent component that import was successful
-    if (success && onImportSuccess) {
-      onImportSuccess();
-    }
-  };
-
-  const handleSave = () => {
-    saveStrategyToLocalStorage(nodes, edges);
-  };
-
-  const handleExport = () => {
-    exportStrategyToFile(nodes, edges);
-  };
-
-  const triggerFileInput = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-
+const BottomToolbar: React.FC = () => {
   return (
-    <Panel position="bottom-center">
-      <div className="flex gap-2 bg-background/90 p-2 rounded-md shadow-md">
-        <Button variant="secondary" onClick={handleSave}>
-          <Save className="mr-1 h-4 w-4" />
-          Save
-        </Button>
-        <Button variant="secondary" onClick={handleExport}>
-          <Download className="mr-1 h-4 w-4" />
-          Export
-        </Button>
-        <Button variant="secondary" onClick={triggerFileInput}>
-          <Upload className="mr-1 h-4 w-4" />
-          Import
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".json"
-            className="hidden"
-            onChange={handleImport}
-          />
-        </Button>
-        <Button variant="secondary" onClick={resetStrategy}>
-          <RotateCcw className="mr-1 h-4 w-4" />
-          Reset
-        </Button>
-        <Button>
-          <Play className="mr-1 h-4 w-4" />
-          Backtest
-        </Button>
-      </div>
-    </Panel>
+    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-2 bg-background/80 backdrop-blur-sm p-1 rounded-md border shadow-sm">
+      <Button variant="ghost" size="icon" className="h-8 w-8">
+        <ZoomIn className="h-4 w-4" />
+      </Button>
+      <Button variant="ghost" size="icon" className="h-8 w-8">
+        <ZoomOut className="h-4 w-4" />
+      </Button>
+      <Button variant="ghost" size="icon" className="h-8 w-8">
+        <Maximize className="h-4 w-4" />
+      </Button>
+    </div>
   );
 };
 

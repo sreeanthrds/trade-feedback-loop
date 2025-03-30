@@ -1,6 +1,6 @@
 
 import { useCallback } from 'react';
-import { Edge, useEdgesState, Connection, addEdge, Node as ReactFlowNode } from '@xyflow/react';
+import { Edge, useEdgesState, Connection, Node as ReactFlowNode } from '@xyflow/react';
 import { validateConnection } from '../utils/flowUtils';
 
 /**
@@ -32,7 +32,15 @@ export function useEdgeStateManagement(initialEdges: Edge[] = [], strategyStore:
     (params: Connection, nodes: ReactFlowNode[]) => {
       if (!validateConnection(params, nodes)) return;
       
-      const newEdges = addEdge(params, edges);
+      // Use addEdge from @xyflow/react here
+      const newEdges = [...edges, { 
+        id: `e${params.source}-${params.target}`,
+        source: params.source || '',
+        target: params.target || '',
+        sourceHandle: params.sourceHandle,
+        targetHandle: params.targetHandle
+      }];
+      
       setEdges(newEdges);
       strategyStore.addHistoryItem(strategyStore.nodes, newEdges);
     },

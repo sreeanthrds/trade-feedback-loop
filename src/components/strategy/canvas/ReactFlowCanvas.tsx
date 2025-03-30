@@ -1,20 +1,18 @@
 
 import React, { useEffect, useRef, useCallback, memo } from 'react';
-import { ReactFlow, useReactFlow } from '@xyflow/react';
-import TopToolbar from '../toolbars/TopToolbar';
-import BottomToolbar from '../toolbars/BottomToolbar';
-import CanvasControls from './CanvasControls';
-import { useViewportUtils } from './useViewportUtils';
+import { ReactFlow, useReactFlow, Background, Controls } from '@xyflow/react';
 import { useDragHandling } from './useDragHandling';
+import { useViewportUtils } from './useViewportUtils';
+import CanvasControls from './CanvasControls';
 
 interface ReactFlowCanvasProps {
-  flowRef: React.RefObject<HTMLDivElement>;
   nodes: any[];
   edges: any[];
   onNodesChange: any;
   onEdgesChange: any;
   onConnect: any;
   onNodeClick: any;
+  flowRef: React.RefObject<HTMLDivElement>;
   resetStrategy: () => void;
   onImportSuccess: () => void;
   onDeleteNode: (id: string) => void;
@@ -25,24 +23,14 @@ interface ReactFlowCanvasProps {
   edgeTypes: any;
 }
 
-// Memoize the toolbars to prevent unnecessary renders
-const MemoizedTopToolbar = memo(TopToolbar);
-const MemoizedBottomToolbar = memo(BottomToolbar);
-
 const ReactFlowCanvas = memo(({
-  flowRef,
   nodes,
   edges,
   onNodesChange,
   onEdgesChange,
   onConnect,
   onNodeClick,
-  resetStrategy,
-  onImportSuccess,
-  onDeleteNode,
-  onDeleteEdge,
-  onAddNode,
-  updateNodeData,
+  flowRef,
   nodeTypes,
   edgeTypes
 }: ReactFlowCanvasProps) => {
@@ -78,12 +66,6 @@ const ReactFlowCanvas = memo(({
   // Simple function to determine node class name for minimap
   const nodeClassName = useCallback((node) => node.type, []);
 
-  // Prepare toolbar props
-  const bottomToolbarProps = useCallback(() => ({
-    resetStrategy,
-    onImportSuccess
-  }), [resetStrategy, onImportSuccess]);
-
   return (
     <div className="h-full w-full" ref={flowRef}>
       <ReactFlow
@@ -118,12 +100,13 @@ const ReactFlowCanvas = memo(({
         }}
       >
         <CanvasControls nodeClassName={nodeClassName} />
-        
-        <MemoizedTopToolbar />
-        <MemoizedBottomToolbar 
-          resetStrategy={resetStrategy} 
-          onImportSuccess={onImportSuccess}
+        <Background
+          color="#aaa"
+          gap={16}
+          size={1}
+          variant={BackgroundVariant.Dots}
         />
+        <Controls />
       </ReactFlow>
     </div>
   );
