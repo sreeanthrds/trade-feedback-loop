@@ -20,28 +20,68 @@ export function findIndicatorUsages(indicator: string, nodes: Node[]): UsageRefe
   
   const usages: UsageReference[] = [];
   
-  for (const node of nodes) {
-    // Skip the start node itself
-    if (!node || node.type === 'startNode') continue;
+  // Optimize the lookup by caching node types
+  const relevantNodes = nodes.filter(node => node && node.type === 'signalNode' && node.data && Array.isArray(node.data.conditions));
+  
+  for (const node of relevantNodes) {
+    // Check if conditions exist and the indicator is used
+    const hasIndicatorInCondition = searchConditionsForIndicator(
+      node.data.conditions, 
+      indicator
+    );
     
-    // Check signal nodes for indicator usage in conditions
-    if (node.type === 'signalNode' && node.data) {
-      // Check if conditions exists and is an array
-      if (Array.isArray(node.data.conditions)) {
-        // Find any conditions using this indicator
-        const hasIndicatorInCondition = searchConditionsForIndicator(
-          node.data.conditions, 
-          indicator
-        );
-        
-        if (hasIndicatorInCondition) {
-          usages.push({
-            nodeId: node.id,
-            nodeName: node.data.label ? String(node.data.label) : 'Signal Node',
-            nodeType: 'signalNode',
-            context: 'Signal condition'
-          });
-        }
+    if (hasIndicatorInCondition) {
+      usages.push({
+        nodeId: node.id,
+        nodeName: node.data.label ? String(node.data.label) : 'Signal Node',
+        nodeType: 'signalNode',
+        context: 'Signal condition'
+      });
+    }
+  }
+  
+  return usages;
+}
+
+/**
+ * Find all uses of an instrument/symbol
+ */
+export function findInstrumentUsages(symbol: string, nodes: Node[]): UsageReference[] {
+  if (!symbol || !nodes || !Array.isArray(nodes)) {
+    return [];
+  }
+  
+  const usages: UsageReference[] = [];
+  
+  // Only check relevant node types that can reference instruments
+  const relevantNodes = nodes.filter(node => 
+    node && (node.type === 'entryNode' || node.type === 'exitNode' || node.type === 'actionNode')
+  );
+  
+  for (const node of relevantNodes) {
+    if (!node.data) continue;
+    
+    // Check for symbol in node data
+    if (node.data.symbol === symbol) {
+      usages.push({
+        nodeId: node.id,
+        nodeName: node.data.label ? String(node.data.label) : node.type,
+        nodeType: node.type,
+        context: 'Instrument configuration'
+      });
+    }
+    
+    // Check for symbol in positions
+    if (Array.isArray(node.data.positions)) {
+      const hasSymbolInPositions = node.data.positions.some((pos: any) => pos.symbol === symbol);
+      
+      if (hasSymbolInPositions) {
+        usages.push({
+          nodeId: node.id,
+          nodeName: node.data.label ? String(node.data.label) : node.type,
+          nodeType: node.type,
+          context: 'Position configuration'
+        });
       }
     }
   }
