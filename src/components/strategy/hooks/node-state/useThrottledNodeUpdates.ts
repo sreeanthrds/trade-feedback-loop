@@ -4,7 +4,7 @@ import { Node } from '@xyflow/react';
 
 /**
  * Hook to manage throttled node updates to prevent excessive store operations
- * Now with improved logging
+ * Now with improved performance optimizations
  */
 export function useThrottledNodeUpdates({
   pendingNodesUpdate,
@@ -15,6 +15,7 @@ export function useThrottledNodeUpdates({
   const isInitialRenderRef = useRef(true);
   const updateIntervalRef = useRef<number | null>(null);
   const lastProcessedCountRef = useRef(0);
+  const lastProcessedTimeRef = useRef(0);
   
   // Process any pending updates that were throttled - with optimized interval
   useEffect(() => {
@@ -30,38 +31,54 @@ export function useThrottledNodeUpdates({
     const processPendingUpdates = () => {
       const now = Date.now();
       
-      // Only process pending updates if enough time has passed
+      // Only process pending updates if enough time has passed and we have updates
       if (pendingNodesUpdate.current && 
-          now - lastUpdateTimeRef.current > 600) { // Increased threshold for better performance
+          now - lastUpdateTimeRef.current > 1000) { // Increased threshold for better performance
+        
+        // Skip processing if we recently processed (prevent rapid processing)
+        if (now - lastProcessedTimeRef.current < 500) {
+          updateIntervalRef.current = window.requestAnimationFrame(processPendingUpdates);
+          return;
+        }
         
         lastUpdateTimeRef.current = now;
+        lastProcessedTimeRef.current = now;
         
         const nodesToUpdate = [...pendingNodesUpdate.current];
         const updateCount = nodesToUpdate.length;
         
-        // Only log if the count has changed to reduce spam
-        if (updateCount !== lastProcessedCountRef.current) {
+        // Only log if the count has changed significantly to reduce spam
+        if (Math.abs(updateCount - lastProcessedCountRef.current) > 5) {
           console.log(`Processing ${updateCount} pending nodes from throttled updates`);
           lastProcessedCountRef.current = updateCount;
         }
         
         pendingNodesUpdate.current = null;
         
-        processStoreUpdate(nodesToUpdate);
+        // Use setTimeout to break the processing out of the animation frame cycle
+        // This gives the UI a chance to update before we process changes
+        setTimeout(() => {
+          processStoreUpdate(nodesToUpdate);
+        }, 0);
       }
       
-      // Schedule next check
-      updateIntervalRef.current = window.requestAnimationFrame(processPendingUpdates);
+      // Schedule next check with a lower frequency
+      updateIntervalRef.current = window.setTimeout(() => {
+        window.requestAnimationFrame(processPendingUpdates);
+      }, 200); // Add delay between frames to reduce CPU usage
     };
     
-    // Start the update cycle using requestAnimationFrame instead of setInterval
-    updateIntervalRef.current = window.requestAnimationFrame(processPendingUpdates);
-    console.log('Started throttled update processor using requestAnimationFrame');
+    // Start the update cycle using requestAnimationFrame with setTimeout to lower frequency
+    updateIntervalRef.current = window.setTimeout(() => {
+      window.requestAnimationFrame(processPendingUpdates);
+    }, 200);
+    
+    console.log('Started throttled update processor with optimized timing');
     
     // Clean up
     return () => {
       if (updateIntervalRef.current !== null) {
-        window.cancelAnimationFrame(updateIntervalRef.current);
+        window.clearTimeout(updateIntervalRef.current);
         updateIntervalRef.current = null;
         console.log('Cleaned up throttled update processor');
       }

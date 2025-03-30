@@ -4,7 +4,7 @@ import { Node } from '@xyflow/react';
 
 /**
  * Hook to create a custom setNodes function with throttling and cycle detection
- * Now with improved error handling
+ * Now with improved performance optimizations
  */
 export function useCustomSetNodes({
   setLocalNodes,
@@ -46,14 +46,37 @@ export function useCustomSetNodes({
           return prevNodes;
         }
         
-        // Skip if nodes haven't actually changed using deep equality check
+        // Quick length check to skip deeper comparison if obviously changed
+        if (newNodes.length !== prevNodes.length) {
+          console.log(`Node count changed: ${prevNodes.length} -> ${newNodes.length}`);
+          
+          // Handle dragging state
+          if (isDraggingRef.current) {
+            pendingNodesUpdate.current = newNodes;
+            return newNodes;
+          }
+          
+          // Schedule update with increased delay
+          if (updateTimeoutRef.current !== null) {
+            window.clearTimeout(updateTimeoutRef.current);
+          }
+          
+          updateTimeoutRef.current = window.setTimeout(() => {
+            processStoreUpdate(newNodes);
+          }, 1000); // Increased delay to reduce update frequency
+          
+          return newNodes;
+        }
+        
+        // Skip if nodes haven't actually changed using a simplified comparison
+        // This avoids the expensive deep equality check in most cases
         if (!shouldUpdateNodes(newNodes, prevNodes)) {
           return prevNodes;
         }
         
         console.log(`Setting ${newNodes.length} nodes, dragging: ${isDraggingRef.current}`);
         
-        // Don't update store during dragging
+        // Don't update store during dragging, just queue the update
         if (isDraggingRef.current) {
           pendingNodesUpdate.current = newNodes;
           return newNodes;
@@ -61,7 +84,7 @@ export function useCustomSetNodes({
         
         // Throttle updates to the store during frequent operations
         const now = Date.now();
-        if (now - lastUpdateTimeRef.current > 500) { // Increased throttle time for better performance
+        if (now - lastUpdateTimeRef.current > 2000) { // Significantly increased throttle time
           lastUpdateTimeRef.current = now;
           
           // Clear any pending timeout
@@ -74,7 +97,7 @@ export function useCustomSetNodes({
           console.log('Scheduling delayed update to store');
           updateTimeoutRef.current = window.setTimeout(() => {
             processStoreUpdate(newNodes);
-          }, 300);
+          }, 1000); // Increased delay to reduce update frequency
         } else {
           console.log('Throttling update, storing for later processing');
           pendingNodesUpdate.current = newNodes;

@@ -5,7 +5,7 @@ import { deepEqual } from '../../utils/deepEqual';
 
 /**
  * Hook to manage throttled node updates and prevent update cycles
- * Enhanced with better error handling and logging
+ * Enhanced with better error handling, logging and performance optimizations
  */
 export function useNodeUpdates(strategyStore: any) {
   const lastUpdateTimeRef = useRef(0);
@@ -16,12 +16,24 @@ export function useNodeUpdates(strategyStore: any) {
   const skipNextUpdateRef = useRef(false);
   const errorCountRef = useRef(0);
   const lastErrorTimeRef = useRef(0);
+  const lastProcessedStoreUpdateRef = useRef(0);
   
   // Process store updates with throttling and debouncing
   const processStoreUpdate = useCallback((newNodes: Node[]) => {
     // Skip if we're in an update cycle or other updates are in progress
     if (updateCycleRef.current || storeUpdateInProgressRef.current || skipNextUpdateRef.current) {
       console.log('Skipping update - cycle or update in progress');
+      return;
+    }
+    
+    // Skip if we recently processed an update
+    const now = Date.now();
+    if (now - lastProcessedStoreUpdateRef.current < 1000) {
+      console.log('Skipping update - too soon after previous update');
+      // Queue the update for later
+      pendingProcessTimeoutRef.current = window.setTimeout(() => {
+        processStoreUpdate(newNodes);
+      }, 1000);
       return;
     }
     
@@ -33,6 +45,7 @@ export function useNodeUpdates(strategyStore: any) {
     
     updateCycleRef.current = true;
     storeUpdateInProgressRef.current = true;
+    lastProcessedStoreUpdateRef.current = now;
     
     try {
       console.log(`Processing store update with ${newNodes.length} nodes`);
@@ -50,7 +63,7 @@ export function useNodeUpdates(strategyStore: any) {
           // Track error frequency to avoid flooding
           handleError(historyError, 'add history');
         }
-      }, 100);
+      }, 200);
       
     } catch (error) {
       // Handle errors during store update with improved logging
@@ -61,15 +74,28 @@ export function useNodeUpdates(strategyStore: any) {
         updateCycleRef.current = false;
         storeUpdateInProgressRef.current = false;
         console.log('Update cycle completed, flags reset');
-      }, 300);
+      }, 500);
       
       // Set a brief skip period to avoid rapid double-updates
       skipNextUpdateRef.current = true;
       setTimeout(() => {
         skipNextUpdateRef.current = false;
-      }, 150);
+      }, 300);
     }
   }, [strategyStore]);
+
+  // For handling pending updates
+  const pendingProcessTimeoutRef = useRef<number | null>(null);
+  
+  // Cleanup effect for the pending timeout
+  React.useEffect(() => {
+    return () => {
+      if (pendingProcessTimeoutRef.current) {
+        clearTimeout(pendingProcessTimeoutRef.current);
+        pendingProcessTimeoutRef.current = null;
+      }
+    };
+  }, []);
 
   // Error handling with rate limiting to prevent console flooding
   const handleError = useCallback((error: any, operation: string) => {
@@ -102,7 +128,7 @@ export function useNodeUpdates(strategyStore: any) {
     }, 1000);
   }, []);
 
-  // Check if nodes have actually changed - memoize this function
+  // Optimized version to check if nodes have actually changed
   const shouldUpdateNodes = useCallback((newNodes: Node[], prevNodes: Node[]) => {
     try {
       // Validate inputs
@@ -123,7 +149,45 @@ export function useNodeUpdates(strategyStore: any) {
         return true;
       }
       
-      // Only do deep comparison when necessary
+      // Quick check on first few nodes before deep equal
+      // This can avoid expensive deep comparison in many cases
+      const quickCheckCount = Math.min(3, newNodes.length);
+      for (let i = 0; i < quickCheckCount; i++) {
+        const newNode = newNodes[i];
+        const prevNode = prevNodes[i];
+        
+        if (newNode.id !== prevNode.id || 
+            newNode.position.x !== prevNode.position.x || 
+            newNode.position.y !== prevNode.position.y) {
+          console.log('Node changed based on quick comparison');
+          return true;
+        }
+      }
+      
+      // Only do deep comparison when necessary - use a sampled approach for large node sets
+      if (newNodes.length > 10) {
+        // For large sets, sample a few nodes for comparison
+        const sampleSize = Math.max(3, Math.floor(newNodes.length * 0.3));
+        const sampleIndices = new Set();
+        
+        // Get random sample indices
+        while (sampleIndices.size < sampleSize) {
+          sampleIndices.add(Math.floor(Math.random() * newNodes.length));
+        }
+        
+        // Check sampled nodes
+        for (const index of sampleIndices) {
+          if (!deepEqual(newNodes[index], prevNodes[index])) {
+            console.log('Nodes changed based on sampled deep comparison');
+            return true;
+          }
+        }
+        
+        console.log('Nodes likely unchanged (sampled check)');
+        return false;
+      }
+      
+      // For smaller sets, do full deep comparison
       const areEqual = deepEqual(newNodes, prevNodes);
       if (!areEqual) {
         console.log('Nodes changed structurally, update needed');
