@@ -56,9 +56,7 @@ export function useFlowState() {
   
   // Create onConnect handler with nodes - use useCallback to memoize
   const onConnect = useCallback((params) => {
-    // Access nodes directly from the current component state
-    const currentNodes = nodes;
-    baseOnConnect(params, currentNodes as ReactFlowNode[]);
+    baseOnConnect(params, nodes);
   }, [baseOnConnect, nodes]);
 
   return {
