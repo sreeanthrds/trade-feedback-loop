@@ -10,7 +10,7 @@ export function useStartNodeSymbol() {
   useEffect(() => {
     const nodes = getNodes();
     const startNode = nodes.find(node => node.type === 'startNode');
-    if (startNode && startNode.data && startNode.data.symbol) {
+    if (startNode && startNode.data && typeof startNode.data.symbol === 'string') {
       setStartNodeSymbol(startNode.data.symbol);
     } else {
       setStartNodeSymbol(undefined);
