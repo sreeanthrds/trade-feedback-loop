@@ -15,6 +15,12 @@ export interface ExitNodeData {
   exitOrderConfig: ExitOrderConfig;
   multipleOrders?: boolean;
   orders?: ExitOrderConfig[];
+  // Adding these for backward compatibility
+  exitCondition?: ExitCondition;
+  orderConfig?: {
+    orderType: ExitOrderType;
+    limitPrice?: number;
+  };
 }
 
 // For backward compatibility with existing code
@@ -35,14 +41,15 @@ export interface ExitByPositionIdentifier extends ExitCondition {
 
 export interface ExitByPnL extends ExitCondition {
   type: 'realized_pnl' | 'unrealized_pnl';
-  target?: number;
+  value?: number; // Fixed from target
+  direction?: 'above' | 'below'; // Added missing property
   targetType?: 'percentage' | 'absolute';
 }
 
 export interface ExitByPercentage extends ExitCondition {
   type: 'premium_change' | 'position_value_change';
   percentage?: number;
-  direction?: 'up' | 'down';
+  direction?: 'increase' | 'decrease'; // Changed from up/down to match implementation
 }
 
 export interface ExitByPriceTarget extends ExitCondition {
@@ -66,15 +73,16 @@ export interface ExitByTime extends ExitCondition {
 
 export interface ExitBeforeMarketClose extends ExitCondition {
   type: 'market_close';
-  minutes?: number;
+  minutesBefore?: number; // Fix the property name
 }
 
 export interface ExitWithFallback extends ExitCondition {
   type: 'limit_to_market';
-  seconds?: number;
+  waitSeconds?: number; // Fix the property name
 }
 
 export interface ExitWithRolling extends ExitCondition {
   type: 'rolling';
   daysBeforeExpiry?: number;
+  strikeDifference?: number; // Add missing property
 }

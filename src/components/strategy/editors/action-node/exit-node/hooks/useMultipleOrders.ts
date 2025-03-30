@@ -1,7 +1,7 @@
 
 import { useCallback } from 'react';
 import { Node } from '@xyflow/react';
-import { ExitNodeData } from '../types';
+import { ExitNodeData, ExitOrderConfig } from '../types';
 
 interface UseMultipleOrdersProps {
   node: Node;
@@ -27,9 +27,9 @@ export const useMultipleOrders = ({
     // Get current exit node data safely
     const currentExitNodeData = (nodeData.exitNodeData as ExitNodeData) || defaultExitNodeData;
     
-    // Determine orders array
+    // Determine orders array based on exitOrderConfig to ensure we have it
     const ordersArray = newValue && !currentExitNodeData.orders 
-      ? [currentExitNodeData.orderConfig] 
+      ? [currentExitNodeData.exitOrderConfig] 
       : currentExitNodeData.orders;
     
     // Create updated exit node data

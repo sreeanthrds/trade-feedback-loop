@@ -35,7 +35,7 @@ export const useExitConditionField = ({
     // Get current exit node data safely
     const currentExitNodeData = (nodeData.exitNodeData as ExitNodeData) || defaultExitNodeData;
     
-    // Create updated exit node data
+    // Create updated exit node data with exitCondition for backward compatibility
     const updatedExitNodeData: ExitNodeData = {
       ...currentExitNodeData,
       exitCondition: updatedCondition

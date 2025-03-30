@@ -17,6 +17,11 @@ interface UseExitNodeBaseProps {
 export const useExitNodeBase = ({ node, updateNodeData }: UseExitNodeBaseProps) => {
   // Default exit node data - memoized to avoid recreation on each render
   const defaultExitNodeData = useMemo<ExitNodeData>(() => ({
+    exitOrderConfig: {
+      orderType: 'market' as ExitOrderType,
+      limitPrice: undefined
+    },
+    // Include these for backward compatibility
     exitCondition: {
       type: 'all_positions' as ExitConditionType
     } as ExitCondition,
@@ -37,10 +42,12 @@ export const useExitNodeBase = ({ node, updateNodeData }: UseExitNodeBaseProps) 
   const initialExitNodeData = useMemo<ExitNodeData>(() => {
     if (rawExitNodeData) {
       return {
-        exitCondition: rawExitNodeData.exitCondition || defaultExitNodeData.exitCondition,
-        orderConfig: rawExitNodeData.orderConfig || defaultExitNodeData.orderConfig,
+        exitOrderConfig: rawExitNodeData.exitOrderConfig || defaultExitNodeData.exitOrderConfig,
         multipleOrders: rawExitNodeData.multipleOrders || false,
-        orders: rawExitNodeData.orders || undefined
+        orders: rawExitNodeData.orders || undefined,
+        // Include these for backward compatibility
+        exitCondition: rawExitNodeData.exitCondition || defaultExitNodeData.exitCondition,
+        orderConfig: rawExitNodeData.orderConfig || defaultExitNodeData.orderConfig
       };
     }
     return defaultExitNodeData;

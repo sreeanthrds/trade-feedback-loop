@@ -74,7 +74,7 @@ export const useExitConditionType = ({
     const nodeData = node.data || {};
     const currentExitNodeData = (nodeData.exitNodeData as ExitNodeData) || defaultExitNodeData;
     
-    // Create updated object
+    // Create updated object with exitCondition for backward compatibility
     const updatedExitNodeData: ExitNodeData = {
       ...currentExitNodeData,
       exitCondition: newCondition

@@ -3,8 +3,8 @@ import { useCallback } from 'react';
 import { Node } from '@xyflow/react';
 import { 
   ExitOrderType,
-  ExitOrderConfig,
-  ExitNodeData
+  ExitNodeData,
+  ExitOrderConfig
 } from '../types';
 
 interface UseOrderSettingsProps {
@@ -23,25 +23,28 @@ export const useOrderSettings = ({
   defaultExitNodeData
 }: UseOrderSettingsProps) => {
   // Update order type
-  const handleOrderTypeChange = useCallback((type: ExitOrderType) => {
-    setOrderType(type);
+  const handleOrderTypeChange = useCallback((type: string) => {
+    setOrderType(type as ExitOrderType);
     
     const nodeData = node.data || {};
     // Get current exit node data safely
     const currentExitNodeData = (nodeData.exitNodeData as ExitNodeData) || defaultExitNodeData;
     
-    // Update order config
+    // Create updated exit order config
     const updatedOrderConfig: ExitOrderConfig = {
-      ...currentExitNodeData.orderConfig,
-      orderType: type,
-      // Clear limit price if switching to market order
-      ...(type === 'market' && { limitPrice: undefined })
+      ...currentExitNodeData.exitOrderConfig,
+      orderType: type as ExitOrderType
     };
     
-    // Create updated exit node data
+    // Create updated exit node data, maintaining both orderConfig and exitOrderConfig
     const updatedExitNodeData: ExitNodeData = {
       ...currentExitNodeData,
-      orderConfig: updatedOrderConfig
+      exitOrderConfig: updatedOrderConfig,
+      // Update orderConfig for backward compatibility
+      orderConfig: {
+        ...currentExitNodeData.orderConfig,
+        orderType: type as ExitOrderType
+      }
     };
     
     // Update node data
@@ -53,32 +56,37 @@ export const useOrderSettings = ({
   
   // Update limit price
   const handleLimitPriceChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value);
-    setLimitPrice(isNaN(value) ? undefined : value);
+    const value = e.target.value;
+    const limitPrice = value === '' ? undefined : parseFloat(value);
     
-    if (!isNaN(value)) {
-      const nodeData = node.data || {};
-      // Get current exit node data safely
-      const currentExitNodeData = (nodeData.exitNodeData as ExitNodeData) || defaultExitNodeData;
-      
-      // Update order config
-      const updatedOrderConfig: ExitOrderConfig = {
+    setLimitPrice(limitPrice);
+    
+    const nodeData = node.data || {};
+    // Get current exit node data safely
+    const currentExitNodeData = (nodeData.exitNodeData as ExitNodeData) || defaultExitNodeData;
+    
+    // Create updated exit order config
+    const updatedOrderConfig: ExitOrderConfig = {
+      ...currentExitNodeData.exitOrderConfig,
+      limitPrice
+    };
+    
+    // Create updated exit node data
+    const updatedExitNodeData: ExitNodeData = {
+      ...currentExitNodeData,
+      exitOrderConfig: updatedOrderConfig,
+      // Update orderConfig for backward compatibility
+      orderConfig: {
         ...currentExitNodeData.orderConfig,
-        limitPrice: value
-      };
-      
-      // Create updated exit node data
-      const updatedExitNodeData: ExitNodeData = {
-        ...currentExitNodeData,
-        orderConfig: updatedOrderConfig
-      };
-      
-      // Update node data
-      updateNodeData(node.id, {
-        ...nodeData,
-        exitNodeData: updatedExitNodeData
-      });
-    }
+        limitPrice
+      }
+    };
+    
+    // Update node data
+    updateNodeData(node.id, {
+      ...nodeData,
+      exitNodeData: updatedExitNodeData
+    });
   }, [node.id, node.data, updateNodeData, defaultExitNodeData, setLimitPrice]);
   
   return {
