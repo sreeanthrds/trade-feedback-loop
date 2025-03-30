@@ -38,7 +38,7 @@ interface NodeWrapperProps {
 }
 
 // Create stable wrapper components
-const StartNodeWrapper = React.memo(({ data, id, onAddNode, ...rest }: NodeWrapperProps) => (
+const StartNodeWrapper = React.memo(({ data, id, type, onAddNode, ...rest }: NodeWrapperProps) => (
   <div className="group">
     <MemoizedStartNode data={data} id={id} {...rest} />
     <MemoizedNodeConnectControls showOn="start" onAddNode={onAddNode} parentNodeId={id} />
@@ -46,17 +46,17 @@ const StartNodeWrapper = React.memo(({ data, id, onAddNode, ...rest }: NodeWrapp
 ));
 StartNodeWrapper.displayName = 'StartNodeWrapper';
 
-const SignalNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, ...rest }: NodeWrapperProps) => (
+const SignalNodeWrapper = React.memo(({ data, id, type, onDelete, onAddNode, ...rest }: NodeWrapperProps) => (
   <div className="group">
     <MemoizedSignalNode data={data} id={id} {...rest} />
-    <MemoizedNodeControls node={{ id, type: 'signalNode', data }} onDelete={onDelete} />
+    <MemoizedNodeControls node={{ id, type, data }} onDelete={onDelete} />
     <MemoizedNodeConnectControls showOn="signal" onAddNode={onAddNode} parentNodeId={id} />
   </div>
 ));
 SignalNodeWrapper.displayName = 'SignalNodeWrapper';
 
 // Create a shared action node wrapper to handle all action node types
-const ActionNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNodeData, type, ...rest }: NodeWrapperProps & { updateNodeData?: (id: string, data: any) => void }) => {
+const ActionNodeWrapper = React.memo(({ data, id, type, onDelete, onAddNode, updateNodeData, ...rest }: NodeWrapperProps & { updateNodeData?: (id: string, data: any) => void }) => {
   // Determine action type from node type
   const actionType = type === 'entryNode' ? 'entry' : 
                      type === 'exitNode' ? 'exit' : 
@@ -80,18 +80,18 @@ const ActionNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNod
 });
 ActionNodeWrapper.displayName = 'ActionNodeWrapper';
 
-const EndNodeWrapper = React.memo(({ data, id, onDelete, ...rest }: NodeWrapperProps) => (
+const EndNodeWrapper = React.memo(({ data, id, type, onDelete, ...rest }: NodeWrapperProps) => (
   <div className="group">
     <MemoizedEndNode data={data} id={id} {...rest} />
-    <MemoizedNodeControls node={{ id, type: 'endNode', data }} onDelete={onDelete} />
+    <MemoizedNodeControls node={{ id, type, data }} onDelete={onDelete} />
   </div>
 ));
 EndNodeWrapper.displayName = 'EndNodeWrapper';
 
-const ForceEndNodeWrapper = React.memo(({ data, id, onDelete, ...rest }: NodeWrapperProps) => (
+const ForceEndNodeWrapper = React.memo(({ data, id, type, onDelete, ...rest }: NodeWrapperProps) => (
   <div className="group">
     <MemoizedForceEndNode data={data} id={id} {...rest} />
-    <MemoizedNodeControls node={{ id, type: 'forceEndNode', data }} onDelete={onDelete} />
+    <MemoizedNodeControls node={{ id, type, data }} onDelete={onDelete} />
   </div>
 ));
 ForceEndNodeWrapper.displayName = 'ForceEndNodeWrapper';
@@ -108,7 +108,6 @@ const createNodeTypes = (
     entryNode: (props) => (
       <ActionNodeWrapper 
         {...props} 
-        type="entryNode"
         draggable={true} 
         onDelete={onDeleteNode} 
         onAddNode={onAddNode} 
@@ -118,7 +117,6 @@ const createNodeTypes = (
     exitNode: (props) => (
       <ActionNodeWrapper 
         {...props} 
-        type="exitNode"
         draggable={true} 
         onDelete={onDeleteNode} 
         onAddNode={onAddNode} 
@@ -128,7 +126,6 @@ const createNodeTypes = (
     alertNode: (props) => (
       <ActionNodeWrapper 
         {...props} 
-        type="alertNode"
         draggable={true} 
         onDelete={onDeleteNode} 
         onAddNode={onAddNode} 

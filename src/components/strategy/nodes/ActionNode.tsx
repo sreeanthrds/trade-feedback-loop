@@ -6,7 +6,7 @@ import { useStartNodeSymbol } from './action-node/useStartNodeSymbol';
 import { ActionNodeData } from './action-node/types';
 
 // Properly type the NodeProps with ActionNodeData
-const ActionNode: React.FC<NodeProps> = ({ id, data, selected }) => {
+const ActionNode: React.FC<NodeProps> = ({ id, data, selected, type }) => {
   const startNodeSymbol = useStartNodeSymbol();
   
   // Create a safe version of nodeData with default values for required fields
