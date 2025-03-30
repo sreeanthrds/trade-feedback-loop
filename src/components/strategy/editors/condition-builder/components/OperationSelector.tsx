@@ -24,7 +24,7 @@ const OperationSelector: React.FC<OperationSelectorProps> = ({
       value={operation} 
       onValueChange={updateOperation}
     >
-      <SelectTrigger className="h-8">
+      <SelectTrigger className="h-8 border border-input">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
