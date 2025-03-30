@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback, memo } from 'react';
+import React, { useState, useCallback, memo, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { X, ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -30,10 +30,16 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
   const [showRemoveDialog, setShowRemoveDialog] = useState(false);
   
   // Get indicator config and usages outside of render to optimize
-  const baseName = name.split('_')[0];
-  const indicator = indicatorConfig[baseName];
-  const usages = findUsages(name);
-  const hasUsages = usages.length > 0;
+  const baseName = useMemo(() => name.split('_')[0], [name]);
+  const indicator = useMemo(() => indicatorConfig[baseName], [baseName]);
+  
+  // Only compute usages when needed for the dialog
+  const usages = useMemo(() => 
+    showRemoveDialog ? findUsages(name) : [], 
+    [findUsages, name, showRemoveDialog]
+  );
+  
+  const hasUsages = useMemo(() => usages.length > 0, [usages]);
   
   // Format parameter display values
   const getDisplayValue = useCallback((param: any, value: any) => {
@@ -66,6 +72,18 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
     );
   }
   
+  // Pre-compute parameter display values to avoid repeated calculations in render
+  const parameterDisplay = useMemo(() => 
+    indicator.parameters.map(param => 
+      values[param.name] !== undefined && (
+        <span key={param.name} className="mr-1">
+          {getDisplayValue(param, values[param.name])}
+        </span>
+      )
+    ), 
+    [indicator.parameters, values, getDisplayValue]
+  );
+  
   return (
     <div className="border rounded-md p-2 mb-2 bg-card">
       <Collapsible open={isOpen} onOpenChange={onToggle}>
@@ -79,12 +97,7 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
               <div className="flex items-center gap-1 text-left">
                 <div className="text-sm font-medium">{indicator.function_name}</div>
                 <div className="text-xs text-muted-foreground">
-                  {indicator.parameters.map(param => (
-                    values[param.name] !== undefined && 
-                    <span key={param.name} className="mr-1">
-                      {getDisplayValue(param, values[param.name])}
-                    </span>
-                  ))}
+                  {parameterDisplay}
                 </div>
               </div>
               {isOpen ? (

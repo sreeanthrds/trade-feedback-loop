@@ -1,3 +1,4 @@
+
 import { useCallback, useMemo } from 'react';
 import { Node } from '@xyflow/react';
 import { useNodeBasicState } from './node-state/useNodeBasicState';
@@ -11,7 +12,7 @@ import { shouldUpdateNodes } from '../utils/performanceUtils';
 import { handleError } from '../utils/errorHandling';
 
 /**
- * Hook to manage node state with optimized update handling
+ * Hook to manage node state with highly optimized update handling
  */
 export function useNodeStateManagement(initialNodes: Node[], strategyStore: any) {
   // Basic state management
@@ -24,7 +25,7 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
     isDraggingRef
   } = useNodeBasicState(initialNodes);
 
-  // Drag detection and handling
+  // Drag detection and handling with improved performance
   const {
     pendingNodesUpdate,
     onNodesChangeWithDragDetection
@@ -40,11 +41,17 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
     scheduleUpdate,
   } = useNodeUpdates(strategyStore);
 
-  // Connect drag detection to node changes - memoize this function
+  // Skip small position changes during drag operations
   const handleUpdateAfterDrag = useCallback((nodesToUpdate) => {
-    console.log('Handling update after drag completed');
-    processStoreUpdate(nodesToUpdate);
-  }, [processStoreUpdate]);
+    // Add debounce to update after drag
+    if (updateTimeoutRef.current !== null) {
+      clearTimeout(updateTimeoutRef.current);
+    }
+    
+    updateTimeoutRef.current = setTimeout(() => {
+      processStoreUpdate(nodesToUpdate);
+    }, 2000); // Longer delay after drag
+  }, [processStoreUpdate, updateTimeoutRef]);
 
   // Specialized drag-aware node change handler
   const enhancedDragHandler = useCallback((changes, baseChangeHandler) => {
@@ -71,7 +78,7 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
     handleError
   });
 
-  // Process throttled updates
+  // Process throttled updates with much less frequent execution
   useThrottledNodeUpdates({
     pendingNodesUpdate,
     lastUpdateTimeRef,

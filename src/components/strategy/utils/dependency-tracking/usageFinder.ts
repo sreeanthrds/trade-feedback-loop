@@ -7,6 +7,10 @@ import { Node } from '@xyflow/react';
 import { UsageReference } from './types';
 import { searchConditionsForIndicator } from './indicatorUsage';
 
+// Cache for indicator usages to avoid redundant calculations
+const usageCache = new Map<string, {timestamp: number, usages: UsageReference[]}>();
+const CACHE_TTL = 5000; // 5 seconds cache lifetime
+
 /**
  * Finds all usage references for a specific indicator
  * @param indicator The indicator key to search for (e.g. "EMA_1")
@@ -18,10 +22,21 @@ export function findIndicatorUsages(indicator: string, nodes: Node[]): UsageRefe
     return [];
   }
   
+  // Generate a cache key based on indicator and a hash of node IDs
+  const nodeIdsHash = nodes.length + '-' + nodes.slice(0, 3).map(n => n.id).join('-');
+  const cacheKey = `${indicator}:${nodeIdsHash}`;
+  const now = Date.now();
+  
+  // Check if we have a valid cached result
+  const cached = usageCache.get(cacheKey);
+  if (cached && now - cached.timestamp < CACHE_TTL) {
+    return cached.usages;
+  }
+  
   const usages: UsageReference[] = [];
   
-  // Optimize the lookup by caching node types
-  const relevantNodes = nodes.filter(node => node && node.type === 'signalNode' && node.data && Array.isArray(node.data.conditions));
+  // Optimize the lookup by caching node types and filtering upfront
+  const relevantNodes = nodes.filter(node => node && node.type === 'signalNode' && node.data);
   
   for (const node of relevantNodes) {
     // Check if conditions exist and the indicator is used
@@ -38,6 +53,18 @@ export function findIndicatorUsages(indicator: string, nodes: Node[]): UsageRefe
           nodeType: 'signalNode',
           context: 'Signal condition'
         });
+      }
+    }
+  }
+  
+  // Store result in cache
+  usageCache.set(cacheKey, {timestamp: now, usages});
+  
+  // Clean up old cache entries periodically
+  if (usageCache.size > 50) {
+    for (const [key, value] of usageCache.entries()) {
+      if (now - value.timestamp > CACHE_TTL * 2) {
+        usageCache.delete(key);
       }
     }
   }

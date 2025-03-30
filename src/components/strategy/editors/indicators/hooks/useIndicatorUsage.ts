@@ -6,26 +6,42 @@ import { findIndicatorUsages } from '../../../utils/dependency-tracking/usageFin
 import { UsageReference } from '../../../utils/dependency-tracking/types';
 
 /**
- * Hook to find indicator usages with optimized performance
+ * Hook to find indicator usages with superior memoization and caching
  */
 export const useIndicatorUsage = () => {
   const { getNodes } = useReactFlow();
-  const cacheRef = useRef<Map<string, UsageReference[]>>(new Map());
+  const cacheRef = useRef<Map<string, {timestamp: number, usages: UsageReference[]}>>(new Map());
   const lastUpdateTimeRef = useRef<number>(Date.now());
   const nodesRef = useRef<any[]>([]);
-  const updateIntervalMs = 2000; // Only update cache every 2 seconds
+  const nodeHashRef = useRef<string>('');
+  const updateIntervalMs = 5000; // Only update cache every 5 seconds
   
-  // Get nodes only once per render and cache them
+  // Calculate a simple hash of nodes to detect real changes
+  const getNodesHash = (nodes: any[]): string => {
+    if (!nodes?.length) return '';
+    return `${nodes.length}-${nodes[0]?.id ?? ''}-${nodes[nodes.length-1]?.id ?? ''}`;
+  };
+  
+  // Get nodes only once per render and cache them with hash verification
   const nodes = useMemo(() => {
     try {
       const now = Date.now();
+      
       // Only fetch new nodes if enough time has elapsed
       if (now - lastUpdateTimeRef.current > updateIntervalMs) {
         const freshNodes = getNodes();
-        nodesRef.current = freshNodes;
+        const newHash = getNodesHash(freshNodes);
+        
+        // Only update nodes reference if they've actually changed
+        if (newHash !== nodeHashRef.current) {
+          nodesRef.current = freshNodes;
+          nodeHashRef.current = newHash;
+          
+          // Clear cache when nodes change meaningfully
+          cacheRef.current.clear();
+        }
+        
         lastUpdateTimeRef.current = now;
-        // Clear cache when nodes change
-        cacheRef.current.clear();
         return freshNodes;
       }
       
@@ -36,19 +52,31 @@ export const useIndicatorUsage = () => {
     }
   }, [getNodes]);
   
-  // Highly optimized version with caching
+  // Optimized version with TTL-based caching and memoization
   const findUsages = useCallback((indicatorName: string): UsageReference[] => {
     try {
       if (!indicatorName) return [];
       
-      // Return cached result if available
-      if (cacheRef.current.has(indicatorName)) {
-        return cacheRef.current.get(indicatorName) || [];
+      const now = Date.now();
+      const cached = cacheRef.current.get(indicatorName);
+      
+      // Return cached result if still valid (within 5 seconds)
+      if (cached && now - cached.timestamp < 5000) {
+        return cached.usages;
       }
       
       // Compute new result and cache it
       const usages = findIndicatorUsages(indicatorName, nodes);
-      cacheRef.current.set(indicatorName, usages);
+      cacheRef.current.set(indicatorName, {timestamp: now, usages});
+      
+      // Clean up old entries periodically
+      if (cacheRef.current.size > 30) {
+        for (const [key, value] of cacheRef.current.entries()) {
+          if (now - value.timestamp > 10000) {
+            cacheRef.current.delete(key);
+          }
+        }
+      }
       
       return usages;
     } catch (error) {
