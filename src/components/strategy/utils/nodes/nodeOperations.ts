@@ -1,6 +1,6 @@
 
 import { Node, ReactFlowInstance } from '@xyflow/react';
-import { toast } from "@/hooks/use-toast";
+import { toast } from '@/hooks/use-toast';
 
 export const initialNodes: Node[] = [
   {
@@ -40,23 +40,22 @@ export const addNode = (
       case 'alertNode': return 'alert';
       case 'endNode': return 'end';
       case 'forceEndNode': return 'force-end';
-      default: return type.replace('Node', '').toLowerCase();
+      default: return type.replace('Node', '');
     }
   };
   
   const typePrefix = getNodeTypePrefix();
-  const existingNodesOfType = nodes.filter(node => node.id.startsWith(typePrefix));
-  const nodeCount = existingNodesOfType.length + 1;
-  
+  const nodeCount = nodes.filter(node => node.type === type).length + 1;
   const nodeId = `${typePrefix}-${nodeCount}`;
   
-  let defaultData: any = { 
+  // Create basic node data
+  let defaultData: any = {
     label: type === 'startNode' 
       ? 'Start' 
       : type === 'endNode' 
         ? 'End' 
-        : type === 'forceEndNode'
-          ? 'Force End'
+        : type === 'forceEndNode' 
+          ? 'Force End' 
           : type === 'signalNode' 
             ? 'Signal' 
             : type === 'entryNode'

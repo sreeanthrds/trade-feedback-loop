@@ -1,18 +1,20 @@
 
 import { useCallback } from 'react';
-import { Edge, useEdgesState, Connection, addEdge, Node } from '@xyflow/react';
+import { Edge, useEdgesState, Connection, addEdge } from '@xyflow/react';
 import { validateConnection } from '../utils/flowUtils';
 
 /**
- * Hook to manage edge state with validation
+ * Hook to manage edge state with validation and store sync
  */
 export function useEdgeStateManagement(initialEdges: Edge[] = [], strategyStore: any) {
-  // Initialize with direct value to avoid React "Should have a queue" error
+  // Initialize edges state with direct value to avoid useState error
   const [edges, setLocalEdges, onEdgesChange] = useEdgesState(initialEdges);
 
   // Custom setEdges wrapper that also updates the store
   const setEdges = useCallback((updatedEdges: Edge[] | ((prevEdges: Edge[]) => Edge[])) => {
+    // Always update local state for UI responsiveness
     setLocalEdges((prevEdges) => {
+      // Handle both functional and direct updates
       const newEdges = typeof updatedEdges === 'function'
         ? updatedEdges(prevEdges)
         : updatedEdges;

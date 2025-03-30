@@ -87,7 +87,7 @@ const StrategyFlowContent = () => {
       handlersRef.current.updateNodeData(id, data);
     }
   }, []);
-  
+
   const closePanel = useCallback(() => {
     if (handlersRef.current) {
       handlersRef.current.closePanel();
@@ -164,7 +164,8 @@ const StrategyFlowContent = () => {
     handleAddNode,
     updateNodeData,
     nodeTypes,
-    edgeTypes
+    edgeTypes,
+    reactFlowWrapper
   ]);
 
   return (

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { NodeTypes, Position } from '@xyflow/react';
+import { NodeTypes } from '@xyflow/react';
 import StartNode from './StartNode';
 import SignalNode from './SignalNode';
 import ActionNode from './ActionNode';
