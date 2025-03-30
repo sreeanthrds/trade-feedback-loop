@@ -114,12 +114,12 @@ const NodeSidebar = memo(({ onAddNode }: NodeSidebarProps) => {
       <TooltipProvider delayDuration={200}>
         <div className="space-y-4">
           {/* Default nodes first */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             {nodeGroups.default.map((nodeType) => (
               <Tooltip key={nodeType.type}>
                 <TooltipTrigger asChild>
                   <div
-                    className={`flex justify-center items-center w-10 h-10 rounded-full ${nodeType.color} cursor-grab transition-all hover:scale-105 hover:shadow-md`}
+                    className={`flex justify-center items-center w-9 h-9 rounded-full ${nodeType.color} cursor-grab transition-all hover:scale-105 hover:shadow-md`}
                     draggable
                     onDragStart={(e) => handleDragStart(e, nodeType.type)}
                     onClick={(e) => handleNodeClick(nodeType.type, e)}
@@ -139,12 +139,12 @@ const NodeSidebar = memo(({ onAddNode }: NodeSidebarProps) => {
           
           {/* Action nodes with a divider */}
           {nodeGroups.action && nodeGroups.action.length > 0 && (
-            <div className="space-y-4 pt-2 mt-2 border-t border-border">
+            <div className="space-y-3 pt-2 mt-2 border-t border-border">
               {nodeGroups.action.map((nodeType) => (
                 <Tooltip key={nodeType.type}>
                   <TooltipTrigger asChild>
                     <div
-                      className={`flex justify-center items-center w-10 h-10 rounded-full ${nodeType.color} cursor-grab transition-all hover:scale-105 hover:shadow-md`}
+                      className={`flex justify-center items-center w-9 h-9 rounded-full ${nodeType.color} cursor-grab transition-all hover:scale-105 hover:shadow-md`}
                       draggable
                       onDragStart={(e) => handleDragStart(e, nodeType.type)}
                       onClick={(e) => handleNodeClick(nodeType.type, e)}

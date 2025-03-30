@@ -24,7 +24,7 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
   const sortedPositions = [...(data.positions || [])].sort((a, b) => a.priority - b.priority);
   
   return (
-    <div className={`px-4 py-2 rounded-md bg-background/95 border ${isSymbolMissing ? 'border-destructive/50' : 'border-border/50'} drag-handle`}>
+    <div className={`px-4 py-2 rounded-md bg-background/95 border ${isSymbolMissing ? 'border-destructive/50' : 'border-border/50'}`}>
       <Handle
         type="target"
         position={Position.Top}

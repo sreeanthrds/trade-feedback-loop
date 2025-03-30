@@ -17,6 +17,7 @@ export function useStartNodeSymbol() {
       if (typeof symbol === 'string') {
         setStartNodeSymbol(symbol);
       } else {
+        // If the symbol is not a string, clear it to avoid type errors
         setStartNodeSymbol(undefined);
       }
     } else {
