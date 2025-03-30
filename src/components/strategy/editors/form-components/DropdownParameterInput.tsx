@@ -10,23 +10,31 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { IndicatorParameter } from '../../utils/indicatorConfig';
+import { cn } from '@/lib/utils';
 
 interface DropdownParameterInputProps {
   param: IndicatorParameter;
   value: string;
   onChange: (value: string) => void;
+  required?: boolean;
 }
 
 const DropdownParameterInput: React.FC<DropdownParameterInputProps> = ({
   param,
   value,
-  onChange
+  onChange,
+  required = false
 }) => {
+  // Check if value is empty for validation
+  const isEmpty = !value && value !== 0;
+  const showValidationError = required && isEmpty;
+  
   return (
     <div className="space-y-2" key={param.name}>
       <div className="flex items-center gap-2">
         <Label htmlFor={`param-${param.name}`} className="text-sm">
           {param.label}
+          {required && <span className="ml-1 text-red-500">*</span>}
         </Label>
         {param.description && (
           <TooltipProvider>
@@ -45,7 +53,13 @@ const DropdownParameterInput: React.FC<DropdownParameterInputProps> = ({
         value={value}
         onValueChange={onChange}
       >
-        <SelectTrigger id={`param-${param.name}`} className="h-8">
+        <SelectTrigger 
+          id={`param-${param.name}`} 
+          className={cn(
+            "h-8",
+            showValidationError && "border-red-300 focus:ring-red-200"
+          )}
+        >
           <SelectValue placeholder="Select option" />
         </SelectTrigger>
         <SelectContent>
@@ -56,6 +70,9 @@ const DropdownParameterInput: React.FC<DropdownParameterInputProps> = ({
           ))}
         </SelectContent>
       </Select>
+      {showValidationError && (
+        <p className="text-xs text-red-500 mt-1">This field is required</p>
+      )}
     </div>
   );
 };

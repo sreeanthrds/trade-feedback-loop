@@ -10,22 +10,32 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { IndicatorParameter } from '../../utils/indicatorConfig';
+import { cn } from '@/lib/utils';
 
 interface RadioButtonParameterInputProps {
   param: IndicatorParameter;
   value: string;
   onChange: (value: string) => void;
+  required?: boolean;
 }
 
 const RadioButtonParameterInput: React.FC<RadioButtonParameterInputProps> = ({
   param,
   value,
-  onChange
+  onChange,
+  required = false
 }) => {
+  // Check if value is empty for validation
+  const isEmpty = !value && value !== 0;
+  const showValidationError = required && isEmpty;
+  
   return (
     <div className="space-y-2" key={param.name}>
       <div className="flex items-center gap-2">
-        <Label className="text-sm">{param.label}</Label>
+        <Label className="text-sm">
+          {param.label}
+          {required && <span className="ml-1 text-red-500">*</span>}
+        </Label>
         {param.description && (
           <TooltipProvider>
             <Tooltip>
@@ -42,7 +52,10 @@ const RadioButtonParameterInput: React.FC<RadioButtonParameterInputProps> = ({
       <RadioGroup
         value={value}
         onValueChange={onChange}
-        className="flex flex-col space-y-1"
+        className={cn(
+          "flex flex-col space-y-1",
+          showValidationError && "border-red-300 p-2 rounded-md border"
+        )}
       >
         {param.options?.map((option) => (
           <div key={option} className="flex items-center space-x-2">
@@ -53,6 +66,9 @@ const RadioButtonParameterInput: React.FC<RadioButtonParameterInputProps> = ({
           </div>
         ))}
       </RadioGroup>
+      {showValidationError && (
+        <p className="text-xs text-red-500 mt-1">This field is required</p>
+      )}
     </div>
   );
 };
