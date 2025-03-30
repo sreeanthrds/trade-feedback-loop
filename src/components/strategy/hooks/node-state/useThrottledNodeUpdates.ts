@@ -11,7 +11,7 @@ export function useThrottledNodeUpdates({
   processStoreUpdate
 }) {
   const isInitialRenderRef = useRef(true);
-  const updateIntervalRef = useRef<number | null>(null);
+  const updateIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const lastProcessedTimeRef = useRef(0);
   const isProcessingRef = useRef(false);
   
@@ -66,12 +66,12 @@ export function useThrottledNodeUpdates({
     };
     
     // Schedule updates with much lower frequency
-    updateIntervalRef.current = window.setInterval(processPendingUpdates, 3000);
+    updateIntervalRef.current = setInterval(processPendingUpdates, 3000);
     
     // Clean up
     return () => {
       if (updateIntervalRef.current !== null) {
-        window.clearInterval(updateIntervalRef.current);
+        clearInterval(updateIntervalRef.current);
         updateIntervalRef.current = null;
       }
     };
@@ -81,7 +81,7 @@ export function useThrottledNodeUpdates({
   useEffect(() => {
     return () => {
       if (updateTimeoutRef.current !== null) {
-        window.clearTimeout(updateTimeoutRef.current);
+        clearTimeout(updateTimeoutRef.current);
         updateTimeoutRef.current = null;
       }
     };

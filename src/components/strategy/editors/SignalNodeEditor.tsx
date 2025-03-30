@@ -4,7 +4,6 @@ import { Node } from '@xyflow/react';
 import { NodeDetailsPanel } from './shared';
 import { useSignalNodeForm } from './signal-node/useSignalNodeForm';
 import SignalNodeContent from './signal-node/SignalNodeContent';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface SignalNodeEditorProps {
   node: Node;
@@ -19,7 +18,7 @@ const SignalNodeEditor = ({ node, updateNodeData }: SignalNodeEditorProps) => {
     updateConditions 
   } = useSignalNodeForm({ node, updateNodeData });
 
-  const signalNodeInfo = "Signal nodes detect specific market conditions to trigger actions in your strategy. Use groups for complex conditions with AND/OR logic.";
+  const signalNodeInfo = "Signal nodes detect specific market conditions to trigger actions in your strategy. Connect them to action nodes like Entry or Exit to execute trades when these conditions are met.";
 
   return (
     <NodeDetailsPanel
@@ -27,28 +26,10 @@ const SignalNodeEditor = ({ node, updateNodeData }: SignalNodeEditorProps) => {
       onLabelChange={handleLabelChange}
       infoTooltip={signalNodeInfo}
       additionalContent={
-        <Tabs defaultValue="conditions" className="w-full">
-          <TabsList className="grid grid-cols-2">
-            <TabsTrigger value="conditions">Conditions</TabsTrigger>
-            <TabsTrigger value="actions">Actions</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="conditions">
-            <SignalNodeContent
-              conditions={conditions}
-              updateConditions={updateConditions}
-            />
-          </TabsContent>
-          
-          <TabsContent value="actions">
-            <div className="p-4 space-y-2">
-              <h3 className="text-sm font-medium">Action Configuration</h3>
-              <p className="text-xs text-muted-foreground">
-                Connect this signal node to action nodes to execute entry, exit, or alert actions when conditions are met.
-              </p>
-            </div>
-          </TabsContent>
-        </Tabs>
+        <SignalNodeContent
+          conditions={conditions}
+          updateConditions={updateConditions}
+        />
       }
     />
   );
