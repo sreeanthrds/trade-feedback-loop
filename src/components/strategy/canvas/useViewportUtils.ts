@@ -1,22 +1,32 @@
 
-import { useCallback } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import { useReactFlow } from '@xyflow/react';
 
 export function useViewportUtils() {
-  let reactFlowInstance = null;
+  const [instance, setInstance] = useState(null);
+  const hasFitViewRef = useRef(false);
   
-  try {
-    reactFlowInstance = useReactFlow();
-  } catch (error) {
-    console.warn('ReactFlow not initialized yet');
-  }
+  // Safely try to get the React Flow instance
+  useEffect(() => {
+    try {
+      const reactFlowInstance = useReactFlow();
+      if (reactFlowInstance) {
+        setInstance(reactFlowInstance);
+      }
+    } catch (error) {
+      console.warn('ReactFlow not initialized yet');
+    }
+  }, []);
 
   // Custom function to fit view with additional zoom out
   const fitViewWithCustomZoom = useCallback(() => {
-    if (!reactFlowInstance) return;
+    if (!instance || hasFitViewRef.current) return;
     
     try {
-      reactFlowInstance.fitView({
+      // Mark that we've done the fit view to prevent multiple calls
+      hasFitViewRef.current = true;
+      
+      instance.fitView({
         padding: 0.2,
         includeHiddenNodes: false,
         duration: 800,
@@ -25,15 +35,15 @@ export function useViewportUtils() {
       
       // After fitting, zoom out by an additional 15%
       setTimeout(() => {
-        if (!reactFlowInstance) return;
+        if (!instance) return;
         
-        const { zoom } = reactFlowInstance.getViewport();
+        const { zoom } = instance.getViewport();
         const newZoom = zoom * 0.85; // 15% more zoomed out
         
-        reactFlowInstance.setViewport(
+        instance.setViewport(
           { 
-            x: reactFlowInstance.getViewport().x, 
-            y: reactFlowInstance.getViewport().y, 
+            x: instance.getViewport().x, 
+            y: instance.getViewport().y, 
             zoom: newZoom 
           }, 
           { duration: 200 }
@@ -42,10 +52,10 @@ export function useViewportUtils() {
     } catch (error) {
       console.error('Error in fitViewWithCustomZoom', error);
     }
-  }, [reactFlowInstance]);
+  }, [instance]);
 
   return {
     fitViewWithCustomZoom,
-    reactFlowInstance
+    reactFlowInstance: instance
   };
 }

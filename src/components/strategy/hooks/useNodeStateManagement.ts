@@ -15,6 +15,48 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
   const isNodeOperationInProgressRef = useRef(false);
   const isProcessingNodesChangeRef = useRef(false);
   const initialRenderRef = useRef(true);
+  const operationQueueRef = useRef<Array<() => void>>([]);
+  const isExecutingQueueRef = useRef(false);
+
+  // Setup a queue processor for node operations
+  useEffect(() => {
+    const processQueue = () => {
+      if (isExecutingQueueRef.current || operationQueueRef.current.length === 0) {
+        return;
+      }
+      
+      isExecutingQueueRef.current = true;
+      
+      try {
+        // Execute the first operation in the queue
+        const operation = operationQueueRef.current.shift();
+        if (operation) {
+          operation();
+        }
+      } finally {
+        isExecutingQueueRef.current = false;
+        
+        // Process next item if available
+        if (operationQueueRef.current.length > 0) {
+          setTimeout(processQueue, 50);
+        }
+      }
+    };
+    
+    // Setup interval to check queue
+    const interval = setInterval(() => {
+      if (operationQueueRef.current.length > 0 && !isExecutingQueueRef.current) {
+        processQueue();
+      }
+    }, 100);
+    
+    return () => {
+      clearInterval(interval);
+      if (updateTimeoutRef.current !== null) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Enhanced node change handler with improved drag detection
   const onNodesChange = useCallback((changes) => {
@@ -47,16 +89,16 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
           const pendingNodes = pendingNodesUpdate.current;
           pendingNodesUpdate.current = null;
           
-          // Use setTimeout to break the React update cycle
-          setTimeout(() => {
+          // Queue the update to break the React update cycle
+          operationQueueRef.current.push(() => {
             strategyStore.setNodes(pendingNodes);
             strategyStore.addHistoryItem(pendingNodes, strategyStore.edges);
             
-            // Reset operation flag after a short delay to ensure updates are completed
+            // Reset operation flag
             setTimeout(() => {
               isNodeOperationInProgressRef.current = false;
             }, 50);
-          }, 0);
+          });
         } else {
           // Reset operation flag
           setTimeout(() => {
@@ -79,13 +121,9 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
         : updatedNodes;
       
       // Skip updates if nothing has changed to prevent infinite loops
-      const prevNodesJSON = JSON.stringify(prevNodes.map(n => ({ id: n.id, data: n.data })));
-      const newNodesJSON = JSON.stringify(newNodes.map(n => ({ id: n.id, data: n.data })));
-      if (prevNodesJSON === newNodesJSON && !initialRenderRef.current) {
+      if (prevNodes === newNodes) {
         return prevNodes;
       }
-      
-      initialRenderRef.current = false;
       
       // Add or update timestamp to force re-render and ensure node stability
       const nodesWithTimestamp = newNodes.map(node => ({
@@ -120,17 +158,16 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
           updateTimeoutRef.current = null;
         }
         
-        // Schedule the update to the store with setTimeout to break the React update cycle
+        // Queue the update to break the React update cycle
         isNodeOperationInProgressRef.current = true;
-        updateTimeoutRef.current = setTimeout(() => {
+        operationQueueRef.current.push(() => {
           strategyStore.setNodes(nodesWithTimestamp);
-          updateTimeoutRef.current = null;
           
           // Reset operation flag after a short delay
           setTimeout(() => {
             isNodeOperationInProgressRef.current = false;
           }, 50);
-        }, 50);
+        });
       } else {
         pendingNodesUpdate.current = nodesWithTimestamp;
       }
@@ -138,15 +175,6 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
       return nodesWithTimestamp;
     });
   }, [setLocalNodes, strategyStore]);
-
-  // Set up a cleanup function for timeouts
-  useEffect(() => {
-    return () => {
-      if (updateTimeoutRef.current !== null) {
-        clearTimeout(updateTimeoutRef.current);
-      }
-    };
-  }, []);
 
   return {
     nodes,

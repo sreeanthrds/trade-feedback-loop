@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useCallback, memo, useMemo } from 'react';
-import { ReactFlow, useReactFlow, Background, Controls, BackgroundVariant } from '@xyflow/react';
+import { ReactFlow, Background, Controls, BackgroundVariant } from '@xyflow/react';
 import { useDragHandling } from './useDragHandling';
 import { useViewportUtils } from './useViewportUtils';
 import CanvasControls from './CanvasControls';
@@ -34,15 +34,6 @@ const ReactFlowCanvas = memo(({
   nodeTypes,
   edgeTypes
 }: ReactFlowCanvasProps) => {
-  // Get the ReactFlow instance safely
-  let reactFlowInstance;
-  try {
-    reactFlowInstance = useReactFlow();
-  } catch (error) {
-    console.warn('ReactFlow not initialized yet');
-    return <div className="h-full w-full flex items-center justify-center">Loading canvas...</div>;
-  }
-  
   const initialLoadRef = useRef(true);
   const renderCountRef = useRef(0);
   const { fitViewWithCustomZoom } = useViewportUtils();
@@ -76,7 +67,7 @@ const ReactFlowCanvas = memo(({
 
   // Only fit view on initial load or when explicitly requested (import)
   useEffect(() => {
-    if (!initialLoadRef.current || !nodes.length || !reactFlowInstance) {
+    if (!initialLoadRef.current || !nodes.length) {
       return;
     }
     
@@ -87,7 +78,7 @@ const ReactFlowCanvas = memo(({
     }, 500);
     
     return () => clearTimeout(timeoutId);
-  }, [nodes.length, reactFlowInstance, fitViewWithCustomZoom]);
+  }, [nodes.length, fitViewWithCustomZoom]);
 
   // Simple function to determine node class name for minimap
   const nodeClassName = useCallback((node) => node.type, []);

@@ -1,5 +1,5 @@
 
-import React, { useRef, useMemo, useState, useCallback } from 'react';
+import React, { useRef, useMemo, useState, useCallback, useEffect } from 'react';
 import { createNodeTypes } from './nodes/nodeTypes';
 import { createEdgeTypes } from './edges/edgeTypes';
 import { useFlowState } from './hooks/useFlowState';
@@ -14,19 +14,29 @@ import ReactFlowCanvas from './canvas/ReactFlowCanvas';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const StrategyFlowContent: React.FC = () => {
+interface StrategyFlowContentProps {
+  onReady?: () => void;
+}
+
+const StrategyFlowContent: React.FC<StrategyFlowContentProps> = ({ onReady }) => {
   // Get all flow state from a custom hook
   const flowState = useFlowState();
   const isMobile = useIsMobile();
   const [sidebarVisible, setSidebarVisible] = useState(false);
+  const readyFiredRef = useRef(false);
   
-  // If React Flow is not ready, show a loading indicator
-  if (!flowState.reactFlowInstance) {
-    return (
-      <div className="h-full w-full flex items-center justify-center">
-        <div className="animate-pulse">Initializing strategy builder...</div>
-      </div>
-    );
+  // Notify parent when React Flow is ready
+  useEffect(() => {
+    if (flowState.isReactFlowReady && !readyFiredRef.current && onReady) {
+      readyFiredRef.current = true;
+      onReady();
+    }
+  }, [flowState.isReactFlowReady, onReady]);
+  
+  // If React Flow is not ready, do not render anything visible
+  // This prevents any React Flow hooks from being called outside the provider
+  if (!flowState.isReactFlowReady) {
+    return null;
   }
   
   // Get all flow handlers from a custom hook
@@ -58,7 +68,7 @@ const StrategyFlowContent: React.FC = () => {
   }, []);
   
   // Memoize the ReactFlowCanvas props to prevent extra renders
-  const canvasProps = useMemo(() => ({
+  const canvasProps = {
     nodes: flowState.nodes,
     edges: flowState.edges,
     onNodesChange: flowState.onNodesChange,
@@ -74,23 +84,7 @@ const StrategyFlowContent: React.FC = () => {
     onDeleteEdge: handleDeleteEdge,
     onAddNode: handleAddNode,
     updateNodeData
-  }), [
-    flowState.nodes, 
-    flowState.edges, 
-    flowState.onNodesChange, 
-    flowState.onEdgesChange, 
-    flowState.onConnect, 
-    flowState.reactFlowWrapper,
-    nodeTypes, 
-    edgeTypes, 
-    onNodeClick, 
-    resetStrategy, 
-    handleImportSuccess, 
-    handleDeleteNode, 
-    handleDeleteEdge, 
-    handleAddNode, 
-    updateNodeData
-  ]);
+  };
   
   // On mobile, use a sheet for the panel
   if (isMobile) {

@@ -14,13 +14,19 @@ export function useFlowState() {
   const isReactFlowReadyRef = useRef(false);
   const [isReactFlowReady, setIsReactFlowReady] = useState(false);
   
-  // Get React Flow instance safely
-  let reactFlowInstance;
+  // Get React Flow instance safely - wrapped in try/catch to prevent errors
+  let reactFlowInstance = null;
   try {
+    // Only attempt to use React Flow if inside the provider context
     reactFlowInstance = useReactFlow();
-    if (!isReactFlowReady && reactFlowInstance) {
-      setIsReactFlowReady(true);
+    
+    // Only set the ready state once to avoid infinite renders
+    if (!isReactFlowReady && reactFlowInstance && !isReactFlowReadyRef.current) {
       isReactFlowReadyRef.current = true;
+      // Use setTimeout to break the render cycle
+      setTimeout(() => {
+        setIsReactFlowReady(true);
+      }, 0);
     }
   } catch (error) {
     // Handle the case where useReactFlow is called outside of provider
@@ -50,7 +56,7 @@ export function useFlowState() {
   // Panel state
   const { isPanelOpen, setIsPanelOpen } = usePanelState();
   
-  // Sync with localStorage
+  // Sync with localStorage - but only if React Flow is ready
   const { isInitialLoadRef } = useLocalStorageSync(
     setNodes,
     setEdges,
@@ -59,6 +65,7 @@ export function useFlowState() {
   );
   
   // Use a separate hook for store sync to avoid render-time updates
+  // Only enable store sync if React Flow is ready
   useStoreSync(
     nodes,
     edges,
@@ -75,13 +82,6 @@ export function useFlowState() {
       baseOnConnect(params, nodes);
     }
   }, [baseOnConnect, nodes]);
-
-  // Effect to initialize React Flow after the provider is available
-  useEffect(() => {
-    if (isReactFlowReady && !isReactFlowReadyRef.current) {
-      isReactFlowReadyRef.current = true;
-    }
-  }, [isReactFlowReady]);
 
   return {
     nodes,
