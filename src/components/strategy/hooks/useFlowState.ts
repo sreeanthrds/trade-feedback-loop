@@ -1,5 +1,5 @@
 
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useEffect } from 'react';
 import { useReactFlow } from '@xyflow/react';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
 import { initialNodes } from '../utils/flowUtils';
@@ -13,6 +13,8 @@ export function useFlowState() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const reactFlowInstance = useReactFlow();
   const strategyStore = useStrategyStore();
+  const isInitializedRef = useRef(false);
+  const onConnectMemoizedRef = useRef(null);
   
   // Node state management
   const {
@@ -35,7 +37,7 @@ export function useFlowState() {
   // Panel state
   const { isPanelOpen, setIsPanelOpen } = usePanelState();
   
-  // Sync with localStorage
+  // Sync with localStorage - only run once
   const { isInitialLoadRef } = useLocalStorageSync(
     setNodes,
     setEdges,
@@ -43,20 +45,34 @@ export function useFlowState() {
     initialNodes
   );
   
-  // Use a separate effect for store sync to avoid render-time updates
-  useStoreSync(
-    nodes,
-    edges,
-    setNodes,
-    setEdges,
-    strategyStore,
-    isDraggingRef,
-    isInitialLoadRef
-  );
+  // Only sync with store after initial load is complete
+  useEffect(() => {
+    if (!isInitializedRef.current && reactFlowInstance) {
+      isInitializedRef.current = true;
+      
+      // We delay the store sync to ensure initial load is complete
+      const syncTimeout = setTimeout(() => {
+        // Use a separate effect for store sync to avoid render-time updates
+        useStoreSync(
+          nodes,
+          edges,
+          setNodes,
+          setEdges,
+          strategyStore,
+          isDraggingRef,
+          isInitialLoadRef
+        );
+      }, 1000); // Longer delay for initialization
+      
+      return () => clearTimeout(syncTimeout);
+    }
+  }, [reactFlowInstance]);
   
-  // Create onConnect handler with nodes
+  // Create onConnect handler with nodes that doesn't recreate on every render
   const onConnect = useMemo(() => {
-    return (params) => baseOnConnect(params, nodes);
+    // Store the current handler in a ref to avoid recreating it constantly
+    onConnectMemoizedRef.current = (params) => baseOnConnect(params, nodes);
+    return onConnectMemoizedRef.current;
   }, [baseOnConnect, nodes]);
 
   return {

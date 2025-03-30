@@ -15,6 +15,7 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
   const updateCycleRef = useRef(false);
   const isProcessingChangesRef = useRef(false);
   const lastNodesStringRef = useRef('');
+  const storeUpdateInProgressRef = useRef(false);
 
   // Enhanced node change handler with improved drag detection
   const onNodesChangeWithDragDetection = useCallback((changes) => {
@@ -43,32 +44,44 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
           // Apply the pending update once the drag is complete
           if (pendingNodesUpdate.current) {
             // Use setTimeout to break the React update cycle
+            const nodesToUpdate = [...pendingNodesUpdate.current];
+            pendingNodesUpdate.current = null;
+            
+            // Introduce a delay to avoid immediate updates
             setTimeout(() => {
-              if (!updateCycleRef.current) {
+              if (!updateCycleRef.current && !storeUpdateInProgressRef.current) {
                 updateCycleRef.current = true;
+                storeUpdateInProgressRef.current = true;
+                
                 try {
-                  strategyStore.setNodes(pendingNodesUpdate.current);
-                  strategyStore.addHistoryItem(pendingNodesUpdate.current, strategyStore.edges);
+                  strategyStore.setNodes(nodesToUpdate);
+                  strategyStore.addHistoryItem(nodesToUpdate, strategyStore.edges);
                 } catch (error) {
                   console.error('Error updating store after drag:', error);
                 } finally {
-                  pendingNodesUpdate.current = null;
-                  updateCycleRef.current = false;
+                  // Reset flags after a delay
+                  setTimeout(() => {
+                    updateCycleRef.current = false;
+                    storeUpdateInProgressRef.current = false;
+                  }, 200);
                 }
               }
-            }, 100);
+            }, 150);
           }
         }
       }
     } finally {
-      isProcessingChangesRef.current = false;
+      // Reset processing flag after a short delay to avoid immediate re-entry
+      setTimeout(() => {
+        isProcessingChangesRef.current = false;
+      }, 0);
     }
   }, [onNodesChange, strategyStore]);
 
   // Custom setNodes wrapper with improved throttling and cycle detection
   const setNodes = useCallback((updatedNodes: Node[] | ((prevNodes: Node[]) => Node[])) => {
     // If already in an update cycle, skip to prevent loops
-    if (updateCycleRef.current) return;
+    if (updateCycleRef.current || storeUpdateInProgressRef.current) return;
     
     // Always update local state for UI responsiveness
     setLocalNodes((prevNodes) => {
@@ -102,7 +115,7 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
         
         // Throttle updates to the store during frequent operations
         const now = Date.now();
-        if (now - lastUpdateTimeRef.current > 200) {
+        if (now - lastUpdateTimeRef.current > 250) { // Increased throttle time
           lastUpdateTimeRef.current = now;
           
           // Clear any pending timeout
@@ -113,18 +126,24 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
           
           // Schedule the update to the store with setTimeout to break the React update cycle
           updateTimeoutRef.current = window.setTimeout(() => {
-            if (!updateCycleRef.current) {
+            if (!updateCycleRef.current && !storeUpdateInProgressRef.current) {
               updateCycleRef.current = true;
+              storeUpdateInProgressRef.current = true;
+              
               try {
                 strategyStore.setNodes(newNodes);
               } catch (error) {
                 console.error('Error updating store in setNodes:', error);
               } finally {
-                updateTimeoutRef.current = null;
-                updateCycleRef.current = false;
+                // Reset flags after a delay
+                setTimeout(() => {
+                  updateTimeoutRef.current = null;
+                  updateCycleRef.current = false;
+                  storeUpdateInProgressRef.current = false;
+                }, 200);
               }
             }
-          }, 100);
+          }, 150); // Increased delay
         } else {
           pendingNodesUpdate.current = newNodes;
         }
@@ -148,12 +167,17 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
     const interval = setInterval(() => {
       const now = Date.now();
       
-      // Only process pending updates if enough time has passed
-      if (pendingNodesUpdate.current && now - lastUpdateTimeRef.current > 200 && !updateCycleRef.current) {
+      // Only process pending updates if enough time has passed and not in a cycle
+      if (pendingNodesUpdate.current && 
+          now - lastUpdateTimeRef.current > 250 && 
+          !updateCycleRef.current && 
+          !storeUpdateInProgressRef.current) {
+        
         updateCycleRef.current = true;
+        storeUpdateInProgressRef.current = true;
         lastUpdateTimeRef.current = now;
         
-        const nodesToUpdate = pendingNodesUpdate.current;
+        const nodesToUpdate = [...pendingNodesUpdate.current];
         pendingNodesUpdate.current = null;
         
         try {
@@ -161,10 +185,14 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
         } catch (error) {
           console.error('Error processing pending updates:', error);
         } finally {
-          updateCycleRef.current = false;
+          // Reset flags after a delay
+          setTimeout(() => {
+            updateCycleRef.current = false;
+            storeUpdateInProgressRef.current = false;
+          }, 200);
         }
       }
-    }, 250);
+    }, 300); // Check less frequently
     
     return () => clearInterval(interval);
   }, [strategyStore]);
@@ -174,6 +202,7 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
     return () => {
       if (updateTimeoutRef.current !== null) {
         window.clearTimeout(updateTimeoutRef.current);
+        updateTimeoutRef.current = null;
       }
     };
   }, []);

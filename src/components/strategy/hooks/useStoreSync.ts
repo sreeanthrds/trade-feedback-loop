@@ -20,6 +20,17 @@ export function useStoreSync(
   const pendingEdgeUpdateRef = useRef<Edge[] | null>(null);
   const lastNodeUpdateTimeRef = useRef(0);
   const lastEdgeUpdateTimeRef = useRef(0);
+  const syncTimeoutRef = useRef<number | null>(null);
+  
+  // Cleanup function for any active timeouts
+  useEffect(() => {
+    return () => {
+      if (syncTimeoutRef.current !== null) {
+        window.clearTimeout(syncTimeoutRef.current);
+        syncTimeoutRef.current = null;
+      }
+    };
+  }, []);
   
   // Sync nodes from store to ReactFlow with better cycle detection
   useEffect(() => {
@@ -77,32 +88,55 @@ export function useStoreSync(
       
       // Use flag and setTimeout to break the potential update cycle
       isUpdatingFromStoreRef.current = true;
-      const timeoutId = setTimeout(() => {
-        setNodes(storeNodes);
-        // Reset the flag after a short delay to allow the update to complete
-        setTimeout(() => {
-          isUpdatingFromStoreRef.current = false;
-        }, 50);
-      }, 50);
       
-      return () => clearTimeout(timeoutId);
+      // Clear any existing timeout
+      if (syncTimeoutRef.current !== null) {
+        window.clearTimeout(syncTimeoutRef.current);
+      }
+      
+      syncTimeoutRef.current = window.setTimeout(() => {
+        try {
+          setNodes(storeNodes);
+        } catch (error) {
+          console.error('Error syncing nodes from store:', error);
+        } finally {
+          // Reset the flag after a short delay to allow the update to complete
+          window.setTimeout(() => {
+            isUpdatingFromStoreRef.current = false;
+            syncTimeoutRef.current = null;
+          }, 100);
+        }
+      }, 50);
     }
     
     // Process any pending updates that were throttled
-    if (pendingNodeUpdateRef.current && now - lastNodeUpdateTimeRef.current >= 200) {
-      const pendingNodes = pendingNodeUpdateRef.current;
-      pendingNodeUpdateRef.current = null;
-      lastNodeUpdateTimeRef.current = now;
-      
-      isUpdatingFromStoreRef.current = true;
-      const timeoutId = setTimeout(() => {
-        setNodes(pendingNodes);
-        setTimeout(() => {
-          isUpdatingFromStoreRef.current = false;
+    if (pendingNodeUpdateRef.current) {
+      const now = Date.now();
+      if (now - lastNodeUpdateTimeRef.current >= 200) {
+        const pendingNodes = pendingNodeUpdateRef.current;
+        pendingNodeUpdateRef.current = null;
+        lastNodeUpdateTimeRef.current = now;
+        
+        isUpdatingFromStoreRef.current = true;
+        
+        // Clear any existing timeout
+        if (syncTimeoutRef.current !== null) {
+          window.clearTimeout(syncTimeoutRef.current);
+        }
+        
+        syncTimeoutRef.current = window.setTimeout(() => {
+          try {
+            setNodes(pendingNodes);
+          } catch (error) {
+            console.error('Error processing pending node updates:', error);
+          } finally {
+            window.setTimeout(() => {
+              isUpdatingFromStoreRef.current = false;
+              syncTimeoutRef.current = null;
+            }, 100);
+          }
         }, 50);
-      }, 50);
-      
-      return () => clearTimeout(timeoutId);
+      }
     }
   }, [strategyStore.nodes, setNodes, nodes, isDraggingRef, isInitialLoadRef]);
 
@@ -125,14 +159,23 @@ export function useStoreSync(
         lastEdgeUpdateTimeRef.current = now;
         isUpdatingFromStoreRef.current = true;
         
-        const timeoutId = setTimeout(() => {
-          setEdges([]);
-          setTimeout(() => {
-            isUpdatingFromStoreRef.current = false;
-          }, 50);
-        }, 50);
+        // Clear any existing timeout
+        if (syncTimeoutRef.current !== null) {
+          window.clearTimeout(syncTimeoutRef.current);
+        }
         
-        return () => clearTimeout(timeoutId);
+        syncTimeoutRef.current = window.setTimeout(() => {
+          try {
+            setEdges([]);
+          } catch (error) {
+            console.error('Error removing all edges:', error);
+          } finally {
+            window.setTimeout(() => {
+              isUpdatingFromStoreRef.current = false;
+              syncTimeoutRef.current = null;
+            }, 100);
+          }
+        }, 50);
       }
       return;
     }
@@ -161,31 +204,54 @@ export function useStoreSync(
       
       // Use flag and setTimeout pattern
       isUpdatingFromStoreRef.current = true;
-      const timeoutId = setTimeout(() => {
-        setEdges(storeEdges);
-        setTimeout(() => {
-          isUpdatingFromStoreRef.current = false;
-        }, 50);
-      }, 50);
       
-      return () => clearTimeout(timeoutId);
+      // Clear any existing timeout
+      if (syncTimeoutRef.current !== null) {
+        window.clearTimeout(syncTimeoutRef.current);
+      }
+      
+      syncTimeoutRef.current = window.setTimeout(() => {
+        try {
+          setEdges(storeEdges);
+        } catch (error) {
+          console.error('Error syncing edges from store:', error);
+        } finally {
+          window.setTimeout(() => {
+            isUpdatingFromStoreRef.current = false;
+            syncTimeoutRef.current = null;
+          }, 100);
+        }
+      }, 50);
     }
     
     // Process any pending edge updates
-    if (pendingEdgeUpdateRef.current && now - lastEdgeUpdateTimeRef.current >= 200) {
-      const pendingEdges = pendingEdgeUpdateRef.current;
-      pendingEdgeUpdateRef.current = null;
-      lastEdgeUpdateTimeRef.current = now;
-      
-      isUpdatingFromStoreRef.current = true;
-      const timeoutId = setTimeout(() => {
-        setEdges(pendingEdges);
-        setTimeout(() => {
-          isUpdatingFromStoreRef.current = false;
+    if (pendingEdgeUpdateRef.current) {
+      const now = Date.now();
+      if (now - lastEdgeUpdateTimeRef.current >= 200) {
+        const pendingEdges = pendingEdgeUpdateRef.current;
+        pendingEdgeUpdateRef.current = null;
+        lastEdgeUpdateTimeRef.current = now;
+        
+        isUpdatingFromStoreRef.current = true;
+        
+        // Clear any existing timeout
+        if (syncTimeoutRef.current !== null) {
+          window.clearTimeout(syncTimeoutRef.current);
+        }
+        
+        syncTimeoutRef.current = window.setTimeout(() => {
+          try {
+            setEdges(pendingEdges);
+          } catch (error) {
+            console.error('Error processing pending edge updates:', error);
+          } finally {
+            window.setTimeout(() => {
+              isUpdatingFromStoreRef.current = false;
+              syncTimeoutRef.current = null;
+            }, 100);
+          }
         }, 50);
-      }, 50);
-      
-      return () => clearTimeout(timeoutId);
+      }
     }
   }, [strategyStore.edges, setEdges, edges, isInitialLoadRef]);
 }

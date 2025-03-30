@@ -13,11 +13,23 @@ export function useEdgeStateManagement(initialEdges: Edge[] = [], strategyStore:
   const pendingEdgeUpdateRef = useRef<Edge[] | null>(null);
   const lastEdgeUpdateTimeRef = useRef(0);
   const lastEdgesStringRef = useRef('');
+  const edgeUpdateTimeoutRef = useRef<number | null>(null);
+  const storeUpdateInProgressRef = useRef(false);
+
+  // Cleanup function for timeouts
+  React.useEffect(() => {
+    return () => {
+      if (edgeUpdateTimeoutRef.current !== null) {
+        window.clearTimeout(edgeUpdateTimeoutRef.current);
+        edgeUpdateTimeoutRef.current = null;
+      }
+    };
+  }, []);
 
   // Custom setEdges wrapper with improved cycle detection
   const setEdges = useCallback((updatedEdges: Edge[] | ((prevEdges: Edge[]) => Edge[])) => {
     // Skip if we're in an update cycle to prevent loops
-    if (updateCycleRef.current) return;
+    if (updateCycleRef.current || storeUpdateInProgressRef.current) return;
     
     // If we're already processing an edge update, queue it
     if (isProcessingEdgeUpdateRef.current) {
@@ -54,44 +66,61 @@ export function useEdgeStateManagement(initialEdges: Edge[] = [], strategyStore:
         
         // Throttle updates to prevent rapid succession
         const now = Date.now();
-        if (now - lastEdgeUpdateTimeRef.current > 200) {
+        if (now - lastEdgeUpdateTimeRef.current > 250) { // Increased throttle time
           lastEdgeUpdateTimeRef.current = now;
           
+          // Clear any pending timeout
+          if (edgeUpdateTimeoutRef.current !== null) {
+            window.clearTimeout(edgeUpdateTimeoutRef.current);
+            edgeUpdateTimeoutRef.current = null;
+          }
+          
           // Use setTimeout to break potential update cycles
-          setTimeout(() => {
-            if (!updateCycleRef.current) {
+          edgeUpdateTimeoutRef.current = window.setTimeout(() => {
+            if (!updateCycleRef.current && !storeUpdateInProgressRef.current) {
               updateCycleRef.current = true;
+              storeUpdateInProgressRef.current = true;
+              
               try {
                 strategyStore.setEdges(newEdges);
               } catch (error) {
                 console.error('Error updating edge store:', error);
               } finally {
-                updateCycleRef.current = false;
-                isProcessingEdgeUpdateRef.current = false;
-                
-                // Process any pending edge update
-                if (pendingEdgeUpdateRef.current) {
-                  const pendingEdges = pendingEdgeUpdateRef.current;
-                  pendingEdgeUpdateRef.current = null;
-                  setEdges(pendingEdges);
-                }
+                // Reset flags after a delay
+                setTimeout(() => {
+                  updateCycleRef.current = false;
+                  storeUpdateInProgressRef.current = false;
+                  
+                  // Process any pending edge update
+                  if (pendingEdgeUpdateRef.current) {
+                    const pendingEdges = pendingEdgeUpdateRef.current;
+                    pendingEdgeUpdateRef.current = null;
+                    setEdges(pendingEdges);
+                  }
+                  
+                  isProcessingEdgeUpdateRef.current = false;
+                }, 200);
               }
+            } else {
+              isProcessingEdgeUpdateRef.current = false;
             }
-          }, 100);
+          }, 150); // Increased delay
         } else {
           // Queue the update for later
           pendingEdgeUpdateRef.current = newEdges;
+          
+          // Process the queued update after a delay
           setTimeout(() => {
             isProcessingEdgeUpdateRef.current = false;
             
-            // Process the pending update
+            // Process the pending update if it exists
             if (pendingEdgeUpdateRef.current) {
               const pendingEdges = pendingEdgeUpdateRef.current;
               pendingEdgeUpdateRef.current = null;
               lastEdgeUpdateTimeRef.current = Date.now();
               setEdges(pendingEdges);
             }
-          }, 50);
+          }, 100);
         }
         
         return newEdges;
@@ -108,8 +137,8 @@ export function useEdgeStateManagement(initialEdges: Edge[] = [], strategyStore:
     (params: Connection, nodes: Node[]) => {
       if (!validateConnection(params, nodes)) return;
       
-      // Skip if we're in an update cycle
-      if (updateCycleRef.current) return;
+      // Skip if we're in an update cycle or processing another update
+      if (updateCycleRef.current || storeUpdateInProgressRef.current || isProcessingEdgeUpdateRef.current) return;
       
       // Add edge to local state
       const newEdges = addEdge(params, edges);
@@ -117,18 +146,24 @@ export function useEdgeStateManagement(initialEdges: Edge[] = [], strategyStore:
       
       // Update the store with setTimeout to break cycles
       setTimeout(() => {
-        if (!updateCycleRef.current) {
+        if (!updateCycleRef.current && !storeUpdateInProgressRef.current) {
           updateCycleRef.current = true;
+          storeUpdateInProgressRef.current = true;
+          
           try {
             strategyStore.setEdges(newEdges);
             strategyStore.addHistoryItem(strategyStore.nodes, newEdges);
           } catch (error) {
             console.error('Error in onConnect:', error);
           } finally {
-            updateCycleRef.current = false;
+            // Reset flags after a delay
+            setTimeout(() => {
+              updateCycleRef.current = false;
+              storeUpdateInProgressRef.current = false;
+            }, 200);
           }
         }
-      }, 100);
+      }, 150);
     },
     [edges, setLocalEdges, strategyStore]
   );
