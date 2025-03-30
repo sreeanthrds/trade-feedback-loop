@@ -37,6 +37,7 @@ const StrategyFlowContent = () => {
   } = useFlowState();
 
   // Create handlers but don't cause renders when they're updated
+  // Make sure we pass all required props correctly
   const handlers = useFlowHandlers({
     nodes,
     edges,

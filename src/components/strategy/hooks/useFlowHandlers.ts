@@ -23,6 +23,21 @@ interface UseFlowHandlersProps {
 }
 
 export const useFlowHandlers = (props: UseFlowHandlersProps) => {
+  // Check if props is defined to prevent the error
+  if (!props) {
+    console.error('Props is undefined in useFlowHandlers');
+    return {
+      onNodeClick: () => {},
+      handleAddNode: () => {},
+      updateNodeData: () => {},
+      handleDeleteNode: () => {},
+      handleDeleteEdge: () => {},
+      closePanel: () => {},
+      resetStrategy: () => {},
+      handleImportSuccess: () => {}
+    };
+  }
+
   const {
     nodes,
     edges,
