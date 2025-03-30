@@ -14,6 +14,7 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
   const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isNodeOperationInProgressRef = useRef(false);
   const isProcessingNodesChangeRef = useRef(false);
+  const initialRenderRef = useRef(true);
 
   // Enhanced node change handler with improved drag detection
   const onNodesChange = useCallback((changes) => {
@@ -76,6 +77,15 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
       const newNodes = typeof updatedNodes === 'function' 
         ? updatedNodes(prevNodes) 
         : updatedNodes;
+      
+      // Skip updates if nothing has changed to prevent infinite loops
+      const prevNodesJSON = JSON.stringify(prevNodes.map(n => ({ id: n.id, data: n.data })));
+      const newNodesJSON = JSON.stringify(newNodes.map(n => ({ id: n.id, data: n.data })));
+      if (prevNodesJSON === newNodesJSON && !initialRenderRef.current) {
+        return prevNodes;
+      }
+      
+      initialRenderRef.current = false;
       
       // Add or update timestamp to force re-render and ensure node stability
       const nodesWithTimestamp = newNodes.map(node => ({

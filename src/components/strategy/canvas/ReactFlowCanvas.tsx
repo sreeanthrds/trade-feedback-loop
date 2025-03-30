@@ -39,14 +39,8 @@ const ReactFlowCanvas = memo(({
   const { fitViewWithCustomZoom } = useViewportUtils();
   const { isNodeDraggingRef, handleNodesChange } = useDragHandling();
   
-  // Log nodes for debugging
-  useEffect(() => {
-    console.log("Current nodes in ReactFlowCanvas:", nodes);
-  }, [nodes]);
-  
   // Custom nodes change handler with drag detection
   const customNodesChangeHandler = useCallback((changes) => {
-    console.log("Node changes:", changes);
     handleNodesChange(changes, onNodesChange);
   }, [handleNodesChange, onNodesChange]);
 
@@ -61,7 +55,7 @@ const ReactFlowCanvas = memo(({
       
       return () => clearTimeout(timeoutId);
     }
-  }, [nodes, edges, reactFlowInstance, fitViewWithCustomZoom]);
+  }, [nodes.length, reactFlowInstance, fitViewWithCustomZoom]);
 
   // Simple function to determine node class name for minimap
   const nodeClassName = useCallback((node) => node.type, []);

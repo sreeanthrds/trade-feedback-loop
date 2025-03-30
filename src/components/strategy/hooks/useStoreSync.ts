@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Node, Edge } from '@xyflow/react';
 
 /**
@@ -14,14 +14,27 @@ export function useStoreSync(
   isDraggingRef: React.MutableRefObject<boolean>,
   isInitialLoadRef: React.MutableRefObject<boolean>
 ) {
+  const prevNodesRef = useRef<string>('');
+  const prevEdgesRef = useRef<string>('');
+  
   // Sync nodes from store to ReactFlow
   useEffect(() => {
     if (isDraggingRef.current || isInitialLoadRef.current) return;
     
     const storeNodes = strategyStore.nodes;
-    if (storeNodes.length > 0 && 
-        JSON.stringify(storeNodes.map(n => ({ id: n.id, type: n.type, data: n.data }))) !== 
-        JSON.stringify(nodes.map(n => ({ id: n.id, type: n.type, data: n.data })))) {
+    if (storeNodes.length === 0) return;
+    
+    // Create simplified representation for comparison to avoid infinite update loops
+    const nodesSignature = JSON.stringify(
+      storeNodes.map(n => ({ id: n.id, type: n.type, dataId: n.data?._lastUpdated }))
+    );
+    const currentNodesSignature = JSON.stringify(
+      nodes.map(n => ({ id: n.id, type: n.type, dataId: n.data?._lastUpdated }))
+    );
+    
+    // Only update if there's an actual difference
+    if (nodesSignature !== currentNodesSignature && nodesSignature !== prevNodesRef.current) {
+      prevNodesRef.current = nodesSignature;
       setNodes(storeNodes);
     }
   }, [strategyStore.nodes, setNodes, nodes, isDraggingRef, isInitialLoadRef]);
@@ -31,7 +44,14 @@ export function useStoreSync(
     if (isInitialLoadRef.current) return;
     
     const storeEdges = strategyStore.edges;
-    if (JSON.stringify(storeEdges) !== JSON.stringify(edges)) {
+    
+    // Create simplified representation for comparison
+    const edgesSignature = JSON.stringify(storeEdges.map(e => ({ id: e.id, source: e.source, target: e.target })));
+    const currentEdgesSignature = JSON.stringify(edges.map(e => ({ id: e.id, source: e.source, target: e.target })));
+    
+    // Only update if there's an actual difference
+    if (edgesSignature !== currentEdgesSignature && edgesSignature !== prevEdgesRef.current) {
+      prevEdgesRef.current = edgesSignature;
       setEdges(storeEdges);
     }
   }, [strategyStore.edges, setEdges, edges, isInitialLoadRef]);
