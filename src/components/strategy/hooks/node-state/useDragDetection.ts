@@ -1,5 +1,5 @@
 
-import { useCallback, useRef, useMemo } from 'react';
+import { useCallback, useRef, useMemo, useEffect } from 'react';
 
 /**
  * Hook to manage drag detection and state
@@ -96,7 +96,7 @@ export function useDragDetection() {
   }, []);
 
   // Clean up timeouts
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
       if (dragUpdateTimeoutRef.current !== null) {
         clearTimeout(dragUpdateTimeoutRef.current);

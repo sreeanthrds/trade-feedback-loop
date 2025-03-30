@@ -1,5 +1,5 @@
 
-import { useCallback, useRef, useMemo } from 'react';
+import { useCallback, useRef, useMemo, useEffect } from 'react';
 
 /**
  * Hook to create a custom onNodesChange handler with processing prevention
@@ -63,7 +63,7 @@ export function useCustomNodesChange(onNodesChangeWithDragDetection, onNodesChan
   }, [onNodesChangeWithDragDetection, onNodesChange]);
 
   // Clean up timeouts
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
       if (processingTimeoutRef.current) {
         clearTimeout(processingTimeoutRef.current);

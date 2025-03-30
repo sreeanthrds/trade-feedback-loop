@@ -1,5 +1,5 @@
 
-import { useCallback, useRef, useMemo } from 'react';
+import { useCallback, useRef, useMemo, useEffect } from 'react';
 import { Node } from '@xyflow/react';
 import { deepEqual } from '../../utils/deepEqual';
 
@@ -88,7 +88,7 @@ export function useNodeUpdates(strategyStore: any) {
   const pendingProcessTimeoutRef = useRef<number | null>(null);
   
   // Cleanup effect for the pending timeout
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
       if (pendingProcessTimeoutRef.current) {
         clearTimeout(pendingProcessTimeoutRef.current);
