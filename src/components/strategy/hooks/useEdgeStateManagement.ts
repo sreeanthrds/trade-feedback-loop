@@ -2,6 +2,7 @@
 import React, { useCallback, useRef } from 'react';
 import { Edge, useEdgesState, Connection, addEdge, Node } from '@xyflow/react';
 import { validateConnection } from '../utils/flowUtils';
+import { deepEqual } from '../utils/deepEqual';
 
 /**
  * Hook to manage edge state with validation
@@ -12,7 +13,6 @@ export function useEdgeStateManagement(initialEdges: Edge[] = [], strategyStore:
   const isProcessingEdgeUpdateRef = useRef(false);
   const pendingEdgeUpdateRef = useRef<Edge[] | null>(null);
   const lastEdgeUpdateTimeRef = useRef(0);
-  const lastEdgesStringRef = useRef('');
   const edgeUpdateTimeoutRef = useRef<number | null>(null);
   const storeUpdateInProgressRef = useRef(false);
 
@@ -48,25 +48,15 @@ export function useEdgeStateManagement(initialEdges: Edge[] = [], strategyStore:
           ? updatedEdges(prevEdges)
           : updatedEdges;
         
-        // Stringify edges for comparison to detect actual changes
-        const newEdgesString = JSON.stringify(newEdges.map(e => ({
-          id: e.id,
-          source: e.source,
-          target: e.target
-        })));
-        
-        // Skip if edges haven't actually changed
-        if (newEdgesString === lastEdgesStringRef.current) {
+        // Skip if edges haven't actually changed using deep equality
+        if (deepEqual(newEdges, prevEdges)) {
           isProcessingEdgeUpdateRef.current = false;
           return prevEdges;
         }
         
-        // Update the reference string for future comparisons
-        lastEdgesStringRef.current = newEdgesString;
-        
         // Throttle updates to prevent rapid succession
         const now = Date.now();
-        if (now - lastEdgeUpdateTimeRef.current > 250) { // Increased throttle time
+        if (now - lastEdgeUpdateTimeRef.current > 400) { // Increased throttle time
           lastEdgeUpdateTimeRef.current = now;
           
           // Clear any pending timeout
@@ -99,12 +89,12 @@ export function useEdgeStateManagement(initialEdges: Edge[] = [], strategyStore:
                   }
                   
                   isProcessingEdgeUpdateRef.current = false;
-                }, 200);
+                }, 300);
               }
             } else {
               isProcessingEdgeUpdateRef.current = false;
             }
-          }, 150); // Increased delay
+          }, 300); // Increased delay
         } else {
           // Queue the update for later
           pendingEdgeUpdateRef.current = newEdges;
@@ -120,7 +110,7 @@ export function useEdgeStateManagement(initialEdges: Edge[] = [], strategyStore:
               lastEdgeUpdateTimeRef.current = Date.now();
               setEdges(pendingEdges);
             }
-          }, 100);
+          }, 200);
         }
         
         return newEdges;
@@ -160,10 +150,10 @@ export function useEdgeStateManagement(initialEdges: Edge[] = [], strategyStore:
             setTimeout(() => {
               updateCycleRef.current = false;
               storeUpdateInProgressRef.current = false;
-            }, 200);
+            }, 300);
           }
         }
-      }, 150);
+      }, 300);
     },
     [edges, setLocalEdges, strategyStore]
   );

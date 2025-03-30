@@ -29,7 +29,7 @@ interface ReactFlowCanvasProps {
 const MemoizedTopToolbar = memo(TopToolbar);
 const MemoizedBottomToolbar = memo(BottomToolbar);
 
-const ReactFlowCanvas = memo(({
+const ReactFlowCanvas = ({
   flowRef,
   nodes,
   edges,
@@ -64,7 +64,7 @@ const ReactFlowCanvas = memo(({
       const timeoutId = setTimeout(() => {
         fitViewWithCustomZoom();
         initialLoadRef.current = false;
-      }, 300);
+      }, 500);
       
       return () => clearTimeout(timeoutId);
     }
@@ -116,8 +116,9 @@ const ReactFlowCanvas = memo(({
       </ReactFlow>
     </div>
   );
-});
+};
 
+// Wrap in memo to prevent unnecessary re-renders
 ReactFlowCanvas.displayName = 'ReactFlowCanvas';
 
-export default ReactFlowCanvas;
+export default memo(ReactFlowCanvas);

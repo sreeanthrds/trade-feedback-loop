@@ -13,6 +13,7 @@ import {
   createUpdateNodeDataHandler,
   createDeleteNodeHandler
 } from '../utils/handlers';
+import { toast } from '@/hooks/use-toast';
 
 export function useFlowState() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
@@ -21,6 +22,7 @@ export function useFlowState() {
   const isInitializedRef = useRef(false);
   const onConnectMemoizedRef = useRef(null);
   const [storeInitialized, setStoreInitialized] = useState(false);
+  const updateHandlingRef = useRef(false);
   
   // Node state management
   const {
@@ -51,50 +53,6 @@ export function useFlowState() {
     initialNodes
   );
   
-  // Track store nodes/edges for sync
-  const storeNodes = strategyStore.nodes;
-  const storeEdges = strategyStore.edges;
-  
-  // First ensure we only sync nodes from store to ReactFlow when not dragging and not in initial load
-  useEffect(() => {
-    // Skip during dragging or initial load
-    if (isDraggingRef.current || isInitialLoadRef.current || !storeInitialized) {
-      return;
-    }
-    
-    // Check if there are actual differences to avoid unnecessary updates
-    const nodesChanged = JSON.stringify(storeNodes.map(n => ({ id: n.id, position: n.position, data: n.data }))) !== 
-                         JSON.stringify(nodes.map(n => ({ id: n.id, position: n.position, data: n.data })));
-    
-    if (nodesChanged) {
-      const timeoutId = setTimeout(() => {
-        setNodes(storeNodes);
-      }, 50);
-      
-      return () => clearTimeout(timeoutId);
-    }
-  }, [storeNodes, nodes, setNodes, isDraggingRef, isInitialLoadRef, storeInitialized]);
-  
-  // Then sync edges from store to ReactFlow
-  useEffect(() => {
-    // Skip during initial load
-    if (isInitialLoadRef.current || !storeInitialized) {
-      return;
-    }
-    
-    // Compare edges to detect changes
-    const edgesChanged = JSON.stringify(storeEdges.map(e => ({ id: e.id, source: e.source, target: e.target }))) !== 
-                         JSON.stringify(edges.map(e => ({ id: e.id, source: e.source, target: e.target })));
-    
-    if (edgesChanged) {
-      const timeoutId = setTimeout(() => {
-        setEdges(storeEdges);
-      }, 50);
-      
-      return () => clearTimeout(timeoutId);
-    }
-  }, [storeEdges, edges, setEdges, isInitialLoadRef, storeInitialized]);
-  
   // Only initialize store after ReactFlow is ready and initial load is complete
   useEffect(() => {
     if (!isInitializedRef.current && reactFlowInstance && !isInitialLoadRef.current) {
@@ -103,7 +61,7 @@ export function useFlowState() {
       // Delay the store initialization to ensure initial load is complete
       const syncTimeout = setTimeout(() => {
         setStoreInitialized(true);
-      }, 2000); // Longer delay for initialization
+      }, 3000); // Longer delay for initialization
       
       return () => clearTimeout(syncTimeout);
     }
@@ -116,7 +74,7 @@ export function useFlowState() {
     return onConnectMemoizedRef.current;
   }, [baseOnConnect, nodes]);
 
-  // Close panel handler (moved from usePanelHandlers)
+  // Close panel handler
   const closePanel = useCallback(() => {
     setIsPanelOpen(false);
     setSelectedNode(null);
@@ -124,84 +82,149 @@ export function useFlowState() {
 
   // Create stable handler for adding nodes
   const handleAddNode = useCallback((type: string, parentNodeId?: string) => {
-    const handler = createAddNodeHandler(
-      reactFlowInstance,
-      reactFlowWrapper,
-      nodes,
-      edges,
-      setNodes,
-      setEdges,
-      strategyStore
-    );
-    handler(type, parentNodeId);
+    if (updateHandlingRef.current) return;
+    updateHandlingRef.current = true;
+    
+    try {
+      const handler = createAddNodeHandler(
+        reactFlowInstance,
+        reactFlowWrapper,
+        nodes,
+        edges,
+        setNodes,
+        setEdges,
+        strategyStore
+      );
+      handler(type, parentNodeId);
+    } finally {
+      setTimeout(() => {
+        updateHandlingRef.current = false;
+      }, 100);
+    }
   }, [reactFlowInstance, reactFlowWrapper, nodes, edges, setNodes, setEdges, strategyStore]);
 
-  // Create stable handler for updating node data
+  // Create stable handler for updating node data - most important for fixing the loop
   const updateNodeData = useCallback((id: string, data: any) => {
-    const handler = createUpdateNodeDataHandler(
-      nodes,
-      setNodes,
-      strategyStore
-    );
-    handler(id, data);
+    // Prevent recursive update loops
+    if (updateHandlingRef.current) return;
+    updateHandlingRef.current = true;
+    
+    setTimeout(() => {
+      try {
+        const handler = createUpdateNodeDataHandler(
+          nodes,
+          setNodes,
+          strategyStore
+        );
+        handler(id, data);
+      } finally {
+        // Reset the flag after a delay
+        setTimeout(() => {
+          updateHandlingRef.current = false;
+        }, 100);
+      }
+    }, 0);
   }, [nodes, setNodes, strategyStore]);
   
   // Create stable handler for deleting nodes
   const handleDeleteNode = useCallback((id: string) => {
-    const handler = createDeleteNodeHandler(
-      nodes,
-      edges,
-      setNodes,
-      setEdges,
-      strategyStore
-    );
-    handler(id);
+    if (updateHandlingRef.current) return;
+    updateHandlingRef.current = true;
+    
+    try {
+      const handler = createDeleteNodeHandler(
+        nodes,
+        edges,
+        setNodes,
+        setEdges,
+        strategyStore
+      );
+      handler(id);
+    } finally {
+      setTimeout(() => {
+        updateHandlingRef.current = false;
+      }, 100);
+    }
   }, [nodes, edges, setNodes, setEdges, strategyStore]);
 
   // Create stable handler for deleting edges
   const handleDeleteEdge = useCallback((id: string) => {
-    // Filter out the edge with the given id
-    const newEdges = edges.filter(edge => edge.id !== id);
-    setEdges(newEdges);
+    if (updateHandlingRef.current) return;
+    updateHandlingRef.current = true;
     
-    // Update store
-    strategyStore.setEdges(newEdges);
-    strategyStore.addHistoryItem(nodes, newEdges);
+    try {
+      // Filter out the edge with the given id
+      const newEdges = edges.filter(edge => edge.id !== id);
+      setEdges(newEdges);
+      
+      // Update store
+      strategyStore.setEdges(newEdges);
+      strategyStore.addHistoryItem(nodes, newEdges);
+      
+      toast({
+        title: "Edge deleted",
+        description: "Connection has been removed."
+      });
+    } finally {
+      setTimeout(() => {
+        updateHandlingRef.current = false;
+      }, 100);
+    }
   }, [edges, nodes, setEdges, strategyStore]);
 
-  // Create strategy import and reset handlers
+  // Create strategy reset handler
   const resetStrategy = useCallback(() => {
-    // Reset to initial state
-    setNodes(initialNodes);
-    setEdges([]);
+    if (updateHandlingRef.current) return;
+    updateHandlingRef.current = true;
     
-    // Update store
-    strategyStore.setNodes(initialNodes);
-    strategyStore.setEdges([]);
-    strategyStore.resetHistory();
-    strategyStore.addHistoryItem(initialNodes, []);
-    
-    // Clear selection and close panel
-    closePanel();
-    
-    // Fit view after reset
-    if (reactFlowInstance) {
+    try {
+      // Reset to initial state
+      setNodes(initialNodes);
+      setEdges([]);
+      
+      // Update store
+      strategyStore.setNodes(initialNodes);
+      strategyStore.setEdges([]);
+      strategyStore.resetHistory();
+      strategyStore.addHistoryItem(initialNodes, []);
+      
+      // Clear selection and close panel
+      closePanel();
+      
+      // Fit view after reset
+      if (reactFlowInstance) {
+        setTimeout(() => {
+          reactFlowInstance.fitView({ padding: 0.2 });
+        }, 100);
+      }
+      
+      toast({
+        title: "Strategy reset",
+        description: "Strategy has been reset to initial state."
+      });
+    } finally {
       setTimeout(() => {
-        reactFlowInstance.fitView({ padding: 0.2 });
-      }, 50);
+        updateHandlingRef.current = false;
+      }, 100);
     }
   }, [initialNodes, setNodes, setEdges, strategyStore, closePanel, reactFlowInstance]);
 
+  // Create import success handler
   const handleImportSuccess = useCallback(() => {
     // Fit view after successful import
     if (reactFlowInstance) {
       setTimeout(() => {
         reactFlowInstance.fitView({ padding: 0.2 });
-      }, 100);
+      }, 200);
     }
     
     // Close panel if open
     closePanel();
+    
+    toast({
+      title: "Import successful",
+      description: "Strategy imported successfully."
+    });
   }, [reactFlowInstance, closePanel]);
 
   return {
@@ -219,7 +242,7 @@ export function useFlowState() {
     setNodes,
     setEdges,
     strategyStore,
-    // New handlers
+    // Handlers
     handleAddNode,
     handleDeleteNode,
     handleDeleteEdge,

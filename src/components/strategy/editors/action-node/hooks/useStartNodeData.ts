@@ -24,20 +24,21 @@ export const useStartNodeData = ({
   const previousInstrumentTypeRef = useRef<string | undefined>(undefined);
   const nodeUpdateMadeRef = useRef(false);
   const updateInProgressRef = useRef(false);
-  const intervalRef = useRef<number | null>(null);
+  const pollTimeoutRef = useRef<number | null>(null);
   
   // Clean up on unmount
   useEffect(() => {
     return () => {
-      if (intervalRef.current !== null) {
-        window.clearInterval(intervalRef.current);
-        intervalRef.current = null;
+      if (pollTimeoutRef.current !== null) {
+        window.clearTimeout(pollTimeoutRef.current);
+        pollTimeoutRef.current = null;
       }
     };
   }, []);
   
-  // Get the start node to access its instrument with reduced polling frequency
+  // Use a single effect for start node data polling with better control flow
   useEffect(() => {
+    // One-time fetch function
     const fetchStartNodeData = () => {
       // Skip if already in progress
       if (updateInProgressRef.current) return;
@@ -62,7 +63,7 @@ export const useStartNodeData = ({
             nodeUpdateMadeRef.current = true;
             setTimeout(() => {
               nodeUpdateMadeRef.current = false;
-            }, 300);
+            }, 500);
           }
           
           // Update the previous instrument type reference
@@ -90,32 +91,43 @@ export const useStartNodeData = ({
               nodeUpdateMadeRef.current = true;
               setTimeout(() => {
                 nodeUpdateMadeRef.current = false;
-              }, 300);
+              }, 500);
             }
           }
         }
+      } catch (error) {
+        console.error('Error fetching start node data:', error);
       } finally {
-        // Always reset the in-progress flag
-        updateInProgressRef.current = false;
+        // Reset the in-progress flag with a short delay
+        setTimeout(() => {
+          updateInProgressRef.current = false;
+        }, 50);
       }
     };
     
     // Run once immediately
     fetchStartNodeData();
     
-    // Then set up interval, but only if it doesn't already exist
-    if (intervalRef.current === null) {
-      intervalRef.current = window.setInterval(fetchStartNodeData, 2000);
-    }
+    // Use timeout instead of interval for better control
+    const schedulePoll = () => {
+      pollTimeoutRef.current = window.setTimeout(() => {
+        fetchStartNodeData();
+        // Only schedule next poll if component is still mounted
+        schedulePoll();
+      }, 3000); // Reduced polling frequency to 3 seconds
+    };
     
-    // Clean up interval on unmount or when dependencies change
+    // Start polling
+    schedulePoll();
+    
+    // Clean up
     return () => {
-      if (intervalRef.current !== null) {
-        window.clearInterval(intervalRef.current);
-        intervalRef.current = null;
+      if (pollTimeoutRef.current !== null) {
+        window.clearTimeout(pollTimeoutRef.current);
+        pollTimeoutRef.current = null;
       }
     };
-  }, []); // Empty dependency array because we want to run this setup only once
+  }, []); // Empty dependency array - only run setup once
   
   return { startNodeSymbol, hasOptionTrading, isSymbolMissing };
 };

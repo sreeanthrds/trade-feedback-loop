@@ -1,6 +1,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Node, useNodesState } from '@xyflow/react';
+import { deepEqual } from '../utils/deepEqual';
 
 /**
  * Hook to manage node state with optimized update handling
@@ -63,10 +64,10 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
                   setTimeout(() => {
                     updateCycleRef.current = false;
                     storeUpdateInProgressRef.current = false;
-                  }, 200);
+                  }, 300);
                 }
               }
-            }, 150);
+            }, 300);
           }
         }
       }
@@ -74,7 +75,7 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
       // Reset processing flag after a short delay to avoid immediate re-entry
       setTimeout(() => {
         isProcessingChangesRef.current = false;
-      }, 0);
+      }, 50);
     }
   }, [onNodesChange, strategyStore]);
 
@@ -91,21 +92,10 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
           ? updatedNodes(prevNodes) 
           : updatedNodes;
         
-        // Stringify nodes for comparison to detect actual changes
-        const newNodesString = JSON.stringify(newNodes.map(n => ({
-          id: n.id,
-          type: n.type,
-          position: n.position,
-          data: n.data
-        })));
-        
-        // Skip if nodes haven't actually changed
-        if (newNodesString === lastNodesStringRef.current) {
+        // Skip if nodes haven't actually changed using deep equality
+        if (deepEqual(newNodes, prevNodes)) {
           return prevNodes;
         }
-        
-        // Update the reference string for future comparisons
-        lastNodesStringRef.current = newNodesString;
         
         // Don't update store during dragging
         if (isDraggingRef.current) {
@@ -115,7 +105,7 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
         
         // Throttle updates to the store during frequent operations
         const now = Date.now();
-        if (now - lastUpdateTimeRef.current > 250) { // Increased throttle time
+        if (now - lastUpdateTimeRef.current > 400) { // Increased throttle time
           lastUpdateTimeRef.current = now;
           
           // Clear any pending timeout
@@ -140,10 +130,10 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
                   updateTimeoutRef.current = null;
                   updateCycleRef.current = false;
                   storeUpdateInProgressRef.current = false;
-                }, 200);
+                }, 300);
               }
             }
-          }, 150); // Increased delay
+          }, 300); // Increased delay
         } else {
           pendingNodesUpdate.current = newNodes;
         }
@@ -156,7 +146,7 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
     });
   }, [setLocalNodes, strategyStore]);
 
-  // Process any pending updates that were throttled
+  // Process any pending updates that were throttled - with longer delays
   useEffect(() => {
     // Skip this effect during mount
     if (lastUpdateTimeRef.current === 0) {
@@ -169,7 +159,7 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
       
       // Only process pending updates if enough time has passed and not in a cycle
       if (pendingNodesUpdate.current && 
-          now - lastUpdateTimeRef.current > 250 && 
+          now - lastUpdateTimeRef.current > 500 && 
           !updateCycleRef.current && 
           !storeUpdateInProgressRef.current) {
         
@@ -189,10 +179,10 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
           setTimeout(() => {
             updateCycleRef.current = false;
             storeUpdateInProgressRef.current = false;
-          }, 200);
+          }, 300);
         }
       }
-    }, 300); // Check less frequently
+    }, 500); // Check less frequently
     
     return () => clearInterval(interval);
   }, [strategyStore]);
@@ -212,7 +202,7 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
     if (selectedNode) {
       const updatedSelectedNode = nodes.find(node => node.id === selectedNode.id);
       if (updatedSelectedNode && 
-          JSON.stringify(updatedSelectedNode) !== JSON.stringify(selectedNode)) {
+          !deepEqual(updatedSelectedNode, selectedNode)) {
         setSelectedNode(updatedSelectedNode);
       } else if (!updatedSelectedNode) {
         // Clear selected node if it's been removed

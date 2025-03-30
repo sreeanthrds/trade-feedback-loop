@@ -1,5 +1,5 @@
 
-import React, { lazy, Suspense, useMemo, useEffect, useCallback, useRef } from 'react';
+import React, { lazy, Suspense, useMemo, useCallback } from 'react';
 import { useTheme } from '@/hooks/use-theme';
 import { useFlowState } from './hooks/useFlowState';
 import FlowLayout from './layout/FlowLayout';
@@ -39,6 +39,12 @@ const StrategyFlowContent = () => {
     handleImportSuccess
   } = useFlowState();
 
+  // Create node click handler
+  const onNodeClick = useCallback((event, node) => {
+    setSelectedNode(node);
+    setIsPanelOpen(true);
+  }, [setSelectedNode, setIsPanelOpen]);
+
   // Create node types and edge types only once
   const nodeTypes = useMemo(() => 
     createNodeTypes(handleDeleteNode, handleAddNode, updateNodeData), 
@@ -50,7 +56,7 @@ const StrategyFlowContent = () => {
     [handleDeleteEdge]
   );
 
-  // Create NodePanel component if needed
+  // Create NodePanel component if needed - memoize with key dependencies only
   const nodePanelComponent = useMemo(() => {
     if (isPanelOpen && selectedNode) {
       return (
@@ -66,18 +72,15 @@ const StrategyFlowContent = () => {
     return null;
   }, [isPanelOpen, selectedNode, updateNodeData, closePanel]);
 
-  // Memoize ReactFlowCanvas props to prevent unnecessary re-renders
-  const flowCanvasProps = useMemo(() => ({
+  // Memoize flow canvas props to prevent recreation on every render
+  const flowCanvasProps = {
     flowRef: reactFlowWrapper,
     nodes,
     edges,
     onNodesChange,
     onEdgesChange,
     onConnect,
-    onNodeClick: (event, node) => {
-      setSelectedNode(node);
-      setIsPanelOpen(true);
-    },
+    onNodeClick,
     resetStrategy,
     onImportSuccess: handleImportSuccess,
     onDeleteNode: handleDeleteNode,
@@ -86,24 +89,7 @@ const StrategyFlowContent = () => {
     updateNodeData,
     nodeTypes,
     edgeTypes
-  }), [
-    reactFlowWrapper,
-    nodes,
-    edges,
-    onNodesChange,
-    onEdgesChange,
-    onConnect,
-    setSelectedNode,
-    setIsPanelOpen,
-    resetStrategy,
-    handleImportSuccess,
-    handleDeleteNode,
-    handleDeleteEdge,
-    handleAddNode,
-    updateNodeData,
-    nodeTypes,
-    edgeTypes
-  ]);
+  };
 
   return (
     <FlowLayout
