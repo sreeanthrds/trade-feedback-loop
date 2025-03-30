@@ -20,50 +20,54 @@ interface NodePanelProps {
   onClose: () => void;
 }
 
+// Create memoized editor components
+const MemoizedStartNodeEditor = memo(StartNodeEditor);
+const MemoizedSignalNodeEditor = memo(SignalNodeEditor);
+const MemoizedActionNodeEditor = memo(ActionNodeEditor);
+const MemoizedEntryNodeEditor = memo(EntryNodeEditor);
+const MemoizedExitNodeEditor = memo(ExitNodeEditor);
+const MemoizedAlertNodeEditor = memo(AlertNodeEditor);
+const MemoizedEndNodeEditor = memo(EndNodeEditor);
+const MemoizedForceEndNodeEditor = memo(ForceEndNodeEditor);
+
 const NodePanel = memo(({ node, updateNodeData, onClose }: NodePanelProps) => {
   const isMobile = useIsMobile();
 
   // Create stable update function to prevent re-renders
   const stableUpdateNodeData = useCallback((id: string, data: any) => {
     // Add timestamp only if it doesn't already have one
-    if (!data._lastUpdated) {
-      data = {
-        ...data,
-        _lastUpdated: Date.now()
-      };
-    }
-    updateNodeData(id, data);
+    const newData = {
+      ...data,
+      _lastUpdated: data._lastUpdated || Date.now()
+    };
+    updateNodeData(id, newData);
   }, [updateNodeData]);
 
   const renderEditor = () => {
     switch (node.type) {
       case 'startNode':
-        return <StartNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
+        return <MemoizedStartNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       case 'signalNode':
-        return <SignalNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
+        return <MemoizedSignalNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       case 'actionNode':
-        return <ActionNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
+        return <MemoizedActionNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       case 'entryNode':
-        return <EntryNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
+        return <MemoizedEntryNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       case 'exitNode':
-        return <ExitNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
+        return <MemoizedExitNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       case 'alertNode':
-        return <AlertNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
+        return <MemoizedAlertNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       case 'endNode':
-        return <EndNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
+        return <MemoizedEndNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       case 'forceEndNode':
-        return <ForceEndNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
+        return <MemoizedForceEndNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       default:
         return <div>Unknown node type</div>;
     }
   };
 
-  // For mobile devices in the drawer, we'll just return the editor directly
-  if (isMobile) {
-    return renderEditor();
-  }
-
-  const getNodeTitle = () => {
+  // Use a memoized title function
+  const getNodeTitle = useCallback(() => {
     switch (node.type) {
       case 'startNode': return 'Start Node';
       case 'signalNode': return 'Signal Node';
@@ -75,13 +79,20 @@ const NodePanel = memo(({ node, updateNodeData, onClose }: NodePanelProps) => {
       case 'forceEndNode': return 'Force End Node';
       default: return 'Node Settings';
     }
-  };
+  }, [node.type]);
+
+  // For mobile devices in the drawer, we'll just return the editor directly
+  if (isMobile) {
+    return renderEditor();
+  }
+
+  const title = getNodeTitle();
 
   return (
     <div className="h-full overflow-y-auto">
       <Card className="border-0 rounded-none h-full">
         <CardHeader className="flex flex-row items-center justify-between pb-2 sticky top-0 bg-background z-10 border-b">
-          <CardTitle className="text-lg">{getNodeTitle()}</CardTitle>
+          <CardTitle className="text-lg">{title}</CardTitle>
           <Button variant="ghost" size="sm" onClick={onClose} className="h-8 w-8 p-0">
             <X className="h-4 w-4" />
           </Button>

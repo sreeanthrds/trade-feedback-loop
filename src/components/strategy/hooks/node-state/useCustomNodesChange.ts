@@ -1,9 +1,9 @@
 
-import { useCallback, useRef, useMemo, useEffect } from 'react';
+import React, { useCallback, useRef, useMemo, useEffect } from 'react';
 
 /**
  * Hook to create a custom onNodesChange handler with processing prevention
- * Enhanced with better performance optimizations
+ * Optimized for better performance
  */
 export function useCustomNodesChange(onNodesChangeWithDragDetection, onNodesChange) {
   const isProcessingChangesRef = useRef(false);
@@ -11,18 +11,18 @@ export function useCustomNodesChange(onNodesChangeWithDragDetection, onNodesChan
   const pendingChangesRef = useRef(null);
   const processingTimeoutRef = useRef(null);
 
-  // Enhanced node change handler with improved processing and debouncing
+  // Enhanced node change handler with improved throttling
   const customNodesChangeHandler = useCallback((changes) => {
-    // Skip updates during processing or if too frequent (throttling)
-    const now = Date.now();
+    // Skip updates during processing
     if (isProcessingChangesRef.current) {
       // Store pending changes and process them later
       pendingChangesRef.current = changes;
       return;
     }
     
-    // Apply throttling - limit processing frequency
-    if (now - lastProcessedTimeRef.current < 100) {
+    // Apply stronger throttling - limit processing frequency
+    const now = Date.now();
+    if (now - lastProcessedTimeRef.current < 250) {
       // Store the latest changes and process after a delay
       pendingChangesRef.current = changes;
       
@@ -35,7 +35,7 @@ export function useCustomNodesChange(onNodesChangeWithDragDetection, onNodesChan
             customNodesChangeHandler(pendingChanges);
           }
           processingTimeoutRef.current = null;
-        }, 100);
+        }, 250);
       }
       
       return;
@@ -47,8 +47,7 @@ export function useCustomNodesChange(onNodesChangeWithDragDetection, onNodesChan
     try {
       onNodesChangeWithDragDetection(changes, onNodesChange);
     } finally {
-      // Reset processing flag after a short delay to avoid immediate re-entry
-      // Using a shorter timeout to improve responsiveness while still preventing loops
+      // Reset processing flag after a slightly longer delay to prevent immediate re-entry
       setTimeout(() => {
         isProcessingChangesRef.current = false;
         
@@ -58,7 +57,7 @@ export function useCustomNodesChange(onNodesChangeWithDragDetection, onNodesChan
           pendingChangesRef.current = null;
           customNodesChangeHandler(pendingChanges);
         }
-      }, 50);
+      }, 100);
     }
   }, [onNodesChangeWithDragDetection, onNodesChange]);
 
