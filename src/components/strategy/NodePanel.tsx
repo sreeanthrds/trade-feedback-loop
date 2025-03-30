@@ -8,6 +8,9 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import StartNodeEditor from './editors/StartNodeEditor';
 import SignalNodeEditor from './editors/SignalNodeEditor';
 import ActionNodeEditor from './editors/ActionNodeEditor';
+import EntryNodeEditor from './editors/EntryNodeEditor';
+import ExitNodeEditor from './editors/ExitNodeEditor';
+import AlertNodeEditor from './editors/AlertNodeEditor';
 import EndNodeEditor from './editors/EndNodeEditor';
 import ForceEndNodeEditor from './editors/ForceEndNodeEditor';
 
@@ -40,6 +43,12 @@ const NodePanel = memo(({ node, updateNodeData, onClose }: NodePanelProps) => {
         return <SignalNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       case 'actionNode':
         return <ActionNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
+      case 'entryNode':
+        return <EntryNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
+      case 'exitNode':
+        return <ExitNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
+      case 'alertNode':
+        return <AlertNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       case 'endNode':
         return <EndNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       case 'forceEndNode':
@@ -59,6 +68,9 @@ const NodePanel = memo(({ node, updateNodeData, onClose }: NodePanelProps) => {
       case 'startNode': return 'Start Node';
       case 'signalNode': return 'Signal Node';
       case 'actionNode': return 'Action Node';
+      case 'entryNode': return 'Entry Node';
+      case 'exitNode': return 'Exit Node';
+      case 'alertNode': return 'Alert Node';
       case 'endNode': return 'End Node';
       case 'forceEndNode': return 'Force End Node';
       default: return 'Node Settings';
