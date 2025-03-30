@@ -1,6 +1,5 @@
 
-import { useState, useCallback } from 'react';
-import { Node } from '@xyflow/react';
+import { useState, useCallback, useRef } from 'react';
 
 /**
  * Hook to manage the node configuration panel state
@@ -8,21 +7,14 @@ import { Node } from '@xyflow/react';
  */
 export function usePanelState() {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
-  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   
   // Use a stable reference for the setter to avoid unnecessary rerenders
   const setIsPanelOpenStable = useCallback((isOpen: boolean) => {
     setIsPanelOpen(isOpen);
   }, []);
   
-  const setSelectedNodeStable = useCallback((node: Node | null) => {
-    setSelectedNode(node);
-  }, []);
-  
   return {
     isPanelOpen,
-    selectedNode,
-    setIsPanelOpen: setIsPanelOpenStable,
-    setSelectedNode: setSelectedNodeStable
+    setIsPanelOpen: setIsPanelOpenStable
   };
 }

@@ -29,11 +29,11 @@ interface NodeWrapperProps {
   selectable: boolean;
   deletable: boolean;
   draggable: boolean;
-  isConnectable: boolean;
-  positionAbsoluteX: number;
-  positionAbsoluteY: number;
+  isConnectable: boolean;         // Add this required property
+  positionAbsoluteX: number;      // Add this required property
+  positionAbsoluteY: number;      // Add this required property
   onDelete?: (id: string) => void;
-  onAddNode?: (type: string, parentNodeId: string, initialNodeData?: Record<string, any>) => void;
+  onAddNode?: (type: string, parentNodeId: string) => void;
   [key: string]: any;
 }
 
@@ -92,7 +92,7 @@ ForceEndNodeWrapper.displayName = 'ForceEndNodeWrapper';
 // Create a function to generate nodeTypes with stable renderer functions
 const createNodeTypes = (
   onDeleteNode: (id: string) => void, 
-  onAddNode: (type: string, parentNodeId: string, initialNodeData?: Record<string, any>) => void,
+  onAddNode: (type: string, parentNodeId: string) => void,
   updateNodeData?: (id: string, data: any) => void
 ): NodeTypes => {
   return {

@@ -1,10 +1,6 @@
 
 /* Ensure dropdown content is visible */
-[data-radix-popper-content-wrapper] {
-  z-index: 9999 !important;
-}
-
-.dropdown-content {
+.react-flow__node .dropdown-content {
   z-index: 9999;
   background-color: var(--background);
   border: 1px solid var(--border);
@@ -12,99 +8,62 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Fix for dropdown menu positioning */
-[data-state="open"] > [data-radix-popper-content-wrapper] {
-  z-index: 9999 !important;
-  background-color: var(--background) !important;
-}
-
-/* Ensure action node submenu is visible and has proper styling */
-[role="menu"] {
-  background-color: var(--background) !important;
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* Mobile-specific fixes */
-@media (max-width: 768px) {
-  [role="menu"] {
-    touch-action: none;
-    -webkit-overflow-scrolling: touch;
-  }
-  
-  [data-radix-popper-content-wrapper] {
-    position: fixed !important;
-  }
-}
-
-/* Critical fix for submenu display */
-.dropdown-menu-sub-content {
-  min-width: 180px !important;
-  z-index: 10000 !important;
-  background-color: var(--background) !important;
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  overflow: visible !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* Additional fixes for popover and dialogs */
-.popup-content, 
-.dialog-content {
-  z-index: 9999 !important;
-  background-color: var(--background) !important;
-}
-
-/* Fix for nested menus */
-.nested-menu {
-  position: relative !important;
-  z-index: 10001 !important;
-}
-
-/* Better dropdown handling for touch devices */
-.touch-friendly-dropdown {
-  min-height: 44px;
-  padding: 8px 12px;
-}
-
-/* Enhanced visibility for dropdown items */
-[role="menuitem"] {
-  background-color: var(--background) !important;
-  color: var(--foreground) !important;
-}
-
-/* Improved focus states for menu items */
-[role="menuitem"]:focus,
-[role="menuitem"]:hover {
-  background-color: var(--accent) !important;
-  color: var(--accent-foreground) !important;
-  outline: none;
-}
-
-/* New styles for better menu interaction */
-.strategy-menu-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
+/* Ensure dropdown menu items are visible and interactive */
+.react-flow__node .dropdown-menu-item {
+  padding: 0.5rem 1rem;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s;
 }
 
-.strategy-menu-item:hover {
-  background-color: var(--accent-hover);
+.react-flow__node .dropdown-menu-item:hover {
+  background-color: var(--accent);
 }
 
-/* Fix for menu items in mobile */
-@media (max-width: 640px) {
-  [role="menuitem"] {
-    padding: 12px 16px !important;
+/* Override z-index for dropdown menus to ensure they appear above nodes */
+.react-flow__node .react-flow__node-dropdown {
+  z-index: 9999 !important;
+}
+
+/* Fix for dropdown portals to be visible */
+[data-radix-popper-content-wrapper] {
+  z-index: 9999 !important;
+}
+
+/* Adjust dropdown width for node connect controls */
+.react-flow__node [data-radix-popper-content-wrapper] {
+  width: auto !important;
+}
+
+/* Fix for CommandItem in mobile view */
+@media (max-width: 768px) {
+  [cmdk-item] {
+    min-height: 48px !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-touch-callout: none !important;
   }
   
-  .dropdown-content {
-    max-width: 90vw !important;
-    max-height: 80vh !important;
+  [cmdk-list] {
+    max-height: 50vh !important;
+    -webkit-overflow-scrolling: touch;
     overflow-y: auto !important;
+  }
+  
+  /* Force proper rendering of popover contents */
+  .command-item-mobile {
+    display: flex !important;
+    align-items: center !important;
+  }
+  
+  /* Ensure command components are properly rendered on iOS */
+  [cmdk-root], [cmdk-input], [cmdk-item], [cmdk-list] {
+    -webkit-appearance: none !important;
+  }
+  
+  /* Force visibility of popovers */
+  .popover-content-visible {
+    visibility: visible !important;
+    opacity: 1 !important;
   }
 }

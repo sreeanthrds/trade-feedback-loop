@@ -58,7 +58,12 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
   const { validateVpiUniqueness } = useVpiValidation({ nodes });
   
   // Action type handlers
-  const { handleActionTypeChange, handleLabelChange } = useActionTypeHandler(node, updateNodeData);
+  const { handleLabelChange, handleActionTypeChange } = useActionTypeHandler({
+    nodeId: node.id,
+    nodeData,
+    updateNodeData,
+    createDefaultPosition
+  });
   
   // Position-specific handlers
   const positionHandlers = usePositionHandlers({

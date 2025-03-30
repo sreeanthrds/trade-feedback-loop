@@ -1,29 +1,40 @@
 
 import React from 'react';
-import { usePanelState } from '../hooks/usePanelState';
+import { ResizablePanel, ResizablePanelGroup, ResizableHandle } from '@/components/ui/resizable';
 import './FlowLayout.css';
 
 interface FlowLayoutProps {
   children: React.ReactNode;
-  nodePanelComponent?: React.ReactNode;
+  isPanelOpen: boolean;
+  selectedNode: any;
+  onClosePanel: () => void;
+  nodePanelComponent: React.ReactNode;
 }
 
-const FlowLayout = ({ 
+const FlowLayout: React.FC<FlowLayoutProps> = ({
   children,
+  isPanelOpen,
+  selectedNode,
+  onClosePanel,
   nodePanelComponent
-}: FlowLayoutProps) => {
-  const { isPanelOpen, selectedNode } = usePanelState();
-
+}) => {
   return (
-    <div className="flow-layout">
-      <div className="flow-layout-content">
-        {children}
-        {isPanelOpen && selectedNode && (
-          <div className="flow-layout-panel">
+    <div className={`w-full h-full overflow-hidden strategy-flow-layout ${isPanelOpen ? 'panel-open' : ''}`}>
+      {isPanelOpen ? (
+        <ResizablePanelGroup direction="horizontal" className="h-full">
+          <ResizablePanel defaultSize={75} minSize={50} id="flow-panel" order={1}>
+            {children}
+          </ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel defaultSize={25} minSize={15} id="details-panel" order={2}>
             {nodePanelComponent}
-          </div>
-        )}
-      </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      ) : (
+        <div className="h-full w-full">
+          {children}
+        </div>
+      )}
     </div>
   );
 };

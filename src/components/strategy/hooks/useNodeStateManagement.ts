@@ -5,14 +5,13 @@ import { Node, useNodesState } from '@xyflow/react';
 /**
  * Hook to manage node state with optimized update handling
  */
-export function useNodeStateManagement(initialNodes: Node[] = [], strategyStore: any = null) {
+export function useNodeStateManagement(initialNodes: Node[], strategyStore: any) {
   const [nodes, setLocalNodes, onNodesChange] = useNodesState(initialNodes);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const isDraggingRef = useRef(false);
   const pendingNodesUpdate = useRef<Node[] | null>(null);
   const lastUpdateTimeRef = useRef(0);
   const updateTimeoutRef = useRef<number | null>(null);
-  const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
   // Enhanced node change handler with improved drag detection
   const onNodesChangeWithDragDetection = useCallback((changes) => {
@@ -33,7 +32,7 @@ export function useNodeStateManagement(initialNodes: Node[] = [], strategyStore:
         isDraggingRef.current = false;
         
         // Apply the pending update once the drag is complete
-        if (pendingNodesUpdate.current && strategyStore) {
+        if (pendingNodesUpdate.current) {
           // Use setTimeout to break the React update cycle
           setTimeout(() => {
             strategyStore.setNodes(pendingNodesUpdate.current);
@@ -62,7 +61,7 @@ export function useNodeStateManagement(initialNodes: Node[] = [], strategyStore:
       
       // Throttle updates to the store during frequent operations
       const now = Date.now();
-      if (strategyStore && now - lastUpdateTimeRef.current > 100) {
+      if (now - lastUpdateTimeRef.current > 100) {
         lastUpdateTimeRef.current = now;
         
         // Clear any pending timeout
@@ -99,7 +98,6 @@ export function useNodeStateManagement(initialNodes: Node[] = [], strategyStore:
     onNodesChange: onNodesChangeWithDragDetection,
     selectedNode,
     setSelectedNode,
-    isDraggingRef,
-    reactFlowWrapper
+    isDraggingRef
   };
 }

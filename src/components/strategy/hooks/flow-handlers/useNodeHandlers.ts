@@ -52,8 +52,8 @@ export const useNodeHandlers = ({
     setIsPanelOpen(true);
   }, [setSelectedNode, setIsPanelOpen]);
 
-  // Create stable handler for adding nodes with initialNodeData parameter
-  const handleAddNode = useCallback((type: string, parentNodeId?: string, initialNodeData?: Record<string, any>) => {
+  // Create stable handler for adding nodes
+  const handleAddNode = useCallback((type: string, parentNodeId?: string) => {
     const addNodeHandler = createAddNodeHandler(
       instanceRef.current,
       reactFlowWrapper,
@@ -63,7 +63,7 @@ export const useNodeHandlers = ({
       setEdges,
       storeRef.current
     );
-    addNodeHandler(type, parentNodeId, initialNodeData);
+    addNodeHandler(type, parentNodeId);
   }, [reactFlowWrapper, setNodes, setEdges]);
 
   // Create stable handler for updating node data

@@ -19,7 +19,6 @@ const StrategyFlowContent = () => {
   // Store handlers in a ref to prevent render-time updates
   const handlersRef = useRef(null);
   
-  // Get flow state
   const {
     nodes,
     edges,
@@ -29,6 +28,7 @@ const StrategyFlowContent = () => {
     reactFlowInstance,
     onNodesChange,
     onEdgesChange,
+    onConnect,
     setSelectedNode,
     setIsPanelOpen,
     setNodes,
@@ -37,7 +37,19 @@ const StrategyFlowContent = () => {
   } = useFlowState();
 
   // Create handlers but don't cause renders when they're updated
-  const handlers = useFlowHandlers();
+  const handlers = useFlowHandlers({
+    nodes,
+    edges,
+    selectedNode,
+    isPanelOpen,
+    reactFlowWrapper,
+    reactFlowInstance,
+    setSelectedNode,
+    setIsPanelOpen,
+    setNodes,
+    setEdges,
+    strategyStore
+  });
   
   // Update the ref without causing renders
   useEffect(() => {
@@ -51,15 +63,9 @@ const StrategyFlowContent = () => {
     }
   }, []);
   
-  const onConnect = useCallback((params) => {
-    if (handlersRef.current && handlersRef.current.onConnect) {
-      handlersRef.current.onConnect(params, nodes);
-    }
-  }, [nodes]);
-  
-  const handleAddNode = useCallback((type: string, parentNodeId?: string, initialNodeData?: Record<string, any>) => {
+  const handleAddNode = useCallback((type, parentId) => {
     if (handlersRef.current) {
-      handlersRef.current.handleAddNode(type, parentNodeId, initialNodeData);
+      handlersRef.current.handleAddNode(type, parentId);
     }
   }, []);
   
@@ -83,7 +89,7 @@ const StrategyFlowContent = () => {
   
   const closePanel = useCallback(() => {
     if (handlersRef.current) {
-      handlersRef.current.handlePanelClose();
+      handlersRef.current.closePanel();
     }
   }, []);
   
@@ -161,7 +167,12 @@ const StrategyFlowContent = () => {
   ]);
 
   return (
-    <FlowLayout nodePanelComponent={nodePanelComponent}>
+    <FlowLayout
+      isPanelOpen={isPanelOpen}
+      selectedNode={selectedNode}
+      onClosePanel={closePanel}
+      nodePanelComponent={nodePanelComponent}
+    >
       <ReactFlowCanvas {...flowCanvasProps} />
     </FlowLayout>
   );

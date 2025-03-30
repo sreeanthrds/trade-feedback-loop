@@ -1,59 +1,48 @@
 
-import { useCallback } from 'react';
-import { Node } from '@xyflow/react';
+import { useCallback, useEffect } from 'react';
+import { NodeData } from '../types';
 
-export const useActionTypeHandler = (
-  node: Node,
-  updateNodeData: (id: string, data: any) => void
-) => {
-  const handleActionTypeChange = useCallback((actionType: string) => {
-    // Update node label based on action type
-    let label = 'Action';
-    switch (actionType) {
-      case 'entry':
-        label = 'Entry Order';
-        break;
-      case 'exit':
-        label = 'Exit Order';
-        break;
-      case 'alert':
-        label = 'Alert';
-        break;
-      case 'custom':
-        label = 'Custom Action';
-        break;
-      default:
-        label = 'Action';
-    }
+interface UseActionTypeHandlerProps {
+  nodeId: string;
+  nodeData: NodeData;
+  updateNodeData: (id: string, data: any) => void;
+  createDefaultPosition: () => any;
+}
 
-    // Use timestamp to force update, along with additional fields to ensure change detection
-    const updateTime = Date.now();
-    const randomId = Math.random().toString(36).substring(7);
-    
-    updateNodeData(node.id, { 
-      actionType, 
-      label,
-      _lastUpdated: updateTime,
-      _forceUpdate: randomId,
-      _version: '1.0.1' // Add version to force update
-    });
-  }, [node.id, updateNodeData]);
-
+export const useActionTypeHandler = ({
+  nodeId,
+  nodeData,
+  updateNodeData,
+  createDefaultPosition
+}: UseActionTypeHandlerProps) => {
+  // Handler for label changes
   const handleLabelChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    // Use timestamp to force update, along with additional fields to ensure change detection
-    const updateTime = Date.now();
-    const randomId = Math.random().toString(36).substring(7);
-    
-    updateNodeData(node.id, { 
-      label: e.target.value,
-      _lastUpdated: updateTime,
-      _forceUpdate: randomId,
-      _labelUpdated: true // Add flag to indicate label update
+    updateNodeData(nodeId, { label: e.target.value });
+  }, [nodeId, updateNodeData]);
+
+  // Handler for action type changes
+  const handleActionTypeChange = useCallback((value: string) => {
+    updateNodeData(nodeId, { 
+      actionType: value,
+      // Reset positions if changing to alert
+      ...(value === 'alert' && { positions: [] })
     });
-  }, [node.id, updateNodeData]);
+  }, [nodeId, updateNodeData]);
+
+  // Force update when action type changes
+  useEffect(() => {
+    if (nodeData?.actionType === 'alert' && nodeData?.positions?.length > 0) {
+      // Reset positions when switching to alert
+      updateNodeData(nodeId, { positions: [] });
+    } else if ((nodeData?.actionType === 'entry' || nodeData?.actionType === 'exit') && 
+              (!nodeData?.positions || nodeData.positions.length === 0)) {
+      // Ensure at least one position for entry/exit nodes
+      updateNodeData(nodeId, { positions: [createDefaultPosition()] });
+    }
+  }, [nodeData?.actionType, nodeData?.positions, nodeId, updateNodeData, createDefaultPosition]);
 
   return {
-    handleActionTypeChange,
-    handleLabelChange
+    handleLabelChange,
+    handleActionTypeChange
   };
 };

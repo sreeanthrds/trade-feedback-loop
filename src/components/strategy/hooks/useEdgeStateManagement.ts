@@ -1,7 +1,7 @@
 
 import { useCallback } from 'react';
 import { Edge, useEdgesState, Connection, addEdge, Node } from '@xyflow/react';
-import { validateConnection } from '../utils/edges/edgeOperations';
+import { validateConnection } from '../utils/flowUtils';
 
 /**
  * Hook to manage edge state with validation
@@ -16,24 +16,19 @@ export function useEdgeStateManagement(initialEdges: Edge[] = [], strategyStore:
         ? updatedEdges(prevEdges)
         : updatedEdges;
       
-      if (strategyStore) {
-        strategyStore.setEdges(newEdges);
-      }
+      strategyStore.setEdges(newEdges);
       return newEdges;
     });
   }, [setLocalEdges, strategyStore]);
 
   // Handle connections with validation
   const onConnect = useCallback(
-    (params: Connection, nodes: Node[] = []) => {
+    (params: Connection, nodes: Node[]) => {
       if (!validateConnection(params, nodes)) return;
       
       const newEdges = addEdge(params, edges);
       setEdges(newEdges);
-      
-      if (strategyStore) {
-        strategyStore.addHistoryItem(strategyStore.nodes, newEdges);
-      }
+      strategyStore.addHistoryItem(strategyStore.nodes, newEdges);
     },
     [edges, setEdges, strategyStore]
   );

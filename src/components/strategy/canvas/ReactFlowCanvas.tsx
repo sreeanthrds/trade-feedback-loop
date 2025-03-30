@@ -1,28 +1,16 @@
 
 import React, { useEffect, useRef, useCallback, memo } from 'react';
-import { ReactFlow, useReactFlow, Node, Edge } from '@xyflow/react';
+import { ReactFlow, useReactFlow } from '@xyflow/react';
 import TopToolbar from '../toolbars/TopToolbar';
 import BottomToolbar from '../toolbars/BottomToolbar';
 import CanvasControls from './CanvasControls';
 import { useViewportUtils } from './useViewportUtils';
 import { useDragHandling } from './useDragHandling';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
-  DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu';
-import { Play, Activity, SlidersHorizontal, StopCircle, AlertTriangle, ArrowUpCircle, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 interface ReactFlowCanvasProps {
   flowRef: React.RefObject<HTMLDivElement>;
-  nodes: Node[];
-  edges: Edge[];
+  nodes: any[];
+  edges: any[];
   onNodesChange: any;
   onEdgesChange: any;
   onConnect: any;
@@ -31,16 +19,17 @@ interface ReactFlowCanvasProps {
   onImportSuccess: () => void;
   onDeleteNode: (id: string) => void;
   onDeleteEdge: (id: string) => void;
-  onAddNode: (type: string, parentNodeId?: string, initialNodeData?: Record<string, any>) => void;
+  onAddNode: (type: string, parentNodeId?: string) => void;
   updateNodeData?: (id: string, data: any) => void;
   nodeTypes: any;
   edgeTypes: any;
 }
 
+// Memoize the toolbars to prevent unnecessary renders
 const MemoizedTopToolbar = memo(TopToolbar);
 const MemoizedBottomToolbar = memo(BottomToolbar);
 
-const ReactFlowCanvas = ({
+const ReactFlowCanvas = memo(({
   flowRef,
   nodes,
   edges,
@@ -61,13 +50,16 @@ const ReactFlowCanvas = ({
   const initialLoadRef = useRef(true);
   const { fitViewWithCustomZoom } = useViewportUtils();
   const { isNodeDraggingRef, handleNodesChange } = useDragHandling();
-
+  
+  // Custom nodes change handler with drag detection
   const customNodesChangeHandler = useCallback((changes) => {
     handleNodesChange(changes, onNodesChange);
   }, [handleNodesChange, onNodesChange]);
 
+  // Only fit view on initial load or when explicitly requested (import)
   useEffect(() => {
     if (initialLoadRef.current && nodes.length > 0 && reactFlowInstance) {
+      // Initial load fit view - use a debounce approach
       const timeoutId = setTimeout(() => {
         fitViewWithCustomZoom();
         initialLoadRef.current = false;
@@ -77,73 +69,17 @@ const ReactFlowCanvas = ({
     }
   }, [nodes, edges, reactFlowInstance, fitViewWithCustomZoom]);
 
+  // Simple function to determine node class name for minimap
   const nodeClassName = useCallback((node) => node.type, []);
+
+  // Prepare toolbar props
+  const bottomToolbarProps = useCallback(() => ({
+    resetStrategy,
+    onImportSuccess
+  }), [resetStrategy, onImportSuccess]);
 
   return (
     <div className="h-full w-full" ref={flowRef}>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button 
-            className="fixed top-4 left-4 z-10 px-4 py-2 bg-background border rounded-md hover:bg-accent"
-            variant="outline"
-          >
-            Add Node
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56 dropdown-content">
-          <DropdownMenuItem onClick={() => onAddNode('startNode')} className="flex items-center">
-            <Play className="h-4 w-4 mr-2 text-emerald-500" />
-            <span>Add Start Node</span>
-          </DropdownMenuItem>
-          
-          <DropdownMenuItem onClick={() => onAddNode('signalNode')} className="flex items-center">
-            <Activity className="h-4 w-4 mr-2 text-blue-600" />
-            <span>Add Signal Node</span>
-          </DropdownMenuItem>
-          
-          <DropdownMenuSeparator />
-          
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger className="flex items-center">
-              <SlidersHorizontal className="h-4 w-4 mr-2 text-amber-600" />
-              <span>Add Action Node</span>
-            </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent className="dropdown-menu-sub-content">
-              <DropdownMenuItem onClick={() => onAddNode('actionNode', undefined, { actionType: 'entry' })}>
-                <div className="flex items-center">
-                  <ArrowUpCircle className="h-4 w-4 mr-2 text-emerald-500" />
-                  <span>Entry Order</span>
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onAddNode('actionNode', undefined, { actionType: 'exit' })}>
-                <div className="flex items-center">
-                  <X className="h-4 w-4 mr-2 text-amber-600" />
-                  <span>Exit Order</span>
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onAddNode('actionNode', undefined, { actionType: 'alert' })}>
-                <div className="flex items-center">
-                  <AlertTriangle className="h-4 w-4 mr-2 text-amber-600" />
-                  <span>Alert Only</span>
-                </div>
-              </DropdownMenuItem>
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>
-          
-          <DropdownMenuSeparator />
-          
-          <DropdownMenuItem onClick={() => onAddNode('endNode')} className="flex items-center">
-            <StopCircle className="h-4 w-4 mr-2 text-rose-600" />
-            <span>Add End Node</span>
-          </DropdownMenuItem>
-          
-          <DropdownMenuItem onClick={() => onAddNode('forceEndNode')} className="flex items-center">
-            <AlertTriangle className="h-4 w-4 mr-2 text-purple-500" />
-            <span>Add Force End Node</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -176,6 +112,7 @@ const ReactFlowCanvas = ({
         }}
       >
         <CanvasControls nodeClassName={nodeClassName} />
+        
         <MemoizedTopToolbar />
         <MemoizedBottomToolbar 
           resetStrategy={resetStrategy} 
@@ -184,7 +121,7 @@ const ReactFlowCanvas = ({
       </ReactFlow>
     </div>
   );
-};
+});
 
 ReactFlowCanvas.displayName = 'ReactFlowCanvas';
 

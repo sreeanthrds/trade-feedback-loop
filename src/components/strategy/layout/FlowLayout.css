@@ -7,34 +7,6 @@
   transition: width 0.3s ease, height 0.3s ease;
 }
 
-.flow-layout {
-  display: flex;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-.flow-layout-content {
-  position: relative;
-  flex: 1;
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-}
-
-.flow-layout-panel {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 360px;
-  max-width: 90%;
-  height: 100%;
-  background-color: var(--background);
-  border-left: 1px solid var(--border);
-  z-index: 10;
-  overflow-y: auto;
-}
-
 .flow-main-content {
   height: 100%;
   width: 100%;
@@ -68,8 +40,12 @@
 
 /* Mobile styles */
 @media (max-width: 768px) {
-  .flow-layout-panel {
-    width: 100%;
-    max-width: 100%;
+  .strategy-flow-container [data-panel-resize-handle-id] {
+    width: 10px !important;
+  }
+
+  .strategy-flow-container [data-panel-resize-handle-id] div {
+    width: 10px !important;
+    height: 40px;
   }
 }
