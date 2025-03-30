@@ -58,11 +58,8 @@ const ReactFlowCanvas = memo(({
     maxZoom: 0.85
   }), []);
   
-  // Properly defined SnapGrid with x and y values
-  const snapGrid: SnapGrid = useMemo(() => ({
-    x: 15,
-    y: 15
-  }), []);
+  // Properly defined SnapGrid with correct typing
+  const snapGrid: SnapGrid = useMemo(() => [15, 15], []);
   
   // Custom nodes change handler with drag detection
   const customNodesChangeHandler = useCallback((changes) => {

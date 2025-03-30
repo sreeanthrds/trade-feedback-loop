@@ -20,8 +20,9 @@ export function useStoreSync(
   const nodesTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const edgesTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isComponentMountedRef = useRef(true);
+  const updateCountRef = useRef(0);
   
-  // Set mounted flag on mount
+  // Set mounted flag on mount and handle cleanup on unmount
   useEffect(() => {
     isComponentMountedRef.current = true;
     
@@ -32,25 +33,35 @@ export function useStoreSync(
       // Clear any pending timeouts
       if (nodesTimeoutRef.current) {
         clearTimeout(nodesTimeoutRef.current);
+        nodesTimeoutRef.current = null;
       }
       if (edgesTimeoutRef.current) {
         clearTimeout(edgesTimeoutRef.current);
+        edgesTimeoutRef.current = null;
       }
     };
   }, []);
   
-  // Sync nodes from store to ReactFlow
+  // Sync nodes from store to ReactFlow with improved guards
   useEffect(() => {
-    // Prevent syncing during initial load or dragging
-    if (!isComponentMountedRef.current || isInitialLoadRef.current || isDraggingRef.current) return;
-    
-    // Prevent recursive calls during synchronization
-    if (isSyncingRef.current) return;
+    // Guard conditions to prevent infinite loops
+    if (!isComponentMountedRef.current || 
+        isInitialLoadRef.current || 
+        isDraggingRef.current || 
+        isSyncingRef.current) {
+      return;
+    }
     
     // Clear any existing timeout
     if (nodesTimeoutRef.current) {
       clearTimeout(nodesTimeoutRef.current);
       nodesTimeoutRef.current = null;
+    }
+    
+    // Prevent excessive updates
+    if (updateCountRef.current > 10) {
+      console.warn('Too many updates in useStoreSync, stopping to prevent infinite loop');
+      return;
     }
     
     // Set a small delay to debounce updates
@@ -72,8 +83,10 @@ export function useStoreSync(
       if (nodesSignature !== currentNodesSignature && 
           nodesSignature !== prevNodesRef.current && 
           isComponentMountedRef.current) {
+        
         isSyncingRef.current = true;
         prevNodesRef.current = nodesSignature;
+        updateCountRef.current += 1;
         
         try {
           setNodes(storeNodes);
@@ -86,7 +99,7 @@ export function useStoreSync(
           }
         }
       }
-    }, 100);
+    }, 200); // Increased debounce time
     
     return () => {
       if (nodesTimeoutRef.current) {
@@ -95,15 +108,29 @@ export function useStoreSync(
     };
   }, [strategyStore.nodes, setNodes, nodes, isDraggingRef, isInitialLoadRef]);
 
-  // Sync edges from store to ReactFlow
+  // Reset update counter when component re-renders
   useEffect(() => {
-    if (!isComponentMountedRef.current || isInitialLoadRef.current) return;
-    if (isSyncingRef.current) return;
+    updateCountRef.current = 0;
+  }, [nodes, edges]);
+
+  // Sync edges from store to ReactFlow with similar improvements
+  useEffect(() => {
+    if (!isComponentMountedRef.current || 
+        isInitialLoadRef.current || 
+        isSyncingRef.current) {
+      return;
+    }
     
     // Clear any existing timeout
     if (edgesTimeoutRef.current) {
       clearTimeout(edgesTimeoutRef.current);
       edgesTimeoutRef.current = null;
+    }
+    
+    // Prevent excessive updates
+    if (updateCountRef.current > 10) {
+      console.warn('Too many updates in useStoreSync, stopping to prevent infinite loop');
+      return;
     }
     
     // Set a small delay to debounce updates
@@ -121,8 +148,10 @@ export function useStoreSync(
       if (edgesSignature !== currentEdgesSignature && 
           edgesSignature !== prevEdgesRef.current && 
           isComponentMountedRef.current) {
+        
         isSyncingRef.current = true;
         prevEdgesRef.current = edgesSignature;
+        updateCountRef.current += 1;
         
         try {
           setEdges(storeEdges);
@@ -135,7 +164,7 @@ export function useStoreSync(
           }
         }
       }
-    }, 100);
+    }, 200); // Increased debounce time
     
     return () => {
       if (edgesTimeoutRef.current) {

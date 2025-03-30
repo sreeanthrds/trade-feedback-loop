@@ -6,30 +6,16 @@ export function useStartNodeSymbol() {
   const [startNodeSymbol, setStartNodeSymbol] = useState<string | undefined>(undefined);
   const { getNodes } = useReactFlow();
   const prevSymbolRef = useRef<string | undefined>(undefined);
-  const isInitialMountRef = useRef(true);
-  const isUpdateInProgressRef = useRef(false);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isComponentMountedRef = useRef(true);
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   
-  // Find the start node and get its symbol
   useEffect(() => {
-    // Clean up function
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, []);
-
-  // Separate effect with no dependencies to run only once
-  useEffect(() => {
+    // Mark component as mounted
+    isComponentMountedRef.current = true;
+    
+    // Function to check for start node symbol
     const checkStartNodeSymbol = () => {
-      // Skip if an update is already in progress
-      if (isUpdateInProgressRef.current) {
-        return;
-      }
-      
-      // Mark update as in progress
-      isUpdateInProgressRef.current = true;
+      if (!isComponentMountedRef.current) return;
       
       try {
         const nodes = getNodes();
@@ -42,40 +28,41 @@ export function useStartNodeSymbol() {
           // Only update state if the symbol has actually changed
           if (typeof symbol === 'string' && symbol !== prevSymbolRef.current) {
             prevSymbolRef.current = symbol;
-            setStartNodeSymbol(symbol);
+            if (isComponentMountedRef.current) {
+              setStartNodeSymbol(symbol);
+            }
           } else if (symbol === undefined && prevSymbolRef.current !== undefined) {
             prevSymbolRef.current = undefined;
-            setStartNodeSymbol(undefined);
+            if (isComponentMountedRef.current) {
+              setStartNodeSymbol(undefined);
+            }
           }
         } else if (startNodeSymbol !== undefined && prevSymbolRef.current !== undefined) {
           prevSymbolRef.current = undefined;
-          setStartNodeSymbol(undefined);
+          if (isComponentMountedRef.current) {
+            setStartNodeSymbol(undefined);
+          }
         }
-      } finally {
-        // Always clear the in-progress flag after a short delay
-        timeoutRef.current = setTimeout(() => {
-          isUpdateInProgressRef.current = false;
-          
-          // Schedule the next check
-          timeoutRef.current = setTimeout(checkStartNodeSymbol, 1000);
-        }, 100);
+      } catch (error) {
+        console.error('Error checking start node symbol:', error);
       }
     };
     
-    // Skip first render to avoid initial cascade of updates
-    if (isInitialMountRef.current) {
-      isInitialMountRef.current = false;
-      // Schedule the first check after a delay
-      timeoutRef.current = setTimeout(checkStartNodeSymbol, 500);
-    }
+    // Set up polling interval instead of an empty dependency effect
+    pollingIntervalRef.current = setInterval(checkStartNodeSymbol, 1000);
+    
+    // Run initial check
+    checkStartNodeSymbol();
     
     // Clean up on unmount
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+      isComponentMountedRef.current = false;
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
       }
     };
-  }, []); // Empty dependency array - only run on mount
+  }, []); // Empty dependency array - only run on mount/unmount
   
   return startNodeSymbol;
 }

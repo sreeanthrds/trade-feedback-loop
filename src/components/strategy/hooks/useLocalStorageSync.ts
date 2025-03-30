@@ -1,3 +1,4 @@
+
 import { useEffect, useRef } from 'react';
 import { Node, Edge } from '@xyflow/react';
 import { loadStrategyFromLocalStorage } from '../utils/flowUtils';
@@ -18,12 +19,12 @@ export function useLocalStorageSync(
     // Set the mounted flag
     isComponentMountedRef.current = true;
     
-    // Only proceed if this is the initial load and we're not already loading
-    if (!isInitialLoadRef.current || isLoadingRef.current) return;
-    
-    isLoadingRef.current = true;
-    
     const loadInitialState = () => {
+      // Only proceed if this is the initial load, we're not already loading, and component is mounted
+      if (!isInitialLoadRef.current || isLoadingRef.current || !isComponentMountedRef.current) return;
+      
+      isLoadingRef.current = true;
+      
       try {
         // Attempt to load from localStorage
         const result = loadStrategyFromLocalStorage();
@@ -48,7 +49,9 @@ export function useLocalStorageSync(
           }
         } else {
           // No localStorage data, use initial nodes
-          setNodes(initialNodes);
+          if (isComponentMountedRef.current) {
+            setNodes(initialNodes);
+          }
         }
       } catch (error) {
         console.error('Error loading strategy from localStorage:', error);
