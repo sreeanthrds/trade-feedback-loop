@@ -39,6 +39,10 @@ const SingleConditionEditor: React.FC<SingleConditionEditorProps> = ({
     });
   };
 
+  // Check if the condition requires values
+  // For comparison operators, both sides are required
+  const requiresValues = ['>', '<', '>=', '<=', '==', '!='].includes(condition.operator);
+
   return (
     <div className="grid grid-cols-[1fr,auto,1fr] gap-2 items-start">
       {/* Left-hand side expression */}
@@ -46,6 +50,7 @@ const SingleConditionEditor: React.FC<SingleConditionEditorProps> = ({
         label="Left Side"
         expression={condition.lhs}
         updateExpression={updateLhs}
+        required={requiresValues}
       />
       
       {/* Operator */}
@@ -61,6 +66,7 @@ const SingleConditionEditor: React.FC<SingleConditionEditorProps> = ({
         label="Right Side"
         expression={condition.rhs}
         updateExpression={updateRhs}
+        required={requiresValues}
       />
     </div>
   );

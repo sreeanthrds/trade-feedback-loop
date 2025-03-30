@@ -5,15 +5,18 @@ import {
   ConstantExpression
 } from '../../../utils/conditionTypes';
 import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 interface ConstantValueEditorProps {
   expression: Expression;
   updateExpression: (expr: Expression) => void;
+  required?: boolean;
 }
 
 const ConstantValueEditor: React.FC<ConstantValueEditorProps> = ({
   expression,
-  updateExpression
+  updateExpression,
+  required = false
 }) => {
   if (expression.type !== 'constant') {
     return null;
@@ -46,7 +49,8 @@ const ConstantValueEditor: React.FC<ConstantValueEditorProps> = ({
     <Input
       value={constantExpr.value?.toString() || ''}
       onChange={updateConstantValue}
-      className="h-8"
+      className={cn("h-8", required && "border-red-200 focus:border-red-400")}
+      placeholder={required ? "Required" : ""}
     />
   );
 };

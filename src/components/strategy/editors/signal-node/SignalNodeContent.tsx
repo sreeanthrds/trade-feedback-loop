@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Info } from 'lucide-react';
 import {
   Tooltip,
@@ -20,6 +20,10 @@ const SignalNodeContent: React.FC<SignalNodeContentProps> = ({
   conditions,
   updateConditions
 }) => {
+  // State for evaluation frequency
+  const [evalFrequency, setEvalFrequency] = useState('tick');
+  const [requireConfirmation, setRequireConfirmation] = useState(false);
+  
   // Count total condition expressions for display
   const countConditions = (group: GroupCondition): number => {
     return group.conditions.reduce((total, cond) => {
@@ -67,8 +71,16 @@ const SignalNodeContent: React.FC<SignalNodeContentProps> = ({
             >
               <div className="space-y-2 mt-2">
                 <div className="space-y-1">
-                  <label className="text-xs font-medium">Evaluation Frequency</label>
-                  <select className="w-full h-8 text-xs px-2 py-1 border border-border rounded-md bg-background">
+                  <label className="text-xs font-medium flex items-center">
+                    Evaluation Frequency
+                    <span className="ml-1 text-red-500">*</span>
+                  </label>
+                  <select 
+                    className="w-full h-8 text-xs px-2 py-1 border border-border rounded-md bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                    value={evalFrequency}
+                    onChange={(e) => setEvalFrequency(e.target.value)}
+                    required
+                  >
                     <option value="tick">Every Tick</option>
                     <option value="bar">Bar Close</option>
                     <option value="minute">Every Minute</option>
@@ -81,6 +93,8 @@ const SignalNodeContent: React.FC<SignalNodeContentProps> = ({
                     <input 
                       type="checkbox" 
                       className="mr-2"
+                      checked={requireConfirmation}
+                      onChange={(e) => setRequireConfirmation(e.target.checked)}
                     />
                     Require confirmation bar
                   </label>

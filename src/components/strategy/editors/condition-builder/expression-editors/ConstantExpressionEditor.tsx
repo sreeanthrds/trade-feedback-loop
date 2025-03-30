@@ -6,16 +6,19 @@ import ConstantValueEditor from '../components/ConstantValueEditor';
 interface ConstantExpressionEditorProps {
   expression: Expression;
   updateExpression: (expr: Expression) => void;
+  required?: boolean;
 }
 
 const ConstantExpressionEditor: React.FC<ConstantExpressionEditorProps> = ({
   expression,
-  updateExpression
+  updateExpression,
+  required = false
 }) => {
   return (
     <ConstantValueEditor
       expression={expression}
       updateExpression={updateExpression}
+      required={required}
     />
   );
 };
