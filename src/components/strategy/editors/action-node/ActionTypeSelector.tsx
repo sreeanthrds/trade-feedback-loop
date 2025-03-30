@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ShoppingCart, LogOut, Bell } from 'lucide-react';
+import { ShoppingBag, LogOut, Bell } from 'lucide-react';
 import { FormField } from '../shared';
 
 interface ActionTypeSelectorProps {
@@ -20,7 +20,7 @@ const ActionTypeSelector: React.FC<ActionTypeSelectorProps> = ({
             ${actionType === 'entry' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}
           onClick={() => onActionTypeChange('entry')}
         >
-          <ShoppingCart className="h-5 w-5 mb-1 text-emerald-500 dark:text-emerald-400" />
+          <ShoppingBag className="h-5 w-5 mb-1 text-emerald-500 dark:text-emerald-400" />
           <span className="text-xs">Entry Order</span>
         </div>
         

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { ActionNodeData } from './types';
-import { ShoppingCart, LogOut, Bell } from 'lucide-react';
+import { ShoppingBag, LogOut, Bell } from 'lucide-react';
 
 interface ActionIconProps {
   data: ActionNodeData;
@@ -23,13 +23,13 @@ const ActionIcon: React.FC<ActionIconProps> = ({ data }) => {
   let Icon;
   
   if (data.actionType === 'entry') {
-    Icon = ShoppingCart; // Shopping cart for entry (buying or selling)
+    Icon = ShoppingBag; // Shopping bag for entry (buying)
   } else if (data.actionType === 'exit') {
     Icon = LogOut; // Log out for exit (leaving position)
   } else if (data.actionType === 'alert') {
     Icon = Bell; // Bell for alert notifications
   } else {
-    Icon = ShoppingCart; // Default fallback
+    Icon = ShoppingBag; // Default fallback
   }
 
   return (

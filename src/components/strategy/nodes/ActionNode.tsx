@@ -71,7 +71,7 @@ const ActionNode: React.FC<NodeProps> = ({ id, data, selected }) => {
     return nodeData.requiresSymbol !== false && !nodeData.symbol && !startNodeSymbol;
   }, [nodeData.requiresSymbol, nodeData.symbol, startNodeSymbol, nodeData.positions, nodeData.actionType]);
 
-  // Add a drag handle class to the node
+  // Add a drag handle class to the node for proper dragging
   return (
     <div className="drag-handle">
       <ActionNodeContent
