@@ -22,6 +22,28 @@ const NumberParameterInput: React.FC<NumberParameterInputProps> = ({
   value,
   onChange
 }) => {
+  // Handle empty values and allow users to clear the field
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    
+    // Allow empty string to clear the field
+    if (inputValue === '') {
+      // Pass undefined or default to the onChange handler
+      // This allows the user to clear the field before typing a new value
+      onChange(param.default !== undefined ? param.default : 0);
+      return;
+    }
+    
+    const numValue = parseFloat(inputValue);
+    if (!isNaN(numValue)) {
+      onChange(numValue);
+    }
+  };
+
+  // Determine if this should be an integer-only field
+  const isIntegerOnly = param.step ? Number.isInteger(param.step) && param.step >= 1 : false;
+  const step = param.step || (isIntegerOnly ? 1 : 'any');
+
   return (
     <div className="space-y-2" key={param.name}>
       <div className="flex items-center gap-2">
@@ -44,8 +66,11 @@ const NumberParameterInput: React.FC<NumberParameterInputProps> = ({
       <Input
         id={`param-${param.name}`}
         type="number"
-        value={value}
-        onChange={(e) => onChange(parseFloat(e.target.value))}
+        value={value === undefined ? '' : value}
+        onChange={handleInputChange}
+        step={step}
+        min={param.min}
+        max={param.max}
         className="h-8"
       />
     </div>

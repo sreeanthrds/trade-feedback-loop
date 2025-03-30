@@ -22,7 +22,18 @@ const ConstantValueEditor: React.FC<ConstantValueEditorProps> = ({
   const constantExpr = expression as ConstantExpression;
   
   // Update constant value
-  const updateConstantValue = (value: string) => {
+  const updateConstantValue = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    
+    // Allow empty string for temporary editing state
+    if (value === '') {
+      updateExpression({
+        ...constantExpr,
+        value: ''
+      });
+      return;
+    }
+    
     // Try to convert to number if possible
     const numValue = !isNaN(Number(value)) ? Number(value) : value;
     updateExpression({
@@ -33,8 +44,8 @@ const ConstantValueEditor: React.FC<ConstantValueEditorProps> = ({
   
   return (
     <Input
-      value={constantExpr.value.toString()}
-      onChange={(e) => updateConstantValue(e.target.value)}
+      value={constantExpr.value?.toString() || ''}
+      onChange={updateConstantValue}
       className="h-8"
     />
   );
