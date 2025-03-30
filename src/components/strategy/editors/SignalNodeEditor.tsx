@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Node } from '@xyflow/react';
 import { NodeDetailsPanel } from './shared';
 import { useSignalNodeForm } from './signal-node/useSignalNodeForm';
@@ -35,4 +35,5 @@ const SignalNodeEditor = ({ node, updateNodeData }: SignalNodeEditorProps) => {
   );
 };
 
-export default SignalNodeEditor;
+// Memoize the component to prevent unnecessary renders
+export default memo(SignalNodeEditor);

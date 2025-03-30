@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef, useCallback, memo, useState } from 'react';
+import React, { useEffect, useRef, useCallback, memo, useState, useMemo } from 'react';
 import { ReactFlow, useReactFlow } from '@xyflow/react';
 import TopToolbar from '../toolbars/TopToolbar';
 import BottomToolbar from '../toolbars/BottomToolbar';
@@ -28,6 +28,7 @@ interface ReactFlowCanvasProps {
 // Memoize the toolbars to prevent unnecessary renders
 const MemoizedTopToolbar = memo(TopToolbar);
 const MemoizedBottomToolbar = memo(BottomToolbar);
+const MemoizedCanvasControls = memo(CanvasControls);
 
 const ReactFlowCanvas = ({
   flowRef,
@@ -75,6 +76,20 @@ const ReactFlowCanvas = ({
 
   // Simple function to determine node class name for minimap
   const nodeClassName = useCallback((node) => node.type, []);
+  
+  // Memoize default edge options
+  const defaultEdgeOptions = useMemo(() => ({
+    animated: canvasReady, // Only animate edges after canvas is ready
+    style: { strokeWidth: 1.5 }
+  }), [canvasReady]);
+  
+  // Memoize fit view options
+  const fitViewOptions = useMemo(() => ({
+    padding: 0.3,
+    includeHiddenNodes: false,
+    duration: 200, // Shorter duration for faster fitting
+    maxZoom: 0.85
+  }), []);
 
   return (
     <div className="h-full w-full" ref={flowRef}>
@@ -92,24 +107,16 @@ const ReactFlowCanvas = ({
         defaultViewport={{ x: 0, y: 0, zoom: 0.6 }}
         snapToGrid
         snapGrid={[15, 15]}
-        defaultEdgeOptions={{
-          animated: canvasReady, // Only animate edges after canvas is ready
-          style: { strokeWidth: 1.5 }
-        }}
+        defaultEdgeOptions={defaultEdgeOptions}
         zoomOnScroll={false}
         zoomOnPinch={true}
         panOnScroll={true}
         nodesDraggable={true}
         elementsSelectable={true}
         proOptions={{ hideAttribution: true }}
-        fitViewOptions={{
-          padding: 0.3,
-          includeHiddenNodes: false,
-          duration: 200, // Shorter duration for faster fitting
-          maxZoom: 0.85
-        }}
+        fitViewOptions={fitViewOptions}
       >
-        <CanvasControls nodeClassName={nodeClassName} />
+        <MemoizedCanvasControls nodeClassName={nodeClassName} />
         
         <MemoizedTopToolbar />
         <MemoizedBottomToolbar 
