@@ -50,20 +50,20 @@ export function useLocalStorageSync(
         if (isValidStrategy) {
           console.log('Loading saved strategy from localStorage');
           
-          // Set local React Flow state first
+          // Set local state first to avoid render loops
           setNodes(savedStrategy.nodes);
           setEdges(savedStrategy.edges);
           
-          // Then update the store, but mark that we're doing so to prevent cycles
+          // Then update the store with a significant delay
           isUpdatingStoreRef.current = true;
           
-          // Use a longer delay for store updates to ensure React Flow state is set first
           if (syncTimeoutRef.current !== null) {
             window.clearTimeout(syncTimeoutRef.current);
           }
           
           syncTimeoutRef.current = window.setTimeout(() => {
             try {
+              // Direct state update instead of using actions that trigger useEffect loops
               strategyStore.setNodes(savedStrategy.nodes);
               strategyStore.setEdges(savedStrategy.edges);
               strategyStore.resetHistory();
@@ -74,7 +74,7 @@ export function useLocalStorageSync(
               isUpdatingStoreRef.current = false;
               syncTimeoutRef.current = null;
             }
-          }, 250); // Longer delay to ensure Flow state is set
+          }, 500); // Increased delay
         } else {
           console.warn('Invalid saved strategy found in localStorage, using default nodes');
           initializeWithDefaultNodes();
@@ -88,12 +88,12 @@ export function useLocalStorageSync(
       initializeWithDefaultNodes();
     }
     
-    // Set the initial load flag to false after a longer delay
+    // Set the initial load flag to false after a much longer delay
     // to ensure all synchronization operations have completed
     initTimeoutRef.current = window.setTimeout(() => {
       isInitialLoadRef.current = false;
       console.log('Initial load complete');
-    }, 1500); // Extended delay for full initialization
+    }, 2500); // Extended delay for full initialization
   }, []);
 
   // Helper function to initialize with default nodes
@@ -120,7 +120,7 @@ export function useLocalStorageSync(
         isUpdatingStoreRef.current = false;
         syncTimeoutRef.current = null;
       }
-    }, 250);
+    }, 500);
   };
 
   return { isInitialLoadRef, isUpdatingStoreRef };

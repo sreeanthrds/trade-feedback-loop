@@ -36,27 +36,126 @@ const StrategyFlowContent = () => {
     strategyStore
   } = useFlowState();
 
-  // Create handlers but don't cause renders when they're updated
-  const handlers = useFlowHandlers({
-    nodes,
-    edges,
-    selectedNode,
-    isPanelOpen,
-    reactFlowWrapper,
-    reactFlowInstance,
-    setSelectedNode,
-    setIsPanelOpen,
-    setNodes,
-    setEdges,
-    strategyStore
-  });
+  // Use a ref to memoize the handlers regardless of the deps changing
+  // to prevent re-rendering cascades
+  const createHandlers = useCallback(() => {
+    return {
+      onNodeClick: (event, node) => {
+        setSelectedNode(node);
+        setIsPanelOpen(true);
+      },
+      handleAddNode: (type, parentId) => {
+        const handlers = useFlowHandlers({
+          nodes,
+          edges,
+          selectedNode,
+          isPanelOpen,
+          reactFlowWrapper,
+          reactFlowInstance,
+          setSelectedNode,
+          setIsPanelOpen,
+          setNodes,
+          setEdges,
+          strategyStore
+        });
+        handlers.handleAddNode(type, parentId);
+      },
+      handleDeleteNode: (id) => {
+        const handlers = useFlowHandlers({
+          nodes,
+          edges,
+          selectedNode,
+          isPanelOpen,
+          reactFlowWrapper,
+          reactFlowInstance,
+          setSelectedNode,
+          setIsPanelOpen,
+          setNodes,
+          setEdges,
+          strategyStore
+        });
+        handlers.handleDeleteNode(id);
+      },
+      handleDeleteEdge: (id) => {
+        const handlers = useFlowHandlers({
+          nodes,
+          edges,
+          selectedNode,
+          isPanelOpen,
+          reactFlowWrapper,
+          reactFlowInstance,
+          setSelectedNode,
+          setIsPanelOpen,
+          setNodes,
+          setEdges,
+          strategyStore
+        });
+        handlers.handleDeleteEdge(id);
+      },
+      updateNodeData: (id, data) => {
+        const handlers = useFlowHandlers({
+          nodes,
+          edges,
+          selectedNode,
+          isPanelOpen,
+          reactFlowWrapper,
+          reactFlowInstance,
+          setSelectedNode,
+          setIsPanelOpen,
+          setNodes,
+          setEdges,
+          strategyStore
+        });
+        handlers.updateNodeData(id, data);
+      },
+      closePanel: () => {
+        setIsPanelOpen(false);
+        setSelectedNode(null);
+      },
+      resetStrategy: () => {
+        const handlers = useFlowHandlers({
+          nodes,
+          edges,
+          selectedNode,
+          isPanelOpen,
+          reactFlowWrapper,
+          reactFlowInstance,
+          setSelectedNode,
+          setIsPanelOpen,
+          setNodes,
+          setEdges,
+          strategyStore
+        });
+        handlers.resetStrategy();
+      },
+      handleImportSuccess: () => {
+        const handlers = useFlowHandlers({
+          nodes,
+          edges,
+          selectedNode,
+          isPanelOpen,
+          reactFlowWrapper,
+          reactFlowInstance,
+          setSelectedNode,
+          setIsPanelOpen,
+          setNodes,
+          setEdges,
+          strategyStore
+        });
+        handlers.handleImportSuccess();
+      }
+    };
+  }, []);
   
-  // Update the ref without causing renders
+  // Create stable callback versions of the handlers
+  const memoizedHandlers = useMemo(() => createHandlers(), [createHandlers]);
+  
+  // Update the handlers ref only when needed
   useEffect(() => {
-    handlersRef.current = handlers;
-  }, [handlers]);
+    handlersRef.current = memoizedHandlers;
+  }, [memoizedHandlers]);
 
-  // Create stable callback versions of the handlers using the ref
+  // Create stable handler functions
   const onNodeClick = useCallback((event, node) => {
     if (handlersRef.current) {
       handlersRef.current.onNodeClick(event, node);
@@ -105,7 +204,7 @@ const StrategyFlowContent = () => {
     }
   }, []);
 
-  // Create node types and edge types once
+  // Create node types and edge types only once
   const nodeTypes = useMemo(() => 
     createNodeTypes(handleDeleteNode, handleAddNode, updateNodeData), 
     [handleDeleteNode, handleAddNode, updateNodeData]
