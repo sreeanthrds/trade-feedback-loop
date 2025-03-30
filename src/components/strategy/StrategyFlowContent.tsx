@@ -20,6 +20,15 @@ const StrategyFlowContent: React.FC = () => {
   const isMobile = useIsMobile();
   const [sidebarVisible, setSidebarVisible] = useState(false);
   
+  // If React Flow is not ready, show a loading indicator
+  if (!flowState.reactFlowInstance) {
+    return (
+      <div className="h-full w-full flex items-center justify-center">
+        <div className="animate-pulse">Initializing strategy builder...</div>
+      </div>
+    );
+  }
+  
   // Get all flow handlers from a custom hook
   const {
     onNodeClick,

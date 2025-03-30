@@ -34,7 +34,15 @@ const ReactFlowCanvas = memo(({
   nodeTypes,
   edgeTypes
 }: ReactFlowCanvasProps) => {
-  const reactFlowInstance = useReactFlow();
+  // Get the ReactFlow instance safely
+  let reactFlowInstance;
+  try {
+    reactFlowInstance = useReactFlow();
+  } catch (error) {
+    console.warn('ReactFlow not initialized yet');
+    return <div className="h-full w-full flex items-center justify-center">Loading canvas...</div>;
+  }
+  
   const initialLoadRef = useRef(true);
   const renderCountRef = useRef(0);
   const { fitViewWithCustomZoom } = useViewportUtils();

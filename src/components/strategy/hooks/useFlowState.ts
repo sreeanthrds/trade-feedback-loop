@@ -1,5 +1,5 @@
 
-import { useRef, useMemo, useCallback, useState } from 'react';
+import { useRef, useMemo, useCallback, useState, useEffect } from 'react';
 import { useReactFlow, Node as ReactFlowNode, Edge } from '@xyflow/react';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
 import { initialNodes } from '../utils/flowUtils';
@@ -11,7 +11,22 @@ import { usePanelState } from './usePanelState';
 
 export function useFlowState() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const reactFlowInstance = useReactFlow();
+  const isReactFlowReadyRef = useRef(false);
+  const [isReactFlowReady, setIsReactFlowReady] = useState(false);
+  
+  // Get React Flow instance safely
+  let reactFlowInstance;
+  try {
+    reactFlowInstance = useReactFlow();
+    if (!isReactFlowReady && reactFlowInstance) {
+      setIsReactFlowReady(true);
+      isReactFlowReadyRef.current = true;
+    }
+  } catch (error) {
+    // Handle the case where useReactFlow is called outside of provider
+    console.warn('ReactFlow provider not ready yet');
+  }
+  
   const strategyStore = useStrategyStore();
   
   // Node state management
@@ -56,8 +71,17 @@ export function useFlowState() {
   
   // Create onConnect handler with nodes - use useCallback to memoize
   const onConnect = useCallback((params) => {
-    baseOnConnect(params, nodes);
+    if (baseOnConnect) {
+      baseOnConnect(params, nodes);
+    }
   }, [baseOnConnect, nodes]);
+
+  // Effect to initialize React Flow after the provider is available
+  useEffect(() => {
+    if (isReactFlowReady && !isReactFlowReadyRef.current) {
+      isReactFlowReadyRef.current = true;
+    }
+  }, [isReactFlowReady]);
 
   return {
     nodes,
@@ -73,6 +97,7 @@ export function useFlowState() {
     setIsPanelOpen,
     setNodes,
     setEdges,
-    strategyStore
+    strategyStore,
+    isReactFlowReady
   };
 }

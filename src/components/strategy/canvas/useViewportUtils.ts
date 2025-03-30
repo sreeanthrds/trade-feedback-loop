@@ -3,36 +3,49 @@ import { useCallback } from 'react';
 import { useReactFlow } from '@xyflow/react';
 
 export function useViewportUtils() {
-  const reactFlowInstance = useReactFlow();
+  let reactFlowInstance = null;
+  
+  try {
+    reactFlowInstance = useReactFlow();
+  } catch (error) {
+    console.warn('ReactFlow not initialized yet');
+  }
 
   // Custom function to fit view with additional zoom out
   const fitViewWithCustomZoom = useCallback(() => {
     if (!reactFlowInstance) return;
     
-    reactFlowInstance.fitView({
-      padding: 0.2,
-      includeHiddenNodes: false,
-      duration: 800,
-      maxZoom: 1.0
-    });
-    
-    // After fitting, zoom out by an additional 15%
-    setTimeout(() => {
-      const { zoom } = reactFlowInstance.getViewport();
-      const newZoom = zoom * 0.85; // 15% more zoomed out
+    try {
+      reactFlowInstance.fitView({
+        padding: 0.2,
+        includeHiddenNodes: false,
+        duration: 800,
+        maxZoom: 1.0
+      });
       
-      reactFlowInstance.setViewport(
-        { 
-          x: reactFlowInstance.getViewport().x, 
-          y: reactFlowInstance.getViewport().y, 
-          zoom: newZoom 
-        }, 
-        { duration: 200 }
-      );
-    }, 850);
+      // After fitting, zoom out by an additional 15%
+      setTimeout(() => {
+        if (!reactFlowInstance) return;
+        
+        const { zoom } = reactFlowInstance.getViewport();
+        const newZoom = zoom * 0.85; // 15% more zoomed out
+        
+        reactFlowInstance.setViewport(
+          { 
+            x: reactFlowInstance.getViewport().x, 
+            y: reactFlowInstance.getViewport().y, 
+            zoom: newZoom 
+          }, 
+          { duration: 200 }
+        );
+      }, 850);
+    } catch (error) {
+      console.error('Error in fitViewWithCustomZoom', error);
+    }
   }, [reactFlowInstance]);
 
   return {
-    fitViewWithCustomZoom
+    fitViewWithCustomZoom,
+    reactFlowInstance
   };
 }
