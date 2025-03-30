@@ -1,5 +1,5 @@
 
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Node } from '@xyflow/react';
 
 /**
@@ -29,7 +29,7 @@ export function useCustomSetNodes({
           ? updatedNodes(prevNodes) 
           : updatedNodes;
         
-        // Skip if nodes haven't actually changed using deep equality
+        // Skip if nodes haven't actually changed using deep equality check
         if (!shouldUpdateNodes(newNodes, prevNodes)) {
           return prevNodes;
         }
@@ -42,7 +42,7 @@ export function useCustomSetNodes({
         
         // Throttle updates to the store during frequent operations
         const now = Date.now();
-        if (now - lastUpdateTimeRef.current > 400) { // Increased throttle time
+        if (now - lastUpdateTimeRef.current > 500) { // Increased throttle time for better performance
           lastUpdateTimeRef.current = now;
           
           // Clear any pending timeout
@@ -54,7 +54,7 @@ export function useCustomSetNodes({
           // Schedule the update to the store with setTimeout to break the React update cycle
           updateTimeoutRef.current = window.setTimeout(() => {
             processStoreUpdate(newNodes);
-          }, 300); // Increased delay
+          }, 300);
         } else {
           pendingNodesUpdate.current = newNodes;
         }
@@ -77,5 +77,6 @@ export function useCustomSetNodes({
     processStoreUpdate
   ]);
 
-  return setNodes;
+  // Return a stable reference to prevent re-renders
+  return useMemo(() => setNodes, [setNodes]);
 }

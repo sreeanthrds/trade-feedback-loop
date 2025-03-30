@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useMemo } from 'react';
 import { Node, useNodesState } from '@xyflow/react';
 import { deepEqual } from '../../utils/deepEqual';
 
@@ -11,28 +11,32 @@ export function useNodeBasicState(initialNodes: Node[]) {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const isDraggingRef = useRef(false);
   
-  // Update selectedNode when nodes change (if it's among them)
+  // Memoized selected node update to prevent recreation
   const updateSelectedNodeRef = useCallback((currentNodes: Node[], currentSelectedNode: Node | null) => {
-    if (currentSelectedNode) {
-      const updatedSelectedNode = currentNodes.find(node => node.id === currentSelectedNode.id);
-      if (updatedSelectedNode && 
-          !deepEqual(updatedSelectedNode, currentSelectedNode)) {
-        return updatedSelectedNode;
-      } else if (!updatedSelectedNode) {
-        // Clear selected node if it's been removed
-        return null;
-      }
+    if (!currentSelectedNode) return null;
+    
+    const updatedSelectedNode = currentNodes.find(node => node.id === currentSelectedNode.id);
+    if (updatedSelectedNode && !deepEqual(updatedSelectedNode, currentSelectedNode)) {
+      return updatedSelectedNode;
+    } else if (!updatedSelectedNode) {
+      return null;
     }
     return currentSelectedNode;
   }, []);
 
-  return {
+  // Create a stable set selected node function that doesn't change on re-renders
+  const stableSetSelectedNode = useCallback((node: Node | null) => {
+    setSelectedNode(node);
+  }, []);
+
+  // Return stable objects to prevent unnecessary re-renders
+  return useMemo(() => ({
     nodes,
     setLocalNodes,
     onNodesChange,
     selectedNode,
-    setSelectedNode,
+    setSelectedNode: stableSetSelectedNode,
     updateSelectedNodeRef,
     isDraggingRef
-  };
+  }), [nodes, setLocalNodes, onNodesChange, selectedNode, stableSetSelectedNode, updateSelectedNodeRef]);
 }

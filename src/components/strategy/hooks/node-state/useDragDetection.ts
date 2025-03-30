@@ -1,5 +1,5 @@
 
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useMemo } from 'react';
 
 /**
  * Hook to manage drag detection and state
@@ -7,6 +7,7 @@ import { useCallback, useRef } from 'react';
 export function useDragDetection() {
   const isDraggingRef = useRef(false);
   const pendingNodesUpdate = useRef<any[] | null>(null);
+  const lastDragEndTimeRef = useRef(0);
 
   // Enhanced node change handler with improved drag detection
   const onNodesChangeWithDragDetection = useCallback((changes, onNodesChange, updateHandler) => {
@@ -25,25 +26,32 @@ export function useDragDetection() {
       } else if (isDraggingRef.current) {
         // Drag ended
         isDraggingRef.current = false;
+        const now = Date.now();
         
-        // Apply the pending update once the drag is complete
-        if (pendingNodesUpdate.current) {
-          // Use setTimeout to break the React update cycle
-          const nodesToUpdate = [...pendingNodesUpdate.current];
-          pendingNodesUpdate.current = null;
+        // Avoid processing drag end events too close together
+        if (now - lastDragEndTimeRef.current > 150) {
+          lastDragEndTimeRef.current = now;
           
-          // Introduce a delay to avoid immediate updates
-          setTimeout(() => {
-            updateHandler(nodesToUpdate);
-          }, 300);
+          // Apply the pending update once the drag is complete
+          if (pendingNodesUpdate.current) {
+            // Use setTimeout to break the React update cycle
+            const nodesToUpdate = [...pendingNodesUpdate.current];
+            pendingNodesUpdate.current = null;
+            
+            // Introduce a delay to avoid immediate updates
+            setTimeout(() => {
+              updateHandler(nodesToUpdate);
+            }, 200); // Slight increase for better stability
+          }
         }
       }
     }
   }, []);
 
-  return {
+  // Return stable object references to prevent re-renders
+  return useMemo(() => ({
     isDraggingRef,
     pendingNodesUpdate,
     onNodesChangeWithDragDetection
-  };
+  }), [onNodesChangeWithDragDetection]);
 }

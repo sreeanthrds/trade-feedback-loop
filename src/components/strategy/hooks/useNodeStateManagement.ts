@@ -1,4 +1,5 @@
-import { useCallback, useEffect } from 'react';
+
+import { useCallback, useMemo } from 'react';
 import { Node } from '@xyflow/react';
 import { useNodeBasicState } from './node-state/useNodeBasicState';
 import { useDragDetection } from './node-state/useDragDetection';
@@ -38,7 +39,7 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
     shouldUpdateNodes
   } = useNodeUpdates(strategyStore);
 
-  // Connect drag detection to node changes
+  // Connect drag detection to node changes - memoize this function
   const handleUpdateAfterDrag = useCallback((nodesToUpdate) => {
     processStoreUpdate(nodesToUpdate);
   }, [processStoreUpdate]);
@@ -78,12 +79,13 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
   // Keep selected node in sync with node updates
   useSelectedNodeUpdate(nodes, selectedNode, setSelectedNode);
 
-  return {
+  // Return stable object reference to prevent re-renders
+  return useMemo(() => ({
     nodes,
     setNodes,
     onNodesChange: onNodesChangeWithProcessing,
     selectedNode,
     setSelectedNode,
     isDraggingRef
-  };
+  }), [nodes, setNodes, onNodesChangeWithProcessing, selectedNode, setSelectedNode]);
 }
