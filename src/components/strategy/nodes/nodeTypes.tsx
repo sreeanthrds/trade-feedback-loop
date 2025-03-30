@@ -4,6 +4,9 @@ import { NodeTypes, Position } from '@xyflow/react';
 import StartNode from './StartNode';
 import SignalNode from './SignalNode';
 import ActionNode from './ActionNode';
+import EntryNode from './EntryNode';
+import ExitNode from './ExitNode';
+import AlertNode from './AlertNode';
 import EndNode from './EndNode';
 import ForceEndNode from './ForceEndNode';
 import NodeControls from '../NodeControls';
@@ -13,6 +16,9 @@ import NodeConnectControls from '../NodeConnectControls';
 const MemoizedStartNode = React.memo(StartNode);
 const MemoizedSignalNode = React.memo(SignalNode);
 const MemoizedActionNode = React.memo(ActionNode);
+const MemoizedEntryNode = React.memo(EntryNode);
+const MemoizedExitNode = React.memo(ExitNode);
+const MemoizedAlertNode = React.memo(AlertNode);
 const MemoizedEndNode = React.memo(EndNode);
 const MemoizedForceEndNode = React.memo(ForceEndNode);
 const MemoizedNodeControls = React.memo(NodeControls);
@@ -29,9 +35,9 @@ interface NodeWrapperProps {
   selectable: boolean;
   deletable: boolean;
   draggable: boolean;
-  isConnectable: boolean;         // Add this required property
-  positionAbsoluteX: number;      // Add this required property
-  positionAbsoluteY: number;      // Add this required property
+  isConnectable: boolean;
+  positionAbsoluteX: number;
+  positionAbsoluteY: number;
   onDelete?: (id: string) => void;
   onAddNode?: (type: string, parentNodeId: string) => void;
   [key: string]: any;
@@ -73,6 +79,63 @@ const ActionNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNod
 });
 ActionNodeWrapper.displayName = 'ActionNodeWrapper';
 
+const EntryNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNodeData, ...rest }: NodeWrapperProps & { updateNodeData?: (id: string, data: any) => void }) => {
+  // Enhance data with updateNodeData function and ensure positions is always defined
+  const enhancedData = React.useMemo(() => ({
+    ...data,
+    updateNodeData,
+    positions: data.positions || [], // Ensure positions is always defined
+    actionType: 'entry' // Force action type to be 'entry'
+  }), [data, updateNodeData]);
+  
+  return (
+    <div className="group">
+      <MemoizedEntryNode data={enhancedData} id={id} {...rest} />
+      <MemoizedNodeControls node={{ id, type: 'entryNode', data }} onDelete={onDelete} />
+      <MemoizedNodeConnectControls showOn="action" onAddNode={onAddNode} parentNodeId={id} />
+    </div>
+  );
+});
+EntryNodeWrapper.displayName = 'EntryNodeWrapper';
+
+const ExitNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNodeData, ...rest }: NodeWrapperProps & { updateNodeData?: (id: string, data: any) => void }) => {
+  // Enhance data with updateNodeData function and ensure positions is always defined
+  const enhancedData = React.useMemo(() => ({
+    ...data,
+    updateNodeData,
+    positions: data.positions || [], // Ensure positions is always defined
+    actionType: 'exit' // Force action type to be 'exit'
+  }), [data, updateNodeData]);
+  
+  return (
+    <div className="group">
+      <MemoizedExitNode data={enhancedData} id={id} {...rest} />
+      <MemoizedNodeControls node={{ id, type: 'exitNode', data }} onDelete={onDelete} />
+      <MemoizedNodeConnectControls showOn="action" onAddNode={onAddNode} parentNodeId={id} />
+    </div>
+  );
+});
+ExitNodeWrapper.displayName = 'ExitNodeWrapper';
+
+const AlertNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNodeData, ...rest }: NodeWrapperProps & { updateNodeData?: (id: string, data: any) => void }) => {
+  // Enhance data with updateNodeData function and ensure positions is always defined
+  const enhancedData = React.useMemo(() => ({
+    ...data,
+    updateNodeData,
+    positions: data.positions || [], // Ensure positions is always defined
+    actionType: 'alert' // Force action type to be 'alert'
+  }), [data, updateNodeData]);
+  
+  return (
+    <div className="group">
+      <MemoizedAlertNode data={enhancedData} id={id} {...rest} />
+      <MemoizedNodeControls node={{ id, type: 'alertNode', data }} onDelete={onDelete} />
+      <MemoizedNodeConnectControls showOn="action" onAddNode={onAddNode} parentNodeId={id} />
+    </div>
+  );
+});
+AlertNodeWrapper.displayName = 'AlertNodeWrapper';
+
 const EndNodeWrapper = React.memo(({ data, id, onDelete, ...rest }: NodeWrapperProps) => (
   <div className="group">
     <MemoizedEndNode data={data} id={id} {...rest} />
@@ -99,6 +162,9 @@ const createNodeTypes = (
     startNode: (props) => <StartNodeWrapper {...props} draggable={true} onAddNode={onAddNode} />,
     signalNode: (props) => <SignalNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} onAddNode={onAddNode} />,
     actionNode: (props) => <ActionNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} onAddNode={onAddNode} updateNodeData={updateNodeData} />,
+    entryNode: (props) => <EntryNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} onAddNode={onAddNode} updateNodeData={updateNodeData} />,
+    exitNode: (props) => <ExitNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} onAddNode={onAddNode} updateNodeData={updateNodeData} />,
+    alertNode: (props) => <AlertNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} onAddNode={onAddNode} updateNodeData={updateNodeData} />,
     endNode: (props) => <EndNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} />,
     forceEndNode: (props) => <ForceEndNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} />
   };

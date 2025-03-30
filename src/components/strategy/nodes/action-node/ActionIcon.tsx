@@ -14,9 +14,9 @@ const ActionIcon: React.FC<ActionIconProps> = ({ data }) => {
   if (data.actionType === 'entry') {
     iconColor = 'text-green-500';
   } else if (data.actionType === 'exit') {
-    iconColor = 'text-blue-500';
-  } else if (data.actionType === 'alert') {
     iconColor = 'text-amber-500';
+  } else if (data.actionType === 'alert') {
+    iconColor = 'text-purple-500';
   }
 
   // Determine which icon to show based on action type

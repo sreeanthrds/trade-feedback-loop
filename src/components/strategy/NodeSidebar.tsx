@@ -1,6 +1,6 @@
 
 import React, { useCallback, memo } from 'react';
-import { Play, Activity, SlidersHorizontal, StopCircle, AlertTriangle } from 'lucide-react';
+import { CircleDollarSign, ArrowRightLeft, StopCircle, AlertTriangle, Activity, Play } from 'lucide-react';
 import { 
   Tooltip,
   TooltipContent,
@@ -36,11 +36,25 @@ const nodeTypes: NodeTypeItem[] = [
     color: 'border-blue-600 dark:border-blue-400 bg-blue-600/10 dark:bg-blue-400/10'
   },
   {
-    type: 'actionNode',
-    label: 'Action Node',
-    description: 'Execute trading actions',
-    icon: <SlidersHorizontal className="h-5 w-5 text-amber-600 dark:text-amber-400" />,
+    type: 'entryNode',
+    label: 'Entry Node',
+    description: 'Execute buy/sell orders',
+    icon: <CircleDollarSign className="h-5 w-5 text-green-600 dark:text-green-400" />,
+    color: 'border-green-600 dark:border-green-400 bg-green-600/10 dark:bg-green-400/10'
+  },
+  {
+    type: 'exitNode',
+    label: 'Exit Node',
+    description: 'Close positions',
+    icon: <ArrowRightLeft className="h-5 w-5 text-amber-600 dark:text-amber-400" />,
     color: 'border-amber-600 dark:border-amber-400 bg-amber-600/10 dark:bg-amber-400/10'
+  },
+  {
+    type: 'alertNode',
+    label: 'Alert Node',
+    description: 'Send alerts',
+    icon: <AlertTriangle className="h-5 w-5 text-purple-600 dark:text-purple-400" />,
+    color: 'border-purple-600 dark:border-purple-400 bg-purple-600/10 dark:bg-purple-400/10'
   },
   {
     type: 'endNode',
@@ -53,8 +67,8 @@ const nodeTypes: NodeTypeItem[] = [
     type: 'forceEndNode',
     label: 'Force End Node',
     description: 'Close positions and end strategy',
-    icon: <AlertTriangle className="h-5 w-5 text-purple-500 dark:text-purple-400" />,
-    color: 'border-purple-500 dark:border-purple-400 bg-purple-500/10 dark:bg-purple-400/10'
+    icon: <AlertTriangle className="h-5 w-5 text-red-500 dark:text-red-400" />,
+    color: 'border-red-500 dark:border-red-400 bg-red-500/10 dark:bg-red-400/10'
   }
 ];
 

@@ -35,6 +35,9 @@ export const addNode = (
       case 'startNode': return 'start';
       case 'signalNode': return 'signal';
       case 'actionNode': return 'action';
+      case 'entryNode': return 'entry';
+      case 'exitNode': return 'exit';
+      case 'alertNode': return 'alert';
       case 'endNode': return 'end';
       case 'forceEndNode': return 'force-end';
       default: return type.replace('Node', '').toLowerCase();
@@ -56,10 +59,16 @@ export const addNode = (
           ? 'Force End'
           : type === 'signalNode' 
             ? 'Signal' 
-            : 'Action'
+            : type === 'entryNode'
+              ? 'Entry Order'
+              : type === 'exitNode'
+                ? 'Exit Order'
+                : type === 'alertNode'
+                  ? 'Alert'
+                  : 'Action'
   };
   
-  if (type === 'actionNode') {
+  if (type === 'actionNode' || type === 'entryNode' || type === 'exitNode') {
     const positionId = `pos-${Date.now().toString().slice(-6)}`;
     const defaultPosition = {
       id: positionId,
@@ -74,8 +83,14 @@ export const addNode = (
 
     defaultData = {
       ...defaultData,
-      actionType: 'entry',
+      actionType: type === 'entryNode' ? 'entry' : type === 'exitNode' ? 'exit' : 'entry',
       positions: [defaultPosition]
+    };
+  } else if (type === 'alertNode') {
+    defaultData = {
+      ...defaultData,
+      actionType: 'alert',
+      positions: []
     };
   }
   
