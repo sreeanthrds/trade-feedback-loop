@@ -12,7 +12,7 @@ const ActionIcon: React.FC<ActionIconProps> = ({ data }) => {
   let iconColor = '';
   
   if (data.actionType === 'entry') {
-    iconColor = 'text-green-500';
+    iconColor = 'text-emerald-500';
   } else if (data.actionType === 'exit') {
     iconColor = 'text-amber-500';
   } else if (data.actionType === 'alert') {
