@@ -66,7 +66,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
         id="lots"
         type="number"
         min={1}
-        value={position.lots || 1}
+        value={position.lots === undefined ? '' : position.lots}
         onChange={onLotsChange}
         placeholder="Number of lots"
       />

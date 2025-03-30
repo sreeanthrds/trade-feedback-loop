@@ -16,8 +16,15 @@ const LimitToMarketExitForm: React.FC<LimitToMarketExitFormProps> = ({
     <InputField
       label="Wait Seconds"
       type="number"
-      value={exitCondition.waitSeconds || 60}
-      onChange={(e) => updateField('waitSeconds', parseInt(e.target.value))}
+      value={exitCondition.waitSeconds === undefined ? '' : exitCondition.waitSeconds}
+      onChange={(e) => {
+        // Handle empty input
+        if (e.target.value === '') {
+          updateField('waitSeconds', undefined);
+          return;
+        }
+        updateField('waitSeconds', parseInt(e.target.value))
+      }}
       min={1}
       description="Switch to market order after this many seconds"
     />

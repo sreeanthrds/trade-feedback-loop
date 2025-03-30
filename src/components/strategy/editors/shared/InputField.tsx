@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 
 interface InputFieldProps {
   label: string;
-  value: string | number;
+  value: string | number | undefined;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   id?: string;
   type?: string;
@@ -14,7 +14,7 @@ interface InputFieldProps {
   className?: string;
   min?: number;
   max?: number;
-  step?: number;
+  step?: number | string;
   disabled?: boolean;
   readOnly?: boolean;
 }
@@ -63,7 +63,7 @@ const InputField: React.FC<InputFieldProps> = ({
     onChange(e);
   };
   
-  // Convert empty value to empty string for controlled input
+  // Convert empty, undefined, or null value to empty string for controlled input
   const inputValue = value === undefined || value === null ? '' : value;
   
   // Determine step based on type and provided step

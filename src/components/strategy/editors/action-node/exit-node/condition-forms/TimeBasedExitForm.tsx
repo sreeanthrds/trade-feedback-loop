@@ -16,8 +16,15 @@ const TimeBasedExitForm: React.FC<TimeBasedExitFormProps> = ({
     <InputField
       label="Minutes"
       type="number"
-      value={exitCondition.minutes || 30}
-      onChange={(e) => updateField('minutes', parseInt(e.target.value))}
+      value={exitCondition.minutes === undefined ? '' : exitCondition.minutes}
+      onChange={(e) => {
+        // Handle empty input
+        if (e.target.value === '') {
+          updateField('minutes', undefined);
+          return;
+        }
+        updateField('minutes', parseInt(e.target.value))
+      }}
       min={1}
       description="Minutes after entry to exit position"
     />

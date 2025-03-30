@@ -16,8 +16,15 @@ const MarketCloseExitForm: React.FC<MarketCloseExitFormProps> = ({
     <InputField
       label="Minutes Before Close"
       type="number"
-      value={exitCondition.minutesBefore || 15}
-      onChange={(e) => updateField('minutesBefore', parseInt(e.target.value))}
+      value={exitCondition.minutesBefore === undefined ? '' : exitCondition.minutesBefore}
+      onChange={(e) => {
+        // Handle empty input
+        if (e.target.value === '') {
+          updateField('minutesBefore', undefined);
+          return;
+        }
+        updateField('minutesBefore', parseInt(e.target.value))
+      }}
       min={1}
       description="Exit this many minutes before market close"
     />
