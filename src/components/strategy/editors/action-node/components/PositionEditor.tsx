@@ -43,7 +43,15 @@ const PositionEditor: React.FC<PositionEditorProps> = ({
   };
 
   const handlePriorityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const priority = parseInt(e.target.value);
+    const value = e.target.value;
+    
+    // Allow clearing the field
+    if (value === '') {
+      onPositionChange({ priority: undefined as any });
+      return;
+    }
+    
+    const priority = parseInt(value);
     if (!isNaN(priority) && priority > 0) {
       onPositionChange({ priority });
     }
@@ -89,7 +97,7 @@ const PositionEditor: React.FC<PositionEditorProps> = ({
           id="priority"
           type="number"
           min={1}
-          value={position.priority}
+          value={position.priority === undefined ? '' : position.priority}
           onChange={handlePriorityChange}
           placeholder="Execution priority"
           description="Lower numbers execute first"
@@ -135,7 +143,7 @@ const PositionEditor: React.FC<PositionEditorProps> = ({
           id="lots"
           type="number"
           min={1}
-          value={position.lots || 1}
+          value={position.lots === undefined ? '' : position.lots}
           onChange={onLotsChange}
           placeholder="Number of lots"
         />
