@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Node, Edge } from '@xyflow/react';
 
 /**
