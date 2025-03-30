@@ -78,6 +78,7 @@ const nodeTypes: NodeTypeItem[] = [
 
 // Group nodes by category for UI organization
 const getNodeGroups = () => {
+  // Create a Record where keys are group names and values are arrays of NodeTypeItem
   const grouped = nodeTypes.reduce((acc, node) => {
     const group = node.group || 'default';
     if (!acc[group]) {
@@ -90,9 +91,7 @@ const getNodeGroups = () => {
   // Ensure default group is rendered first
   return {
     default: grouped.default || [],
-    ...Object.fromEntries(
-      Object.entries(grouped).filter(([key]) => key !== 'default')
-    )
+    ...(grouped.action ? { action: grouped.action } : {})
   };
 };
 
