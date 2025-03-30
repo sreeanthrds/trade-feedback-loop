@@ -12,7 +12,7 @@ export function useNodeUpdateStore(strategyStore: any) {
   const storeUpdateInProgressRef = useRef(false);
   const skipNextUpdateRef = useRef(false);
   const nodeHashRef = useRef<string>('');
-  const pendingUpdateTimerRef = useRef<number | null>(null);
+  const pendingUpdateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const batchedNodesRef = useRef<Node[] | null>(null);
   
   // Generate a more efficient hash of nodes to detect actual changes
@@ -69,7 +69,7 @@ export function useNodeUpdateStore(strategyStore: any) {
       
       // Set up a timer to process the update later if not already set
       if (pendingUpdateTimerRef.current === null) {
-        pendingUpdateTimerRef.current = window.setTimeout(() => {
+        pendingUpdateTimerRef.current = setTimeout(() => {
           if (batchedNodesRef.current) {
             processStoreUpdate(batchedNodesRef.current);
             batchedNodesRef.current = null;
@@ -136,7 +136,7 @@ export function useNodeUpdateStore(strategyStore: any) {
   // Cleanup function for any pending timers
   const cleanup = useCallback(() => {
     if (pendingUpdateTimerRef.current !== null) {
-      window.clearTimeout(pendingUpdateTimerRef.current);
+      clearTimeout(pendingUpdateTimerRef.current);
       pendingUpdateTimerRef.current = null;
     }
   }, []);

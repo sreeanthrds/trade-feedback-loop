@@ -7,9 +7,9 @@ import { handleError } from '../../utils/errorHandling';
  * Hook to manage the processing of queued node updates
  */
 export function useUpdateProcessing() {
-  const updateTimeoutRef = useRef<number | null>(null);
+  const updateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isProcessingChangesRef = useRef(false);
-  const pendingProcessTimeoutRef = useRef<number | null>(null);
+  const pendingProcessTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   // Clean up timeouts when component unmounts
   useEffect(() => {
@@ -31,7 +31,7 @@ export function useUpdateProcessing() {
       clearTimeout(updateTimeoutRef.current);
     }
     
-    updateTimeoutRef.current = window.setTimeout(() => {
+    updateTimeoutRef.current = setTimeout(() => {
       try {
         process(nodes);
       } catch (error) {
