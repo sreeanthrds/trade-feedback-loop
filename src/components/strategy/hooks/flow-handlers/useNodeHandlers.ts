@@ -19,6 +19,7 @@ interface UseNodeHandlersProps {
   setNodes: (nodes: Node[]) => void;
   setEdges: (edges: any[]) => void;
   strategyStore: any;
+  updateHandlingRef: React.MutableRefObject<boolean>;
 }
 
 export const useNodeHandlers = ({
@@ -30,7 +31,8 @@ export const useNodeHandlers = ({
   setIsPanelOpen,
   setNodes,
   setEdges,
-  strategyStore
+  strategyStore,
+  updateHandlingRef
 }: UseNodeHandlersProps) => {
   // Create stable refs to latest values
   const nodesRef = useRef(nodes);
@@ -54,39 +56,70 @@ export const useNodeHandlers = ({
 
   // Create stable handler for adding nodes
   const handleAddNode = useCallback((type: string, parentNodeId?: string) => {
-    const addNodeHandler = createAddNodeHandler(
-      instanceRef.current,
-      reactFlowWrapper,
-      nodesRef.current,
-      edgesRef.current,
-      setNodes,
-      setEdges,
-      storeRef.current
-    );
-    addNodeHandler(type, parentNodeId);
-  }, [reactFlowWrapper, setNodes, setEdges]);
+    if (updateHandlingRef.current) return;
+    updateHandlingRef.current = true;
+    
+    try {
+      const addNodeHandler = createAddNodeHandler(
+        instanceRef.current,
+        reactFlowWrapper,
+        nodesRef.current,
+        edgesRef.current,
+        setNodes,
+        setEdges,
+        storeRef.current
+      );
+      addNodeHandler(type, parentNodeId);
+    } finally {
+      setTimeout(() => {
+        updateHandlingRef.current = false;
+      }, 100);
+    }
+  }, [reactFlowWrapper, setNodes, setEdges, updateHandlingRef]);
 
   // Create stable handler for updating node data
   const updateNodeData = useCallback((id: string, data: any) => {
-    const handler = createUpdateNodeDataHandler(
-      nodesRef.current,
-      setNodes,
-      storeRef.current
-    );
-    handler(id, data);
-  }, [setNodes]);
+    // Prevent recursive update loops
+    if (updateHandlingRef.current) return;
+    updateHandlingRef.current = true;
+    
+    setTimeout(() => {
+      try {
+        const handler = createUpdateNodeDataHandler(
+          nodesRef.current,
+          setNodes,
+          storeRef.current
+        );
+        handler(id, data);
+      } finally {
+        // Reset the flag after a delay
+        setTimeout(() => {
+          updateHandlingRef.current = false;
+        }, 100);
+      }
+    }, 0);
+  }, [setNodes, updateHandlingRef]);
   
   // Create stable handler for deleting nodes
   const handleDeleteNode = useCallback((id: string) => {
-    const handler = createDeleteNodeHandler(
-      nodesRef.current,
-      edgesRef.current,
-      setNodes,
-      setEdges,
-      storeRef.current
-    );
-    handler(id);
-  }, [setNodes, setEdges]);
+    if (updateHandlingRef.current) return;
+    updateHandlingRef.current = true;
+    
+    try {
+      const handler = createDeleteNodeHandler(
+        nodesRef.current,
+        edgesRef.current,
+        setNodes,
+        setEdges,
+        storeRef.current
+      );
+      handler(id);
+    } finally {
+      setTimeout(() => {
+        updateHandlingRef.current = false;
+      }, 100);
+    }
+  }, [setNodes, setEdges, updateHandlingRef]);
 
   return {
     onNodeClick,

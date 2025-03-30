@@ -54,14 +54,9 @@ const StrategyFlowContent = () => {
     updateNodeData,
     closePanel,
     resetStrategy,
-    handleImportSuccess
+    handleImportSuccess,
+    onNodeClick
   } = useFlowState();
-
-  // Create node click handler
-  const onNodeClick = useCallback((event, node) => {
-    setSelectedNode(node);
-    setIsPanelOpen(true);
-  }, [setSelectedNode, setIsPanelOpen]);
 
   // Create node types and edge types only once
   const nodeTypes = useMemo(() => 
