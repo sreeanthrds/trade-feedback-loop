@@ -27,8 +27,27 @@ const ActionNode: React.FC<NodeProps> = ({ id, data, selected }) => {
       }
     }
     
+    // Make sure positions is always an array for entry nodes
+    let positions = Array.isArray(rawData.positions) ? rawData.positions : [];
+    
+    // For entry nodes, create a default position if none exists
+    if (actionType === 'entry' && positions.length === 0) {
+      const positionId = `pos-${Date.now().toString().slice(-6)}`;
+      const defaultPosition = {
+        id: positionId,
+        vpi: `${id}-pos1`,
+        vpt: '',
+        priority: 1,
+        positionType: 'buy',
+        orderType: 'market',
+        lots: 1,
+        productType: 'intraday'
+      };
+      positions = [defaultPosition];
+    }
+    
     return {
-      positions: Array.isArray(rawData.positions) ? rawData.positions : [],
+      positions: positions,
       requiresSymbol: rawData.requiresSymbol as boolean | undefined,
       symbol: rawData.symbol as string | undefined,
       updateNodeData: rawData.updateNodeData as ((id: string, data: Partial<ActionNodeData>) => void) | undefined,
@@ -52,14 +71,17 @@ const ActionNode: React.FC<NodeProps> = ({ id, data, selected }) => {
     return nodeData.requiresSymbol !== false && !nodeData.symbol && !startNodeSymbol;
   }, [nodeData.requiresSymbol, nodeData.symbol, startNodeSymbol, nodeData.positions, nodeData.actionType]);
 
+  // Add a drag handle class to the node
   return (
-    <ActionNodeContent
-      data={nodeData}
-      startNodeSymbol={startNodeSymbol}
-      isSymbolMissing={isSymbolMissing}
-      id={id}
-      updateNodeData={nodeData.updateNodeData}
-    />
+    <div className="drag-handle">
+      <ActionNodeContent
+        data={nodeData}
+        startNodeSymbol={startNodeSymbol}
+        isSymbolMissing={isSymbolMissing}
+        id={id}
+        updateNodeData={nodeData.updateNodeData}
+      />
+    </div>
   );
 };
 

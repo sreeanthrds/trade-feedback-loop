@@ -1,6 +1,6 @@
 
 import React, { useCallback, memo } from 'react';
-import { Play, Activity, SlidersHorizontal, StopCircle, AlertTriangle, ArrowUpCircle, X } from 'lucide-react';
+import { Play, Activity, ShoppingCart, LogOut, Bell, StopCircle, AlertTriangle, ArrowUpCircle, X } from 'lucide-react';
 import { 
   Tooltip,
   TooltipContent,
@@ -40,7 +40,7 @@ const nodeTypes: NodeTypeItem[] = [
     type: 'entryNode',
     label: 'Entry Node',
     description: 'Execute buy/sell orders',
-    icon: <ArrowUpCircle className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />,
+    icon: <ShoppingCart className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />,
     color: 'border-emerald-600 dark:border-emerald-400 bg-emerald-600/10 dark:bg-emerald-400/10',
     group: 'action'
   },
@@ -48,7 +48,7 @@ const nodeTypes: NodeTypeItem[] = [
     type: 'exitNode',
     label: 'Exit Node',
     description: 'Close existing positions',
-    icon: <X className="h-5 w-5 text-amber-600 dark:text-amber-400" />,
+    icon: <LogOut className="h-5 w-5 text-amber-600 dark:text-amber-400" />,
     color: 'border-amber-600 dark:border-amber-400 bg-amber-600/10 dark:bg-amber-400/10',
     group: 'action'
   },
@@ -56,7 +56,7 @@ const nodeTypes: NodeTypeItem[] = [
     type: 'alertNode',
     label: 'Alert Node',
     description: 'Generate notifications only',
-    icon: <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />,
+    icon: <Bell className="h-5 w-5 text-amber-600 dark:text-amber-400" />,
     color: 'border-amber-600 dark:border-amber-400 bg-amber-600/10 dark:bg-amber-400/10',
     group: 'action'
   },

@@ -18,6 +18,7 @@ export const addNode = (
   nodes: Node[],
   parentNodeId?: string
 ): { node: Node, parentNode?: Node } => {
+  // Get center position of the viewport
   const position = reactFlowInstance.screenToFlowPosition({
     x: (reactFlowWrapper.current?.clientWidth || 800) / 2,
     y: (reactFlowWrapper.current?.clientHeight || 600) / 2,
@@ -84,26 +85,37 @@ export const addNode = (
     defaultData = {
       ...defaultData,
       actionType: 'entry',
-      positions: [defaultPosition]
+      positions: [defaultPosition],
+      _lastUpdated: Date.now() // Add timestamp to force update
     };
   } else if (type === 'exitNode') {
     defaultData = {
       ...defaultData,
-      actionType: 'exit'
+      actionType: 'exit',
+      _lastUpdated: Date.now() // Add timestamp to force update
     };
   } else if (type === 'alertNode') {
     defaultData = {
       ...defaultData,
-      actionType: 'alert'
+      actionType: 'alert',
+      _lastUpdated: Date.now() // Add timestamp to force update
     };
   }
   
+  // Make sure we have the id in a stable format (as string)
   const newNode = {
     id: nodeId,
-    type: type as any,
-    position,
-    data: defaultData
+    type: type,
+    position: {
+      x: Math.round(position.x),
+      y: Math.round(position.y)
+    },
+    data: defaultData,
+    // Add a dragHandle property to ensure dragging works properly
+    dragHandle: '.drag-handle'
   };
+  
+  console.log("Created new node:", newNode);
   
   return { node: newNode, parentNode };
 };
