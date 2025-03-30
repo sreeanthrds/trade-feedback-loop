@@ -1,6 +1,6 @@
 
-import { useRef, useMemo, useCallback } from 'react';
-import { useReactFlow, Node as ReactFlowNode, Edge, useStore as useReactFlowStore } from '@xyflow/react';
+import { useRef, useMemo, useCallback, useState } from 'react';
+import { useReactFlow, Node as ReactFlowNode, Edge } from '@xyflow/react';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
 import { initialNodes } from '../utils/flowUtils';
 import { useNodeStateManagement } from './useNodeStateManagement';
@@ -43,7 +43,7 @@ export function useFlowState() {
     initialNodes
   );
   
-  // Use a separate effect for store sync to avoid render-time updates
+  // Use a separate hook for store sync to avoid render-time updates
   useStoreSync(
     nodes,
     edges,
