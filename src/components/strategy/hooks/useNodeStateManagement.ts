@@ -1,4 +1,3 @@
-
 import { useCallback, useMemo } from 'react';
 import { Node } from '@xyflow/react';
 import { useNodeBasicState } from './node-state/useNodeBasicState';
@@ -8,6 +7,8 @@ import { useThrottledNodeUpdates } from './node-state/useThrottledNodeUpdates';
 import { useCustomSetNodes } from './node-state/useCustomSetNodes';
 import { useCustomNodesChange } from './node-state/useCustomNodesChange';
 import { useSelectedNodeUpdate } from './node-state/useSelectedNodeUpdate';
+import { shouldUpdateNodes } from '../utils/performanceUtils';
+import { handleError } from '../utils/errorHandling';
 
 /**
  * Hook to manage node state with optimized update handling
@@ -36,8 +37,7 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
     updateCycleRef,
     storeUpdateInProgressRef,
     processStoreUpdate,
-    shouldUpdateNodes,
-    handleError
+    scheduleUpdate,
   } = useNodeUpdates(strategyStore);
 
   // Connect drag detection to node changes - memoize this function

@@ -50,18 +50,59 @@ export const fastNodesComparison = (nodes1: any[], nodes2: any[]): boolean => {
   if (!nodes1 || !nodes2) return false;
   if (nodes1.length !== nodes2.length) return false;
   
-  // Only check a sample of nodes for very large arrays
-  const nodesToCheck = nodes1.length > 30 ? 10 : nodes1.length;
-  
-  for (let i = 0; i < nodesToCheck; i++) {
-    const index = nodes1.length > 30 ? 
-      Math.floor(Math.random() * nodes1.length) : 
-      i;
+  // For very large arrays, check a random sample
+  if (nodes1.length > 30) {
+    const sampleSize = Math.min(10, Math.floor(nodes1.length * 0.3));
+    const sampleIndices = new Set<number>();
     
-    if (!fastNodeComparison(nodes1[index], nodes2[index])) {
+    // Generate random indices for sampling
+    while (sampleIndices.size < sampleSize) {
+      sampleIndices.add(Math.floor(Math.random() * nodes1.length));
+    }
+    
+    // Check the sampled nodes
+    for (const index of sampleIndices) {
+      if (!fastNodeComparison(nodes1[index], nodes2[index])) {
+        return false;
+      }
+    }
+    
+    return true;
+  }
+  
+  // For smaller arrays, check all nodes
+  for (let i = 0; i < nodes1.length; i++) {
+    if (!fastNodeComparison(nodes1[i], nodes2[i])) {
       return false;
     }
   }
   
   return true;
+};
+
+// Check if nodes need update by comparing essential properties
+export const shouldUpdateNodes = (newNodes: any[], prevNodes: any[]): boolean => {
+  try {
+    // Validate inputs
+    if (!newNodes || !prevNodes) {
+      return false;
+    }
+    
+    // Quick equality check first to avoid deep comparison
+    if (newNodes === prevNodes) {
+      return false;
+    }
+    
+    // Length check before deep equality for performance
+    if (newNodes.length !== prevNodes.length) {
+      return true;
+    }
+    
+    // Use fast comparison method instead of deep equality for better performance
+    return !fastNodesComparison(newNodes, prevNodes);
+  } catch (error) {
+    console.error('Error in shouldUpdateNodes comparison:', error);
+    // In case of error, return true to be safe (allow update)
+    return true;
+  }
 };

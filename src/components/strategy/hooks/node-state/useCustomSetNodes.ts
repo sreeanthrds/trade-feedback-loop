@@ -1,6 +1,21 @@
 
 import { useCallback, useMemo } from 'react';
 import { Node } from '@xyflow/react';
+import { shouldUpdateNodes } from '../../utils/performanceUtils';
+import { handleError } from '../../utils/errorHandling';
+
+interface CustomSetNodesProps {
+  setLocalNodes: React.Dispatch<React.SetStateAction<Node[]>>;
+  isDraggingRef: React.MutableRefObject<boolean>;
+  pendingNodesUpdate: React.MutableRefObject<Node[] | null>;
+  lastUpdateTimeRef: React.MutableRefObject<number>;
+  updateTimeoutRef: React.MutableRefObject<number | null>;
+  updateCycleRef: React.MutableRefObject<boolean>;
+  storeUpdateInProgressRef: React.MutableRefObject<boolean>;
+  shouldUpdateNodes: (newNodes: any[], prevNodes: any[]) => boolean;
+  processStoreUpdate: (nodes: Node[]) => void;
+  handleError: (error: unknown, context: string) => void;
+}
 
 /**
  * Hook to create a custom setNodes function with throttling and cycle detection
@@ -14,10 +29,9 @@ export function useCustomSetNodes({
   updateTimeoutRef,
   updateCycleRef,
   storeUpdateInProgressRef,
-  shouldUpdateNodes,
   processStoreUpdate,
   handleError
-}) {
+}: CustomSetNodesProps) {
   // Custom setNodes wrapper with improved throttling and cycle detection
   const setNodes = useCallback((updatedNodes: Node[] | ((prevNodes: Node[]) => Node[])) => {
     // If already in an update cycle, skip to prevent loops
@@ -118,7 +132,6 @@ export function useCustomSetNodes({
     updateTimeoutRef, 
     updateCycleRef, 
     storeUpdateInProgressRef,
-    shouldUpdateNodes, 
     processStoreUpdate,
     handleError
   ]);
