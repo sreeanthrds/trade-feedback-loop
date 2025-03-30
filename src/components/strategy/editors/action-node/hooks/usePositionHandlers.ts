@@ -37,6 +37,12 @@ export const usePositionHandlers = ({
     },
     
     handleLotsChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+      // Handle empty value case
+      if (e.target.value === '') {
+        handleSelectedPositionChange({ lots: undefined });
+        return;
+      }
+      
       const value = parseInt(e.target.value, 10);
       if (!isNaN(value) && value > 0) {
         handleSelectedPositionChange({ lots: value });
@@ -72,6 +78,17 @@ export const usePositionHandlers = ({
     },
     
     handleStrikeValueChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+      // Handle empty value case
+      if (e.target.value === '') {
+        handleSelectedPositionChange({ 
+          optionDetails: {
+            ...selectedPosition.optionDetails,
+            strikeValue: undefined
+          }
+        });
+        return;
+      }
+      
       const value = parseFloat(e.target.value);
       if (!isNaN(value)) {
         handleSelectedPositionChange({ 
