@@ -11,7 +11,11 @@ import {
   MarketDataExpressionEditor,
   ConstantExpressionEditor,
   TimeExpressionEditor,
-  ComplexExpressionEditorWrapper
+  ComplexExpressionEditorWrapper,
+  PositionDataExpressionEditor,
+  StrategyMetricExpressionEditor,
+  ExecutionDataExpressionEditor,
+  ExternalTriggerExpressionEditor
 } from './expression-editors';
 
 interface ExpressionEditorProps {
@@ -57,6 +61,34 @@ const ExpressionEditor: React.FC<ExpressionEditorProps> = ({
       case 'time_function':
         return (
           <TimeExpressionEditor
+            expression={expression}
+            updateExpression={updateExpression}
+          />
+        );
+      case 'position_data':
+        return (
+          <PositionDataExpressionEditor
+            expression={expression}
+            updateExpression={updateExpression}
+          />
+        );
+      case 'strategy_metric':
+        return (
+          <StrategyMetricExpressionEditor
+            expression={expression}
+            updateExpression={updateExpression}
+          />
+        );
+      case 'execution_data':
+        return (
+          <ExecutionDataExpressionEditor
+            expression={expression}
+            updateExpression={updateExpression}
+          />
+        );
+      case 'external_trigger':
+        return (
+          <ExternalTriggerExpressionEditor
             expression={expression}
             updateExpression={updateExpression}
           />

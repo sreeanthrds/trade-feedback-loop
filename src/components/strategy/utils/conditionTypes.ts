@@ -2,7 +2,16 @@
 // Type definitions for condition builder
 
 // Expression component types
-export type ExpressionType = 'indicator' | 'market_data' | 'constant' | 'time_function' | 'expression';
+export type ExpressionType = 
+  | 'indicator' 
+  | 'market_data' 
+  | 'constant' 
+  | 'time_function' 
+  | 'expression'
+  | 'position_data'
+  | 'strategy_metric'
+  | 'execution_data'
+  | 'external_trigger';
 
 // Basic expression with no operation
 export interface BaseExpression {
@@ -37,6 +46,34 @@ export interface TimeFunctionExpression extends BaseExpression {
   parameters?: any;
 }
 
+// Position tracking data (P&L, MTM, etc.)
+export interface PositionDataExpression extends BaseExpression {
+  type: 'position_data';
+  field: string;
+  vpi?: string; // Virtual Position ID reference
+  vpt?: string; // Virtual Position Tag reference
+}
+
+// Strategy-level metrics
+export interface StrategyMetricExpression extends BaseExpression {
+  type: 'strategy_metric';
+  metric: string;
+}
+
+// Trade execution data
+export interface ExecutionDataExpression extends BaseExpression {
+  type: 'execution_data';
+  field: string;
+  vpi?: string; // Order reference
+}
+
+// External triggers
+export interface ExternalTriggerExpression extends BaseExpression {
+  type: 'external_trigger';
+  triggerType: string;
+  parameters?: any;
+}
+
 // Complex expression with operation
 export interface ComplexExpression extends BaseExpression {
   type: 'expression';
@@ -51,6 +88,10 @@ export type Expression =
   | MarketDataExpression 
   | ConstantExpression 
   | TimeFunctionExpression
+  | PositionDataExpression
+  | StrategyMetricExpression
+  | ExecutionDataExpression
+  | ExternalTriggerExpression
   | ComplexExpression;
 
 // Comparison operators
@@ -84,6 +125,14 @@ export const createDefaultExpression = (type: ExpressionType): Expression => {
       return { id, type: 'constant', value: 0 };
     case 'time_function':
       return { id, type: 'time_function', function: 'today' };
+    case 'position_data':
+      return { id, type: 'position_data', field: 'unrealizedPnl' };
+    case 'strategy_metric':
+      return { id, type: 'strategy_metric', metric: 'totalPnl' };
+    case 'execution_data':
+      return { id, type: 'execution_data', field: 'orderStatus' };
+    case 'external_trigger':
+      return { id, type: 'external_trigger', triggerType: 'news' };
     case 'expression':
       return {
         id,
@@ -144,15 +193,15 @@ export const conditionToString = (condition: Condition, nodeData?: any): string 
 
 // Convert a group condition to a readable string
 export const groupConditionToString = (group: GroupCondition, nodeData?: any): string => {
-  if (group.conditions.length === 0) {
+  if (!group.conditions || group.conditions.length === 0) {
     return '(empty)';
   }
   
   const conditionsStr = group.conditions.map(cond => {
     if ('groupLogic' in cond) {
-      return `(${groupConditionToString(cond, nodeData)})`;
+      return `(${groupConditionToString(cond as GroupCondition, nodeData)})`;
     } else {
-      return conditionToString(cond, nodeData);
+      return conditionToString(cond as Condition, nodeData);
     }
   }).join(` ${group.groupLogic} `);
   
@@ -168,16 +217,36 @@ export const expressionToString = (expr: Expression, nodeData?: any): string => 
         return expr.parameter ? `${displayName}[${expr.parameter}]` : displayName;
       }
       return expr.parameter ? `${expr.name}[${expr.parameter}]` : expr.name;
+    
     case 'market_data':
       return expr.sub_indicator ? `${expr.field}.${expr.sub_indicator}` : expr.field;
+    
     case 'constant':
       return `${expr.value}`;
+    
     case 'time_function':
       return expr.function;
+    
+    case 'position_data':
+      const vpiPart = expr.vpi ? `(VPI:${expr.vpi})` : '';
+      const vptPart = expr.vpt ? `(VPT:${expr.vpt})` : '';
+      return `${expr.field}${vpiPart}${vptPart}`;
+    
+    case 'strategy_metric':
+      return `Strategy.${expr.metric}`;
+    
+    case 'execution_data':
+      const orderRef = expr.vpi ? `(Order:${expr.vpi})` : '';
+      return `${expr.field}${orderRef}`;
+    
+    case 'external_trigger':
+      return `Trigger.${expr.triggerType}`;
+    
     case 'expression':
       const leftStr = expressionToString(expr.left, nodeData);
       const rightStr = expressionToString(expr.right, nodeData);
       return `(${leftStr} ${expr.operation} ${rightStr})`;
+    
     default:
       return '';
   }

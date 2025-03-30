@@ -35,9 +35,28 @@ const SignalNode = ({ data, id }: SignalNodeProps) => {
       // Pass start node data to the condition formatter
       return groupConditionToString(conditions[0], startNode?.data);
     } catch (error) {
+      console.error("Error formatting conditions:", error);
       return "Invalid condition structure";
     }
   }, [hasConditions, conditions, strategyStore.nodes]);
+  
+  // Count total condition expressions for display
+  const conditionCount = useMemo(() => {
+    if (!hasConditions) return 0;
+    
+    // Function to count all conditions recursively
+    const countConditions = (group: GroupCondition): number => {
+      return group.conditions.reduce((total, cond) => {
+        if ('groupLogic' in cond) {
+          return total + countConditions(cond as GroupCondition);
+        } else {
+          return total + 1;
+        }
+      }, 0);
+    };
+    
+    return countConditions(conditions[0]);
+  }, [hasConditions, conditions]);
   
   return (
     <div className="px-3 py-2 rounded-md shadow-sm bg-white dark:bg-gray-800 border border-border">
@@ -61,6 +80,12 @@ const SignalNode = ({ data, id }: SignalNodeProps) => {
       ) : (
         <div className="text-[10px] text-muted-foreground mb-1.5">
           No conditions set
+        </div>
+      )}
+      
+      {hasConditions && conditionCount > 0 && (
+        <div className="text-[9px] text-muted-foreground mb-0.5">
+          {conditionCount} condition{conditionCount !== 1 ? 's' : ''}
         </div>
       )}
       
