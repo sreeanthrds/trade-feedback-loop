@@ -1,9 +1,9 @@
 
 import React, { useMemo } from 'react';
 import { NodeProps } from '@xyflow/react';
-import ActionNodeContent from './action-node/ActionNodeContent';
-import { useStartNodeSymbol } from './action-node/useStartNodeSymbol';
-import { ActionNodeData } from './action-node/types';
+import ActionNodeContent from './nodes/action-node/ActionNodeContent';
+import { useStartNodeSymbol } from './nodes/action-node/useStartNodeSymbol';
+import { ActionNodeData } from './nodes/action-node/types';
 
 // Properly type the NodeProps with ActionNodeData
 const ActionNode: React.FC<NodeProps> = ({ id, data, selected }) => {

@@ -1,6 +1,6 @@
 
 import { useRef, useMemo } from 'react';
-import { useReactFlow } from '@xyflow/react';
+import { useReactFlow, Node as ReactFlowNode, Edge } from '@xyflow/react';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
 import { initialNodes } from '../utils/flowUtils';
 import { useNodeStateManagement } from './useNodeStateManagement';
@@ -56,7 +56,7 @@ export function useFlowState() {
   
   // Create onConnect handler with nodes
   const onConnect = useMemo(() => {
-    return (params) => baseOnConnect(params, nodes);
+    return (params) => baseOnConnect(params, nodes as ReactFlowNode[]);
   }, [baseOnConnect, nodes]);
 
   return {
