@@ -168,7 +168,7 @@ export function useNodeUpdates(strategyStore: any) {
       if (newNodes.length > 10) {
         // For large sets, sample a few nodes for comparison
         const sampleSize = Math.max(3, Math.floor(newNodes.length * 0.3));
-        const sampleIndices = new Set();
+        const sampleIndices = new Set<number>();
         
         // Get random sample indices
         while (sampleIndices.size < sampleSize) {
