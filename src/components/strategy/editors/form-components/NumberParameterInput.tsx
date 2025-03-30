@@ -10,17 +10,20 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { IndicatorParameter } from '../../utils/indicatorConfig';
+import { cn } from '@/lib/utils';
 
 interface NumberParameterInputProps {
   param: IndicatorParameter;
   value: number;
   onChange: (value: number) => void;
+  required?: boolean;
 }
 
 const NumberParameterInput: React.FC<NumberParameterInputProps> = ({
   param,
   value,
-  onChange
+  onChange,
+  required = false
 }) => {
   // Handle empty values and allow users to clear the field
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,7 +33,7 @@ const NumberParameterInput: React.FC<NumberParameterInputProps> = ({
     if (inputValue === '') {
       // Pass undefined or default to the onChange handler
       // This allows the user to clear the field before typing a new value
-      onChange(param.default !== undefined ? param.default : undefined as any);
+      onChange(undefined as any);
       return;
     }
     
@@ -45,11 +48,16 @@ const NumberParameterInput: React.FC<NumberParameterInputProps> = ({
     (typeof param.step === 'number' && Number.isInteger(param.step) && param.step >= 1) : false;
   const step = param.step || (isIntegerOnly ? 1 : 'any');
 
+  // Check if value is empty for validation
+  const isEmpty = value === undefined || value === null || value === '';
+  const showValidationError = required && isEmpty;
+
   return (
     <div className="space-y-2" key={param.name}>
       <div className="flex items-center gap-2">
-        <Label htmlFor={`param-${param.name}`} className="text-sm">
+        <Label htmlFor={`param-${param.name}`} className="text-sm flex items-center">
           {param.label}
+          {required && <span className="ml-1 text-red-500">*</span>}
         </Label>
         {param.description && (
           <TooltipProvider>
@@ -72,8 +80,14 @@ const NumberParameterInput: React.FC<NumberParameterInputProps> = ({
         step={step}
         min={param.min}
         max={param.max}
-        className="h-8"
+        className={cn(
+          "h-8",
+          showValidationError && "border-red-300 focus:ring-red-200"
+        )}
       />
+      {showValidationError && (
+        <p className="text-xs text-red-500 mt-1">This field is required</p>
+      )}
     </div>
   );
 };

@@ -23,7 +23,7 @@ interface InputFieldProps {
   min?: string | number;
   max?: string | number;
   step?: string | number;
-  description?: string; // Added description property
+  description?: string;
 }
 
 const InputField: React.FC<InputFieldProps> = ({
@@ -81,6 +81,9 @@ const InputField: React.FC<InputFieldProps> = ({
         max={max}
         step={step}
       />
+      {required && ((type === 'number' && inputValue === '') || (type === 'text' && inputValue === '')) && (
+        <p className="text-xs text-red-500 mt-1">This field is required</p>
+      )}
     </div>
   );
 };

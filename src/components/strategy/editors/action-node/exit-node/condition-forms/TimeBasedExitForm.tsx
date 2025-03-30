@@ -28,6 +28,7 @@ const TimeBasedExitForm: React.FC<TimeBasedExitFormProps> = ({
       }}
       min={1}
       description="Minutes after entry to exit position"
+      required={true}
     />
   );
 };

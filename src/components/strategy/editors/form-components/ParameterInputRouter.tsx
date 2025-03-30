@@ -11,12 +11,14 @@ interface ParameterInputRouterProps {
   param: IndicatorParameter;
   value: any;
   onChange: (value: any) => void;
+  required?: boolean;
 }
 
 const ParameterInputRouter: React.FC<ParameterInputRouterProps> = ({
   param,
   value,
-  onChange
+  onChange,
+  required = false
 }) => {
   // Set default value if undefined
   const inputValue = value !== undefined ? value : param.default;
@@ -28,6 +30,7 @@ const ParameterInputRouter: React.FC<ParameterInputRouterProps> = ({
           param={param} 
           value={inputValue} 
           onChange={onChange} 
+          required={required}
         />
       );
       
@@ -37,6 +40,7 @@ const ParameterInputRouter: React.FC<ParameterInputRouterProps> = ({
           param={param} 
           value={inputValue} 
           onChange={onChange} 
+          required={required}
         />
       );
       
@@ -55,6 +59,7 @@ const ParameterInputRouter: React.FC<ParameterInputRouterProps> = ({
           param={param} 
           value={inputValue} 
           onChange={onChange} 
+          required={required}
         />
       );
       
