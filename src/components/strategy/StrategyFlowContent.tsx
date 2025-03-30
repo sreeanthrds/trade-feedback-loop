@@ -40,6 +40,9 @@ const StrategyFlowContent: React.FC<StrategyFlowContentProps> = ({ onReady }) =>
   }
   
   // Get all flow handlers from a custom hook
+  const flowHandlers = useFlowHandlers(flowState);
+  
+  // Destructure handlers for easier access
   const {
     onNodeClick,
     handleAddNode,
@@ -49,7 +52,7 @@ const StrategyFlowContent: React.FC<StrategyFlowContentProps> = ({ onReady }) =>
     closePanel,
     resetStrategy,
     handleImportSuccess
-  } = useFlowHandlers(flowState);
+  } = flowHandlers;
   
   // Create memoized node and edge types - ensure they're stable
   const nodeTypes = useMemo(() => 
@@ -68,7 +71,7 @@ const StrategyFlowContent: React.FC<StrategyFlowContentProps> = ({ onReady }) =>
   }, []);
   
   // Memoize the ReactFlowCanvas props to prevent extra renders
-  const canvasProps = {
+  const canvasProps = useMemo(() => ({
     nodes: flowState.nodes,
     edges: flowState.edges,
     onNodesChange: flowState.onNodesChange,
@@ -84,7 +87,23 @@ const StrategyFlowContent: React.FC<StrategyFlowContentProps> = ({ onReady }) =>
     onDeleteEdge: handleDeleteEdge,
     onAddNode: handleAddNode,
     updateNodeData
-  };
+  }), [
+    flowState.nodes,
+    flowState.edges,
+    flowState.onNodesChange,
+    flowState.onEdgesChange,
+    flowState.onConnect,
+    flowState.reactFlowWrapper,
+    nodeTypes,
+    edgeTypes,
+    onNodeClick,
+    resetStrategy,
+    handleImportSuccess,
+    handleDeleteNode,
+    handleDeleteEdge,
+    handleAddNode,
+    updateNodeData
+  ]);
   
   // On mobile, use a sheet for the panel
   if (isMobile) {
