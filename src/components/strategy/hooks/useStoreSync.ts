@@ -16,10 +16,12 @@ export function useStoreSync(
 ) {
   const prevNodesRef = useRef<string>('');
   const prevEdgesRef = useRef<string>('');
+  const isSyncingRef = useRef<boolean>(false);
   
   // Sync nodes from store to ReactFlow
   useEffect(() => {
-    if (isDraggingRef.current || isInitialLoadRef.current) return;
+    // Prevent recursive calls during synchronization
+    if (isSyncingRef.current || isDraggingRef.current || isInitialLoadRef.current) return;
     
     const storeNodes = strategyStore.nodes;
     if (storeNodes.length === 0) return;
@@ -34,14 +36,20 @@ export function useStoreSync(
     
     // Only update if there's an actual difference
     if (nodesSignature !== currentNodesSignature && nodesSignature !== prevNodesRef.current) {
+      isSyncingRef.current = true;
       prevNodesRef.current = nodesSignature;
       setNodes(storeNodes);
+      
+      // Release the sync lock after a short delay to ensure updates are processed
+      setTimeout(() => {
+        isSyncingRef.current = false;
+      }, 0);
     }
   }, [strategyStore.nodes, setNodes, nodes, isDraggingRef, isInitialLoadRef]);
 
   // Sync edges from store to ReactFlow
   useEffect(() => {
-    if (isInitialLoadRef.current) return;
+    if (isSyncingRef.current || isInitialLoadRef.current) return;
     
     const storeEdges = strategyStore.edges;
     
@@ -51,8 +59,14 @@ export function useStoreSync(
     
     // Only update if there's an actual difference
     if (edgesSignature !== currentEdgesSignature && edgesSignature !== prevEdgesRef.current) {
+      isSyncingRef.current = true;
       prevEdgesRef.current = edgesSignature;
       setEdges(storeEdges);
+      
+      // Release the sync lock after a short delay
+      setTimeout(() => {
+        isSyncingRef.current = false;
+      }, 0);
     }
   }, [strategyStore.edges, setEdges, edges, isInitialLoadRef]);
 }

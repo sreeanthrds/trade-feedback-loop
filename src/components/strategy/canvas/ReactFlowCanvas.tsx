@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef, useCallback, memo } from 'react';
+import React, { useEffect, useRef, useCallback, memo, useMemo } from 'react';
 import { ReactFlow, useReactFlow, Background, Controls, BackgroundVariant } from '@xyflow/react';
 import { useDragHandling } from './useDragHandling';
 import { useViewportUtils } from './useViewportUtils';
@@ -39,6 +39,20 @@ const ReactFlowCanvas = memo(({
   const { fitViewWithCustomZoom } = useViewportUtils();
   const { isNodeDraggingRef, handleNodesChange } = useDragHandling();
   
+  // Memoize default edge options to prevent unnecessary rerenders
+  const defaultEdgeOptions = useMemo(() => ({
+    animated: true,
+    style: { strokeWidth: 1.5 }
+  }), []);
+  
+  // Memoize fit view options to prevent unnecessary rerenders
+  const fitViewOptions = useMemo(() => ({
+    padding: 0.3,
+    includeHiddenNodes: false,
+    duration: 300,
+    maxZoom: 0.85
+  }), []);
+  
   // Custom nodes change handler with drag detection
   const customNodesChangeHandler = useCallback((changes) => {
     handleNodesChange(changes, onNodesChange);
@@ -76,22 +90,14 @@ const ReactFlowCanvas = memo(({
         defaultViewport={{ x: 0, y: 0, zoom: 0.6 }}
         snapToGrid
         snapGrid={[15, 15]}
-        defaultEdgeOptions={{
-          animated: true,
-          style: { strokeWidth: 1.5 }
-        }}
+        defaultEdgeOptions={defaultEdgeOptions}
         zoomOnScroll={false}
         zoomOnPinch={true}
         panOnScroll={true}
         nodesDraggable={true}
         elementsSelectable={true}
         proOptions={{ hideAttribution: true }}
-        fitViewOptions={{
-          padding: 0.3,
-          includeHiddenNodes: false,
-          duration: 300,
-          maxZoom: 0.85
-        }}
+        fitViewOptions={fitViewOptions}
       >
         <CanvasControls nodeClassName={nodeClassName} />
         <Background

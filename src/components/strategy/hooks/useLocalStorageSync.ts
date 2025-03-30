@@ -1,11 +1,7 @@
-
 import { useEffect, useRef } from 'react';
 import { Node, Edge } from '@xyflow/react';
 import { loadStrategyFromLocalStorage } from '../utils/flowUtils';
 
-/**
- * Hook to handle synchronizing state with localStorage
- */
 export function useLocalStorageSync(
   setNodes: (nodes: Node[]) => void,
   setEdges: (edges: Edge[]) => void,
@@ -13,27 +9,52 @@ export function useLocalStorageSync(
   initialNodes: Node[]
 ) {
   const isInitialLoadRef = useRef(true);
-
-  // Initial load from localStorage - only run once
+  const syncTimeoutRef = useRef<any>(null);
+  
+  // Load initial state from localStorage on mount
   useEffect(() => {
-    if (isInitialLoadRef.current) {
-      const savedStrategy = loadStrategyFromLocalStorage();
-      if (savedStrategy) {
-        setNodes(savedStrategy.nodes);
-        setEdges(savedStrategy.edges);
-        strategyStore.setNodes(savedStrategy.nodes);
-        strategyStore.setEdges(savedStrategy.edges);
-        strategyStore.addHistoryItem(savedStrategy.nodes, savedStrategy.edges);
+    if (!isInitialLoadRef.current) return;
+    
+    try {
+      // Attempt to load from localStorage
+      const result = loadStrategyFromLocalStorage();
+      
+      if (result) {
+        const { nodes, edges } = result;
+        
+        if (nodes && nodes.length > 0) {
+          // If we have nodes in localStorage, use them
+          setNodes(nodes);
+          setEdges(edges || []);
+          
+          // Also update the store
+          strategyStore.setNodes(nodes);
+          strategyStore.setEdges(edges || []);
+        } else {
+          // Otherwise use initial nodes
+          setNodes(initialNodes);
+        }
       } else {
-        strategyStore.setNodes(initialNodes);
-        strategyStore.resetHistory();
-        strategyStore.addHistoryItem(initialNodes, []);
+        // No localStorage data, use initial nodes
+        setNodes(initialNodes);
       }
-      isInitialLoadRef.current = false;
+    } catch (error) {
+      console.error('Error loading strategy from localStorage:', error);
+      // Fallback to initial nodes
+      setNodes(initialNodes);
     }
-  }, [setNodes, setEdges, strategyStore, initialNodes]);
-
-  return { 
-    isInitialLoadRef
-  };
+    
+    // Setup a short delay before marking initial load as complete
+    syncTimeoutRef.current = setTimeout(() => {
+      isInitialLoadRef.current = false;
+    }, 500);
+    
+    return () => {
+      if (syncTimeoutRef.current) {
+        clearTimeout(syncTimeoutRef.current);
+      }
+    };
+  }, []); // Empty dependency array - run once on mount
+  
+  return { isInitialLoadRef };
 }
