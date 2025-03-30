@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Expression, ExpressionType } from '../../../utils/conditionTypes';
+import { Expression, ExpressionType, createDefaultExpression } from '../../../utils/conditionTypes';
 import {
   Select,
   SelectContent,
@@ -108,7 +108,6 @@ const ExpressionTypeSelector: React.FC<ExpressionTypeSelectorProps> = ({
   // Change expression type (indicator, market_data, constant, etc.)
   const onTypeChange = (type: ExpressionType) => {
     if (expression.type !== type) {
-      const { createDefaultExpression } = require('../../../utils/conditionTypes');
       const newExpr = createDefaultExpression(type);
       newExpr.id = expression.id; // Keep the same ID
       updateExpression(newExpr);
