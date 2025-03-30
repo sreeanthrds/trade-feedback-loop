@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useCallback, memo, useMemo } from 'react';
-import { ReactFlow, useReactFlow, Background, Controls, BackgroundVariant } from '@xyflow/react';
+import { ReactFlow, useReactFlow, Background, Controls, BackgroundVariant, SnapGrid } from '@xyflow/react';
 import { useDragHandling } from './useDragHandling';
 import { useViewportUtils } from './useViewportUtils';
 import CanvasControls from './CanvasControls';
@@ -58,6 +58,12 @@ const ReactFlowCanvas = memo(({
     maxZoom: 0.85
   }), []);
   
+  // Properly defined SnapGrid with x and y values
+  const snapGrid: SnapGrid = useMemo(() => ({
+    x: 15,
+    y: 15
+  }), []);
+  
   // Custom nodes change handler with drag detection
   const customNodesChangeHandler = useCallback((changes) => {
     handleNodesChange(changes, onNodesChange);
@@ -95,7 +101,7 @@ const ReactFlowCanvas = memo(({
     maxZoom: 2,
     defaultViewport: { x: 0, y: 0, zoom: 0.6 },
     snapToGrid: true,
-    snapGrid: [15, 15],
+    snapGrid,
     defaultEdgeOptions,
     zoomOnScroll: false,
     zoomOnPinch: true,
@@ -113,6 +119,7 @@ const ReactFlowCanvas = memo(({
     onNodeClick, 
     nodeTypes, 
     edgeTypes,
+    snapGrid,
     defaultEdgeOptions,
     fitViewOptions
   ]);

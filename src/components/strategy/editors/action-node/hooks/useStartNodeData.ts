@@ -24,23 +24,28 @@ export const useStartNodeData = ({
   const previousInstrumentTypeRef = useRef<string | undefined>(undefined);
   const nodeUpdateMadeRef = useRef(false);
   const updateInProgressRef = useRef(false);
-  const intervalRef = useRef<number | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const isComponentMountedRef = useRef(true);
   
-  // Clean up on unmount
+  // Set mounted flag on mount
   useEffect(() => {
+    isComponentMountedRef.current = true;
+    
+    // Clean up on unmount
     return () => {
+      isComponentMountedRef.current = false;
       if (intervalRef.current !== null) {
-        window.clearInterval(intervalRef.current);
+        clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
     };
   }, []);
   
-  // Get the start node to access its instrument with reduced polling frequency
+  // Separate effect to create the polling mechanism that only runs once on mount
   useEffect(() => {
     const fetchStartNodeData = () => {
-      // Skip if already in progress
-      if (updateInProgressRef.current) return;
+      // Skip if already in progress or component unmounted
+      if (updateInProgressRef.current || !isComponentMountedRef.current) return;
       
       updateInProgressRef.current = true;
       
@@ -48,7 +53,7 @@ export const useStartNodeData = ({
         const nodes = getNodes();
         const startNode = nodes.find(node => node.type === 'startNode');
         
-        if (startNode && startNode.data) {
+        if (startNode && startNode.data && isComponentMountedRef.current) {
           const data = startNode.data as StartNodeData;
           
           // Check for options trading
@@ -61,7 +66,9 @@ export const useStartNodeData = ({
             updateNodeData(nodeId, { optionDetails: undefined });
             nodeUpdateMadeRef.current = true;
             setTimeout(() => {
-              nodeUpdateMadeRef.current = false;
+              if (isComponentMountedRef.current) {
+                nodeUpdateMadeRef.current = false;
+              }
             }, 300);
           }
           
@@ -69,18 +76,18 @@ export const useStartNodeData = ({
           previousInstrumentTypeRef.current = data.tradingInstrument?.type;
           
           // Update options trading state - only update state if it actually changed
-          if (hasOptionTrading !== optionsEnabled) {
+          if (hasOptionTrading !== optionsEnabled && isComponentMountedRef.current) {
             setHasOptionTrading(optionsEnabled || false);
           }
           
           // Check if the action node has an instrument, but start node doesn't
           const newSymbolMissingState = Boolean(initialInstrument && !data.symbol);
-          if (isSymbolMissing !== newSymbolMissingState) {
+          if (isSymbolMissing !== newSymbolMissingState && isComponentMountedRef.current) {
             setIsSymbolMissing(newSymbolMissingState);
           }
           
           // Get and set the instrument from the start node only if it changed
-          if (data.symbol !== previousSymbolRef.current) {
+          if (data.symbol !== previousSymbolRef.current && isComponentMountedRef.current) {
             previousSymbolRef.current = data.symbol;
             setStartNodeSymbol(data.symbol);
             
@@ -89,33 +96,40 @@ export const useStartNodeData = ({
               updateNodeData(nodeId, { instrument: data.symbol });
               nodeUpdateMadeRef.current = true;
               setTimeout(() => {
-                nodeUpdateMadeRef.current = false;
+                if (isComponentMountedRef.current) {
+                  nodeUpdateMadeRef.current = false;
+                }
               }, 300);
             }
           }
         }
       } finally {
-        // Always reset the in-progress flag
-        updateInProgressRef.current = false;
+        // Always reset the in-progress flag after a delay
+        setTimeout(() => {
+          if (isComponentMountedRef.current) {
+            updateInProgressRef.current = false;
+          }
+        }, 200);
       }
     };
     
-    // Run once immediately
-    fetchStartNodeData();
+    // Run once immediately with a small delay to let everything initialize
+    const initialTimeoutId = setTimeout(fetchStartNodeData, 100);
     
     // Then set up interval, but only if it doesn't already exist
     if (intervalRef.current === null) {
-      intervalRef.current = window.setInterval(fetchStartNodeData, 2000);
+      intervalRef.current = setInterval(fetchStartNodeData, 2000);
     }
     
-    // Clean up interval on unmount or when dependencies change
+    // Clean up function
     return () => {
+      clearTimeout(initialTimeoutId);
       if (intervalRef.current !== null) {
-        window.clearInterval(intervalRef.current);
+        clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
     };
-  }, []); // Empty dependency array because we want to run this setup only once
+  }, []); // Empty dependency array to run only once on mount
   
   return { startNodeSymbol, hasOptionTrading, isSymbolMissing };
 };

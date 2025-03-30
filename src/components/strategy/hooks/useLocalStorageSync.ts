@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from 'react';
 import { Node, Edge } from '@xyflow/react';
 import { loadStrategyFromLocalStorage } from '../utils/flowUtils';
@@ -12,52 +11,75 @@ export function useLocalStorageSync(
   const isInitialLoadRef = useRef(true);
   const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isLoadingRef = useRef(false);
+  const isComponentMountedRef = useRef(true);
   
   // Load initial state from localStorage on mount
   useEffect(() => {
+    // Set the mounted flag
+    isComponentMountedRef.current = true;
+    
+    // Only proceed if this is the initial load and we're not already loading
     if (!isInitialLoadRef.current || isLoadingRef.current) return;
     
     isLoadingRef.current = true;
     
-    try {
-      // Attempt to load from localStorage
-      const result = loadStrategyFromLocalStorage();
-      
-      if (result) {
-        const { nodes, edges } = result;
+    const loadInitialState = () => {
+      try {
+        // Attempt to load from localStorage
+        const result = loadStrategyFromLocalStorage();
         
-        if (nodes && nodes.length > 0) {
-          // If we have nodes in localStorage, use them
-          setNodes(nodes);
-          setEdges(edges || []);
+        // Only proceed if component is still mounted
+        if (!isComponentMountedRef.current) return;
+        
+        if (result) {
+          const { nodes, edges } = result;
           
-          // Also update the store
-          strategyStore.setNodes(nodes);
-          strategyStore.setEdges(edges || []);
+          if (nodes && nodes.length > 0) {
+            // If we have nodes in localStorage, use them
+            setNodes(nodes);
+            setEdges(edges || []);
+            
+            // Also update the store
+            strategyStore.setNodes(nodes);
+            strategyStore.setEdges(edges || []);
+          } else {
+            // Otherwise use initial nodes
+            setNodes(initialNodes);
+          }
         } else {
-          // Otherwise use initial nodes
+          // No localStorage data, use initial nodes
           setNodes(initialNodes);
         }
-      } else {
-        // No localStorage data, use initial nodes
-        setNodes(initialNodes);
+      } catch (error) {
+        console.error('Error loading strategy from localStorage:', error);
+        // Fallback to initial nodes
+        if (isComponentMountedRef.current) {
+          setNodes(initialNodes);
+        }
+      } finally {
+        // Only update if component is still mounted
+        if (isComponentMountedRef.current) {
+          isLoadingRef.current = false;
+          
+          // Setup a short delay before marking initial load as complete
+          syncTimeoutRef.current = setTimeout(() => {
+            isInitialLoadRef.current = false;
+          }, 500);
+        }
       }
-    } catch (error) {
-      console.error('Error loading strategy from localStorage:', error);
-      // Fallback to initial nodes
-      setNodes(initialNodes);
-    } finally {
-      isLoadingRef.current = false;
-    }
+    };
     
-    // Setup a short delay before marking initial load as complete
-    syncTimeoutRef.current = setTimeout(() => {
-      isInitialLoadRef.current = false;
-    }, 500);
+    // Use setTimeout to break the React update cycle
+    setTimeout(loadInitialState, 0);
     
+    // Clean up function
     return () => {
+      // Mark component as unmounted to prevent updates after unmount
+      isComponentMountedRef.current = false;
+      
       if (syncTimeoutRef.current) {
         clearTimeout(syncTimeoutRef.current);
+        syncTimeoutRef.current = null;
       }
     };
   }, []); // Empty dependency array - run once on mount
