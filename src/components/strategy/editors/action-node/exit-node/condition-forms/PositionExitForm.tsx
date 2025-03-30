@@ -15,6 +15,7 @@ const PositionExitForm: React.FC<PositionExitFormProps> = ({
   return (
     <InputField
       label={exitCondition.type === 'vpi' ? 'Virtual Position ID' : 'Virtual Position Tag'}
+      id="position-identifier"
       value={exitCondition.identifier || ''}
       onChange={(e) => updateField('identifier', e.target.value)}
       description={`Enter the ${exitCondition.type === 'vpi' ? 'VPI' : 'VPT'} to exit`}

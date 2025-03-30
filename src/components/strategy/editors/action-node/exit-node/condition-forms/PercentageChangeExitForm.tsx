@@ -17,6 +17,7 @@ const PercentageChangeExitForm: React.FC<PercentageChangeExitFormProps> = ({
     <div className="space-y-4">
       <InputField
         label="Percentage"
+        id="percentage-change"
         type="number"
         value={exitCondition.percentage === undefined ? '' : exitCondition.percentage}
         onChange={(e) => {

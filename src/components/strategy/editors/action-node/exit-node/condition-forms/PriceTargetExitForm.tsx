@@ -17,6 +17,7 @@ const PriceTargetExitForm: React.FC<PriceTargetExitFormProps> = ({
     <div className="space-y-4">
       <InputField
         label="Target Price"
+        id="target-price"
         type="number"
         value={exitCondition.price === undefined ? '' : exitCondition.price}
         onChange={(e) => {

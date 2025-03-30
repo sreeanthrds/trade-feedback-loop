@@ -43,6 +43,7 @@ const ExitNodeForm: React.FC<ExitNodeFormProps> = React.memo(({ node, updateNode
         <TabsContent value="exit_condition" className="space-y-4 pt-4">
           <SelectField
             label="Exit Condition Type"
+            id="exit-condition-type"
             value={exitConditionType}
             onChange={handleExitConditionTypeChange}
             options={[
@@ -82,6 +83,7 @@ const ExitNodeForm: React.FC<ExitNodeFormProps> = React.memo(({ node, updateNode
           
           <SelectField
             label="Order Type"
+            id="order-type"
             value={orderType}
             onChange={handleOrderTypeChange}
             options={[
@@ -94,6 +96,7 @@ const ExitNodeForm: React.FC<ExitNodeFormProps> = React.memo(({ node, updateNode
           {orderType === 'limit' && (
             <InputField
               label="Limit Price"
+              id="limit-price"
               type="number"
               value={limitPrice || ''}
               onChange={handleLimitPriceChange}

@@ -16,6 +16,7 @@ const RollingExitForm: React.FC<RollingExitFormProps> = ({
     <div className="space-y-4">
       <InputField
         label="Days Before Expiry"
+        id="days-before-expiry"
         type="number"
         value={exitCondition.daysBeforeExpiry === undefined ? '' : exitCondition.daysBeforeExpiry}
         onChange={(e) => {
@@ -32,6 +33,7 @@ const RollingExitForm: React.FC<RollingExitFormProps> = ({
       
       <InputField
         label="Strike Difference"
+        id="strike-difference"
         type="number"
         value={exitCondition.strikeDifference === undefined ? '' : exitCondition.strikeDifference}
         onChange={(e) => {

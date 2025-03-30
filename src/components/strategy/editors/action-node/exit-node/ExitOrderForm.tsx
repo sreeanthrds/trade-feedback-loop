@@ -46,6 +46,7 @@ const ExitOrderForm: React.FC<ExitOrderFormProps> = React.memo(({ node, updateNo
         
         <SelectField
           label="Order Type"
+          id="exit-order-type"
           value={orderType}
           onChange={handleOrderTypeChange}
           options={[
@@ -58,6 +59,7 @@ const ExitOrderForm: React.FC<ExitOrderFormProps> = React.memo(({ node, updateNo
         {orderType === 'limit' && (
           <InputField
             label="Limit Price"
+            id="exit-limit-price"
             type="number"
             value={limitPrice === undefined ? '' : limitPrice}
             onChange={handleLimitPriceChange}
@@ -69,6 +71,7 @@ const ExitOrderForm: React.FC<ExitOrderFormProps> = React.memo(({ node, updateNo
         
         <SelectField
           label="Quantity"
+          id="exit-quantity-type"
           value={quantityType || 'all'}
           onChange={handleQuantityTypeChange}
           options={[
@@ -81,6 +84,7 @@ const ExitOrderForm: React.FC<ExitOrderFormProps> = React.memo(({ node, updateNo
         {quantityType === 'partial' && (
           <InputField
             label="Quantity Percentage"
+            id="exit-quantity-percentage"
             type="number"
             value={quantityPercentage === undefined ? '' : quantityPercentage}
             onChange={handleQuantityPercentageChange}

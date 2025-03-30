@@ -15,6 +15,7 @@ const LimitToMarketExitForm: React.FC<LimitToMarketExitFormProps> = ({
   return (
     <InputField
       label="Wait Seconds"
+      id="wait-seconds"
       type="number"
       value={exitCondition.waitSeconds === undefined ? '' : exitCondition.waitSeconds}
       onChange={(e) => {

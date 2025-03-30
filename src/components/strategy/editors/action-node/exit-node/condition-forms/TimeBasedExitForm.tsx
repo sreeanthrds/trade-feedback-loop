@@ -15,6 +15,7 @@ const TimeBasedExitForm: React.FC<TimeBasedExitFormProps> = ({
   return (
     <InputField
       label="Minutes"
+      id="time-minutes"
       type="number"
       value={exitCondition.minutes === undefined ? '' : exitCondition.minutes}
       onChange={(e) => {

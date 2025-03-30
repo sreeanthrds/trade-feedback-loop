@@ -17,6 +17,7 @@ const PnlExitForm: React.FC<PnlExitFormProps> = ({
     <div className="space-y-4">
       <InputField
         label="P&L Value"
+        id="pnl-value"
         type="number"
         value={exitCondition.value === undefined ? '' : exitCondition.value}
         onChange={(e) => {

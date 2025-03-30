@@ -15,6 +15,7 @@ const MarketCloseExitForm: React.FC<MarketCloseExitFormProps> = ({
   return (
     <InputField
       label="Minutes Before Close"
+      id="minutes-before-close"
       type="number"
       value={exitCondition.minutesBefore === undefined ? '' : exitCondition.minutesBefore}
       onChange={(e) => {
