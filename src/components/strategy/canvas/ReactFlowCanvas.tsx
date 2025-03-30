@@ -36,8 +36,13 @@ const ReactFlowCanvas = memo(({
 }: ReactFlowCanvasProps) => {
   const reactFlowInstance = useReactFlow();
   const initialLoadRef = useRef(true);
+  const renderCountRef = useRef(0);
   const { fitViewWithCustomZoom } = useViewportUtils();
   const { isNodeDraggingRef, handleNodesChange } = useDragHandling();
+  
+  // Increment render count for debugging
+  renderCountRef.current += 1;
+  console.log(`Canvas render #${renderCountRef.current}`);
   
   // Memoize default edge options to prevent unnecessary rerenders
   const defaultEdgeOptions = useMemo(() => ({
@@ -60,45 +65,61 @@ const ReactFlowCanvas = memo(({
 
   // Only fit view on initial load or when explicitly requested (import)
   useEffect(() => {
-    if (initialLoadRef.current && nodes.length > 0 && reactFlowInstance) {
-      // Initial load fit view - use a debounce approach
-      const timeoutId = setTimeout(() => {
-        fitViewWithCustomZoom();
-        initialLoadRef.current = false;
-      }, 300);
-      
-      return () => clearTimeout(timeoutId);
+    if (!initialLoadRef.current || !nodes.length || !reactFlowInstance) {
+      return;
     }
+    
+    // Initial load fit view - use a debounce approach
+    const timeoutId = setTimeout(() => {
+      fitViewWithCustomZoom();
+      initialLoadRef.current = false;
+    }, 500);
+    
+    return () => clearTimeout(timeoutId);
   }, [nodes.length, reactFlowInstance, fitViewWithCustomZoom]);
 
   // Simple function to determine node class name for minimap
   const nodeClassName = useCallback((node) => node.type, []);
 
+  // Prevent unnecessary renders by memoizing props
+  const memoizedProps = useMemo(() => ({
+    nodes,
+    edges,
+    onNodesChange: customNodesChangeHandler,
+    onEdgesChange,
+    onConnect,
+    onNodeClick,
+    nodeTypes,
+    edgeTypes,
+    minZoom: 0.4,
+    maxZoom: 2,
+    defaultViewport: { x: 0, y: 0, zoom: 0.6 },
+    snapToGrid: true,
+    snapGrid: [15, 15],
+    defaultEdgeOptions,
+    zoomOnScroll: false,
+    zoomOnPinch: true,
+    panOnScroll: true,
+    nodesDraggable: true,
+    elementsSelectable: true,
+    proOptions: { hideAttribution: true },
+    fitViewOptions
+  }), [
+    nodes, 
+    edges, 
+    customNodesChangeHandler, 
+    onEdgesChange, 
+    onConnect, 
+    onNodeClick, 
+    nodeTypes, 
+    edgeTypes,
+    defaultEdgeOptions,
+    fitViewOptions
+  ]);
+
   return (
     <div className="h-full w-full" ref={flowRef}>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={customNodesChangeHandler}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onNodeClick={onNodeClick}
-        nodeTypes={nodeTypes}
-        edgeTypes={edgeTypes}
-        minZoom={0.4}
-        maxZoom={2}
-        defaultViewport={{ x: 0, y: 0, zoom: 0.6 }}
-        snapToGrid
-        snapGrid={[15, 15]}
-        defaultEdgeOptions={defaultEdgeOptions}
-        zoomOnScroll={false}
-        zoomOnPinch={true}
-        panOnScroll={true}
-        nodesDraggable={true}
-        elementsSelectable={true}
-        proOptions={{ hideAttribution: true }}
-        fitViewOptions={fitViewOptions}
-      >
+      <ReactFlow {...memoizedProps}>
         <CanvasControls nodeClassName={nodeClassName} />
         <Background
           color="#aaa"

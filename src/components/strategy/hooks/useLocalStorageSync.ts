@@ -1,3 +1,4 @@
+
 import { useEffect, useRef } from 'react';
 import { Node, Edge } from '@xyflow/react';
 import { loadStrategyFromLocalStorage } from '../utils/flowUtils';
@@ -9,11 +10,14 @@ export function useLocalStorageSync(
   initialNodes: Node[]
 ) {
   const isInitialLoadRef = useRef(true);
-  const syncTimeoutRef = useRef<any>(null);
+  const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isLoadingRef = useRef(false);
   
   // Load initial state from localStorage on mount
   useEffect(() => {
-    if (!isInitialLoadRef.current) return;
+    if (!isInitialLoadRef.current || isLoadingRef.current) return;
+    
+    isLoadingRef.current = true;
     
     try {
       // Attempt to load from localStorage
@@ -42,6 +46,8 @@ export function useLocalStorageSync(
       console.error('Error loading strategy from localStorage:', error);
       // Fallback to initial nodes
       setNodes(initialNodes);
+    } finally {
+      isLoadingRef.current = false;
     }
     
     // Setup a short delay before marking initial load as complete

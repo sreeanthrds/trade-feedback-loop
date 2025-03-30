@@ -7,35 +7,44 @@ export function useStartNodeSymbol() {
   const { getNodes } = useReactFlow();
   const prevSymbolRef = useRef<string | undefined>(undefined);
   const isInitialMountRef = useRef(true);
+  const isUpdateInProgressRef = useRef(false);
   
   // Find the start node and get its symbol
   useEffect(() => {
-    // Skip this effect on the very first render
-    if (isInitialMountRef.current) {
+    // Skip this effect on the very first render and if update is in progress
+    if (isInitialMountRef.current || isUpdateInProgressRef.current) {
       isInitialMountRef.current = false;
       return;
     }
     
-    const nodes = getNodes();
-    const startNode = nodes.find(node => node.type === 'startNode');
+    // Prevent re-entry during update
+    isUpdateInProgressRef.current = true;
     
-    if (startNode && startNode.data) {
-      // Ensure the symbol is a string before setting it
-      const symbol = startNode.data.symbol;
+    try {
+      const nodes = getNodes();
+      const startNode = nodes.find(node => node.type === 'startNode');
       
-      // Only update state if the symbol has actually changed
-      if (typeof symbol === 'string' && symbol !== prevSymbolRef.current) {
-        prevSymbolRef.current = symbol;
-        setStartNodeSymbol(symbol);
-      } else if (symbol === undefined && prevSymbolRef.current !== undefined) {
+      if (startNode && startNode.data) {
+        // Ensure the symbol is a string before setting it
+        const symbol = startNode.data.symbol;
+        
+        // Only update state if the symbol has actually changed
+        if (typeof symbol === 'string' && symbol !== prevSymbolRef.current) {
+          prevSymbolRef.current = symbol;
+          setStartNodeSymbol(symbol);
+        } else if (symbol === undefined && prevSymbolRef.current !== undefined) {
+          prevSymbolRef.current = undefined;
+          setStartNodeSymbol(undefined);
+        }
+      } else if (startNodeSymbol !== undefined && prevSymbolRef.current !== undefined) {
         prevSymbolRef.current = undefined;
         setStartNodeSymbol(undefined);
       }
-    } else if (startNodeSymbol !== undefined) {
-      prevSymbolRef.current = undefined;
-      setStartNodeSymbol(undefined);
+    } finally {
+      // Always clear the in-progress flag
+      isUpdateInProgressRef.current = false;
     }
-  }, [getNodes, startNodeSymbol]); // Keep the minimal dependencies needed
+  }, [getNodes]); // Remove startNodeSymbol from the dependency array
   
   return startNodeSymbol;
 }
