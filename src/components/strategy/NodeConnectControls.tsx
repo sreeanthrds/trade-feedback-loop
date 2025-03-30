@@ -1,12 +1,14 @@
-
 import React, { useState, useCallback, memo } from 'react';
-import { Play, Activity, SlidersHorizontal, StopCircle, AlertTriangle, Plus } from 'lucide-react';
+import { Play, Activity, SlidersHorizontal, StopCircle, AlertTriangle, Plus, ArrowUpCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu';
 import {
   Tooltip,
@@ -16,18 +18,20 @@ import {
 } from '@/components/ui/tooltip';
 
 interface NodeConnectControlsProps {
-  showOn: 'start' | 'signal' | 'action';
+  showOn: 'start' | 'signal' | 'action' | 'entry' | 'exit' | 'alert';
   onAddNode: (type: string, parentNodeId: string) => void;
   parentNodeId: string;
 }
 
 // Define node types with icons and labels
 const nodeTypeIcons = {
-  startNode: { icon: Play, label: 'Start Node', color: 'text-emerald-500' },
-  signalNode: { icon: Activity, label: 'Signal Node', color: 'text-blue-600' },
-  actionNode: { icon: SlidersHorizontal, label: 'Action Node', color: 'text-amber-600' },
-  endNode: { icon: StopCircle, label: 'End Node', color: 'text-rose-600' },
-  forceEndNode: { icon: AlertTriangle, label: 'Force End Node', color: 'text-purple-500' }
+  startNode: { icon: Play, label: 'Start Node', color: 'text-emerald-500', group: null },
+  signalNode: { icon: Activity, label: 'Signal Node', color: 'text-blue-600', group: null },
+  entryNode: { icon: ArrowUpCircle, label: 'Entry Node', color: 'text-emerald-600', group: 'action' },
+  exitNode: { icon: X, label: 'Exit Node', color: 'text-amber-600', group: 'action' },
+  alertNode: { icon: AlertTriangle, label: 'Alert Node', color: 'text-amber-600', group: 'action' },
+  endNode: { icon: StopCircle, label: 'End Node', color: 'text-rose-600', group: null },
+  forceEndNode: { icon: AlertTriangle, label: 'Force End Node', color: 'text-purple-500', group: null }
 };
 
 const NodeConnectControls = memo(({ showOn, onAddNode, parentNodeId }: NodeConnectControlsProps) => {
@@ -35,22 +39,31 @@ const NodeConnectControls = memo(({ showOn, onAddNode, parentNodeId }: NodeConne
 
   // Different node type options based on the current node type
   const nodeOptions = React.useMemo(() => {
+    const options = [
+      { value: 'signalNode', label: 'Signal Node', group: null },
+      { value: 'entryNode', label: 'Entry Node', group: 'action' },
+      { value: 'exitNode', label: 'Exit Node', group: 'action' },
+      { value: 'alertNode', label: 'Alert Node', group: 'action' },
+      { value: 'endNode', label: 'End Node', group: null },
+      { value: 'forceEndNode', label: 'Force End Node', group: null }
+    ];
+    
     if (showOn === 'start') {
-      return [
-        { value: 'signalNode', label: 'Signal Node' },
-        { value: 'actionNode', label: 'Action Node' },
-        { value: 'endNode', label: 'End Node' },
-        { value: 'forceEndNode', label: 'Force End Node' }
-      ];
+      // Start nodes can connect to any other node
+      return options;
     } else {
-      return [
-        { value: 'signalNode', label: 'Signal Node' },
-        { value: 'actionNode', label: 'Action Node' },
-        { value: 'endNode', label: 'End Node' },
-        { value: 'forceEndNode', label: 'Force End Node' }
-      ];
+      // Other nodes can connect to any node except start nodes
+      return options.filter(option => option.value !== 'startNode');
     }
   }, [showOn]);
+
+  // Group options for display
+  const groupedOptions = React.useMemo(() => {
+    const defaultOptions = nodeOptions.filter(option => option.group === null);
+    const actionOptions = nodeOptions.filter(option => option.group === 'action');
+    
+    return { defaultOptions, actionOptions };
+  }, [nodeOptions]);
 
   const handleAddNode = useCallback((type: string, e: React.MouseEvent) => {
     // Prevent event bubbling up to parent elements
@@ -88,29 +101,64 @@ const NodeConnectControls = memo(({ showOn, onAddNode, parentNodeId }: NodeConne
           align="end" 
           sideOffset={8}
           onMouseLeave={handleMouseLeave}
-          className="p-1 min-w-[3rem] w-auto"
+          className="min-w-[10rem] w-auto"
         >
+          {/* Default node options */}
           <TooltipProvider delayDuration={200}>
-            {nodeOptions.map((option) => {
-              const NodeIcon = nodeTypeIcons[option.value as keyof typeof nodeTypeIcons].icon;
-              const iconColor = nodeTypeIcons[option.value as keyof typeof nodeTypeIcons].color;
-              
-              return (
-                <Tooltip key={option.value}>
-                  <TooltipTrigger asChild>
-                    <DropdownMenuItem 
-                      onClick={(e) => handleAddNode(option.value, e)}
-                      className="cursor-pointer py-2 px-2 flex justify-center"
-                    >
-                      <NodeIcon className={`h-5 w-5 ${iconColor}`} />
-                    </DropdownMenuItem>
-                  </TooltipTrigger>
-                  <TooltipContent side="right">
-                    {option.label}
-                  </TooltipContent>
-                </Tooltip>
-              );
-            })}
+            <DropdownMenuGroup>
+              {groupedOptions.defaultOptions.map((option) => {
+                const NodeIcon = nodeTypeIcons[option.value as keyof typeof nodeTypeIcons].icon;
+                const iconColor = nodeTypeIcons[option.value as keyof typeof nodeTypeIcons].color;
+                
+                return (
+                  <Tooltip key={option.value}>
+                    <TooltipTrigger asChild>
+                      <DropdownMenuItem 
+                        onClick={(e) => handleAddNode(option.value, e)}
+                        className="cursor-pointer py-2 px-3"
+                      >
+                        <NodeIcon className={`h-4 w-4 ${iconColor} mr-2`} />
+                        <span className="text-xs">{option.label}</span>
+                      </DropdownMenuItem>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">
+                      {option.label}
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              })}
+            </DropdownMenuGroup>
+            
+            {/* Action node options grouped */}
+            {groupedOptions.actionOptions.length > 0 && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel className="text-xs font-medium text-muted-foreground py-1">Action Nodes</DropdownMenuLabel>
+                <DropdownMenuGroup>
+                  {groupedOptions.actionOptions.map((option) => {
+                    const NodeIcon = nodeTypeIcons[option.value as keyof typeof nodeTypeIcons].icon;
+                    const iconColor = nodeTypeIcons[option.value as keyof typeof nodeTypeIcons].color;
+                    
+                    return (
+                      <Tooltip key={option.value}>
+                        <TooltipTrigger asChild>
+                          <DropdownMenuItem 
+                            onClick={(e) => handleAddNode(option.value, e)}
+                            className="cursor-pointer py-2 px-3"
+                          >
+                            <NodeIcon className={`h-4 w-4 ${iconColor} mr-2`} />
+                            <span className="text-xs">{option.label}</span>
+                          </DropdownMenuItem>
+                        </TooltipTrigger>
+                        <TooltipContent side="right">
+                          {option.label}
+                        </TooltipContent>
+                      </Tooltip>
+                    );
+                  })}
+                </DropdownMenuGroup>
+              </>
+            )}
           </TooltipProvider>
         </DropdownMenuContent>
       </DropdownMenu>

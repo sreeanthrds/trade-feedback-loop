@@ -34,7 +34,9 @@ export const addNode = (
     switch (type) {
       case 'startNode': return 'start';
       case 'signalNode': return 'signal';
-      case 'actionNode': return 'action';
+      case 'entryNode': return 'entry';
+      case 'exitNode': return 'exit';
+      case 'alertNode': return 'alert';
       case 'endNode': return 'end';
       case 'forceEndNode': return 'force-end';
       default: return type.replace('Node', '').toLowerCase();
@@ -56,10 +58,17 @@ export const addNode = (
           ? 'Force End'
           : type === 'signalNode' 
             ? 'Signal' 
-            : 'Action'
+            : type === 'entryNode'
+              ? 'Entry'
+              : type === 'exitNode'
+                ? 'Exit'
+                : type === 'alertNode'
+                  ? 'Alert'
+                  : 'Action'
   };
   
-  if (type === 'actionNode') {
+  // Setup specialized node data
+  if (type === 'entryNode') {
     const positionId = `pos-${Date.now().toString().slice(-6)}`;
     const defaultPosition = {
       id: positionId,
@@ -76,6 +85,16 @@ export const addNode = (
       ...defaultData,
       actionType: 'entry',
       positions: [defaultPosition]
+    };
+  } else if (type === 'exitNode') {
+    defaultData = {
+      ...defaultData,
+      actionType: 'exit'
+    };
+  } else if (type === 'alertNode') {
+    defaultData = {
+      ...defaultData,
+      actionType: 'alert'
     };
   }
   
