@@ -41,7 +41,8 @@ const NumberParameterInput: React.FC<NumberParameterInputProps> = ({
   };
 
   // Determine if this should be an integer-only field
-  const isIntegerOnly = param.step ? Number.isInteger(param.step) && param.step >= 1 : false;
+  const isIntegerOnly = param.step ? 
+    (typeof param.step === 'number' && Number.isInteger(param.step) && param.step >= 1) : false;
   const step = param.step || (isIntegerOnly ? 1 : 'any');
 
   return (

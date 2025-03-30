@@ -1,4 +1,3 @@
-
 export interface IndicatorParameter {
   name: string;
   type: 'number' | 'dropdown' | 'checkbox_group' | 'radio_button' | 'boolean';
@@ -6,6 +5,9 @@ export interface IndicatorParameter {
   default: any;
   options?: string[];
   description?: string;
+  min?: number;
+  max?: number;
+  step?: number | string;
 }
 
 export interface Indicator {
