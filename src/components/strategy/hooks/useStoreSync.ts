@@ -92,21 +92,21 @@ export function useStoreSync(
           setNodes(storeNodes);
         } finally {
           // Always release the sync lock after a short delay
-          if (isComponentMountedRef.current) {
-            setTimeout(() => {
+          setTimeout(() => {
+            if (isComponentMountedRef.current) {
               isSyncingRef.current = false;
-            }, 100);
-          }
+            }
+          }, 200);
         }
       }
-    }, 300); // Increased debounce time
+    }, 350); // Increased debounce time
     
     return () => {
       if (nodesTimeoutRef.current) {
         clearTimeout(nodesTimeoutRef.current);
       }
     };
-  }, [strategyStore.nodes, setNodes, isDraggingRef, isInitialLoadRef]);
+  }, [strategyStore.nodes, setNodes, isDraggingRef, isInitialLoadRef, nodes.length]);
 
   // Reset update counter periodically
   useEffect(() => {
@@ -161,19 +161,19 @@ export function useStoreSync(
           setEdges(storeEdges);
         } finally {
           // Release the sync lock after a short delay
-          if (isComponentMountedRef.current) {
-            setTimeout(() => {
+          setTimeout(() => {
+            if (isComponentMountedRef.current) {
               isSyncingRef.current = false;
-            }, 100);
-          }
+            }
+          }, 200);
         }
       }
-    }, 300); // Increased debounce time
+    }, 350); // Increased debounce time
     
     return () => {
       if (edgesTimeoutRef.current) {
         clearTimeout(edgesTimeoutRef.current);
       }
     };
-  }, [strategyStore.edges, setEdges, isInitialLoadRef]);
+  }, [strategyStore.edges, setEdges, isInitialLoadRef, edges.length]);
 }

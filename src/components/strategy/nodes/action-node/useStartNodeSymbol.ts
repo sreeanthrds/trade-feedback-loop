@@ -50,22 +50,25 @@ export function useStartNodeSymbol() {
       } catch (error) {
         console.error('Error checking start node symbol:', error);
       } finally {
-        // Always clear the checking flag
+        // Always clear the checking flag after a delay
         setTimeout(() => {
-          checkingRef.current = false;
+          if (isComponentMountedRef.current) {
+            checkingRef.current = false;
+          }
         }, 100);
       }
     };
     
-    // Set up polling instead of an empty dependency effect
-    pollingIntervalRef.current = setInterval(checkStartNodeSymbol, 1000);
-    
     // Run initial check with a delay
-    setTimeout(checkStartNodeSymbol, 100);
+    const initialTimeout = setTimeout(checkStartNodeSymbol, 100);
+    
+    // Set up polling with a reasonable interval
+    pollingIntervalRef.current = setInterval(checkStartNodeSymbol, 1000);
     
     // Clean up on unmount
     return () => {
       isComponentMountedRef.current = false;
+      clearTimeout(initialTimeout);
       if (pollingIntervalRef.current) {
         clearInterval(pollingIntervalRef.current);
         pollingIntervalRef.current = null;

@@ -58,8 +58,8 @@ const ReactFlowCanvas = memo(({
     maxZoom: 0.85
   }), []);
   
-  // Properly defined snapGrid without Typescript error
-  const snapGrid = useMemo(() => [15, 15] as [number, number], []);
+  // Properly defined snapGrid with explicit typing
+  const snapGrid: [number, number] = useMemo(() => [15, 15], []);
   
   // Custom nodes change handler with drag detection
   const customNodesChangeHandler = useCallback((changes) => {

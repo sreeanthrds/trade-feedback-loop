@@ -46,7 +46,7 @@ export function useLocalStorageSync(
                 strategyStore.setNodes(nodes);
                 strategyStore.setEdges(edges || []);
               }
-            }, 100);
+            }, 200);
           } else {
             // Otherwise use initial nodes
             setNodes(initialNodes);
@@ -79,7 +79,7 @@ export function useLocalStorageSync(
     };
     
     // Use setTimeout to break the React update cycle
-    setTimeout(loadInitialState, 0);
+    setTimeout(loadInitialState, 100);
     
     // Clean up function
     return () => {
