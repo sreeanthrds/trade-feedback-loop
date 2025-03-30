@@ -1,12 +1,13 @@
 
 import React from 'react';
-import FormField from './FormField';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { cn } from '@/lib/utils';
 
 interface RadioOption {
   value: string;
   label: string;
+  description?: string;
 }
 
 interface RadioGroupFieldProps {
@@ -14,9 +15,9 @@ interface RadioGroupFieldProps {
   value: string;
   options: RadioOption[];
   onChange: (value: string) => void;
-  description?: string;
   className?: string;
-  layout?: 'horizontal' | 'vertical';
+  disabled?: boolean;
+  required?: boolean;
 }
 
 const RadioGroupField: React.FC<RadioGroupFieldProps> = ({
@@ -24,29 +25,35 @@ const RadioGroupField: React.FC<RadioGroupFieldProps> = ({
   value,
   options,
   onChange,
-  description,
-  className = '',
-  layout = 'vertical',
+  className,
+  disabled = false,
+  required = false
 }) => {
-  const layoutClass = layout === 'horizontal' ? 'flex gap-4' : 'flex flex-col space-y-1';
-
   return (
-    <FormField label={label} description={description} className={className}>
-      <RadioGroup 
-        value={value} 
+    <div className={cn("space-y-2", className)}>
+      <Label className="flex items-center">
+        {label}
+        {required && <span className="ml-1 text-red-500">*</span>}
+      </Label>
+      <RadioGroup
+        value={value}
         onValueChange={onChange}
-        className={layoutClass}
+        className="flex flex-col space-y-1"
+        disabled={disabled}
       >
         {options.map((option) => (
-          <div className="flex items-center space-x-2" key={option.value}>
-            <RadioGroupItem value={option.value} id={`option-${option.value}`} />
-            <Label htmlFor={`option-${option.value}`} className="cursor-pointer">
+          <div key={option.value} className="flex items-center space-x-2">
+            <RadioGroupItem value={option.value} id={`radio-${option.value}`} />
+            <Label
+              htmlFor={`radio-${option.value}`}
+              className="text-sm font-normal cursor-pointer"
+            >
               {option.label}
             </Label>
           </div>
         ))}
       </RadioGroup>
-    </FormField>
+    </div>
   );
 };
 

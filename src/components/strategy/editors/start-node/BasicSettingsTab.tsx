@@ -106,6 +106,7 @@ const BasicSettingsTab: React.FC<BasicSettingsTabProps> = ({
         value={formData.label || ''}
         onChange={(e) => handleInputChange('label', e.target.value)}
         placeholder="Enter strategy name"
+        required={true}
       />
       
       <RadioGroupField
@@ -113,6 +114,7 @@ const BasicSettingsTab: React.FC<BasicSettingsTabProps> = ({
         value={formData.tradingInstrument?.type || 'stock'}
         options={instrumentTypeOptions}
         onChange={(value) => handleInstrumentTypeChangeWithCheck(value as 'stock' | 'futures' | 'options')}
+        required={true}
       />
       
       {formData.tradingInstrument?.type === 'options' && (
@@ -121,6 +123,7 @@ const BasicSettingsTab: React.FC<BasicSettingsTabProps> = ({
           value={formData.tradingInstrument.underlyingType || ''}
           options={underlyingTypeOptions}
           onChange={(value) => handleUnderlyingTypeChange(value as 'index' | 'indexFuture' | 'stock')}
+          required={true}
         />
       )}
       
@@ -131,6 +134,7 @@ const BasicSettingsTab: React.FC<BasicSettingsTabProps> = ({
         options={timeframeOptions}
         onChange={(value) => handleInputChange('timeframe', value)}
         placeholder="Select timeframe"
+        required={true}
       />
       
       <SelectField
@@ -140,10 +144,14 @@ const BasicSettingsTab: React.FC<BasicSettingsTabProps> = ({
         options={exchangeOptions}
         onChange={(value) => handleInputChange('exchange', value)}
         placeholder="Select exchange"
+        required={true}
       />
       
       <div className="space-y-2">
-        <label className="text-sm font-medium" htmlFor="node-symbol">Symbol</label>
+        <label className="text-sm font-medium flex items-center" htmlFor="node-symbol">
+          Symbol
+          <span className="ml-1 text-red-500">*</span>
+        </label>
         <SymbolSelector
           id="node-symbol"
           value={formData.symbol || ''}
@@ -151,6 +159,7 @@ const BasicSettingsTab: React.FC<BasicSettingsTabProps> = ({
           placeholder="Search for a symbol..."
           instrumentType={formData.tradingInstrument?.type}
           underlyingType={formData.tradingInstrument?.type === 'options' ? formData.tradingInstrument.underlyingType : undefined}
+          className={formData.symbol === '' ? "border-red-300 focus:ring-red-200" : ""}
         />
       </div>
       
