@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ShoppingBag, LogOut, Bell } from 'lucide-react';
+import { ArrowDownToLine, ArrowUpFromLine, Bell } from 'lucide-react';
 import { FormField } from '../shared';
 
 interface ActionTypeSelectorProps {
@@ -20,7 +20,7 @@ const ActionTypeSelector: React.FC<ActionTypeSelectorProps> = ({
             ${actionType === 'entry' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}
           onClick={() => onActionTypeChange('entry')}
         >
-          <ShoppingBag className="h-5 w-5 mb-1 text-emerald-500 dark:text-emerald-400" />
+          <ArrowDownToLine className="h-5 w-5 mb-1 text-emerald-500 dark:text-emerald-400" />
           <span className="text-xs">Entry Order</span>
         </div>
         
@@ -29,7 +29,7 @@ const ActionTypeSelector: React.FC<ActionTypeSelectorProps> = ({
             ${actionType === 'exit' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}
           onClick={() => onActionTypeChange('exit')}
         >
-          <LogOut className="h-5 w-5 mb-1 text-amber-600 dark:text-amber-500" />
+          <ArrowUpFromLine className="h-5 w-5 mb-1 text-amber-600 dark:text-amber-500" />
           <span className="text-xs">Exit Order</span>
         </div>
         

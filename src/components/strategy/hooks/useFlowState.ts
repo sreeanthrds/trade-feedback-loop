@@ -24,7 +24,7 @@ export function useFlowState() {
     isDraggingRef
   } = useNodeStateManagement(initialNodes, strategyStore);
   
-  // Edge state management
+  // Edge state management - pass empty array directly to avoid useState error
   const {
     edges,
     setEdges,

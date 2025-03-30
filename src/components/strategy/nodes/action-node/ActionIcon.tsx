@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { ActionNodeData } from './types';
-import { ShoppingBag, LogOut, Bell } from 'lucide-react';
+import { ArrowDownToLine, ArrowUpFromLine, Bell } from 'lucide-react';
 
 interface ActionIconProps {
   data: ActionNodeData;
@@ -23,13 +23,13 @@ const ActionIcon: React.FC<ActionIconProps> = ({ data }) => {
   let Icon;
   
   if (data.actionType === 'entry') {
-    Icon = ShoppingBag; // Shopping bag for entry (buying)
+    Icon = ArrowDownToLine; // Better icon for entry (buying)
   } else if (data.actionType === 'exit') {
-    Icon = LogOut; // Log out for exit (leaving position)
+    Icon = ArrowUpFromLine; // Better icon for exit (leaving position)
   } else if (data.actionType === 'alert') {
     Icon = Bell; // Bell for alert notifications
   } else {
-    Icon = ShoppingBag; // Default fallback
+    Icon = ArrowDownToLine; // Default fallback
   }
 
   return (

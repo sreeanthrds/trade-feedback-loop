@@ -42,7 +42,10 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
       pos.id === editingPosition.id ? { ...pos, ...updates } : pos
     ) || [];
     
-    updateNodeData(id, { positions: updatedPositions });
+    updateNodeData(id, { 
+      positions: updatedPositions,
+      _lastUpdated: Date.now() 
+    });
   };
 
   const handleClosePositionDialog = () => {
@@ -66,11 +69,14 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
       } : pos
     ) || [];
     
-    updateNodeData(id, { positions: updatedPositions });
+    updateNodeData(id, { 
+      positions: updatedPositions,
+      _lastUpdated: Date.now() 
+    });
   };
   
   return (
-    <div className={`px-4 py-2 rounded-md bg-background/95 border ${isSymbolMissing ? 'border-destructive/50' : 'border-border/50'}`}>
+    <div className={`px-4 py-2 rounded-md bg-background/95 border ${isSymbolMissing ? 'border-destructive/50' : 'border-border/50'} drag-handle`}>
       <Handle
         type="target"
         position={Position.Top}

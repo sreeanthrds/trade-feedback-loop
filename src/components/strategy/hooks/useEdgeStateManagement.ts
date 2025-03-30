@@ -7,6 +7,7 @@ import { validateConnection } from '../utils/flowUtils';
  * Hook to manage edge state with validation
  */
 export function useEdgeStateManagement(initialEdges: Edge[] = [], strategyStore: any) {
+  // Initialize with direct value to avoid React "Should have a queue" error
   const [edges, setLocalEdges, onEdgesChange] = useEdgesState(initialEdges);
 
   // Custom setEdges wrapper that also updates the store
@@ -16,7 +17,10 @@ export function useEdgeStateManagement(initialEdges: Edge[] = [], strategyStore:
         ? updatedEdges(prevEdges)
         : updatedEdges;
       
-      strategyStore.setEdges(newEdges);
+      // Update store only if edges have changed
+      if (JSON.stringify(prevEdges) !== JSON.stringify(newEdges)) {
+        strategyStore.setEdges(newEdges);
+      }
       return newEdges;
     });
   }, [setLocalEdges, strategyStore]);
