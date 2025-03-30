@@ -40,7 +40,7 @@ interface NodeWrapperProps {
 // Create stable wrapper components
 const StartNodeWrapper = React.memo(({ data, id, type, onAddNode, ...rest }: NodeWrapperProps) => (
   <div className="group">
-    <MemoizedStartNode data={data} id={id} type={type} {...rest} />
+    <MemoizedStartNode data={data} id={id} />
     <MemoizedNodeConnectControls showOn="start" onAddNode={onAddNode} parentNodeId={id} />
   </div>
 ));
@@ -48,7 +48,7 @@ StartNodeWrapper.displayName = 'StartNodeWrapper';
 
 const SignalNodeWrapper = React.memo(({ data, id, type, onDelete, onAddNode, ...rest }: NodeWrapperProps) => (
   <div className="group">
-    <MemoizedSignalNode data={data} id={id} type={type} {...rest} />
+    <MemoizedSignalNode data={data} id={id} />
     <MemoizedNodeControls node={{ id, type, data }} onDelete={onDelete} />
     <MemoizedNodeConnectControls showOn="signal" onAddNode={onAddNode} parentNodeId={id} />
   </div>
@@ -82,7 +82,7 @@ ActionNodeWrapper.displayName = 'ActionNodeWrapper';
 
 const EndNodeWrapper = React.memo(({ data, id, type, onDelete, ...rest }: NodeWrapperProps) => (
   <div className="group">
-    <MemoizedEndNode data={data} id={id} type={type} {...rest} />
+    <MemoizedEndNode data={data} id={id} />
     <MemoizedNodeControls node={{ id, type, data }} onDelete={onDelete} />
   </div>
 ));
@@ -90,7 +90,7 @@ EndNodeWrapper.displayName = 'EndNodeWrapper';
 
 const ForceEndNodeWrapper = React.memo(({ data, id, type, onDelete, ...rest }: NodeWrapperProps) => (
   <div className="group">
-    <MemoizedForceEndNode data={data} id={id} type={type} {...rest} />
+    <MemoizedForceEndNode data={data} id={id} />
     <MemoizedNodeControls node={{ id, type, data }} onDelete={onDelete} />
   </div>
 ));
