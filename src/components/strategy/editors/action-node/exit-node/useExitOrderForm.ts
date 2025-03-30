@@ -34,7 +34,7 @@ export const useExitOrderForm = ({ node, updateNodeData }: UseExitOrderFormProps
   );
   
   const [multipleOrders, setMultipleOrders] = useState<boolean>(
-    nodeData.multipleOrders || false
+    Boolean(nodeData.multipleOrders)
   );
   
   const [quantityType, setQuantityType] = useState<'all' | 'partial'>(

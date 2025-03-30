@@ -8,5 +8,9 @@ export { useExitOrderForm } from './useExitOrderForm';
 // Export types for use by other components
 export type { 
   ExitOrderType,
-  ExitOrderConfig
+  ExitOrderConfig,
+  ExitNodeData,
+  // Export condition types for compatibility
+  ExitCondition,
+  ExitConditionType
 } from './types';

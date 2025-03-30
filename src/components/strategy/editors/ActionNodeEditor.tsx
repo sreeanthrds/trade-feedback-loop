@@ -9,7 +9,7 @@ import PositionDialog from './action-node/components/PositionDialog';
 import InstrumentPanel from './action-node/components/InstrumentPanel';
 import ActionTypeSelector from './action-node/ActionTypeSelector';
 import AlertMessage from './action-node/AlertMessage';
-import { ExitNodeForm } from './action-node/exit-node';
+import { ExitOrderForm } from './action-node/exit-node';
 import { toast } from "@/hooks/use-toast";
 
 interface ActionNodeEditorProps {
@@ -112,7 +112,7 @@ const ActionNodeEditor = ({ node, updateNodeData }: ActionNodeEditorProps) => {
 
     // Render specialized exit node form
     if (nodeData?.actionType === 'exit') {
-      return <ExitNodeForm node={node} updateNodeData={updateNodeData} />;
+      return <ExitOrderForm node={node} updateNodeData={updateNodeData} />;
     }
 
     // For entry nodes, continue with the positions list
