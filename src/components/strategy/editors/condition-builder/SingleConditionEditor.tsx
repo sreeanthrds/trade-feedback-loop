@@ -2,19 +2,9 @@
 import React from 'react';
 import { 
   Condition, 
-  Expression,
-  ComparisonOperator,
-  createDefaultExpression
 } from '../../utils/conditionTypes';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import ExpressionEditor from './ExpressionEditor';
+import OperatorSelector from './components/OperatorSelector';
+import ExpressionWrapper from './components/ExpressionWrapper';
 
 interface SingleConditionEditorProps {
   condition: Condition;
@@ -29,12 +19,12 @@ const SingleConditionEditor: React.FC<SingleConditionEditorProps> = ({
   const updateOperator = (value: string) => {
     updateCondition({
       ...condition,
-      operator: value as ComparisonOperator
+      operator: value as any
     });
   };
 
   // Update the left-hand side expression
-  const updateLhs = (expr: Expression) => {
+  const updateLhs = (expr: any) => {
     updateCondition({
       ...condition,
       lhs: expr
@@ -42,7 +32,7 @@ const SingleConditionEditor: React.FC<SingleConditionEditorProps> = ({
   };
 
   // Update the right-hand side expression
-  const updateRhs = (expr: Expression) => {
+  const updateRhs = (expr: any) => {
     updateCondition({
       ...condition,
       rhs: expr
@@ -52,42 +42,26 @@ const SingleConditionEditor: React.FC<SingleConditionEditorProps> = ({
   return (
     <div className="grid grid-cols-[1fr,auto,1fr] gap-2 items-start">
       {/* Left-hand side expression */}
-      <div>
-        <Label className="text-xs mb-1 block">Left Side</Label>
-        <ExpressionEditor 
-          expression={condition.lhs}
-          updateExpression={updateLhs}
-        />
-      </div>
+      <ExpressionWrapper
+        label="Left Side"
+        expression={condition.lhs}
+        updateExpression={updateLhs}
+      />
       
       {/* Operator */}
       <div className="pt-6">
-        <Select 
-          value={condition.operator} 
-          onValueChange={updateOperator}
-        >
-          <SelectTrigger className="w-16">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value=">">{'>'}</SelectItem>
-            <SelectItem value="<">{'<'}</SelectItem>
-            <SelectItem value=">=">{'≥'}</SelectItem>
-            <SelectItem value="<=">{'≤'}</SelectItem>
-            <SelectItem value="==">{'='}</SelectItem>
-            <SelectItem value="!=">{'≠'}</SelectItem>
-          </SelectContent>
-        </Select>
+        <OperatorSelector 
+          operator={condition.operator}
+          updateOperator={updateOperator}
+        />
       </div>
       
       {/* Right-hand side expression */}
-      <div>
-        <Label className="text-xs mb-1 block">Right Side</Label>
-        <ExpressionEditor 
-          expression={condition.rhs}
-          updateExpression={updateRhs}
-        />
-      </div>
+      <ExpressionWrapper
+        label="Right Side"
+        expression={condition.rhs}
+        updateExpression={updateRhs}
+      />
     </div>
   );
 };
