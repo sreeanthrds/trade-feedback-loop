@@ -1,7 +1,12 @@
 
+/**
+ * Type definitions for dependency tracking
+ */
+
+// Reference to where an indicator is used
 export interface UsageReference {
   nodeId: string;
-  nodeName: string; // Display name of the node
+  nodeName: string;
   nodeType: string;
-  context: string; // Where in the node it's used (e.g., "condition", "action")
+  context: string;
 }

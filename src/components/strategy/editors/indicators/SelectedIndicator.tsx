@@ -1,7 +1,7 @@
 
 import React, { useState, useCallback, memo } from 'react';
 import { Button } from '@/components/ui/button';
-import { X, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import IndicatorForm from '../IndicatorForm';
 import { indicatorConfig } from '../../utils/indicatorConfig';
@@ -27,102 +27,103 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
   onParameterChange,
   findUsages
 }) => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [usages, setUsages] = useState<UsageReference[]>([]);
+  const [showRemoveDialog, setShowRemoveDialog] = useState(false);
   
-  // Memoize display name calculation to prevent unnecessary recalculations
-  const getIndicatorDisplayName = useCallback(() => {
-    const baseName = name.split('_')[0];
-    
-    if (values && baseName in indicatorConfig) {
-      // Create a copy of parameters without indicator_name
-      const displayParams = { ...values };
-      delete displayParams.indicator_name;
-      
-      // Just join all parameter values with commas, no parameter names
-      const paramList = Object.values(displayParams).join(',');
-      
-      return `${baseName} (${paramList})`;
-    }
-    
-    return name;
-  }, [name, values]);
-
-  // Memoize remove handler to prevent recreation on each render
-  const handleRemoveClick = useCallback(() => {
-    // Find usages before showing dialog
-    const foundUsages = findUsages(name);
-    
-    if (foundUsages.length > 0) {
-      setUsages(foundUsages);
-      setIsDialogOpen(true);
-    } else {
-      // No usages, safe to remove
-      onRemove();
-    }
-  }, [findUsages, name, onRemove]);
-
-  const confirmRemove = useCallback(() => {
-    onRemove();
-    setIsDialogOpen(false);
-  }, [onRemove]);
+  // Get indicator config and usages outside of render to optimize
+  const baseName = name.split('_')[0];
+  const indicator = indicatorConfig.find(ind => ind.id === baseName);
+  const usages = findUsages(name);
+  const hasUsages = usages.length > 0;
   
-  // Memoize parameter change handler
-  const handleParameterChange = useCallback((paramName: string, value: any) => {
-    onParameterChange(paramName, value);
-  }, [onParameterChange]);
-
-  return (
-    <div className="border rounded-md w-full">
-      <Collapsible
-        open={isOpen}
-        onOpenChange={onToggle}
-        className="w-full"
-      >
-        <div className="flex items-center justify-between p-3">
-          <div className="font-medium truncate max-w-[calc(100%-80px)]">{getIndicatorDisplayName()}</div>
-          <div className="flex items-center gap-1 flex-shrink-0">
-            <CollapsibleTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                {isOpen ? (
-                  <ChevronUp className="h-4 w-4" />
-                ) : (
-                  <ChevronDown className="h-4 w-4" />
-                )}
-              </Button>
-            </CollapsibleTrigger>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleRemoveClick}
-              className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-            
-            <RemoveIndicatorDialog
-              open={isDialogOpen}
-              onOpenChange={setIsDialogOpen}
-              indicatorDisplayName={getIndicatorDisplayName()}
-              usages={usages}
-              onConfirm={confirmRemove}
-            />
-          </div>
+  // Format parameter display values
+  const getDisplayValue = useCallback((param: any, value: any) => {
+    if (param.type === 'select' && param.options) {
+      const option = param.options.find((opt: any) => opt.value === value);
+      return option ? option.label : value;
+    }
+    return value;
+  }, []);
+  
+  if (!indicator) {
+    return (
+      <div className="border rounded-md p-2 mb-2 bg-muted/20">
+        <div className="flex justify-between items-center">
+          <div className="text-sm font-medium">{name}</div>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-6 w-6" 
+            onClick={onRemove}
+          >
+            <X className="h-3 w-3" />
+          </Button>
         </div>
-        <CollapsibleContent>
-          <div className="px-3 pb-3">
-            <IndicatorForm
-              indicator={indicatorConfig[name.split('_')[0]]}
-              values={values}
-              onChange={handleParameterChange}
-            />
-          </div>
+        <div className="text-xs text-destructive flex items-center gap-1 mt-1">
+          <AlertTriangle className="h-3 w-3" />
+          Indicator config not found
+        </div>
+      </div>
+    );
+  }
+  
+  return (
+    <div className="border rounded-md p-2 mb-2 bg-card">
+      <Collapsible open={isOpen} onOpenChange={onToggle}>
+        <div className="flex justify-between items-center">
+          <CollapsibleTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="p-1 h-7 flex items-center justify-between w-full"
+            >
+              <div className="flex items-center gap-1 text-left">
+                <div className="text-sm font-medium">{indicator.name}</div>
+                <div className="text-xs text-muted-foreground">
+                  {indicator.parameters.map(param => (
+                    values[param.name] !== undefined && 
+                    <span key={param.name} className="mr-1">
+                      {getDisplayValue(param, values[param.name])}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              {isOpen ? (
+                <ChevronUp className="h-4 w-4 opacity-50" />
+              ) : (
+                <ChevronDown className="h-4 w-4 opacity-50" />
+              )}
+            </Button>
+          </CollapsibleTrigger>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-6 w-6 ml-1" 
+            onClick={() => setShowRemoveDialog(true)}
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        </div>
+        
+        <CollapsibleContent className="pt-2">
+          <IndicatorForm
+            indicator={indicator}
+            values={values}
+            onChange={onParameterChange}
+          />
         </CollapsibleContent>
       </Collapsible>
+      
+      <RemoveIndicatorDialog
+        isOpen={showRemoveDialog}
+        onClose={() => setShowRemoveDialog(false)}
+        onConfirm={onRemove}
+        indicatorName={name}
+        hasUsages={hasUsages}
+        usages={usages}
+      />
     </div>
   );
 };
 
-// Memoize the component to prevent unnecessary re-renders
+// Use memo to prevent unnecessary re-renders
 export default memo(SelectedIndicator);

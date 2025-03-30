@@ -1,7 +1,5 @@
 
 import React from 'react';
-import { AlertTriangle } from 'lucide-react';
-import { UsageReference } from '../../utils/dependency-tracking/types';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,54 +10,74 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { UsageReference } from '../../utils/dependency-tracking/types';
+import { AlertTriangle } from 'lucide-react';
 
 interface RemoveIndicatorDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  indicatorDisplayName: string;
-  usages: UsageReference[];
+  isOpen: boolean;
+  onClose: () => void;
   onConfirm: () => void;
+  indicatorName: string;
+  hasUsages: boolean;
+  usages: UsageReference[];
 }
 
 const RemoveIndicatorDialog: React.FC<RemoveIndicatorDialogProps> = ({
-  open,
-  onOpenChange,
-  indicatorDisplayName,
-  usages,
-  onConfirm
+  isOpen,
+  onClose,
+  onConfirm,
+  indicatorName,
+  hasUsages,
+  usages
 }) => {
+  const handleConfirm = () => {
+    onConfirm();
+    onClose();
+  };
+  
+  const baseName = indicatorName.split('_')[0];
+  
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete {indicatorDisplayName}?</AlertDialogTitle>
+          <AlertDialogTitle>
+            Remove {baseName} Indicator
+          </AlertDialogTitle>
           <AlertDialogDescription>
-            This indicator is currently used in the following places:
-            <ul className="mt-2 space-y-1 text-sm">
-              {usages.map((usage, index) => (
-                <li key={index} className="flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4 text-warning" />
-                  <span>{usage.nodeName} ({usage.context})</span>
-                </li>
-              ))}
-            </ul>
-            <Alert variant="destructive" className="mt-4">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertTitle>Warning</AlertTitle>
-              <AlertDescription>
-                Deleting this indicator will break functionality in the nodes listed above.
-              </AlertDescription>
-            </Alert>
+            {hasUsages ? (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm font-medium text-amber-600">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span>This indicator is used in {usages.length} location(s)</span>
+                </div>
+                <p>
+                  Removing this indicator will affect the conditions in the following nodes:
+                </p>
+                <ul className="pl-5 text-xs space-y-1 list-disc">
+                  {usages.map((usage, index) => (
+                    <li key={index}>
+                      <span className="font-medium">{usage.nodeName}</span> ({usage.nodeType})
+                    </li>
+                  ))}
+                </ul>
+                <p className="text-sm mt-2">
+                  These conditions will be automatically removed or modified.
+                  Are you sure you want to continue?
+                </p>
+              </div>
+            ) : (
+              <p>
+                Are you sure you want to remove the {baseName} indicator?
+                This action cannot be undone.
+              </p>
+            )}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction 
-            onClick={onConfirm}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-          >
-            Delete Anyway
+          <AlertDialogAction onClick={handleConfirm} className={hasUsages ? "bg-amber-600 hover:bg-amber-700" : ""}>
+            Remove
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
