@@ -1,5 +1,5 @@
 
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { Edge, useEdgesState, Connection, addEdge, Node } from '@xyflow/react';
 import { validateConnection } from '../utils/flowUtils';
 
@@ -8,7 +8,7 @@ import { validateConnection } from '../utils/flowUtils';
  */
 export function useEdgeStateManagement(initialEdges: Edge[] = [], strategyStore: any) {
   const [edges, setLocalEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const updateCycleRef = React.useRef(false);
+  const updateCycleRef = useRef(false);
 
   // Custom setEdges wrapper that also updates the store
   const setEdges = useCallback((updatedEdges: Edge[] | ((prevEdges: Edge[]) => Edge[])) => {

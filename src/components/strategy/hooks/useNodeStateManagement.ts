@@ -13,9 +13,15 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
   const lastUpdateTimeRef = useRef(0);
   const updateTimeoutRef = useRef<number | null>(null);
   const updateCycleRef = useRef(false);
+  const isProcessingChangesRef = useRef(false);
 
   // Enhanced node change handler with improved drag detection
   const onNodesChangeWithDragDetection = useCallback((changes) => {
+    // If already processing changes, avoid recursive updates
+    if (isProcessingChangesRef.current) return;
+    
+    isProcessingChangesRef.current = true;
+    
     // Apply the changes to nodes immediately for UI responsiveness
     onNodesChange(changes);
     
@@ -43,14 +49,19 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
               pendingNodesUpdate.current = null;
               updateCycleRef.current = false;
             }
-          }, 0);
+          }, 50);
         }
       }
     }
+    
+    isProcessingChangesRef.current = false;
   }, [onNodesChange, strategyStore]);
 
   // Custom setNodes wrapper with improved throttling
   const setNodes = useCallback((updatedNodes: Node[] | ((prevNodes: Node[]) => Node[])) => {
+    // If already in an update cycle, skip to prevent loops
+    if (updateCycleRef.current) return;
+    
     // Always update local state for UI responsiveness
     setLocalNodes((prevNodes) => {
       // Handle both functional and direct updates
@@ -61,11 +72,6 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
       // Don't update store during dragging
       if (isDraggingRef.current) {
         pendingNodesUpdate.current = newNodes;
-        return newNodes;
-      }
-      
-      // Avoid update cycles
-      if (updateCycleRef.current) {
         return newNodes;
       }
       

@@ -19,14 +19,17 @@ export function useStoreSync(
     if (isDraggingRef.current || isInitialLoadRef.current) return;
     
     const storeNodes = strategyStore.nodes;
-    if (storeNodes.length > 0 && 
-        JSON.stringify(storeNodes.map(n => ({ id: n.id, type: n.type, data: n.data }))) !== 
-        JSON.stringify(nodes.map(n => ({ id: n.id, type: n.type, data: n.data })))) {
-      // Only update if the data is actually different 
+    // Only update if the data has actually changed by doing a deep comparison
+    // of the node ids, types, and data properties
+    const nodesChanged = storeNodes.length !== nodes.length || 
+      JSON.stringify(storeNodes.map(n => ({ id: n.id, type: n.type, data: n.data }))) !== 
+      JSON.stringify(nodes.map(n => ({ id: n.id, type: n.type, data: n.data })));
+    
+    if (storeNodes.length > 0 && nodesChanged) {
       // Use setTimeout to break the potential update cycle
       const timeoutId = setTimeout(() => {
         setNodes(storeNodes);
-      }, 0);
+      }, 50);
       
       return () => clearTimeout(timeoutId);
     }
@@ -37,12 +40,15 @@ export function useStoreSync(
     if (isInitialLoadRef.current) return;
     
     const storeEdges = strategyStore.edges;
-    if (JSON.stringify(storeEdges) !== JSON.stringify(edges)) {
-      // Only update if the data is actually different
+    // Simple comparison to determine if edges have changed
+    const edgesChanged = storeEdges.length !== edges.length || 
+      JSON.stringify(storeEdges) !== JSON.stringify(edges);
+    
+    if (edgesChanged) {
       // Use setTimeout to break the potential update cycle
       const timeoutId = setTimeout(() => {
         setEdges(storeEdges);
-      }, 0);
+      }, 50);
       
       return () => clearTimeout(timeoutId);
     }

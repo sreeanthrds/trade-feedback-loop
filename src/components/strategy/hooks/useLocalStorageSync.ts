@@ -14,6 +14,7 @@ export function useLocalStorageSync(
 ) {
   const isInitialLoadRef = useRef(true);
   const hasInitializedRef = useRef(false);
+  const isUpdatingStoreRef = useRef(false);
 
   // Load from localStorage on initial mount
   useEffect(() => {
@@ -27,26 +28,31 @@ export function useLocalStorageSync(
         setEdges(savedStrategy.edges);
         
         // Update the store directly to avoid potential cycles
+        isUpdatingStoreRef.current = true;
         strategyStore.setNodes(savedStrategy.nodes);
         strategyStore.setEdges(savedStrategy.edges);
         strategyStore.resetHistory();
         strategyStore.addHistoryItem(savedStrategy.nodes, savedStrategy.edges);
+        isUpdatingStoreRef.current = false;
       } else {
         // Initialize with default nodes if no saved strategy exists
         setNodes(initialNodes);
+        
+        isUpdatingStoreRef.current = true;
         strategyStore.setNodes(initialNodes);
         strategyStore.setEdges([]);
         strategyStore.resetHistory();
         strategyStore.addHistoryItem(initialNodes, []);
+        isUpdatingStoreRef.current = false;
       }
       
       // Set the initial load flag to false after a short delay
       // to allow the store to synchronize
       setTimeout(() => {
         isInitialLoadRef.current = false;
-      }, 500);
+      }, 800); // Increased delay to ensure all operations complete
     }
   }, [setNodes, setEdges, strategyStore, initialNodes]);
 
-  return { isInitialLoadRef };
+  return { isInitialLoadRef, isUpdatingStoreRef };
 }
