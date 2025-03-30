@@ -47,7 +47,7 @@ const PositionEditor: React.FC<PositionEditorProps> = ({
     
     // Allow clearing the field
     if (value === '') {
-      onPositionChange({ priority: undefined as any });
+      onPositionChange({ priority: undefined });
       return;
     }
     
