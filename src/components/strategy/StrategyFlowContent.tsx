@@ -1,18 +1,11 @@
 
-import React, { useRef, useMemo, useState, useCallback, useEffect } from 'react';
-import { createNodeTypes } from './nodes/nodeTypes';
-import { createEdgeTypes } from './edges/edgeTypes';
+import React from 'react';
 import { useFlowState } from './hooks/useFlowState';
 import { useFlowHandlers } from './hooks/useFlowHandlers';
-import NodePanel from './NodePanel';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Sheet, SheetContent } from '@/components/ui/sheet';
-import BottomToolbar from './toolbars/BottomToolbar';
-import TopToolbar from './toolbars/TopToolbar';
-import NodeSidebar from './NodeSidebar';
-import ReactFlowCanvas from './canvas/ReactFlowCanvas';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import MobileLayout from './layout/MobileLayout';
+import DesktopLayout from './layout/DesktopLayout';
+import FlowContentInitializer from './flow-layout/FlowContentInitializer';
 
 interface StrategyFlowContentProps {
   onReady?: () => void;
@@ -22,207 +15,36 @@ const StrategyFlowContent: React.FC<StrategyFlowContentProps> = ({ onReady }) =>
   // Get all flow state from a custom hook
   const flowState = useFlowState();
   const isMobile = useIsMobile();
-  const [sidebarVisible, setSidebarVisible] = useState(false);
-  const readyFiredRef = useRef(false);
-  
-  // Notify parent when React Flow is ready
-  useEffect(() => {
-    if (flowState.isReactFlowReady && !readyFiredRef.current && onReady) {
-      readyFiredRef.current = true;
-      onReady();
-    }
-  }, [flowState.isReactFlowReady, onReady]);
-  
-  // If React Flow is not ready, do not render anything visible
-  // This prevents any React Flow hooks from being called outside the provider
-  if (!flowState.isReactFlowReady) {
-    return null;
-  }
   
   // Get all flow handlers from a custom hook
   const flowHandlers = useFlowHandlers(flowState);
   
-  // Destructure handlers for easier access
-  const {
-    onNodeClick,
-    handleAddNode,
-    updateNodeData,
-    handleDeleteNode,
-    handleDeleteEdge,
-    closePanel,
-    resetStrategy,
-    handleImportSuccess
-  } = flowHandlers;
-  
-  // Create memoized node and edge types - ensure they're stable
-  const nodeTypes = useMemo(() => 
-    createNodeTypes(handleDeleteNode, handleAddNode, updateNodeData),
-    [handleDeleteNode, handleAddNode, updateNodeData]
-  );
-  
-  const edgeTypes = useMemo(() => 
-    createEdgeTypes(handleDeleteEdge),
-    [handleDeleteEdge]
-  );
-
-  // Memoize the toggle function to prevent recreating it on each render
-  const toggleSidebar = useCallback(() => {
-    setSidebarVisible(prev => !prev);
-  }, []);
-  
-  // Memoize the ReactFlowCanvas props to prevent extra renders
-  const canvasProps = useMemo(() => ({
-    nodes: flowState.nodes,
-    edges: flowState.edges,
-    onNodesChange: flowState.onNodesChange,
-    onEdgesChange: flowState.onEdgesChange,
-    onConnect: flowState.onConnect,
-    nodeTypes,
-    edgeTypes,
-    onNodeClick,
-    flowRef: flowState.reactFlowWrapper,
-    resetStrategy,
-    onImportSuccess: handleImportSuccess,
-    onDeleteNode: handleDeleteNode,
-    onDeleteEdge: handleDeleteEdge,
-    onAddNode: handleAddNode,
-    updateNodeData
-  }), [
-    flowState.nodes,
-    flowState.edges,
-    flowState.onNodesChange,
-    flowState.onEdgesChange,
-    flowState.onConnect,
-    flowState.reactFlowWrapper,
-    nodeTypes,
-    edgeTypes,
-    onNodeClick,
-    resetStrategy,
-    handleImportSuccess,
-    handleDeleteNode,
-    handleDeleteEdge,
-    handleAddNode,
-    updateNodeData
-  ]);
-  
-  // On mobile, use a sheet for the panel
-  if (isMobile) {
-    return (
-      <div className="h-full w-full relative">
-        <TopToolbar 
-          onReset={resetStrategy} 
-          onImportSuccess={handleImportSuccess} 
-        />
-        
-        <ReactFlowCanvas {...canvasProps} />
-        
-        <Sheet 
-          open={flowState.isPanelOpen} 
-          onOpenChange={flowState.setIsPanelOpen}
-        >
-          <SheetContent side="bottom" className="h-[85vh] py-0 px-0">
-            {flowState.selectedNode && (
-              <NodePanel 
-                node={flowState.selectedNode} 
-                updateNodeData={updateNodeData} 
-                onClose={closePanel} 
-              />
-            )}
-          </SheetContent>
-        </Sheet>
-        
-        <BottomToolbar />
-
-        {/* Node sidebar drawer for mobile */}
-        <div className="absolute left-2 top-1/2 -translate-y-1/2 z-10">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="h-10 w-10 rounded-full shadow-md"
-            onClick={toggleSidebar}
-          >
-            {sidebarVisible ? 
-              <ChevronLeft className="h-4 w-4" /> : 
-              <ChevronRight className="h-4 w-4" />
-            }
-          </Button>
-        </div>
-        
-        <div 
-          className={`
-            absolute left-0 top-0 h-full bg-background 
-            border-r border-border transition-all duration-300 z-10 
-            ${sidebarVisible ? 'w-[70px] opacity-100' : 'w-0 opacity-0 pointer-events-none'}
-          `}
-        >
-          <NodeSidebar onAddNode={handleAddNode} />
-        </div>
-      </div>
-    );
-  }
-  
-  // On desktop, use a collapsible layout - with optimized rendering
   return (
-    <div className="h-full w-full relative">
-      <div className="flex flex-col h-full">
-        <TopToolbar 
-          onReset={resetStrategy} 
-          onImportSuccess={handleImportSuccess} 
-        />
-        
-        <div className="flex-grow relative flex">
-          {/* Collapsible node sidebar */}
-          <div 
-            className={`
-              bg-background border-r border-border 
-              transition-all duration-300 
-              ${sidebarVisible ? 'w-[70px]' : 'w-0 overflow-hidden'}
-            `}
-          >
-            <NodeSidebar onAddNode={handleAddNode} />
-          </div>
-          
-          {/* Main canvas area */}
-          <div className="flex-grow relative">
-            <ReactFlowCanvas {...canvasProps} />
-
-            {/* Sidebar toggle button */}
-            <div className="absolute left-4 top-4 z-10">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="h-8 w-8 rounded-full shadow-md"
-                onClick={toggleSidebar}
-              >
-                {sidebarVisible ? 
-                  <ChevronLeft className="h-4 w-4" /> : 
-                  <ChevronRight className="h-4 w-4" />
-                }
-              </Button>
-            </div>
-          </div>
-          
-          {/* Node configuration panel */}
-          <div 
-            className={`
-              bg-background border-l border-border 
-              transition-all duration-300 
-              ${flowState.isPanelOpen ? 'w-[420px]' : 'w-0 overflow-hidden'}
-            `}
-          >
-            {flowState.isPanelOpen && flowState.selectedNode && (
-              <NodePanel 
-                node={flowState.selectedNode} 
-                updateNodeData={updateNodeData} 
-                onClose={closePanel}
-              />
-            )}
-          </div>
-        </div>
-        
-        <BottomToolbar />
-      </div>
-    </div>
+    <FlowContentInitializer 
+      flowState={flowState} 
+      flowHandlers={flowHandlers}
+      onReady={onReady}
+    >
+      {({ canvasProps, sidebarVisible, toggleSidebar }) => 
+        isMobile ? (
+          <MobileLayout
+            canvasProps={canvasProps}
+            flowState={flowState}
+            flowHandlers={flowHandlers}
+            sidebarVisible={sidebarVisible}
+            toggleSidebar={toggleSidebar}
+          />
+        ) : (
+          <DesktopLayout
+            canvasProps={canvasProps}
+            flowState={flowState}
+            flowHandlers={flowHandlers}
+            sidebarVisible={sidebarVisible}
+            toggleSidebar={toggleSidebar}
+          />
+        )
+      }
+    </FlowContentInitializer>
   );
 };
 
