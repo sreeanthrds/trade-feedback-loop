@@ -1,6 +1,6 @@
 
 import React, { useCallback, memo } from 'react';
-import { Play, Activity, ShoppingCart, LogOut, Bell, StopCircle, AlertTriangle } from 'lucide-react';
+import { Play, Activity, SlidersHorizontal, StopCircle, AlertTriangle } from 'lucide-react';
 import { 
   Tooltip,
   TooltipContent,
@@ -18,7 +18,6 @@ interface NodeTypeItem {
   description: string;
   icon: React.ReactNode;
   color: string;
-  group?: string;
 }
 
 const nodeTypes: NodeTypeItem[] = [
@@ -37,28 +36,11 @@ const nodeTypes: NodeTypeItem[] = [
     color: 'border-blue-600 dark:border-blue-400 bg-blue-600/10 dark:bg-blue-400/10'
   },
   {
-    type: 'entryNode',
-    label: 'Entry Node',
-    description: 'Execute buy/sell orders',
-    icon: <ShoppingCart className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />,
-    color: 'border-emerald-600 dark:border-emerald-400 bg-emerald-600/10 dark:bg-emerald-400/10',
-    group: 'action'
-  },
-  {
-    type: 'exitNode',
-    label: 'Exit Node',
-    description: 'Close existing positions',
-    icon: <LogOut className="h-5 w-5 text-amber-600 dark:text-amber-400" />,
-    color: 'border-amber-600 dark:border-amber-400 bg-amber-600/10 dark:bg-amber-400/10',
-    group: 'action'
-  },
-  {
-    type: 'alertNode',
-    label: 'Alert Node',
-    description: 'Generate notifications only',
-    icon: <Bell className="h-5 w-5 text-blue-600 dark:text-blue-400" />,
-    color: 'border-blue-600 dark:border-blue-400 bg-blue-600/10 dark:bg-blue-400/10',
-    group: 'action'
+    type: 'actionNode',
+    label: 'Action Node',
+    description: 'Execute trading actions',
+    icon: <SlidersHorizontal className="h-5 w-5 text-amber-600 dark:text-amber-400" />,
+    color: 'border-amber-600 dark:border-amber-400 bg-amber-600/10 dark:bg-amber-400/10'
   },
   {
     type: 'endNode',
@@ -76,25 +58,6 @@ const nodeTypes: NodeTypeItem[] = [
   }
 ];
 
-// Group nodes by category for UI organization
-const getNodeGroups = () => {
-  // Create a Record where keys are group names and values are arrays of NodeTypeItem
-  const grouped = nodeTypes.reduce((acc, node) => {
-    const group = node.group || 'default';
-    if (!acc[group]) {
-      acc[group] = [];
-    }
-    acc[group].push(node);
-    return acc;
-  }, {} as Record<string, NodeTypeItem[]>);
-  
-  // Return an object with typed keys
-  return {
-    default: grouped.default || [],
-    action: grouped.action || []
-  };
-};
-
 const NodeSidebar = memo(({ onAddNode }: NodeSidebarProps) => {
   const handleNodeClick = useCallback((type: string, e: React.MouseEvent) => {
     e.preventDefault();
@@ -107,63 +70,34 @@ const NodeSidebar = memo(({ onAddNode }: NodeSidebarProps) => {
     event.dataTransfer.effectAllowed = 'move';
   }, []);
 
-  const nodeGroups = getNodeGroups();
-
   return (
     <div className="h-full overflow-auto py-4 flex flex-col items-center">
-      <TooltipProvider delayDuration={200}>
-        <div className="space-y-4">
-          {/* Default nodes first */}
-          <div className="space-y-3">
-            {nodeGroups.default.map((nodeType) => (
-              <Tooltip key={nodeType.type}>
-                <TooltipTrigger asChild>
-                  <div
-                    className={`flex justify-center items-center w-9 h-9 rounded-full ${nodeType.color} cursor-grab transition-all hover:scale-105 hover:shadow-md`}
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, nodeType.type)}
-                    onClick={(e) => handleNodeClick(nodeType.type, e)}
-                  >
-                    {nodeType.icon}
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  <div className="space-y-1">
-                    <p className="font-medium text-sm">{nodeType.label}</p>
-                    <p className="text-xs text-muted-foreground">{nodeType.description}</p>
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-            ))}
-          </div>
-          
-          {/* Action nodes with a divider */}
-          {nodeGroups.action && nodeGroups.action.length > 0 && (
-            <div className="space-y-3 pt-2 mt-2 border-t border-border">
-              {nodeGroups.action.map((nodeType) => (
-                <Tooltip key={nodeType.type}>
-                  <TooltipTrigger asChild>
-                    <div
-                      className={`flex justify-center items-center w-9 h-9 rounded-full ${nodeType.color} cursor-grab transition-all hover:scale-105 hover:shadow-md`}
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, nodeType.type)}
-                      onClick={(e) => handleNodeClick(nodeType.type, e)}
-                    >
-                      {nodeType.icon}
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="right">
-                    <div className="space-y-1">
-                      <p className="font-medium text-sm">{nodeType.label}</p>
-                      <p className="text-xs text-muted-foreground">{nodeType.description}</p>
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-              ))}
-            </div>
-          )}
-        </div>
-      </TooltipProvider>
+      <h3 className="font-medium text-xs uppercase tracking-wider mb-4 text-center text-muted-foreground">Nodes</h3>
+      
+      <div className="space-y-6">
+        <TooltipProvider delayDuration={200}>
+          {nodeTypes.map((nodeType) => (
+            <Tooltip key={nodeType.type}>
+              <TooltipTrigger asChild>
+                <div
+                  className={`flex justify-center items-center w-10 h-10 rounded-full ${nodeType.color} cursor-grab transition-all hover:scale-105 hover:shadow-md`}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, nodeType.type)}
+                  onClick={(e) => handleNodeClick(nodeType.type, e)}
+                >
+                  {nodeType.icon}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <div className="space-y-1">
+                  <p className="font-medium text-sm">{nodeType.label}</p>
+                  <p className="text-xs text-muted-foreground">{nodeType.description}</p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          ))}
+        </TooltipProvider>
+      </div>
     </div>
   );
 });

@@ -1,33 +1,52 @@
 
-import React from 'react';
+import React, { useEffect, useCallback } from 'react';
+import { Panel } from '@xyflow/react';
+import { Undo, Redo } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Save, RefreshCw, Upload } from 'lucide-react';
+import { useTheme } from '@/hooks/use-theme';
+import { useStrategyStore } from '@/hooks/use-strategy-store';
 
-interface TopToolbarProps {
-  onReset: () => void;
-  onImportSuccess: () => void;
-}
-
-const TopToolbar: React.FC<TopToolbarProps> = ({ onReset, onImportSuccess }) => {
+const TopToolbar: React.FC = () => {
+  const { theme, setTheme } = useTheme();
+  const strategyStore = useStrategyStore();
+  
+  // Move the theme toggle to a callback to prevent render-time updates
+  const toggleTheme = useCallback(() => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  }, [theme, setTheme]);
+  
   return (
-    <div className="flex items-center justify-between p-2 border-b">
-      <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" onClick={onReset}>
-          <RefreshCw className="w-4 h-4 mr-2" />
-          Reset
+    <Panel position="top-center">
+      <div className="flex gap-2 bg-background/90 p-2 rounded-md shadow-md">
+        <Button 
+          size="sm" 
+          variant="outline"
+          onClick={() => strategyStore.undo()}
+          disabled={strategyStore.historyIndex <= 0}
+        >
+          <Undo className="h-4 w-4" />
+          <span className="sr-only">Undo</span>
         </Button>
-        
-        <Button variant="outline" size="sm">
-          <Save className="w-4 h-4 mr-2" />
-          Save
+        <Button 
+          size="sm" 
+          variant="outline"
+          onClick={() => strategyStore.redo()}
+          disabled={strategyStore.historyIndex >= strategyStore.history.length - 1}
+        >
+          <Redo className="h-4 w-4" />
+          <span className="sr-only">Redo</span>
         </Button>
-        
-        <Button variant="outline" size="sm">
-          <Upload className="w-4 h-4 mr-2" />
-          Import
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={toggleTheme}
+          className="flex items-center gap-2"
+        >
+          {theme === 'dark' ? '☀️' : '🌙'}
+          <span className="sr-only">Toggle theme</span>
         </Button>
       </div>
-    </div>
+    </Panel>
   );
 };
 

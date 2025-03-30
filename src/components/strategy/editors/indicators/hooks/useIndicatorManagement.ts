@@ -17,7 +17,15 @@ export const useIndicatorManagement = ({
   const [openStates, setOpenStates] = useState<Record<string, boolean>>({});
   const { getNodes, setNodes } = useReactFlow();
   
-  const generateUniqueIndicatorKey = (baseIndicatorName: string): string => {
+  const handleAddIndicator = (newIndicator: any) => {
+    if (!selectedIndicator) return;
+    
+    const defaultValues = newIndicator.parameters.reduce((acc: Record<string, any>, param: any) => {
+      acc[param.name] = param.default;
+      return acc;
+    }, {});
+    
+    const baseIndicatorName = selectedIndicator;
     let uniqueKey = baseIndicatorName;
     let counter = 1;
     
@@ -25,16 +33,6 @@ export const useIndicatorManagement = ({
       uniqueKey = `${baseIndicatorName}_${counter}`;
       counter++;
     }
-    
-    return uniqueKey;
-  };
-  
-  const handleAddIndicator = (newIndicator: any) => {
-    if (!selectedIndicator) return;
-    
-    const defaultValues = createDefaultValues(newIndicator);
-    const baseIndicatorName = selectedIndicator;
-    const uniqueKey = generateUniqueIndicatorKey(baseIndicatorName);
     
     const updatedIndicators = {
       ...selectedIndicators,
@@ -56,13 +54,6 @@ export const useIndicatorManagement = ({
     });
   };
   
-  const createDefaultValues = (indicator: any): Record<string, any> => {
-    return indicator.parameters.reduce((acc: Record<string, any>, param: any) => {
-      acc[param.name] = param.default;
-      return acc;
-    }, {});
-  };
-  
   const handleRemoveIndicator = (indicatorName: string) => {
     // Create a new object without the deleted indicator
     const { [indicatorName]: removed, ...rest } = selectedIndicators;
@@ -70,16 +61,8 @@ export const useIndicatorManagement = ({
     // Update indicator parameters in start node
     onChange(rest);
     
-    // Update nodes that are using this indicator
-    updateNodesAfterIndicatorRemoval(indicatorName);
-    
-    toast({
-      title: "Indicator removed",
-      description: `Removed ${indicatorName.split('_')[0]} indicator`
-    });
-  };
-  
-  const updateNodesAfterIndicatorRemoval = (indicatorName: string) => {
+    // We also need to update any nodes that are using this indicator
+    // by removing any conditions that reference the deleted indicator
     const allNodes = getNodes();
     
     const updatedNodes = allNodes.map(node => {
@@ -95,6 +78,11 @@ export const useIndicatorManagement = ({
     if (JSON.stringify(allNodes) !== JSON.stringify(updatedNodes)) {
       setNodes(updatedNodes);
     }
+    
+    toast({
+      title: "Indicator removed",
+      description: `Removed ${indicatorName.split('_')[0]} indicator`
+    });
   };
   
   const handleParameterChange = (indicatorName: string, paramName: string, value: any) => {
@@ -133,108 +121,6 @@ export const useIndicatorManagement = ({
   };
 };
 
-// Process a single condition in the recursive cleaning process
-const processSingleCondition = (condition: any, indicatorName: string): any => {
-  // Check if indicator is used in either side
-  const lhsUsesDeletedIndicator = 
-    condition.lhs?.type === 'indicator' && 
-    condition.lhs?.name === indicatorName;
-    
-  const rhsUsesDeletedIndicator = 
-    condition.rhs?.type === 'indicator' && 
-    condition.rhs?.name === indicatorName;
-  
-  // If this condition uses the deleted indicator, remove it
-  if (lhsUsesDeletedIndicator || rhsUsesDeletedIndicator) {
-    return null;
-  }
-  
-  // Check complex expressions
-  let updatedCondition = { ...condition };
-  
-  if (condition.lhs?.type === 'expression') {
-    const cleanedLhs = cleanExpression(condition.lhs, indicatorName);
-    if (!cleanedLhs) {
-      return null;
-    }
-    updatedCondition = { ...updatedCondition, lhs: cleanedLhs };
-  }
-  
-  if (condition.rhs?.type === 'expression') {
-    const cleanedRhs = cleanExpression(condition.rhs, indicatorName);
-    if (!cleanedRhs) {
-      return null;
-    }
-    updatedCondition = { ...updatedCondition, rhs: cleanedRhs };
-  }
-  
-  return updatedCondition;
-};
-
-// Process a group condition in the recursive cleaning process
-const processGroupCondition = (condition: any, indicatorName: string): any => {
-  if (!condition.groupLogic || !condition.conditions) {
-    return condition;
-  }
-  
-  // Clean each condition in the group
-  const cleanedConditions = condition.conditions
-    .map((subCondition: any) => cleanCondition(subCondition, indicatorName))
-    .filter(Boolean); // Remove any null/undefined results
-  
-  // If no conditions left, return null (this group will be removed)
-  if (cleanedConditions.length === 0) {
-    return null;
-  }
-  
-  return {
-    ...condition,
-    conditions: cleanedConditions
-  };
-};
-
-// Clean condition recursively
-const cleanCondition = (condition: any, indicatorName: string): any => {
-  if (!condition) return condition;
-  
-  // For group conditions, recursively clean child conditions
-  if (condition.groupLogic && condition.conditions) {
-    return processGroupCondition(condition, indicatorName);
-  } 
-  
-  // For single conditions, process them
-  return processSingleCondition(condition, indicatorName);
-};
-
-// Helper to clean expressions
-const cleanExpression = (expr: any, indicatorName: string): any => {
-  if (!expr) return expr;
-  
-  // Check if this expression directly uses the indicator
-  if (expr.type === 'indicator' && expr.name === indicatorName) {
-    return null;
-  }
-  
-  // For complex expressions, check both sides
-  if (expr.type === 'expression') {
-    const cleanedLeft = cleanExpression(expr.left, indicatorName);
-    const cleanedRight = cleanExpression(expr.right, indicatorName);
-    
-    // If either side is null, the expression is invalid
-    if (!cleanedLeft || !cleanedRight) {
-      return null;
-    }
-    
-    return {
-      ...expr,
-      left: cleanedLeft,
-      right: cleanedRight
-    };
-  }
-  
-  return expr;
-};
-
 // Helper function to recursively clean conditions that use a deleted indicator
 const cleanNodeConditionsOfIndicator = (node: any, indicatorName: string) => {
   if (!node.data.condition) return node;
@@ -242,8 +128,92 @@ const cleanNodeConditionsOfIndicator = (node: any, indicatorName: string) => {
   // Create a deep copy of the node to modify
   const updatedNode = { ...node, data: { ...node.data } };
   
+  const cleanCondition = (condition: any): any => {
+    if (!condition) return condition;
+    
+    // For group conditions, recursively clean child conditions
+    if (condition.groupLogic && condition.conditions) {
+      // Clean each condition in the group
+      const cleanedConditions = condition.conditions
+        .map(cleanCondition)
+        .filter(Boolean); // Remove any null/undefined results
+      
+      // If no conditions left, return null (this group will be removed)
+      if (cleanedConditions.length === 0) {
+        return null;
+      }
+      
+      return {
+        ...condition,
+        conditions: cleanedConditions
+      };
+    } 
+    
+    // For single conditions, check if indicator is used in either side
+    const lhsUsesDeletedIndicator = 
+      condition.lhs?.type === 'indicator' && 
+      condition.lhs?.name === indicatorName;
+      
+    const rhsUsesDeletedIndicator = 
+      condition.rhs?.type === 'indicator' && 
+      condition.rhs?.name === indicatorName;
+    
+    // If this condition uses the deleted indicator, remove it
+    if (lhsUsesDeletedIndicator || rhsUsesDeletedIndicator) {
+      return null;
+    }
+    
+    // Also check complex expressions
+    if (condition.lhs?.type === 'expression') {
+      const cleanedLhs = cleanExpression(condition.lhs, indicatorName);
+      if (!cleanedLhs) {
+        return null;
+      }
+      condition = { ...condition, lhs: cleanedLhs };
+    }
+    
+    if (condition.rhs?.type === 'expression') {
+      const cleanedRhs = cleanExpression(condition.rhs, indicatorName);
+      if (!cleanedRhs) {
+        return null;
+      }
+      condition = { ...condition, rhs: cleanedRhs };
+    }
+    
+    return condition;
+  };
+  
+  // Helper to clean expressions
+  const cleanExpression = (expr: any, indicatorName: string): any => {
+    if (!expr) return expr;
+    
+    // Check if this expression directly uses the indicator
+    if (expr.type === 'indicator' && expr.name === indicatorName) {
+      return null;
+    }
+    
+    // For complex expressions, check both sides
+    if (expr.type === 'expression') {
+      const cleanedLeft = cleanExpression(expr.left, indicatorName);
+      const cleanedRight = cleanExpression(expr.right, indicatorName);
+      
+      // If either side is null, the expression is invalid
+      if (!cleanedLeft || !cleanedRight) {
+        return null;
+      }
+      
+      return {
+        ...expr,
+        left: cleanedLeft,
+        right: cleanedRight
+      };
+    }
+    
+    return expr;
+  };
+  
   // Clean the root condition
-  const cleanedCondition = cleanCondition(updatedNode.data.condition, indicatorName);
+  const cleanedCondition = cleanCondition(updatedNode.data.condition);
   
   // If the entire condition was removed, set to a default empty condition
   updatedNode.data.condition = cleanedCondition || {

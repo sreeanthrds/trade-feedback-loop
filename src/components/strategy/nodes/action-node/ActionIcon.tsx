@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { ActionNodeData } from './types';
-import { ShoppingCart, LogOut, Bell } from 'lucide-react';
+import { CircleDollarSign, Bell, ArrowRightLeft, Activity } from 'lucide-react';
 
 interface ActionIconProps {
   data: ActionNodeData;
@@ -12,24 +12,24 @@ const ActionIcon: React.FC<ActionIconProps> = ({ data }) => {
   let iconColor = '';
   
   if (data.actionType === 'entry') {
-    iconColor = 'text-emerald-500';
+    iconColor = 'text-green-500';
   } else if (data.actionType === 'exit') {
-    iconColor = 'text-amber-500';
-  } else if (data.actionType === 'alert') {
     iconColor = 'text-blue-500';
+  } else if (data.actionType === 'alert') {
+    iconColor = 'text-amber-500';
   }
 
   // Determine which icon to show based on action type
   let Icon;
   
   if (data.actionType === 'entry') {
-    Icon = ShoppingCart; // Better icon for entry (buying)
+    Icon = CircleDollarSign; // Dollar sign for entry (money in)
   } else if (data.actionType === 'exit') {
-    Icon = LogOut; // Better icon for exit (leaving position)
+    Icon = ArrowRightLeft; // Exchange arrows for exit (transition out)
   } else if (data.actionType === 'alert') {
     Icon = Bell; // Bell for alert notifications
   } else {
-    Icon = ShoppingCart; // Default fallback
+    Icon = Activity; // Default fallback for unknown types
   }
 
   return (

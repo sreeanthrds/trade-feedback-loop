@@ -1,10 +1,14 @@
 
 import React, { useState } from 'react';
 import { Handle, Position } from '@xyflow/react';
+import ActionIcon from './ActionIcon';
+import ActionLabel from './ActionLabel';
+import ActionDetails from './ActionDetails';
 import { ActionNodeData, Position as PositionType } from './types';
 import { AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Edit2 } from 'lucide-react';
+import PositionDialog from '../../editors/action-node/components/PositionDialog';
 
 interface ActionNodeContentProps {
   data: ActionNodeData;
@@ -21,7 +25,49 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
   id,
   updateNodeData
 }) => {
+  // Sort positions by priority
   const sortedPositions = [...(data.positions || [])].sort((a, b) => a.priority - b.priority);
+  const [editingPosition, setEditingPosition] = useState<PositionType | null>(null);
+  const [isPositionDialogOpen, setIsPositionDialogOpen] = useState(false);
+  
+  const handleEditPosition = (position: PositionType) => {
+    setEditingPosition({...position});
+    setIsPositionDialogOpen(true);
+  };
+  
+  const handlePositionChange = (updates: Partial<PositionType>) => {
+    if (!editingPosition || !updateNodeData) return;
+    
+    const updatedPositions = data.positions?.map(pos => 
+      pos.id === editingPosition.id ? { ...pos, ...updates } : pos
+    ) || [];
+    
+    updateNodeData(id, { positions: updatedPositions });
+  };
+
+  const handleClosePositionDialog = () => {
+    setIsPositionDialogOpen(false);
+    setEditingPosition(null);
+  };
+
+  // Handle option details updates safely
+  const handleOptionDetailsChange = (optionUpdates: Record<string, any>) => {
+    if (!editingPosition || !updateNodeData) return;
+    
+    const updatedOptionDetails = {
+      ...editingPosition.optionDetails,
+      ...optionUpdates
+    };
+    
+    const updatedPositions = data.positions?.map(pos => 
+      pos.id === editingPosition.id ? { 
+        ...pos, 
+        optionDetails: updatedOptionDetails 
+      } : pos
+    ) || [];
+    
+    updateNodeData(id, { positions: updatedPositions });
+  };
   
   return (
     <div className={`px-4 py-2 rounded-md bg-background/95 border ${isSymbolMissing ? 'border-destructive/50' : 'border-border/50'}`}>
@@ -32,12 +78,9 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
       />
       
       <div className="flex items-center mb-2">
-        <div className="w-8 h-8 flex items-center justify-center bg-primary/10 rounded mr-2">
-          {data.actionType === 'entry' ? '➡️' : data.actionType === 'exit' ? '⬅️' : '🔔'}
-        </div>
+        <ActionIcon data={data} />
         <div className="font-medium">
-          {data.label || (data.actionType === 'entry' ? 'Enter Position' : 
-                         data.actionType === 'exit' ? 'Exit Position' : 'Alert')}
+          <ActionLabel data={data} />
         </div>
       </div>
       
@@ -64,7 +107,7 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
                       variant="ghost" 
                       size="icon" 
                       className="h-5 w-5" 
-                      onClick={() => {}}
+                      onClick={() => handleEditPosition(position)}
                     >
                       <Edit2 className="h-3 w-3" />
                     </Button>
@@ -89,15 +132,41 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
           ))}
         </div>
       ) : (
-        <div className="text-sm">
-          {data.actionType === 'alert' ? 'Notification Alert' : 'No position details'}
-        </div>
+        <ActionDetails data={data} startNodeSymbol={startNodeSymbol} />
       )}
       
       {/* Display node ID */}
       <div className="text-[9px] text-muted-foreground mt-2 text-right">
         ID: {id}
       </div>
+      
+      {/* Position Dialog */}
+      {editingPosition && updateNodeData && (
+        <PositionDialog
+          position={editingPosition}
+          isOpen={isPositionDialogOpen}
+          onClose={handleClosePositionDialog}
+          hasOptionTrading={true}
+          onPositionChange={handlePositionChange}
+          onPositionTypeChange={(value) => handlePositionChange({ positionType: value as 'buy' | 'sell' })}
+          onOrderTypeChange={(value) => handlePositionChange({ orderType: value as 'market' | 'limit' })}
+          onLimitPriceChange={(e) => handlePositionChange({ limitPrice: parseFloat(e.target.value) || 0 })}
+          onLotsChange={(e) => handlePositionChange({ lots: parseInt(e.target.value) || 1 })}
+          onProductTypeChange={(value) => handlePositionChange({ productType: value as 'intraday' | 'carryForward' })}
+          onExpiryChange={(value) => {
+            handleOptionDetailsChange({ expiry: value });
+          }}
+          onStrikeTypeChange={(value) => {
+            handleOptionDetailsChange({ strikeType: value as any });
+          }}
+          onStrikeValueChange={(e) => {
+            handleOptionDetailsChange({ strikeValue: parseFloat(e.target.value) || 0 });
+          }}
+          onOptionTypeChange={(value) => {
+            handleOptionDetailsChange({ optionType: value as 'CE' | 'PE' });
+          }}
+        />
+      )}
       
       <Handle
         type="source"

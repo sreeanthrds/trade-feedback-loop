@@ -6,69 +6,17 @@ import { Node, useNodesState } from '@xyflow/react';
  * Hook to manage node state with optimized update handling
  */
 export function useNodeStateManagement(initialNodes: Node[], strategyStore: any) {
-  const [nodes, setLocalNodes, onNodesChangeBase] = useNodesState(initialNodes);
+  const [nodes, setLocalNodes, onNodesChange] = useNodesState(initialNodes);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const isDraggingRef = useRef(false);
   const pendingNodesUpdate = useRef<Node[] | null>(null);
   const lastUpdateTimeRef = useRef(0);
-  const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const isNodeOperationInProgressRef = useRef(false);
-  const isProcessingNodesChangeRef = useRef(false);
-  const initialRenderRef = useRef(true);
-  const operationQueueRef = useRef<Array<() => void>>([]);
-  const isExecutingQueueRef = useRef(false);
-
-  // Setup a queue processor for node operations
-  useEffect(() => {
-    const processQueue = () => {
-      if (isExecutingQueueRef.current || operationQueueRef.current.length === 0) {
-        return;
-      }
-      
-      isExecutingQueueRef.current = true;
-      
-      try {
-        // Execute the first operation in the queue
-        const operation = operationQueueRef.current.shift();
-        if (operation) {
-          operation();
-        }
-      } finally {
-        isExecutingQueueRef.current = false;
-        
-        // Process next item if available
-        if (operationQueueRef.current.length > 0) {
-          setTimeout(processQueue, 50);
-        }
-      }
-    };
-    
-    // Setup interval to check queue
-    const interval = setInterval(() => {
-      if (operationQueueRef.current.length > 0 && !isExecutingQueueRef.current) {
-        processQueue();
-      }
-    }, 100);
-    
-    return () => {
-      clearInterval(interval);
-      if (updateTimeoutRef.current !== null) {
-        clearTimeout(updateTimeoutRef.current);
-      }
-    };
-  }, []);
+  const updateTimeoutRef = useRef<number | null>(null);
 
   // Enhanced node change handler with improved drag detection
-  const onNodesChange = useCallback((changes) => {
-    if (isProcessingNodesChangeRef.current) {
-      // Prevent recursive updates
-      return;
-    }
-
-    isProcessingNodesChangeRef.current = true;
-    
+  const onNodesChangeWithDragDetection = useCallback((changes) => {
     // Apply the changes to nodes immediately for UI responsiveness
-    onNodesChangeBase(changes);
+    onNodesChange(changes);
     
     // Detect drag operations
     const dragChange = changes.find(change => 
@@ -79,39 +27,24 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
       if (dragChange.dragging) {
         // Drag started or continuing
         isDraggingRef.current = true;
-        isNodeOperationInProgressRef.current = true;
       } else if (isDraggingRef.current) {
         // Drag ended
         isDraggingRef.current = false;
         
         // Apply the pending update once the drag is complete
         if (pendingNodesUpdate.current) {
-          const pendingNodes = pendingNodesUpdate.current;
-          pendingNodesUpdate.current = null;
-          
-          // Queue the update to break the React update cycle
-          operationQueueRef.current.push(() => {
-            strategyStore.setNodes(pendingNodes);
-            strategyStore.addHistoryItem(pendingNodes, strategyStore.edges);
-            
-            // Reset operation flag
-            setTimeout(() => {
-              isNodeOperationInProgressRef.current = false;
-            }, 50);
-          });
-        } else {
-          // Reset operation flag
+          // Use setTimeout to break the React update cycle
           setTimeout(() => {
-            isNodeOperationInProgressRef.current = false;
-          }, 50);
+            strategyStore.setNodes(pendingNodesUpdate.current);
+            strategyStore.addHistoryItem(pendingNodesUpdate.current, strategyStore.edges);
+            pendingNodesUpdate.current = null;
+          }, 0);
         }
       }
     }
-    
-    isProcessingNodesChangeRef.current = false;
-  }, [onNodesChangeBase, strategyStore]);
+  }, [onNodesChange, strategyStore]);
 
-  // Custom setNodes wrapper with improved stability
+  // Custom setNodes wrapper with improved throttling
   const setNodes = useCallback((updatedNodes: Node[] | ((prevNodes: Node[]) => Node[])) => {
     // Always update local state for UI responsiveness
     setLocalNodes((prevNodes) => {
@@ -120,31 +53,10 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
         ? updatedNodes(prevNodes) 
         : updatedNodes;
       
-      // Skip updates if nothing has changed to prevent infinite loops
-      if (prevNodes === newNodes) {
-        return prevNodes;
-      }
-      
-      // Add or update timestamp to force re-render and ensure node stability
-      const nodesWithTimestamp = newNodes.map(node => ({
-        ...node,
-        data: {
-          ...node.data,
-          _lastUpdated: node.data?._lastUpdated || Date.now()
-        },
-        // Round position values to prevent floating point issues
-        position: {
-          x: Math.round(node.position.x),
-          y: Math.round(node.position.y)
-        },
-        // Ensure dragHandle is set for all nodes that need it
-        dragHandle: node.type !== 'startNode' ? '.drag-handle' : undefined
-      }));
-      
-      // Don't update store during dragging or other operations
-      if (isDraggingRef.current || isNodeOperationInProgressRef.current) {
-        pendingNodesUpdate.current = nodesWithTimestamp;
-        return nodesWithTimestamp;
+      // Don't update store during dragging
+      if (isDraggingRef.current) {
+        pendingNodesUpdate.current = newNodes;
+        return newNodes;
       }
       
       // Throttle updates to the store during frequent operations
@@ -154,32 +66,36 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
         
         // Clear any pending timeout
         if (updateTimeoutRef.current !== null) {
-          clearTimeout(updateTimeoutRef.current);
+          window.clearTimeout(updateTimeoutRef.current);
           updateTimeoutRef.current = null;
         }
         
-        // Queue the update to break the React update cycle
-        isNodeOperationInProgressRef.current = true;
-        operationQueueRef.current.push(() => {
-          strategyStore.setNodes(nodesWithTimestamp);
-          
-          // Reset operation flag after a short delay
-          setTimeout(() => {
-            isNodeOperationInProgressRef.current = false;
-          }, 50);
-        });
+        // Schedule the update to the store with setTimeout to break the React update cycle
+        updateTimeoutRef.current = window.setTimeout(() => {
+          strategyStore.setNodes(newNodes);
+          updateTimeoutRef.current = null;
+        }, 50);
       } else {
-        pendingNodesUpdate.current = nodesWithTimestamp;
+        pendingNodesUpdate.current = newNodes;
       }
       
-      return nodesWithTimestamp;
+      return newNodes;
     });
   }, [setLocalNodes, strategyStore]);
+
+  // Set up a cleanup function for timeouts
+  useEffect(() => {
+    return () => {
+      if (updateTimeoutRef.current !== null) {
+        window.clearTimeout(updateTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return {
     nodes,
     setNodes,
-    onNodesChange,
+    onNodesChange: onNodesChangeWithDragDetection,
     selectedNode,
     setSelectedNode,
     isDraggingRef

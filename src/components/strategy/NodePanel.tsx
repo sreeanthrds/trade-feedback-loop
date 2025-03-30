@@ -33,22 +33,19 @@ const NodePanel = memo(({ node, updateNodeData, onClose }: NodePanelProps) => {
   }, [updateNodeData]);
 
   const renderEditor = () => {
-    // For entry, exit, alert nodes, they're all ActionNode type with different configs
-    if (node.type === 'entryNode' || node.type === 'exitNode' || node.type === 'alertNode') {
-      return <ActionNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
-    }
-    
     switch (node.type) {
       case 'startNode':
         return <StartNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       case 'signalNode':
         return <SignalNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
+      case 'actionNode':
+        return <ActionNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       case 'endNode':
         return <EndNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       case 'forceEndNode':
         return <ForceEndNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       default:
-        return <div>Unknown node type: {node.type}</div>;
+        return <div>Unknown node type</div>;
     }
   };
 
@@ -61,9 +58,7 @@ const NodePanel = memo(({ node, updateNodeData, onClose }: NodePanelProps) => {
     switch (node.type) {
       case 'startNode': return 'Start Node';
       case 'signalNode': return 'Signal Node';
-      case 'entryNode': return 'Entry Node';
-      case 'exitNode': return 'Exit Node';
-      case 'alertNode': return 'Alert Node';
+      case 'actionNode': return 'Action Node';
       case 'endNode': return 'End Node';
       case 'forceEndNode': return 'Force End Node';
       default: return 'Node Settings';

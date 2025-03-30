@@ -1,5 +1,5 @@
 
-import { useRef, useEffect, useMemo } from 'react';
+import { useRef, useEffect } from 'react';
 import { Node, Edge } from '@xyflow/react';
 import {
   useNodeHandlers,
@@ -22,21 +22,7 @@ interface UseFlowHandlersProps {
   strategyStore: any;
 }
 
-export const useFlowHandlers = (props: UseFlowHandlersProps | null) => {
-  // Default empty handlers for when props is null
-  if (!props) {
-    return {
-      onNodeClick: () => {},
-      handleAddNode: () => {},
-      updateNodeData: () => {},
-      handleDeleteNode: () => {},
-      handleDeleteEdge: () => {},
-      closePanel: () => {},
-      resetStrategy: () => {},
-      handleImportSuccess: () => {}
-    };
-  }
-
+export const useFlowHandlers = (props: UseFlowHandlersProps) => {
   const {
     nodes,
     edges,
@@ -49,14 +35,19 @@ export const useFlowHandlers = (props: UseFlowHandlersProps | null) => {
     strategyStore
   } = props;
 
-  // Create panel handlers
+  // Create panel handlers first since closePanel is needed for strategy handlers
   const { closePanel } = usePanelHandlers({
     setIsPanelOpen,
     setSelectedNode
   });
 
   // Initialize node handlers
-  const nodeHandlers = useNodeHandlers({
+  const {
+    onNodeClick,
+    handleAddNode,
+    updateNodeData,
+    handleDeleteNode
+  } = useNodeHandlers({
     nodes,
     edges,
     reactFlowInstance,
@@ -69,7 +60,7 @@ export const useFlowHandlers = (props: UseFlowHandlersProps | null) => {
   });
 
   // Initialize edge handlers
-  const edgeHandlers = useEdgeHandlers({
+  const { handleDeleteEdge } = useEdgeHandlers({
     edges,
     nodes,
     setEdges,
@@ -77,7 +68,10 @@ export const useFlowHandlers = (props: UseFlowHandlersProps | null) => {
   });
 
   // Initialize strategy handlers
-  const strategyHandlers = useStrategyHandlers({
+  const {
+    resetStrategy,
+    handleImportSuccess
+  } = useStrategyHandlers({
     strategyStore,
     setNodes,
     setEdges,
@@ -85,20 +79,14 @@ export const useFlowHandlers = (props: UseFlowHandlersProps | null) => {
     closePanel
   });
 
-  // Combine all handlers into a single object
-  return useMemo(() => ({
-    onNodeClick: nodeHandlers.onNodeClick,
-    handleAddNode: nodeHandlers.handleAddNode,
-    updateNodeData: nodeHandlers.updateNodeData,
-    handleDeleteNode: nodeHandlers.handleDeleteNode,
-    handleDeleteEdge: edgeHandlers.handleDeleteEdge,
+  return {
+    onNodeClick,
+    handleAddNode,
+    updateNodeData,
+    handleDeleteNode,
+    handleDeleteEdge,
     closePanel,
-    resetStrategy: strategyHandlers.resetStrategy,
-    handleImportSuccess: strategyHandlers.handleImportSuccess
-  }), [
-    nodeHandlers,
-    edgeHandlers,
-    closePanel,
-    strategyHandlers
-  ]);
+    resetStrategy,
+    handleImportSuccess
+  };
 };

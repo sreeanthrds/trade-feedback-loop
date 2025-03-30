@@ -1,6 +1,6 @@
 
 import { Node, ReactFlowInstance } from '@xyflow/react';
-import { toast } from '@/hooks/use-toast';
+import { toast } from "@/hooks/use-toast";
 
 export const initialNodes: Node[] = [
   {
@@ -18,7 +18,6 @@ export const addNode = (
   nodes: Node[],
   parentNodeId?: string
 ): { node: Node, parentNode?: Node } => {
-  // Get center position of the viewport
   const position = reactFlowInstance.screenToFlowPosition({
     x: (reactFlowWrapper.current?.clientWidth || 800) / 2,
     y: (reactFlowWrapper.current?.clientHeight || 600) / 2,
@@ -35,40 +34,32 @@ export const addNode = (
     switch (type) {
       case 'startNode': return 'start';
       case 'signalNode': return 'signal';
-      case 'entryNode': return 'entry';
-      case 'exitNode': return 'exit';
-      case 'alertNode': return 'alert';
+      case 'actionNode': return 'action';
       case 'endNode': return 'end';
       case 'forceEndNode': return 'force-end';
-      default: return type.replace('Node', '');
+      default: return type.replace('Node', '').toLowerCase();
     }
   };
   
   const typePrefix = getNodeTypePrefix();
-  const nodeCount = nodes.filter(node => node.type === type).length + 1;
+  const existingNodesOfType = nodes.filter(node => node.id.startsWith(typePrefix));
+  const nodeCount = existingNodesOfType.length + 1;
+  
   const nodeId = `${typePrefix}-${nodeCount}`;
   
-  // Create basic node data
-  let defaultData: any = {
+  let defaultData: any = { 
     label: type === 'startNode' 
       ? 'Start' 
       : type === 'endNode' 
         ? 'End' 
-        : type === 'forceEndNode' 
-          ? 'Force End' 
+        : type === 'forceEndNode'
+          ? 'Force End'
           : type === 'signalNode' 
             ? 'Signal' 
-            : type === 'entryNode'
-              ? 'Entry'
-              : type === 'exitNode'
-                ? 'Exit'
-                : type === 'alertNode'
-                  ? 'Alert'
-                  : 'Action'
+            : 'Action'
   };
   
-  // Setup specialized node data
-  if (type === 'entryNode') {
+  if (type === 'actionNode') {
     const positionId = `pos-${Date.now().toString().slice(-6)}`;
     const defaultPosition = {
       id: positionId,
@@ -84,37 +75,16 @@ export const addNode = (
     defaultData = {
       ...defaultData,
       actionType: 'entry',
-      positions: [defaultPosition],
-      _lastUpdated: Date.now() // Add timestamp to force update
-    };
-  } else if (type === 'exitNode') {
-    defaultData = {
-      ...defaultData,
-      actionType: 'exit',
-      _lastUpdated: Date.now() // Add timestamp to force update
-    };
-  } else if (type === 'alertNode') {
-    defaultData = {
-      ...defaultData,
-      actionType: 'alert',
-      _lastUpdated: Date.now() // Add timestamp to force update
+      positions: [defaultPosition]
     };
   }
   
-  // Make sure we have the id in a stable format (as string)
   const newNode = {
     id: nodeId,
-    type: type,
-    position: {
-      x: Math.round(position.x),
-      y: Math.round(position.y)
-    },
-    data: defaultData,
-    // Add a dragHandle property to ensure dragging works properly
-    dragHandle: '.drag-handle'
+    type: type as any,
+    position,
+    data: defaultData
   };
-  
-  console.log("Created new node:", newNode);
   
   return { node: newNode, parentNode };
 };

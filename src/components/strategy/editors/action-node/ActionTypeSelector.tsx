@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ArrowDownToLine, ArrowUpFromLine, Bell } from 'lucide-react';
+import { ArrowUpCircle, X, AlertTriangle } from 'lucide-react';
 import { FormField } from '../shared';
 
 interface ActionTypeSelectorProps {
@@ -20,7 +20,7 @@ const ActionTypeSelector: React.FC<ActionTypeSelectorProps> = ({
             ${actionType === 'entry' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}
           onClick={() => onActionTypeChange('entry')}
         >
-          <ArrowDownToLine className="h-5 w-5 mb-1 text-emerald-500 dark:text-emerald-400" />
+          <ArrowUpCircle className="h-5 w-5 mb-1 text-emerald-500 dark:text-emerald-400" />
           <span className="text-xs">Entry Order</span>
         </div>
         
@@ -29,7 +29,7 @@ const ActionTypeSelector: React.FC<ActionTypeSelectorProps> = ({
             ${actionType === 'exit' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}
           onClick={() => onActionTypeChange('exit')}
         >
-          <ArrowUpFromLine className="h-5 w-5 mb-1 text-amber-600 dark:text-amber-500" />
+          <X className="h-5 w-5 mb-1 text-amber-600 dark:text-amber-500" />
           <span className="text-xs">Exit Order</span>
         </div>
         
@@ -38,7 +38,7 @@ const ActionTypeSelector: React.FC<ActionTypeSelectorProps> = ({
             ${actionType === 'alert' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}
           onClick={() => onActionTypeChange('alert')}
         >
-          <Bell className="h-5 w-5 mb-1 text-blue-500 dark:text-blue-400" />
+          <AlertTriangle className="h-5 w-5 mb-1 text-amber-600 dark:text-amber-400" />
           <span className="text-xs">Alert Only</span>
         </div>
       </div>

@@ -1,134 +1,154 @@
 
 import { Node, Edge } from '@xyflow/react';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
+import { indicatorConfig } from '../indicatorConfig';
 
-/**
- * Export the current strategy to a JSON file
- */
+// Helper function to get a readable display name for an indicator
+const getIndicatorDisplayName = (key: string, parameters: Record<string, any>) => {
+  // Extract base indicator name (before any underscore)
+  const baseName = key.split('_')[0];
+  
+  // Create a copy of parameters without indicator_name
+  const displayParams = { ...parameters };
+  delete displayParams.indicator_name;
+  
+  // Format all parameters into a single, readable string - only values
+  const paramList = Object.values(displayParams).join(',');
+  
+  return `${baseName}(${paramList})`;
+};
+
+// Helper function to transform node data for export
+const transformNodeForExport = (node: Node) => {
+  const transformedNode = { ...node };
+  
+  // Process indicator data if present
+  if (
+    transformedNode.data && 
+    transformedNode.data.indicatorParameters && 
+    transformedNode.data.indicators &&
+    Array.isArray(transformedNode.data.indicators)
+  ) {
+    const indicatorParams = transformedNode.data.indicatorParameters as Record<string, Record<string, any>>;
+    
+    // Create a mapping of original indicator names to display names
+    const indicatorDisplayMap = Object.fromEntries(
+      transformedNode.data.indicators.map(indicator => {
+        const params = indicatorParams[indicator];
+        
+        // Add indicator base name to params for backend reference
+        const baseName = indicator.split('_')[0];
+        if (params) {
+          params.indicator_name = baseName;
+        }
+        
+        // Get display name (this won't include the indicator_name we just added)
+        const displayName = getIndicatorDisplayName(indicator, params);
+        
+        return [indicator, displayName];
+      })
+    );
+    
+    // Update indicators array with display names
+    transformedNode.data.indicators = transformedNode.data.indicators.map(
+      indicator => indicatorDisplayMap[indicator] || indicator
+    );
+  }
+  
+  return transformedNode;
+};
+
 export const exportStrategyToFile = (nodes: Node[], edges: Edge[]) => {
   try {
-    // Prepare the data to export
-    const dataToExport = {
-      nodes,
-      edges,
-      version: '1.0.0', // Adding a version can help with future compatibility
-    };
+    // Transform nodes to include display names for indicators
+    const transformedNodes = nodes.map(transformNodeForExport);
     
-    // Convert to JSON string
-    const jsonString = JSON.stringify(dataToExport, null, 2);
-    
-    // Create a Blob with the JSON data
-    const blob = new Blob([jsonString], { type: 'application/json' });
-    
-    // Create a URL for the Blob
+    const strategy = { nodes: transformedNodes, edges };
+    const blob = new Blob([JSON.stringify(strategy, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    
-    // Create a temporary anchor element to trigger the download
-    const downloadLink = document.createElement('a');
-    downloadLink.href = url;
-    
-    // Set the filename
-    const date = new Date();
-    const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    downloadLink.download = `strategy-${formattedDate}.json`;
-    
-    // Trigger the download
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    
-    // Clean up
-    document.body.removeChild(downloadLink);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `trady-strategy-${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    
-    toast({
-      title: "Strategy exported",
-      description: "Your strategy has been exported successfully."
-    });
+    toast.success("Strategy exported successfully");
   } catch (error) {
-    console.error('Error exporting strategy:', error);
-    toast({
-      title: "Export failed",
-      description: "Failed to export your strategy. Please try again.",
-      variant: "destructive"
-    });
+    console.error("Export error:", error);
+    toast.error("Failed to export strategy");
   }
 };
 
-/**
- * Import a strategy from a file upload event
- */
 export const importStrategyFromEvent = (
   event: React.ChangeEvent<HTMLInputElement>,
   setNodes: (nodes: Node[]) => void,
   setEdges: (edges: Edge[]) => void,
-  onSuccess?: () => void
-) => {
-  try {
-    const file = event.target.files?.[0];
-    if (!file) {
-      toast({
-        title: "No file selected",
-        description: "Please select a strategy file to import.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    const reader = new FileReader();
-    
-    reader.onload = (e) => {
-      try {
-        const content = e.target?.result as string;
-        const importedData = JSON.parse(content);
-        
-        // Basic validation
-        if (!importedData.nodes || !Array.isArray(importedData.nodes)) {
-          throw new Error('Invalid strategy file: missing nodes array');
-        }
-        
-        // Set the imported nodes and edges
-        setNodes(importedData.nodes);
-        setEdges(importedData.edges || []);
-        
-        // Call success callback if provided
-        if (onSuccess) {
-          onSuccess();
-        }
-        
-        toast({
-          title: "Strategy imported",
-          description: "Your strategy has been imported successfully."
-        });
-      } catch (parseError) {
-        console.error('Error parsing strategy file:', parseError);
-        toast({
-          title: "Import failed",
-          description: "The selected file is not a valid strategy file.",
-          variant: "destructive"
-        });
-      }
-    };
-    
-    reader.onerror = () => {
-      toast({
-        title: "Import failed",
-        description: "Failed to read the selected file. Please try again.",
-        variant: "destructive"
-      });
-    };
-    
-    reader.readAsText(file);
-  } catch (error) {
-    console.error('Error importing strategy:', error);
-    toast({
-      title: "Import failed",
-      description: "An unexpected error occurred during import.",
-      variant: "destructive"
-    });
-  } finally {
-    // Reset the input element to allow reimporting the same file
-    if (event.target) {
-      event.target.value = '';
-    }
+  addHistoryItem: (nodes: Node[], edges: Edge[]) => void,
+  resetHistory: () => void
+): boolean => {
+  const file = event.target.files?.[0];
+  if (!file) {
+    return false;
   }
+  
+  const reader = new FileReader();
+  let success = false;
+  
+  reader.onload = (e) => {
+    try {
+      const result = e.target?.result as string;
+      if (!result) {
+        toast.error("Failed to read file");
+        return;
+      }
+      
+      const imported = JSON.parse(result);
+      if (imported && imported.nodes && imported.edges) {
+        // Make a deep copy to ensure we're not importing references
+        const nodes = JSON.parse(JSON.stringify(imported.nodes));
+        const edges = JSON.parse(JSON.stringify(imported.edges));
+        
+        // Ensure each node has appropriate properties
+        const validatedNodes = nodes.map((node: Node) => ({
+          ...node,
+          id: node.id || `node-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          type: node.type || 'default',
+          position: node.position || { x: 0, y: 0 },
+          data: node.data || {}
+        }));
+        
+        // Ensure each edge has appropriate properties
+        const validatedEdges = edges.map((edge: Edge) => ({
+          ...edge,
+          id: edge.id || `edge-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          source: edge.source || '',
+          target: edge.target || '',
+          type: edge.type || 'default' // Make sure edge type is preserved
+        }));
+        
+        // Only proceed if we have valid connections
+        if (validatedEdges.some((edge: Edge) => !edge.source || !edge.target)) {
+          toast.error("Invalid edge connections in imported file");
+          return;
+        }
+        
+        // Apply the changes
+        setNodes(validatedNodes);
+        setEdges(validatedEdges);
+        resetHistory();
+        addHistoryItem(validatedNodes, validatedEdges);
+        toast.success("Strategy imported successfully");
+        success = true;
+      } else {
+        toast.error("Invalid strategy file format");
+      }
+    } catch (error) {
+      console.error("Import error:", error);
+      toast.error("Failed to parse strategy file");
+    }
+  };
+  
+  reader.readAsText(file);
+  return success;
 };

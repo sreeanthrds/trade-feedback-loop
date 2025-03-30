@@ -1,6 +1,6 @@
 
-import { useRef } from 'react';
-import { Node as ReactFlowNode, Edge } from '@xyflow/react';
+import { useRef, useMemo } from 'react';
+import { useReactFlow } from '@xyflow/react';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
 import { initialNodes } from '../utils/flowUtils';
 import { useNodeStateManagement } from './useNodeStateManagement';
@@ -8,14 +8,11 @@ import { useEdgeStateManagement } from './useEdgeStateManagement';
 import { useLocalStorageSync } from './useLocalStorageSync';
 import { useStoreSync } from './useStoreSync';
 import { usePanelState } from './usePanelState';
-import { useReactFlowSafe } from './useReactFlowSafe';
 
 export function useFlowState() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  const reactFlowInstance = useReactFlow();
   const strategyStore = useStrategyStore();
-  
-  // Get React Flow instance safely
-  const { reactFlowInstance, isReactFlowReady } = useReactFlowSafe();
   
   // Node state management
   const {
@@ -32,13 +29,13 @@ export function useFlowState() {
     edges,
     setEdges,
     onEdgesChange,
-    onConnect
+    onConnect: baseOnConnect
   } = useEdgeStateManagement([], strategyStore);
   
   // Panel state
   const { isPanelOpen, setIsPanelOpen } = usePanelState();
   
-  // Sync with localStorage - but only if React Flow is ready
+  // Sync with localStorage
   const { isInitialLoadRef } = useLocalStorageSync(
     setNodes,
     setEdges,
@@ -46,8 +43,7 @@ export function useFlowState() {
     initialNodes
   );
   
-  // Use a separate hook for store sync to avoid render-time updates
-  // Only enable store sync if React Flow is ready
+  // Use a separate effect for store sync to avoid render-time updates
   useStoreSync(
     nodes,
     edges,
@@ -57,6 +53,11 @@ export function useFlowState() {
     isDraggingRef,
     isInitialLoadRef
   );
+  
+  // Create onConnect handler with nodes
+  const onConnect = useMemo(() => {
+    return (params) => baseOnConnect(params, nodes);
+  }, [baseOnConnect, nodes]);
 
   return {
     nodes,
@@ -72,7 +73,6 @@ export function useFlowState() {
     setIsPanelOpen,
     setNodes,
     setEdges,
-    strategyStore,
-    isReactFlowReady
+    strategyStore
   };
 }
