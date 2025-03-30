@@ -1,182 +1,128 @@
 
-import React, { lazy, Suspense, useMemo, useEffect, useCallback, useRef } from 'react';
-import { useTheme } from '@/hooks/use-theme';
-import { useFlowState } from './hooks/useFlowState';
-import { useFlowHandlers } from './hooks/useFlowHandlers';
-import FlowLayout from './layout/FlowLayout';
-import ReactFlowCanvas from './canvas/ReactFlowCanvas';
+import React, { useRef, useMemo } from 'react';
+import { ReactFlow, Background, BackgroundVariant, Controls } from '@xyflow/react';
+import { ReactFlowProvider } from '@xyflow/react';
 import { createNodeTypes } from './nodes/nodeTypes';
 import { createEdgeTypes } from './edges/edgeTypes';
-import '@xyflow/react/dist/style.css';
-import './styles/menus.css';
+import { useFlowState } from './hooks/useFlowState';
+import { useFlowHandlers } from './hooks/useFlowHandlers';
+import NodePanel from './NodePanel';
+import { Card } from '@/components/ui/card';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { BottomToolbar } from './toolbars/BottomToolbar';
+import { TopToolbar } from './toolbars/TopToolbar';
+import { NodeSidebar } from './NodeSidebar';
+import ReactFlowCanvas from './canvas/ReactFlowCanvas';
 
-// Lazy load the NodePanel component
-const NodePanel = lazy(() => import('./NodePanel'));
-
-const StrategyFlowContent = () => {
-  const { theme } = useTheme();
+const StrategyFlowContent: React.FC = () => {
+  // Get all flow state from a custom hook
+  const flowState = useFlowState();
+  const isMobile = useIsMobile();
   
-  // Store handlers in a ref to prevent render-time updates
-  const handlersRef = useRef(null);
-  
+  // Get all flow handlers from a custom hook
   const {
-    nodes,
-    edges,
-    selectedNode,
-    isPanelOpen,
-    reactFlowWrapper,
-    reactFlowInstance,
-    onNodesChange,
-    onEdgesChange,
-    onConnect,
-    setSelectedNode,
-    setIsPanelOpen,
-    setNodes,
-    setEdges,
-    strategyStore
-  } = useFlowState();
-
-  // Create handlers but don't cause renders when they're updated
-  // Make sure we pass all required props correctly
-  const handlers = useFlowHandlers({
-    nodes,
-    edges,
-    selectedNode,
-    isPanelOpen,
-    reactFlowWrapper,
-    reactFlowInstance,
-    setSelectedNode,
-    setIsPanelOpen,
-    setNodes,
-    setEdges,
-    strategyStore
-  });
+    onNodeClick,
+    handleAddNode,
+    updateNodeData,
+    handleDeleteNode,
+    handleDeleteEdge,
+    closePanel,
+    resetStrategy,
+    handleImportSuccess
+  } = useFlowHandlers(flowState);
   
-  // Update the ref without causing renders
-  useEffect(() => {
-    handlersRef.current = handlers;
-  }, [handlers]);
-
-  // Create stable callback versions of the handlers using the ref
-  const onNodeClick = useCallback((event, node) => {
-    if (handlersRef.current) {
-      handlersRef.current.onNodeClick(event, node);
-    }
-  }, []);
-  
-  const handleAddNode = useCallback((type, parentId) => {
-    if (handlersRef.current) {
-      handlersRef.current.handleAddNode(type, parentId);
-    }
-  }, []);
-  
-  const handleDeleteNode = useCallback((id) => {
-    if (handlersRef.current) {
-      handlersRef.current.handleDeleteNode(id);
-    }
-  }, []);
-  
-  const handleDeleteEdge = useCallback((id) => {
-    if (handlersRef.current) {
-      handlersRef.current.handleDeleteEdge(id);
-    }
-  }, []);
-  
-  const updateNodeData = useCallback((id, data) => {
-    if (handlersRef.current) {
-      handlersRef.current.updateNodeData(id, data);
-    }
-  }, []);
-
-  const closePanel = useCallback(() => {
-    if (handlersRef.current) {
-      handlersRef.current.closePanel();
-    }
-  }, []);
-  
-  const resetStrategy = useCallback(() => {
-    if (handlersRef.current) {
-      handlersRef.current.resetStrategy();
-    }
-  }, []);
-  
-  const handleImportSuccess = useCallback(() => {
-    if (handlersRef.current) {
-      handlersRef.current.handleImportSuccess();
-    }
-  }, []);
-
-  // Create node types and edge types once
+  // Create memoized node and edge types
   const nodeTypes = useMemo(() => 
-    createNodeTypes(handleDeleteNode, handleAddNode, updateNodeData), 
+    createNodeTypes(handleDeleteNode, handleAddNode, updateNodeData),
     [handleDeleteNode, handleAddNode, updateNodeData]
   );
   
   const edgeTypes = useMemo(() => 
-    createEdgeTypes(handleDeleteEdge), 
+    createEdgeTypes(handleDeleteEdge),
     [handleDeleteEdge]
   );
-
-  // Create NodePanel component if needed
-  const nodePanelComponent = useMemo(() => {
-    if (isPanelOpen && selectedNode) {
-      return (
-        <Suspense fallback={<div className="p-4">Loading panel...</div>}>
-          <NodePanel
-            node={selectedNode}
-            updateNodeData={updateNodeData}
-            onClose={closePanel}
+  
+  // On mobile, use a sheet for the panel
+  if (isMobile) {
+    return (
+      <div className="h-full w-full relative">
+        <ReactFlowProvider>
+          <TopToolbar 
+            onReset={resetStrategy} 
+            onImportSuccess={handleImportSuccess} 
           />
-        </Suspense>
-      );
-    }
-    return null;
-  }, [isPanelOpen, selectedNode, updateNodeData, closePanel]);
-
-  // Memoize ReactFlowCanvas props to prevent unnecessary re-renders
-  const flowCanvasProps = useMemo(() => ({
-    flowRef: reactFlowWrapper,
-    nodes,
-    edges,
-    onNodesChange,
-    onEdgesChange,
-    onConnect,
-    onNodeClick,
-    resetStrategy,
-    onImportSuccess: handleImportSuccess,
-    onDeleteNode: handleDeleteNode,
-    onDeleteEdge: handleDeleteEdge,
-    onAddNode: handleAddNode,
-    updateNodeData,
-    nodeTypes,
-    edgeTypes
-  }), [
-    nodes,
-    edges,
-    onNodesChange,
-    onEdgesChange,
-    onConnect,
-    onNodeClick,
-    resetStrategy,
-    handleImportSuccess,
-    handleDeleteNode,
-    handleDeleteEdge,
-    handleAddNode,
-    updateNodeData,
-    nodeTypes,
-    edgeTypes,
-    reactFlowWrapper
-  ]);
-
+          
+          <ReactFlowCanvas
+            nodes={flowState.nodes}
+            edges={flowState.edges}
+            onNodesChange={flowState.onNodesChange}
+            onEdgesChange={flowState.onEdgesChange}
+            onConnect={flowState.onConnect}
+            nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
+            onNodeClick={onNodeClick}
+            reactFlowWrapper={flowState.reactFlowWrapper}
+          />
+          
+          <Sheet open={flowState.isPanelOpen} onOpenChange={flowState.setIsPanelOpen}>
+            <SheetContent side="bottom" className="h-[85vh] py-0 px-0">
+              {flowState.selectedNode && (
+                <NodePanel 
+                  node={flowState.selectedNode} 
+                  updateNodeData={updateNodeData} 
+                  onClose={closePanel} 
+                />
+              )}
+            </SheetContent>
+          </Sheet>
+          
+          <BottomToolbar />
+        </ReactFlowProvider>
+      </div>
+    );
+  }
+  
+  // On desktop, use a split layout
   return (
-    <FlowLayout
-      isPanelOpen={isPanelOpen}
-      selectedNode={selectedNode}
-      onClosePanel={closePanel}
-      nodePanelComponent={nodePanelComponent}
-    >
-      <ReactFlowCanvas {...flowCanvasProps} />
-    </FlowLayout>
+    <div className="h-full w-full grid grid-cols-[1fr_auto] gap-0">
+      <ReactFlowProvider>
+        <div className="relative flex flex-col h-full">
+          <TopToolbar 
+            onReset={resetStrategy} 
+            onImportSuccess={handleImportSuccess} 
+          />
+          
+          <div className="flex-grow relative">
+            <ReactFlowCanvas
+              nodes={flowState.nodes}
+              edges={flowState.edges}
+              onNodesChange={flowState.onNodesChange}
+              onEdgesChange={flowState.onEdgesChange}
+              onConnect={flowState.onConnect}
+              nodeTypes={nodeTypes}
+              edgeTypes={edgeTypes}
+              onNodeClick={onNodeClick}
+              reactFlowWrapper={flowState.reactFlowWrapper}
+            />
+          </div>
+          
+          <BottomToolbar />
+        </div>
+        
+        <div className={`bg-background border-l border-border transition-all duration-300 ${flowState.isPanelOpen ? 'w-[420px]' : 'w-0 overflow-hidden'}`}>
+          {flowState.isPanelOpen && flowState.selectedNode && (
+            <NodePanel 
+              node={flowState.selectedNode} 
+              updateNodeData={updateNodeData} 
+              onClose={closePanel}
+            />
+          )}
+        </div>
+      </ReactFlowProvider>
+      
+      <NodeSidebar onAddNode={handleAddNode} />
+    </div>
   );
 };
 

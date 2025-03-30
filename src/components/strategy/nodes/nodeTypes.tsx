@@ -29,9 +29,9 @@ interface NodeWrapperProps {
   selectable: boolean;
   deletable: boolean;
   draggable: boolean;
-  isConnectable: boolean;         // Add this required property
-  positionAbsoluteX: number;      // Add this required property
-  positionAbsoluteY: number;      // Add this required property
+  isConnectable: boolean;         
+  positionAbsoluteX: number;      
+  positionAbsoluteY: number;      
   onDelete?: (id: string) => void;
   onAddNode?: (type: string, parentNodeId: string) => void;
   [key: string]: any;
