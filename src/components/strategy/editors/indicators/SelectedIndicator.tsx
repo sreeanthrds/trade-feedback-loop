@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { X, ChevronDown, ChevronUp } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -30,7 +30,8 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [usages, setUsages] = useState<UsageReference[]>([]);
   
-  const getIndicatorDisplayName = () => {
+  // Memoize display name calculation to prevent unnecessary recalculations
+  const getIndicatorDisplayName = useCallback(() => {
     const baseName = name.split('_')[0];
     
     if (values && baseName in indicatorConfig) {
@@ -45,9 +46,10 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
     }
     
     return name;
-  };
+  }, [name, values]);
 
-  const handleRemoveClick = () => {
+  // Memoize remove handler to prevent recreation on each render
+  const handleRemoveClick = useCallback(() => {
     // Find usages before showing dialog
     const foundUsages = findUsages(name);
     
@@ -58,12 +60,17 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
       // No usages, safe to remove
       onRemove();
     }
-  };
+  }, [findUsages, name, onRemove]);
 
-  const confirmRemove = () => {
+  const confirmRemove = useCallback(() => {
     onRemove();
     setIsDialogOpen(false);
-  };
+  }, [onRemove]);
+  
+  // Memoize parameter change handler
+  const handleParameterChange = useCallback((paramName: string, value: any) => {
+    onParameterChange(paramName, value);
+  }, [onParameterChange]);
 
   return (
     <div className="border rounded-md w-full">
@@ -108,7 +115,7 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
             <IndicatorForm
               indicator={indicatorConfig[name.split('_')[0]]}
               values={values}
-              onChange={onParameterChange}
+              onChange={handleParameterChange}
             />
           </div>
         </CollapsibleContent>
@@ -117,4 +124,5 @@ const SelectedIndicator: React.FC<SelectedIndicatorProps> = ({
   );
 };
 
-export default SelectedIndicator;
+// Memoize the component to prevent unnecessary re-renders
+export default memo(SelectedIndicator);

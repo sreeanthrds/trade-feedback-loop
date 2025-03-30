@@ -6,7 +6,8 @@ import { useIndicatorUsage } from './useIndicatorUsage';
 import { UseIndicatorManagementProps, IndicatorManagementReturn } from './types';
 import { handleError } from '../../../utils/errorHandling';
 
-export { UseIndicatorManagementProps };
+// Fix TS1205 error by using 'export type' for type re-export
+export type { UseIndicatorManagementProps };
 
 /**
  * Hook to manage indicator state and operations
