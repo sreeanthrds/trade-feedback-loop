@@ -4,6 +4,7 @@ import { Node } from '@xyflow/react';
 
 /**
  * Hook to manage throttled node updates to prevent excessive store operations
+ * Now with improved logging
  */
 export function useThrottledNodeUpdates({
   pendingNodesUpdate,
@@ -13,6 +14,7 @@ export function useThrottledNodeUpdates({
 }) {
   const isInitialRenderRef = useRef(true);
   const updateIntervalRef = useRef<number | null>(null);
+  const lastProcessedCountRef = useRef(0);
   
   // Process any pending updates that were throttled - with optimized interval
   useEffect(() => {
@@ -20,6 +22,7 @@ export function useThrottledNodeUpdates({
     if (isInitialRenderRef.current) {
       isInitialRenderRef.current = false;
       lastUpdateTimeRef.current = Date.now();
+      console.log('ThrottledNodeUpdates initialized');
       return;
     }
     
@@ -34,6 +37,14 @@ export function useThrottledNodeUpdates({
         lastUpdateTimeRef.current = now;
         
         const nodesToUpdate = [...pendingNodesUpdate.current];
+        const updateCount = nodesToUpdate.length;
+        
+        // Only log if the count has changed to reduce spam
+        if (updateCount !== lastProcessedCountRef.current) {
+          console.log(`Processing ${updateCount} pending nodes from throttled updates`);
+          lastProcessedCountRef.current = updateCount;
+        }
+        
         pendingNodesUpdate.current = null;
         
         processStoreUpdate(nodesToUpdate);
@@ -45,12 +56,14 @@ export function useThrottledNodeUpdates({
     
     // Start the update cycle using requestAnimationFrame instead of setInterval
     updateIntervalRef.current = window.requestAnimationFrame(processPendingUpdates);
+    console.log('Started throttled update processor using requestAnimationFrame');
     
     // Clean up
     return () => {
       if (updateIntervalRef.current !== null) {
         window.cancelAnimationFrame(updateIntervalRef.current);
         updateIntervalRef.current = null;
+        console.log('Cleaned up throttled update processor');
       }
     };
   }, [pendingNodesUpdate, lastUpdateTimeRef, processStoreUpdate]);
@@ -61,6 +74,7 @@ export function useThrottledNodeUpdates({
       if (updateTimeoutRef.current !== null) {
         window.clearTimeout(updateTimeoutRef.current);
         updateTimeoutRef.current = null;
+        console.log('Cleaned up pending update timeout');
       }
     };
   }, [updateTimeoutRef]);

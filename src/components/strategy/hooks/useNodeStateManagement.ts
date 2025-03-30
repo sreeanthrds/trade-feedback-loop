@@ -29,18 +29,20 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
     onNodesChangeWithDragDetection
   } = useDragDetection();
 
-  // Node update optimizations
+  // Node update optimizations with enhanced error handling
   const {
     lastUpdateTimeRef,
     updateTimeoutRef,
     updateCycleRef,
     storeUpdateInProgressRef,
     processStoreUpdate,
-    shouldUpdateNodes
+    shouldUpdateNodes,
+    handleError
   } = useNodeUpdates(strategyStore);
 
   // Connect drag detection to node changes - memoize this function
   const handleUpdateAfterDrag = useCallback((nodesToUpdate) => {
+    console.log('Handling update after drag completed');
     processStoreUpdate(nodesToUpdate);
   }, [processStoreUpdate]);
 
@@ -65,7 +67,8 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
     updateCycleRef,
     storeUpdateInProgressRef,
     shouldUpdateNodes,
-    processStoreUpdate
+    processStoreUpdate,
+    handleError
   });
 
   // Process throttled updates
