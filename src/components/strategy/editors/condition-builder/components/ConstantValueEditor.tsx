@@ -49,7 +49,7 @@ const ConstantValueEditor: React.FC<ConstantValueEditorProps> = ({
     <Input
       value={constantExpr.value?.toString() || ''}
       onChange={updateConstantValue}
-      className={cn("h-8", required && "border-red-200 focus:border-red-400")}
+      className={cn("h-8", required && constantExpr.value === '' && "border-red-300 focus:ring-red-200")}
       placeholder={required ? "Required" : ""}
     />
   );

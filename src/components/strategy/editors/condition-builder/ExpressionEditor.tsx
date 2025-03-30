@@ -1,9 +1,7 @@
 
 import React from 'react';
 import { 
-  Expression, 
-  ExpressionType,
-  createDefaultExpression
+  Expression
 } from '../../utils/conditionTypes';
 import ExpressionTypeSelector from './components/ExpressionTypeSelector';
 import {
@@ -27,13 +25,6 @@ const ExpressionEditor: React.FC<ExpressionEditorProps> = ({
   expression,
   updateExpression
 }) => {
-  // Change expression type (indicator, market_data, constant, etc.)
-  const changeExpressionType = (type: ExpressionType) => {
-    const newExpr = createDefaultExpression(type);
-    newExpr.id = expression.id; // Keep the same ID
-    updateExpression(newExpr);
-  };
-
   // Render the appropriate editor based on expression type
   const renderExpressionEditor = () => {
     switch (expression.type) {
@@ -109,8 +100,8 @@ const ExpressionEditor: React.FC<ExpressionEditorProps> = ({
     <div className="space-y-2">
       <div className="flex items-center gap-2">
         <ExpressionTypeSelector
-          type={expression.type}
-          onTypeChange={changeExpressionType}
+          expression={expression}
+          updateExpression={updateExpression}
         />
       </div>
       

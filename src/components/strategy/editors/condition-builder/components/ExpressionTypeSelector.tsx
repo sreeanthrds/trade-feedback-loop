@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ExpressionType } from '../../../utils/conditionTypes';
+import { Expression, ExpressionType } from '../../../utils/conditionTypes';
 import {
   Select,
   SelectContent,
@@ -22,8 +22,8 @@ import {
 } from 'lucide-react';
 
 interface ExpressionTypeSelectorProps {
-  type: ExpressionType;
-  onTypeChange: (type: ExpressionType) => void;
+  expression: Expression;
+  updateExpression: (expr: Expression) => void;
 }
 
 interface ExpressionTypeOption {
@@ -91,8 +91,8 @@ const expressionTypeOptions: ExpressionTypeOption[] = [
 ];
 
 const ExpressionTypeSelector: React.FC<ExpressionTypeSelectorProps> = ({
-  type,
-  onTypeChange
+  expression,
+  updateExpression
 }) => {
   // Group options by category
   const groups = expressionTypeOptions.reduce((acc, option) => {
@@ -105,9 +105,19 @@ const ExpressionTypeSelector: React.FC<ExpressionTypeSelectorProps> = ({
 
   const groupOrder = ['Market', 'Basic', 'Position', 'Advanced'];
 
+  // Change expression type (indicator, market_data, constant, etc.)
+  const onTypeChange = (type: ExpressionType) => {
+    if (expression.type !== type) {
+      const { createDefaultExpression } = require('../../../utils/conditionTypes');
+      const newExpr = createDefaultExpression(type);
+      newExpr.id = expression.id; // Keep the same ID
+      updateExpression(newExpr);
+    }
+  };
+
   return (
     <Select
-      value={type}
+      value={expression.type}
       onValueChange={(value) => onTypeChange(value as ExpressionType)}
     >
       <SelectTrigger className="h-8">
