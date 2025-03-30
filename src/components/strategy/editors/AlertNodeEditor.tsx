@@ -19,10 +19,10 @@ const AlertNodeEditor = ({ node, updateNodeData }: AlertNodeEditorProps) => {
     });
   }
   
-  const handleLabelChange = (value: string) => {
+  const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateNodeData(node.id, { 
       ...node.data, 
-      label: value,
+      label: e.target.value,
       _lastUpdated: Date.now()
     });
   };
