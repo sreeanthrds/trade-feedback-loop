@@ -27,30 +27,35 @@ export function useEdgeStateManagement(initialEdges: Edge[] = [], strategyStore:
     });
   }, [setLocalEdges, strategyStore]);
 
+  // Create a function to add a new edge
+  const addEdge = useCallback((params: Connection, nodes: ReactFlowNode[]) => {
+    if (!validateConnection(params, nodes)) return;
+    
+    const newEdge = { 
+      id: `e${params.source}-${params.target}`,
+      source: params.source || '',
+      target: params.target || '',
+      sourceHandle: params.sourceHandle,
+      targetHandle: params.targetHandle
+    };
+    
+    setEdges(currentEdges => [...currentEdges, newEdge]);
+    strategyStore.addHistoryItem(strategyStore.nodes, [...edges, newEdge]);
+  }, [edges, setEdges, strategyStore]);
+
   // Handle connections with validation
   const onConnect = useCallback(
     (params: Connection, nodes: ReactFlowNode[]) => {
-      if (!validateConnection(params, nodes)) return;
-      
-      // Use addEdge from @xyflow/react here
-      const newEdges = [...edges, { 
-        id: `e${params.source}-${params.target}`,
-        source: params.source || '',
-        target: params.target || '',
-        sourceHandle: params.sourceHandle,
-        targetHandle: params.targetHandle
-      }];
-      
-      setEdges(newEdges);
-      strategyStore.addHistoryItem(strategyStore.nodes, newEdges);
+      addEdge(params, nodes);
     },
-    [edges, setEdges, strategyStore]
+    [addEdge]
   );
 
   return {
     edges,
     setEdges,
     onEdgesChange,
-    onConnect
+    onConnect,
+    addEdge
   };
 }

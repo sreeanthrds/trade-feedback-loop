@@ -1,6 +1,6 @@
 
-import { useRef, useMemo, useCallback, useState, useEffect } from 'react';
-import { useReactFlow, Node as ReactFlowNode, Edge } from '@xyflow/react';
+import { useRef } from 'react';
+import { Node as ReactFlowNode, Edge } from '@xyflow/react';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
 import { initialNodes } from '../utils/flowUtils';
 import { useNodeStateManagement } from './useNodeStateManagement';
@@ -8,38 +8,14 @@ import { useEdgeStateManagement } from './useEdgeStateManagement';
 import { useLocalStorageSync } from './useLocalStorageSync';
 import { useStoreSync } from './useStoreSync';
 import { usePanelState } from './usePanelState';
+import { useReactFlowSafe } from './useReactFlowSafe';
 
 export function useFlowState() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const isReactFlowInitializedRef = useRef(false);
-  const [isReactFlowReady, setIsReactFlowReady] = useState(false);
-  
-  // Safe React Flow instance reference
-  const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
+  const strategyStore = useStrategyStore();
   
   // Get React Flow instance safely
-  useEffect(() => {
-    // Only attempt to get the React Flow instance if not already initialized
-    if (isReactFlowInitializedRef.current) return;
-    
-    try {
-      const instance = useReactFlow();
-      if (instance) {
-        setReactFlowInstance(instance);
-        isReactFlowInitializedRef.current = true;
-        
-        // Use setTimeout to break the render cycle
-        setTimeout(() => {
-          setIsReactFlowReady(true);
-        }, 0);
-      }
-    } catch (error) {
-      // Handle the case where useReactFlow is called outside of provider
-      console.warn('ReactFlow provider not ready yet');
-    }
-  }, []);
-  
-  const strategyStore = useStrategyStore();
+  const { reactFlowInstance, isReactFlowReady } = useReactFlowSafe();
   
   // Node state management
   const {
@@ -51,12 +27,12 @@ export function useFlowState() {
     isDraggingRef
   } = useNodeStateManagement(initialNodes, strategyStore);
   
-  // Edge state management - pass empty array directly to avoid useState error
+  // Edge state management
   const {
     edges,
     setEdges,
     onEdgesChange,
-    onConnect: baseOnConnect
+    onConnect
   } = useEdgeStateManagement([], strategyStore);
   
   // Panel state
@@ -81,13 +57,6 @@ export function useFlowState() {
     isDraggingRef,
     isInitialLoadRef
   );
-  
-  // Create onConnect handler with nodes - use useCallback to memoize
-  const onConnect = useCallback((params) => {
-    if (baseOnConnect) {
-      baseOnConnect(params, nodes);
-    }
-  }, [baseOnConnect, nodes]);
 
   return {
     nodes,
