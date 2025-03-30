@@ -72,10 +72,10 @@ export function useCustomSetNodes({
           
           // Schedule update with increased delay
           if (updateTimeoutRef.current !== null) {
-            window.clearTimeout(updateTimeoutRef.current);
+            clearTimeout(updateTimeoutRef.current);
           }
           
-          updateTimeoutRef.current = window.setTimeout(() => {
+          updateTimeoutRef.current = setTimeout(() => {
             processStoreUpdate(newNodes);
           }, 1000); // Increased delay to reduce update frequency
           
@@ -103,13 +103,13 @@ export function useCustomSetNodes({
           
           // Clear any pending timeout
           if (updateTimeoutRef.current !== null) {
-            window.clearTimeout(updateTimeoutRef.current);
+            clearTimeout(updateTimeoutRef.current);
             updateTimeoutRef.current = null;
           }
           
           // Schedule the update to the store with setTimeout to break the React update cycle
           console.log('Scheduling delayed update to store');
-          updateTimeoutRef.current = window.setTimeout(() => {
+          updateTimeoutRef.current = setTimeout(() => {
             processStoreUpdate(newNodes);
           }, 1000); // Increased delay to reduce update frequency
         } else {

@@ -66,7 +66,7 @@ export function useDragDetection() {
           pendingNodesUpdate.current = null;
           
           // Introduce a longer delay to avoid immediate updates
-          dragUpdateTimeoutRef.current = window.setTimeout(() => {
+          dragUpdateTimeoutRef.current = setTimeout(() => {
             updateHandler(nodesToUpdate);
             dragUpdateTimeoutRef.current = null;
           }, 1000); // Increased delay for better stability
