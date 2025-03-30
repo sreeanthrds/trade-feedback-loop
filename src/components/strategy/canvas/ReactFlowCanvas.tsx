@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useCallback, memo, useMemo } from 'react';
-import { ReactFlow, useReactFlow, Background, Controls, BackgroundVariant, SnapGrid } from '@xyflow/react';
+import { ReactFlow, useReactFlow, Background, Controls, BackgroundVariant } from '@xyflow/react';
 import { useDragHandling } from './useDragHandling';
 import { useViewportUtils } from './useViewportUtils';
 import CanvasControls from './CanvasControls';
@@ -58,8 +58,8 @@ const ReactFlowCanvas = memo(({
     maxZoom: 0.85
   }), []);
   
-  // Properly defined SnapGrid with correct typing
-  const snapGrid: SnapGrid = useMemo(() => [15, 15], []);
+  // Properly defined snapGrid without Typescript error
+  const snapGrid = useMemo(() => [15, 15] as [number, number], []);
   
   // Custom nodes change handler with drag detection
   const customNodesChangeHandler = useCallback((changes) => {

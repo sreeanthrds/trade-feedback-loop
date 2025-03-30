@@ -12,22 +12,25 @@ import { useEffect, useRef } from "react"
 
 export function Toaster() {
   const { toasts } = useToast()
-  const renderedToastsRef = useRef(new Set())
+  const renderedToastsRef = useRef(new Set<string>())
   
-  // Clear the rendered toasts set when toasts change
+  // Reset the rendered toasts set when toasts change
+  // Add a specific dependency array to avoid infinite loops
   useEffect(() => {
-    renderedToastsRef.current = new Set()
+    // Create a new Set instead of clearing
+    renderedToastsRef.current = new Set<string>()
+    // This should only run when the toasts array length changes
   }, [toasts.length])
 
   return (
     <ToastProvider>
       {toasts.map(function ({ id, title, description, action, ...props }) {
-        // Skip rendering if we've already rendered this toast in this cycle
+        // Skip rendering if we've already rendered this toast
         if (renderedToastsRef.current.has(id)) {
           return null
         }
         
-        // Add this toast to the rendered set
+        // Track that we've rendered this toast
         renderedToastsRef.current.add(id)
         
         return (

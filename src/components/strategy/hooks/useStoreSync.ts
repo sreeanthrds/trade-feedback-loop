@@ -59,7 +59,7 @@ export function useStoreSync(
     }
     
     // Prevent excessive updates
-    if (updateCountRef.current > 10) {
+    if (updateCountRef.current > 5) {
       console.warn('Too many updates in useStoreSync, stopping to prevent infinite loop');
       return;
     }
@@ -73,7 +73,7 @@ export function useStoreSync(
       
       // Create simplified representation for comparison to avoid infinite update loops
       const nodesSignature = JSON.stringify(
-        storeNodes.map(n => ({ id: n.id, type: n.type, dataId: n.data?._lastUpdated }))
+        storeNodes.map((n: Node) => ({ id: n.id, type: n.type, dataId: n.data?._lastUpdated }))
       );
       const currentNodesSignature = JSON.stringify(
         nodes.map(n => ({ id: n.id, type: n.type, dataId: n.data?._lastUpdated }))
@@ -95,23 +95,27 @@ export function useStoreSync(
           if (isComponentMountedRef.current) {
             setTimeout(() => {
               isSyncingRef.current = false;
-            }, 50);
+            }, 100);
           }
         }
       }
-    }, 200); // Increased debounce time
+    }, 300); // Increased debounce time
     
     return () => {
       if (nodesTimeoutRef.current) {
         clearTimeout(nodesTimeoutRef.current);
       }
     };
-  }, [strategyStore.nodes, setNodes, nodes, isDraggingRef, isInitialLoadRef]);
+  }, [strategyStore.nodes, setNodes, isDraggingRef, isInitialLoadRef]);
 
-  // Reset update counter when component re-renders
+  // Reset update counter periodically
   useEffect(() => {
-    updateCountRef.current = 0;
-  }, [nodes, edges]);
+    const timer = setInterval(() => {
+      updateCountRef.current = 0;
+    }, 5000);
+    
+    return () => clearInterval(timer);
+  }, []);
 
   // Sync edges from store to ReactFlow with similar improvements
   useEffect(() => {
@@ -128,7 +132,7 @@ export function useStoreSync(
     }
     
     // Prevent excessive updates
-    if (updateCountRef.current > 10) {
+    if (updateCountRef.current > 5) {
       console.warn('Too many updates in useStoreSync, stopping to prevent infinite loop');
       return;
     }
@@ -141,7 +145,7 @@ export function useStoreSync(
       if (!storeEdges) return;
       
       // Create simplified representation for comparison
-      const edgesSignature = JSON.stringify(storeEdges.map(e => ({ id: e.id, source: e.source, target: e.target })));
+      const edgesSignature = JSON.stringify(storeEdges.map((e: Edge) => ({ id: e.id, source: e.source, target: e.target })));
       const currentEdgesSignature = JSON.stringify(edges.map(e => ({ id: e.id, source: e.source, target: e.target })));
       
       // Only update if there's an actual difference and component is still mounted
@@ -160,16 +164,16 @@ export function useStoreSync(
           if (isComponentMountedRef.current) {
             setTimeout(() => {
               isSyncingRef.current = false;
-            }, 50);
+            }, 100);
           }
         }
       }
-    }, 200); // Increased debounce time
+    }, 300); // Increased debounce time
     
     return () => {
       if (edgesTimeoutRef.current) {
         clearTimeout(edgesTimeoutRef.current);
       }
     };
-  }, [strategyStore.edges, setEdges, edges, isInitialLoadRef]);
+  }, [strategyStore.edges, setEdges, isInitialLoadRef]);
 }

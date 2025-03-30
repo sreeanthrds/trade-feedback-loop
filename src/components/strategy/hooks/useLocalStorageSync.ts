@@ -40,9 +40,13 @@ export function useLocalStorageSync(
             setNodes(nodes);
             setEdges(edges || []);
             
-            // Also update the store
-            strategyStore.setNodes(nodes);
-            strategyStore.setEdges(edges || []);
+            // Also update the store - but with a small delay
+            setTimeout(() => {
+              if (isComponentMountedRef.current) {
+                strategyStore.setNodes(nodes);
+                strategyStore.setEdges(edges || []);
+              }
+            }, 100);
           } else {
             // Otherwise use initial nodes
             setNodes(initialNodes);
@@ -66,7 +70,9 @@ export function useLocalStorageSync(
           
           // Setup a short delay before marking initial load as complete
           syncTimeoutRef.current = setTimeout(() => {
-            isInitialLoadRef.current = false;
+            if (isComponentMountedRef.current) {
+              isInitialLoadRef.current = false;
+            }
           }, 500);
         }
       }

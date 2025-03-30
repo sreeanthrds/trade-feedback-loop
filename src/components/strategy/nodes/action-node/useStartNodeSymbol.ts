@@ -8,6 +8,7 @@ export function useStartNodeSymbol() {
   const prevSymbolRef = useRef<string | undefined>(undefined);
   const isComponentMountedRef = useRef(true);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const checkingRef = useRef(false);
   
   useEffect(() => {
     // Mark component as mounted
@@ -15,7 +16,10 @@ export function useStartNodeSymbol() {
     
     // Function to check for start node symbol
     const checkStartNodeSymbol = () => {
-      if (!isComponentMountedRef.current) return;
+      // Skip if already checking or component unmounted
+      if (checkingRef.current || !isComponentMountedRef.current) return;
+      
+      checkingRef.current = true;
       
       try {
         const nodes = getNodes();
@@ -45,14 +49,19 @@ export function useStartNodeSymbol() {
         }
       } catch (error) {
         console.error('Error checking start node symbol:', error);
+      } finally {
+        // Always clear the checking flag
+        setTimeout(() => {
+          checkingRef.current = false;
+        }, 100);
       }
     };
     
-    // Set up polling interval instead of an empty dependency effect
+    // Set up polling instead of an empty dependency effect
     pollingIntervalRef.current = setInterval(checkStartNodeSymbol, 1000);
     
-    // Run initial check
-    checkStartNodeSymbol();
+    // Run initial check with a delay
+    setTimeout(checkStartNodeSymbol, 100);
     
     // Clean up on unmount
     return () => {
