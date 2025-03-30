@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef, useCallback, memo } from 'react';
+import React, { useEffect, useRef, useCallback, memo, useState } from 'react';
 import { ReactFlow, useReactFlow } from '@xyflow/react';
 import TopToolbar from '../toolbars/TopToolbar';
 import BottomToolbar from '../toolbars/BottomToolbar';
@@ -50,6 +50,7 @@ const ReactFlowCanvas = ({
   const initialLoadRef = useRef(true);
   const { fitViewWithCustomZoom } = useViewportUtils();
   const { isNodeDraggingRef, handleNodesChange } = useDragHandling();
+  const [canvasReady, setCanvasReady] = useState(false);
   
   // Custom nodes change handler with drag detection
   const customNodesChangeHandler = useCallback((changes) => {
@@ -60,11 +61,13 @@ const ReactFlowCanvas = ({
   useEffect(() => {
     // Only run this if we have nodes, a reactFlowInstance, and it's the initial load
     if (initialLoadRef.current && nodes.length > 0 && reactFlowInstance) {
-      // Delay the fit view to ensure the flow has been properly rendered
+      // Shorter initial delay to improve perceived performance
       const timeoutId = setTimeout(() => {
         fitViewWithCustomZoom();
         initialLoadRef.current = false;
-      }, 500);
+        // Now that the view is fitted, mark the canvas as ready for full functionality
+        setCanvasReady(true);
+      }, 300);
       
       return () => clearTimeout(timeoutId);
     }
@@ -90,7 +93,7 @@ const ReactFlowCanvas = ({
         snapToGrid
         snapGrid={[15, 15]}
         defaultEdgeOptions={{
-          animated: true,
+          animated: canvasReady, // Only animate edges after canvas is ready
           style: { strokeWidth: 1.5 }
         }}
         zoomOnScroll={false}
@@ -102,7 +105,7 @@ const ReactFlowCanvas = ({
         fitViewOptions={{
           padding: 0.3,
           includeHiddenNodes: false,
-          duration: 300,
+          duration: 200, // Shorter duration for faster fitting
           maxZoom: 0.85
         }}
       >

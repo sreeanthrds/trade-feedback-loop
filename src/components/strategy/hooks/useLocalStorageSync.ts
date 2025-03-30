@@ -40,60 +40,75 @@ export function useLocalStorageSync(
     hasInitializedRef.current = true;
     
     try {
-      const savedStrategy = loadStrategyFromLocalStorage();
-      
-      if (savedStrategy && savedStrategy.nodes && savedStrategy.nodes.length > 0) {
-        // Validate the saved strategy before loading it
-        const isValidStrategy = Array.isArray(savedStrategy.nodes) && 
-                              Array.isArray(savedStrategy.edges);
-        
-        if (isValidStrategy) {
-          console.log('Loading saved strategy from localStorage');
+      // Use requestIdleCallback if available for better performance
+      const processStrategy = () => {
+        try {
+          const savedStrategy = loadStrategyFromLocalStorage();
           
-          // Set local state first to avoid render loops
-          setNodes(savedStrategy.nodes);
-          setEdges(savedStrategy.edges);
-          
-          // Then update the store with a significant delay
-          isUpdatingStoreRef.current = true;
-          
-          if (syncTimeoutRef.current !== null) {
-            window.clearTimeout(syncTimeoutRef.current);
-          }
-          
-          syncTimeoutRef.current = window.setTimeout(() => {
-            try {
-              // Direct state update instead of using actions that trigger useEffect loops
-              strategyStore.setNodes(savedStrategy.nodes);
-              strategyStore.setEdges(savedStrategy.edges);
-              strategyStore.resetHistory();
-              strategyStore.addHistoryItem(savedStrategy.nodes, savedStrategy.edges);
-            } catch (error) {
-              console.error('Error updating strategy store:', error);
-            } finally {
-              isUpdatingStoreRef.current = false;
-              syncTimeoutRef.current = null;
+          if (savedStrategy && savedStrategy.nodes && savedStrategy.nodes.length > 0) {
+            // Validate the saved strategy before loading it
+            const isValidStrategy = Array.isArray(savedStrategy.nodes) && 
+                                  Array.isArray(savedStrategy.edges);
+            
+            if (isValidStrategy) {
+              console.log('Loading saved strategy from localStorage');
+              
+              // Set local state first to avoid render loops
+              setNodes(savedStrategy.nodes);
+              setEdges(savedStrategy.edges);
+              
+              // Then update the store with a short delay
+              isUpdatingStoreRef.current = true;
+              
+              if (syncTimeoutRef.current !== null) {
+                window.clearTimeout(syncTimeoutRef.current);
+              }
+              
+              syncTimeoutRef.current = window.setTimeout(() => {
+                try {
+                  // Direct state update instead of using actions that trigger useEffect loops
+                  strategyStore.setNodes(savedStrategy.nodes);
+                  strategyStore.setEdges(savedStrategy.edges);
+                  strategyStore.resetHistory();
+                  strategyStore.addHistoryItem(savedStrategy.nodes, savedStrategy.edges);
+                } catch (error) {
+                  console.error('Error updating strategy store:', error);
+                } finally {
+                  isUpdatingStoreRef.current = false;
+                  syncTimeoutRef.current = null;
+                }
+              }, 100); // Reduced delay
+            } else {
+              console.warn('Invalid saved strategy found in localStorage, using default nodes');
+              initializeWithDefaultNodes();
             }
-          }, 500); // Increased delay
-        } else {
-          console.warn('Invalid saved strategy found in localStorage, using default nodes');
+          } else {
+            console.log('No saved strategy found, using default nodes');
+            initializeWithDefaultNodes();
+          }
+        } catch (error) {
+          console.error('Error loading strategy from localStorage:', error);
           initializeWithDefaultNodes();
         }
+        
+        // Set the initial load flag to false after a shorter delay
+        initTimeoutRef.current = window.setTimeout(() => {
+          isInitialLoadRef.current = false;
+          console.log('Initial load complete');
+        }, 200); // Reduced delay
+      };
+
+      // Use requestIdleCallback if available for non-critical initialization
+      if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+        (window as any).requestIdleCallback(processStrategy);
       } else {
-        console.log('No saved strategy found, using default nodes');
-        initializeWithDefaultNodes();
+        // Fallback to setTimeout with a small delay
+        setTimeout(processStrategy, 10);
       }
     } catch (error) {
-      console.error('Error loading strategy from localStorage:', error);
+      console.error('Error in useLocalStorageSync:', error);
       initializeWithDefaultNodes();
     }
-    
-    // Set the initial load flag to false after a much longer delay
-    // to ensure all synchronization operations have completed
-    initTimeoutRef.current = window.setTimeout(() => {
-      isInitialLoadRef.current = false;
-      console.log('Initial load complete');
-    }, 2500); // Extended delay for full initialization
   }, []);
 
   // Helper function to initialize with default nodes
@@ -120,7 +135,7 @@ export function useLocalStorageSync(
         isUpdatingStoreRef.current = false;
         syncTimeoutRef.current = null;
       }
-    }, 500);
+    }, 100); // Reduced delay for faster initialization
   };
 
   return { isInitialLoadRef, isUpdatingStoreRef };

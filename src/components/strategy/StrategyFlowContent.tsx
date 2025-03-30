@@ -9,8 +9,26 @@ import { createEdgeTypes } from './edges/edgeTypes';
 import '@xyflow/react/dist/style.css';
 import './styles/menus.css';
 
-// Lazy load the NodePanel component
-const NodePanel = lazy(() => import('./NodePanel'));
+// Lazy load the NodePanel with prefetching
+const NodePanel = lazy(() => {
+  const panelPromise = import(/* webpackChunkName: "node-panel" */ './NodePanel');
+  // Prefetch related components when NodePanel is loaded
+  panelPromise.then(() => {
+    // Prefetch common node editors that will likely be needed
+    import(/* webpackChunkName: "action-node-editor" */ './editors/ActionNodeEditor');
+    import(/* webpackChunkName: "signal-node-editor" */ './editors/SignalNodeEditor');
+  });
+  return panelPromise;
+});
+
+const NodePanelLoading = () => (
+  <div className="p-4 animate-pulse">
+    <div className="h-6 w-3/4 bg-muted rounded mb-4"></div>
+    <div className="h-4 w-1/2 bg-muted rounded mb-2"></div>
+    <div className="h-4 w-2/3 bg-muted rounded mb-2"></div>
+    <div className="h-4 w-1/3 bg-muted rounded"></div>
+  </div>
+);
 
 const StrategyFlowContent = () => {
   const { theme } = useTheme();
@@ -60,7 +78,7 @@ const StrategyFlowContent = () => {
   const nodePanelComponent = useMemo(() => {
     if (isPanelOpen && selectedNode) {
       return (
-        <Suspense fallback={<div className="p-4">Loading panel...</div>}>
+        <Suspense fallback={<NodePanelLoading />}>
           <NodePanel
             node={selectedNode}
             updateNodeData={updateNodeData}
