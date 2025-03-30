@@ -10,15 +10,18 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 
 interface PositionDataExpressionEditorProps {
   expression: Expression;
   updateExpression: (expr: Expression) => void;
+  required?: boolean;
 }
 
 const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> = ({
   expression,
-  updateExpression
+  updateExpression,
+  required = false
 }) => {
   if (expression.type !== 'position_data') {
     return null;
@@ -69,7 +72,10 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
           value={positionExpr.field || ''} 
           onValueChange={updateField}
         >
-          <SelectTrigger id="position-field" className="h-8">
+          <SelectTrigger 
+            id="position-field" 
+            className={cn("h-8", required && !positionExpr.field && "border-red-300 focus:ring-red-200")}
+          >
             <SelectValue placeholder="Select field" />
           </SelectTrigger>
           <SelectContent>
