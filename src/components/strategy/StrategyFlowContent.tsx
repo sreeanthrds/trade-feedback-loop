@@ -150,6 +150,7 @@ const StrategyFlowContent = () => {
     nodeTypes,
     edgeTypes
   }), [
+    reactFlowWrapper,
     nodes,
     edges,
     onNodesChange,

@@ -22,7 +22,13 @@ export function useStoreSync(
     if (storeNodes.length > 0 && 
         JSON.stringify(storeNodes.map(n => ({ id: n.id, type: n.type, data: n.data }))) !== 
         JSON.stringify(nodes.map(n => ({ id: n.id, type: n.type, data: n.data })))) {
-      setNodes(storeNodes);
+      // Only update if the data is actually different 
+      // Use setTimeout to break the potential update cycle
+      const timeoutId = setTimeout(() => {
+        setNodes(storeNodes);
+      }, 0);
+      
+      return () => clearTimeout(timeoutId);
     }
   }, [strategyStore.nodes, setNodes, nodes, isDraggingRef, isInitialLoadRef]);
 
@@ -32,7 +38,13 @@ export function useStoreSync(
     
     const storeEdges = strategyStore.edges;
     if (JSON.stringify(storeEdges) !== JSON.stringify(edges)) {
-      setEdges(storeEdges);
+      // Only update if the data is actually different
+      // Use setTimeout to break the potential update cycle
+      const timeoutId = setTimeout(() => {
+        setEdges(storeEdges);
+      }, 0);
+      
+      return () => clearTimeout(timeoutId);
     }
   }, [strategyStore.edges, setEdges, edges, isInitialLoadRef]);
 }

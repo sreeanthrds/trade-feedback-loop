@@ -15,16 +15,33 @@ interface StrategyStore {
   resetHistory: () => void;
 }
 
-export const useStrategyStore = create<StrategyStore>((set) => ({
+export const useStrategyStore = create<StrategyStore>((set, get) => ({
   nodes: [],
   edges: [],
   history: [],
   historyIndex: -1,
-  setNodes: (nodes) => set({ nodes }),
-  setEdges: (edges) => set({ edges }),
+  setNodes: (nodes) => {
+    // Only update if the nodes actually changed
+    const currentNodes = get().nodes;
+    if (JSON.stringify(currentNodes) !== JSON.stringify(nodes)) {
+      set({ nodes });
+    }
+  },
+  setEdges: (edges) => {
+    // Only update if the edges actually changed
+    const currentEdges = get().edges;
+    if (JSON.stringify(currentEdges) !== JSON.stringify(edges)) {
+      set({ edges });
+    }
+  },
   addHistoryItem: (nodes, edges) => set((state) => {
     const newHistory = state.history.slice(0, state.historyIndex + 1);
-    newHistory.push({ nodes: JSON.parse(JSON.stringify(nodes)), edges: JSON.parse(JSON.stringify(edges)) });
+    // Create deep copies to avoid reference issues
+    newHistory.push({ 
+      nodes: JSON.parse(JSON.stringify(nodes)), 
+      edges: JSON.parse(JSON.stringify(edges)) 
+    });
+    
     return {
       history: newHistory,
       historyIndex: newHistory.length - 1,

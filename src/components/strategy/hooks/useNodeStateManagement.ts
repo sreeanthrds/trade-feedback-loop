@@ -12,6 +12,7 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
   const pendingNodesUpdate = useRef<Node[] | null>(null);
   const lastUpdateTimeRef = useRef(0);
   const updateTimeoutRef = useRef<number | null>(null);
+  const updateCycleRef = useRef(false);
 
   // Enhanced node change handler with improved drag detection
   const onNodesChangeWithDragDetection = useCallback((changes) => {
@@ -35,9 +36,13 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
         if (pendingNodesUpdate.current) {
           // Use setTimeout to break the React update cycle
           setTimeout(() => {
-            strategyStore.setNodes(pendingNodesUpdate.current);
-            strategyStore.addHistoryItem(pendingNodesUpdate.current, strategyStore.edges);
-            pendingNodesUpdate.current = null;
+            if (!updateCycleRef.current) {
+              updateCycleRef.current = true;
+              strategyStore.setNodes(pendingNodesUpdate.current);
+              strategyStore.addHistoryItem(pendingNodesUpdate.current, strategyStore.edges);
+              pendingNodesUpdate.current = null;
+              updateCycleRef.current = false;
+            }
           }, 0);
         }
       }
@@ -59,6 +64,11 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
         return newNodes;
       }
       
+      // Avoid update cycles
+      if (updateCycleRef.current) {
+        return newNodes;
+      }
+      
       // Throttle updates to the store during frequent operations
       const now = Date.now();
       if (now - lastUpdateTimeRef.current > 100) {
@@ -72,8 +82,12 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
         
         // Schedule the update to the store with setTimeout to break the React update cycle
         updateTimeoutRef.current = window.setTimeout(() => {
-          strategyStore.setNodes(newNodes);
-          updateTimeoutRef.current = null;
+          if (!updateCycleRef.current) {
+            updateCycleRef.current = true;
+            strategyStore.setNodes(newNodes);
+            updateTimeoutRef.current = null;
+            updateCycleRef.current = false;
+          }
         }, 50);
       } else {
         pendingNodesUpdate.current = newNodes;
@@ -91,6 +105,16 @@ export function useNodeStateManagement(initialNodes: Node[], strategyStore: any)
       }
     };
   }, []);
+
+  // Update selectedNode when nodes change (if it's among them)
+  useEffect(() => {
+    if (selectedNode) {
+      const updatedSelectedNode = nodes.find(node => node.id === selectedNode.id);
+      if (updatedSelectedNode && JSON.stringify(updatedSelectedNode) !== JSON.stringify(selectedNode)) {
+        setSelectedNode(updatedSelectedNode);
+      }
+    }
+  }, [nodes, selectedNode]);
 
   return {
     nodes,

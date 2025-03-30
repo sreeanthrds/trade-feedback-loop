@@ -7,11 +7,14 @@ import './styles/mobile-fixes.css';
 import './styles/menus.css';
 import StrategyFlowContent from './StrategyFlowContent';
 
+// Create a lazy-loaded version of StrategyFlowContent
+const LazyStrategyFlowContent = React.lazy(() => import('./StrategyFlowContent'));
+
 const StrategyFlow = () => {
   return (
     <ReactFlowProvider>
       <Suspense fallback={<div className="h-full w-full flex items-center justify-center">Loading strategy builder...</div>}>
-        <StrategyFlowContent />
+        <LazyStrategyFlowContent />
       </Suspense>
     </ReactFlowProvider>
   );

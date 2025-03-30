@@ -58,8 +58,9 @@ const ReactFlowCanvas = memo(({
 
   // Only fit view on initial load or when explicitly requested (import)
   useEffect(() => {
+    // Only run this if we have nodes, a reactFlowInstance, and it's the initial load
     if (initialLoadRef.current && nodes.length > 0 && reactFlowInstance) {
-      // Initial load fit view - use a debounce approach
+      // Delay the fit view to ensure the flow has been properly rendered
       const timeoutId = setTimeout(() => {
         fitViewWithCustomZoom();
         initialLoadRef.current = false;
@@ -67,16 +68,10 @@ const ReactFlowCanvas = memo(({
       
       return () => clearTimeout(timeoutId);
     }
-  }, [nodes, edges, reactFlowInstance, fitViewWithCustomZoom]);
+  }, [nodes.length, reactFlowInstance, fitViewWithCustomZoom]);
 
   // Simple function to determine node class name for minimap
   const nodeClassName = useCallback((node) => node.type, []);
-
-  // Prepare toolbar props
-  const bottomToolbarProps = useCallback(() => ({
-    resetStrategy,
-    onImportSuccess
-  }), [resetStrategy, onImportSuccess]);
 
   return (
     <div className="h-full w-full" ref={flowRef}>
