@@ -17,8 +17,15 @@ const RollingExitForm: React.FC<RollingExitFormProps> = ({
       <InputField
         label="Days Before Expiry"
         type="number"
-        value={exitCondition.daysBeforeExpiry || 2}
-        onChange={(e) => updateField('daysBeforeExpiry', parseInt(e.target.value))}
+        value={exitCondition.daysBeforeExpiry === undefined ? '' : exitCondition.daysBeforeExpiry}
+        onChange={(e) => {
+          // Handle empty input
+          if (e.target.value === '') {
+            updateField('daysBeforeExpiry', undefined);
+            return;
+          }
+          updateField('daysBeforeExpiry', parseInt(e.target.value))
+        }}
         min={1}
         description="Roll position this many days before expiry"
       />
@@ -26,8 +33,15 @@ const RollingExitForm: React.FC<RollingExitFormProps> = ({
       <InputField
         label="Strike Difference"
         type="number"
-        value={exitCondition.strikeDifference || 0}
-        onChange={(e) => updateField('strikeDifference', parseInt(e.target.value))}
+        value={exitCondition.strikeDifference === undefined ? '' : exitCondition.strikeDifference}
+        onChange={(e) => {
+          // Handle empty input
+          if (e.target.value === '') {
+            updateField('strikeDifference', undefined);
+            return;
+          }
+          updateField('strikeDifference', parseInt(e.target.value))
+        }}
         description="Difference in strike price points (+/-)"
       />
     </div>

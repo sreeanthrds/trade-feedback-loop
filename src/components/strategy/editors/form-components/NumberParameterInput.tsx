@@ -30,7 +30,7 @@ const NumberParameterInput: React.FC<NumberParameterInputProps> = ({
     if (inputValue === '') {
       // Pass undefined or default to the onChange handler
       // This allows the user to clear the field before typing a new value
-      onChange(param.default !== undefined ? param.default : 0);
+      onChange(param.default !== undefined ? param.default : undefined as any);
       return;
     }
     

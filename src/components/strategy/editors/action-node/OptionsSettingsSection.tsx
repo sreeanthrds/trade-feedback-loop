@@ -33,10 +33,8 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
     optionDetails.strikeType : ''
   );
   
-  const [premiumValue, setPremiumValue] = useState<number>(
-    optionDetails.strikeType === 'premium' && optionDetails.strikeValue 
-    ? optionDetails.strikeValue 
-    : 100
+  const [premiumValue, setPremiumValue] = useState<number | undefined>(
+    optionDetails.strikeType === 'premium' ? optionDetails.strikeValue : 100
   );
 
   useEffect(() => {
@@ -68,7 +66,7 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
       setStrikeDistance('');
     } else if (value === 'premium') {
       onStrikeTypeChange(value);
-      onStrikeValueChange({ target: { value: premiumValue.toString() } } as React.ChangeEvent<HTMLInputElement>);
+      onStrikeValueChange({ target: { value: premiumValue !== undefined ? premiumValue.toString() : '' } } as React.ChangeEvent<HTMLInputElement>);
       setStrikeDistance('');
     } else if (value === 'ITM' || value === 'OTM') {
       const newStrikeType = `${value}1`;
@@ -83,6 +81,13 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
   };
 
   const handlePremiumValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Allow empty field
+    if (e.target.value === '') {
+      setPremiumValue(undefined);
+      onStrikeValueChange(e);
+      return;
+    }
+    
     const value = parseInt(e.target.value, 10);
     if (!isNaN(value)) {
       setPremiumValue(value);
@@ -92,8 +97,8 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
 
   useEffect(() => {
     if (strikeCategory === 'premium' && optionDetails.strikeType === 'premium') {
-      if (!optionDetails.strikeValue) {
-        onStrikeValueChange({ target: { value: premiumValue.toString() } } as React.ChangeEvent<HTMLInputElement>);
+      if (optionDetails.strikeValue === undefined) {
+        onStrikeValueChange({ target: { value: premiumValue !== undefined ? premiumValue.toString() : '' } } as React.ChangeEvent<HTMLInputElement>);
       }
     }
   }, []);
@@ -153,7 +158,7 @@ const OptionsSettingsSection: React.FC<OptionsSettingsSectionProps> = ({
           id="premium-value"
           type="number"
           min={1}
-          value={optionDetails.strikeValue || premiumValue}
+          value={optionDetails.strikeValue === undefined ? '' : optionDetails.strikeValue}
           onChange={handlePremiumValueChange}
           placeholder="Enter target premium"
         />

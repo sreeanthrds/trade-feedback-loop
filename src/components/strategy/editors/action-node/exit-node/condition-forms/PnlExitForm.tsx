@@ -18,8 +18,15 @@ const PnlExitForm: React.FC<PnlExitFormProps> = ({
       <InputField
         label="P&L Value"
         type="number"
-        value={exitCondition.value || 0}
-        onChange={(e) => updateField('value', parseFloat(e.target.value))}
+        value={exitCondition.value === undefined ? '' : exitCondition.value}
+        onChange={(e) => {
+          // Handle empty input
+          if (e.target.value === '') {
+            updateField('value', undefined);
+            return;
+          }
+          updateField('value', parseFloat(e.target.value))
+        }}
         description={`Target ${exitCondition.type === 'realized_pnl' ? 'realized' : 'unrealized'} P&L value`}
       />
       

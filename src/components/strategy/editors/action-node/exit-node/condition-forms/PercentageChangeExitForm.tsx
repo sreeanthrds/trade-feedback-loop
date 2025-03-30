@@ -18,8 +18,15 @@ const PercentageChangeExitForm: React.FC<PercentageChangeExitFormProps> = ({
       <InputField
         label="Percentage"
         type="number"
-        value={exitCondition.percentage || 0}
-        onChange={(e) => updateField('percentage', parseFloat(e.target.value))}
+        value={exitCondition.percentage === undefined ? '' : exitCondition.percentage}
+        onChange={(e) => {
+          // Handle empty input
+          if (e.target.value === '') {
+            updateField('percentage', undefined);
+            return;
+          }
+          updateField('percentage', parseFloat(e.target.value))
+        }}
         description={`Target percentage change in ${exitCondition.type === 'premium_change' ? 'premium' : 'position value'}`}
       />
       

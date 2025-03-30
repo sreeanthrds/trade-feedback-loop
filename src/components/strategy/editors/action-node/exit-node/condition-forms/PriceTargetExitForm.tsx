@@ -18,8 +18,15 @@ const PriceTargetExitForm: React.FC<PriceTargetExitFormProps> = ({
       <InputField
         label="Target Price"
         type="number"
-        value={exitCondition.price || 0}
-        onChange={(e) => updateField('price', parseFloat(e.target.value))}
+        value={exitCondition.price === undefined ? '' : exitCondition.price}
+        onChange={(e) => {
+          // Handle empty input
+          if (e.target.value === '') {
+            updateField('price', undefined);
+            return;
+          }
+          updateField('price', parseFloat(e.target.value))
+        }}
         description="Target price level"
       />
       
