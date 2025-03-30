@@ -68,30 +68,58 @@ export const addNode = (
                   : 'Action'
   };
   
-  if (type === 'actionNode' || type === 'entryNode' || type === 'exitNode') {
+  if (type === 'actionNode' || type === 'entryNode' || type === 'exitNode' || type === 'alertNode') {
     const positionId = `pos-${Date.now().toString().slice(-6)}`;
-    const defaultPosition = {
-      id: positionId,
-      vpi: `${nodeId}-pos1`,
-      vpt: '',
-      priority: 1,
-      positionType: 'buy',
-      orderType: 'market',
-      lots: 1,
-      productType: 'intraday'
-    };
-
-    defaultData = {
-      ...defaultData,
-      actionType: type === 'entryNode' ? 'entry' : type === 'exitNode' ? 'exit' : 'entry',
-      positions: [defaultPosition]
-    };
-  } else if (type === 'alertNode') {
-    defaultData = {
-      ...defaultData,
-      actionType: 'alert',
-      positions: []
-    };
+    
+    // For entry and exit nodes, we need positions
+    if (type === 'entryNode' || type === 'exitNode') {
+      const defaultPosition = {
+        id: positionId,
+        vpi: `${nodeId}-pos1`,
+        vpt: '',
+        priority: 1,
+        positionType: type === 'entryNode' ? 'buy' : 'sell',
+        orderType: 'market',
+        lots: 1,
+        productType: 'intraday'
+      };
+      
+      defaultData = {
+        ...defaultData,
+        actionType: type === 'entryNode' ? 'entry' : 'exit',
+        positions: [defaultPosition],
+        requiresSymbol: true
+      };
+    } 
+    // For alert nodes, we don't need positions but still need actionType
+    else if (type === 'alertNode') {
+      defaultData = {
+        ...defaultData,
+        actionType: 'alert',
+        positions: [],
+        requiresSymbol: true
+      };
+    }
+    // For general action nodes
+    else {
+      const defaultPosition = {
+        id: positionId,
+        vpi: `${nodeId}-pos1`,
+        vpt: '',
+        priority: 1,
+        positionType: 'buy',
+        orderType: 'market',
+        lots: 1,
+        productType: 'intraday'
+      };
+      
+      defaultData = {
+        ...defaultData,
+        actionType: 'entry', // Default to entry
+        positions: [defaultPosition],
+        requiresSymbol: true
+      };
+    }
   }
   
   const newNode = {

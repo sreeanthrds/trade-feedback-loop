@@ -1,6 +1,6 @@
 
 import React, { useState, useCallback, memo } from 'react';
-import { Play, Activity, SlidersHorizontal, StopCircle, AlertTriangle, Plus } from 'lucide-react';
+import { Play, Activity, SlidersHorizontal, StopCircle, AlertTriangle, Plus, CircleDollarSign, ArrowRightLeft, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -26,6 +26,9 @@ const nodeTypeIcons = {
   startNode: { icon: Play, label: 'Start Node', color: 'text-emerald-500' },
   signalNode: { icon: Activity, label: 'Signal Node', color: 'text-blue-600' },
   actionNode: { icon: SlidersHorizontal, label: 'Action Node', color: 'text-amber-600' },
+  entryNode: { icon: CircleDollarSign, label: 'Entry Node', color: 'text-green-500' },
+  exitNode: { icon: ArrowRightLeft, label: 'Exit Node', color: 'text-amber-500' },
+  alertNode: { icon: Bell, label: 'Alert Node', color: 'text-purple-500' },
   endNode: { icon: StopCircle, label: 'End Node', color: 'text-rose-600' },
   forceEndNode: { icon: AlertTriangle, label: 'Force End Node', color: 'text-purple-500' }
 };
@@ -38,14 +41,18 @@ const NodeConnectControls = memo(({ showOn, onAddNode, parentNodeId }: NodeConne
     if (showOn === 'start') {
       return [
         { value: 'signalNode', label: 'Signal Node' },
-        { value: 'actionNode', label: 'Action Node' },
+        { value: 'entryNode', label: 'Entry Node' },
+        { value: 'exitNode', label: 'Exit Node' },
+        { value: 'alertNode', label: 'Alert Node' },
         { value: 'endNode', label: 'End Node' },
         { value: 'forceEndNode', label: 'Force End Node' }
       ];
     } else {
       return [
         { value: 'signalNode', label: 'Signal Node' },
-        { value: 'actionNode', label: 'Action Node' },
+        { value: 'entryNode', label: 'Entry Node' },
+        { value: 'exitNode', label: 'Exit Node' },
+        { value: 'alertNode', label: 'Alert Node' },
         { value: 'endNode', label: 'End Node' },
         { value: 'forceEndNode', label: 'Force End Node' }
       ];
