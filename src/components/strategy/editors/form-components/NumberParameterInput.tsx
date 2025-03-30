@@ -31,7 +31,7 @@ const NumberParameterInput: React.FC<NumberParameterInputProps> = ({
     
     // Allow empty string to clear the field
     if (inputValue === '') {
-      // Pass undefined to the onChange handler
+      // Pass undefined to the onChange handler - this is key to clearing
       onChange(undefined as any);
       return;
     }
@@ -47,8 +47,8 @@ const NumberParameterInput: React.FC<NumberParameterInputProps> = ({
     (typeof param.step === 'number' && Number.isInteger(param.step) && param.step >= 1) : false;
   const step = param.step || (isIntegerOnly ? 1 : 'any');
 
-  // Check if value is empty for validation - handle both null, undefined and NaN
-  const isEmpty = value === undefined || value === null || (typeof value === 'string' && value === '');
+  // Check if value is empty for validation - handle both null, undefined
+  const isEmpty = value === undefined || value === null;
   const showValidationError = required && isEmpty;
 
   return (
@@ -74,7 +74,7 @@ const NumberParameterInput: React.FC<NumberParameterInputProps> = ({
       <Input
         id={`param-${param.name}`}
         type="number"
-        value={value === undefined || value === null ? '' : value}
+        value={isEmpty ? '' : value}
         onChange={handleInputChange}
         step={step}
         min={param.min}
