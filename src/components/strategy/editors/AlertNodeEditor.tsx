@@ -32,9 +32,12 @@ const AlertNodeEditor = ({ node, updateNodeData }: AlertNodeEditorProps) => {
     return "Alert nodes notify you of trading opportunities without executing trades. Useful for manual trading or when testing a strategy.";
   };
 
+  // Ensure we always pass a string to nodeLabel by using the || '' pattern
+  const nodeLabel = typeof node.data?.label === 'string' ? node.data.label : '';
+
   return (
     <NodeDetailsPanel
-      nodeLabel={node.data?.label || ''}
+      nodeLabel={nodeLabel}
       onLabelChange={handleLabelChange}
       infoTooltip={getActionInfoTooltip()}
       additionalContent={

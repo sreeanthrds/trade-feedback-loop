@@ -32,9 +32,12 @@ const ExitNodeEditor = ({ node, updateNodeData }: ExitNodeEditorProps) => {
     return "Exit nodes close existing positions. Use these after entry nodes to define when to exit the market based on signals.";
   };
 
+  // Ensure we always pass a string to nodeLabel by using explicit type check
+  const nodeLabel = typeof node.data?.label === 'string' ? node.data.label : '';
+
   return (
     <NodeDetailsPanel
-      nodeLabel={node.data?.label || ''}
+      nodeLabel={nodeLabel}
       onLabelChange={handleLabelChange}
       infoTooltip={getActionInfoTooltip()}
       additionalContent={
