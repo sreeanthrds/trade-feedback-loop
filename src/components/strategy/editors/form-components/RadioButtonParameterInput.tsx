@@ -25,8 +25,8 @@ const RadioButtonParameterInput: React.FC<RadioButtonParameterInputProps> = ({
   onChange,
   required = false
 }) => {
-  // Check if value is empty for validation
-  const isEmpty = !value && value !== 0;
+  // Check if value is empty for validation - handle both null, undefined and empty string
+  const isEmpty = value === undefined || value === null || value === '';
   const showValidationError = required && isEmpty;
   
   return (

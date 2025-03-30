@@ -48,8 +48,8 @@ const NumberParameterInput: React.FC<NumberParameterInputProps> = ({
     (typeof param.step === 'number' && Number.isInteger(param.step) && param.step >= 1) : false;
   const step = param.step || (isIntegerOnly ? 1 : 'any');
 
-  // Check if value is empty for validation
-  const isEmpty = value === undefined || value === null || value === '';
+  // Check if value is empty for validation - handle both null, undefined and NaN
+  const isEmpty = value === undefined || value === null || (typeof value === 'string' && value === '');
   const showValidationError = required && isEmpty;
 
   return (
