@@ -111,12 +111,10 @@ const NodeSidebar = memo(({ onAddNode }: NodeSidebarProps) => {
 
   return (
     <div className="h-full overflow-auto py-4 flex flex-col items-center">
-      <h3 className="font-medium text-xs uppercase tracking-wider mb-4 text-center text-muted-foreground">Nodes</h3>
-      
-      <div className="space-y-8">
-        {/* Default nodes first */}
-        <TooltipProvider delayDuration={200}>
-          <div className="space-y-6">
+      <TooltipProvider delayDuration={200}>
+        <div className="space-y-4">
+          {/* Default nodes first */}
+          <div className="space-y-4">
             {nodeGroups.default.map((nodeType) => (
               <Tooltip key={nodeType.type}>
                 <TooltipTrigger asChild>
@@ -138,39 +136,34 @@ const NodeSidebar = memo(({ onAddNode }: NodeSidebarProps) => {
               </Tooltip>
             ))}
           </div>
-        </TooltipProvider>
-        
-        {/* Action nodes with a group header */}
-        {nodeGroups.action && nodeGroups.action.length > 0 && (
-          <div>
-            <h4 className="font-medium text-xs uppercase tracking-wider mb-3 text-center text-muted-foreground">Action Nodes</h4>
-            <TooltipProvider delayDuration={200}>
-              <div className="space-y-6">
-                {nodeGroups.action.map((nodeType) => (
-                  <Tooltip key={nodeType.type}>
-                    <TooltipTrigger asChild>
-                      <div
-                        className={`flex justify-center items-center w-10 h-10 rounded-full ${nodeType.color} cursor-grab transition-all hover:scale-105 hover:shadow-md`}
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, nodeType.type)}
-                        onClick={(e) => handleNodeClick(nodeType.type, e)}
-                      >
-                        {nodeType.icon}
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">
-                      <div className="space-y-1">
-                        <p className="font-medium text-sm">{nodeType.label}</p>
-                        <p className="text-xs text-muted-foreground">{nodeType.description}</p>
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-                ))}
-              </div>
-            </TooltipProvider>
-          </div>
-        )}
-      </div>
+          
+          {/* Action nodes with a divider */}
+          {nodeGroups.action && nodeGroups.action.length > 0 && (
+            <div className="space-y-4 pt-2 mt-2 border-t border-border">
+              {nodeGroups.action.map((nodeType) => (
+                <Tooltip key={nodeType.type}>
+                  <TooltipTrigger asChild>
+                    <div
+                      className={`flex justify-center items-center w-10 h-10 rounded-full ${nodeType.color} cursor-grab transition-all hover:scale-105 hover:shadow-md`}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, nodeType.type)}
+                      onClick={(e) => handleNodeClick(nodeType.type, e)}
+                    >
+                      {nodeType.icon}
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    <div className="space-y-1">
+                      <p className="font-medium text-sm">{nodeType.label}</p>
+                      <p className="text-xs text-muted-foreground">{nodeType.description}</p>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              ))}
+            </div>
+          )}
+        </div>
+      </TooltipProvider>
     </div>
   );
 });
