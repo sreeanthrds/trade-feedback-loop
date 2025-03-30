@@ -7,7 +7,7 @@ import { handleError } from '../../../utils/errorHandling';
  * Helper function to recursively clean conditions that use a deleted indicator
  */
 export const cleanNodeConditionsOfIndicator = (node: any, indicatorName: string) => {
-  if (!node.data.condition) return node;
+  if (!node?.data?.conditions) return node;
   
   // Create a deep copy of the node to modify
   const updatedNode = { ...node, data: { ...node.data } };
@@ -16,7 +16,7 @@ export const cleanNodeConditionsOfIndicator = (node: any, indicatorName: string)
     if (!condition) return condition;
     
     // For group conditions, recursively clean child conditions
-    if (condition.groupLogic && condition.conditions) {
+    if (condition.groupLogic && Array.isArray(condition.conditions)) {
       // Clean each condition in the group
       const cleanedConditions = condition.conditions
         .map(cleanCondition)
@@ -97,15 +97,17 @@ export const cleanNodeConditionsOfIndicator = (node: any, indicatorName: string)
   };
   
   try {
-    // Clean the root condition
-    const cleanedCondition = cleanCondition(updatedNode.data.condition);
+    // Clean each condition
+    const cleanedConditions = updatedNode.data.conditions.map(cleanCondition).filter(Boolean);
     
-    // If the entire condition was removed, set to a default empty condition
-    updatedNode.data.condition = cleanedCondition || {
-      id: `group_${Math.random().toString(36).substr(2, 9)}`,
-      groupLogic: 'AND',
-      conditions: []
-    };
+    // Update the node data with cleaned conditions
+    updatedNode.data.conditions = cleanedConditions.length > 0 
+      ? cleanedConditions
+      : [{ 
+          id: `group_${Math.random().toString(36).substr(2, 9)}`,
+          groupLogic: 'AND',
+          conditions: []
+        }];
     
     return updatedNode;
   } catch (error) {
@@ -122,22 +124,24 @@ export const updateNodesAfterIndicatorRemoval = (
   indicatorName: string,
   setNodes: (nodes: Node[]) => void
 ) => {
+  if (!nodes || !Array.isArray(nodes) || !indicatorName || typeof setNodes !== 'function') {
+    return;
+  }
+  
   try {
-    // Create a new array of nodes with conditions cleaned
-    const updatedNodes = nodes.map(node => {
-      if (node.type === 'signalNode' && node.data && node.data.condition) {
-        // Clean up signal node conditions that use this indicator
+    // Create a new array with updated nodes
+    const updatedNodes = [...nodes].map(node => {
+      if (node?.type === 'signalNode' && node.data && Array.isArray(node.data.conditions)) {
         return cleanNodeConditionsOfIndicator(node, indicatorName);
       }
       return node;
     });
     
-    // Update nodes if any changes were made
-    if (JSON.stringify(nodes) !== JSON.stringify(updatedNodes)) {
+    // Only update if there were changes
+    if (JSON.stringify(updatedNodes) !== JSON.stringify(nodes)) {
       setNodes(updatedNodes);
     }
   } catch (error) {
     handleError(error, 'updateNodesAfterIndicatorRemoval');
-    // Don't set nodes if there was an error
   }
 };

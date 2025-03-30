@@ -19,115 +19,118 @@ export const useStartNodeData = ({
   const [hasOptionTrading, setHasOptionTrading] = useState(false);
   const [isSymbolMissing, setIsSymbolMissing] = useState(false);
   
-  // Use refs to prevent these values from causing re-renders when they change
+  // Use refs to track state without causing re-renders
   const previousSymbolRef = useRef<string | undefined>(startNodeSymbol);
   const previousInstrumentTypeRef = useRef<string | undefined>(undefined);
   const nodeUpdateMadeRef = useRef(false);
-  const updateInProgressRef = useRef(false);
-  const pollTimeoutRef = useRef<number | null>(null);
+  const isComponentMountedRef = useRef(true);
   
   // Clean up on unmount
   useEffect(() => {
+    isComponentMountedRef.current = true;
+    
     return () => {
-      if (pollTimeoutRef.current !== null) {
-        window.clearTimeout(pollTimeoutRef.current);
-        pollTimeoutRef.current = null;
-      }
+      isComponentMountedRef.current = false;
     };
   }, []);
   
-  // Use a single effect for start node data polling with better control flow
+  // Use a single effect for start node data with proper cleanup
   useEffect(() => {
-    // One-time fetch function
+    let isMounted = true;
+    let timeoutId: number | null = null;
+    
+    // One-time fetch function with optimized logic
     const fetchStartNodeData = () => {
-      // Skip if already in progress
-      if (updateInProgressRef.current) return;
-      
-      updateInProgressRef.current = true;
+      if (!isMounted) return;
       
       try {
         const nodes = getNodes();
         const startNode = nodes.find(node => node.type === 'startNode');
         
-        if (startNode && startNode.data) {
+        if (startNode?.data) {
           const data = startNode.data as StartNodeData;
           
           // Check for options trading
           const optionsEnabled = data.tradingInstrument?.type === 'options';
           
-          // If instrument type changed from options to something else, clear option details
-          if (previousInstrumentTypeRef.current === 'options' && 
-              data.tradingInstrument?.type !== 'options' && 
-              !nodeUpdateMadeRef.current) {
-            updateNodeData(nodeId, { optionDetails: undefined });
-            nodeUpdateMadeRef.current = true;
-            setTimeout(() => {
-              nodeUpdateMadeRef.current = false;
-            }, 500);
-          }
-          
-          // Update the previous instrument type reference
-          previousInstrumentTypeRef.current = data.tradingInstrument?.type;
-          
-          // Update options trading state - only update state if it actually changed
+          // Only make updates when the state actually changes
           if (hasOptionTrading !== optionsEnabled) {
             setHasOptionTrading(optionsEnabled || false);
           }
           
-          // Check if the action node has an instrument, but start node doesn't
+          // Check symbol missing state
           const newSymbolMissingState = Boolean(initialInstrument && !data.symbol);
           if (isSymbolMissing !== newSymbolMissingState) {
             setIsSymbolMissing(newSymbolMissingState);
           }
           
-          // Get and set the instrument from the start node only if it changed
+          // Only update symbol if it changed
           if (data.symbol !== previousSymbolRef.current) {
             previousSymbolRef.current = data.symbol;
-            setStartNodeSymbol(data.symbol);
             
-            // Also update the node data if the symbol changed
-            if (data.symbol && !nodeUpdateMadeRef.current) {
-              updateNodeData(nodeId, { instrument: data.symbol });
-              nodeUpdateMadeRef.current = true;
-              setTimeout(() => {
-                nodeUpdateMadeRef.current = false;
-              }, 500);
+            if (isMounted) {
+              setStartNodeSymbol(data.symbol);
+              
+              // Update node data only when there's a meaningful change
+              if (data.symbol && !nodeUpdateMadeRef.current) {
+                updateNodeData(nodeId, { instrument: data.symbol });
+                nodeUpdateMadeRef.current = true;
+                
+                // Reset update flag after a short delay
+                setTimeout(() => {
+                  nodeUpdateMadeRef.current = false;
+                }, 500);
+              }
             }
           }
+          
+          // Handle instrument type change
+          if (previousInstrumentTypeRef.current === 'options' && 
+              data.tradingInstrument?.type !== 'options' && 
+              !nodeUpdateMadeRef.current) {
+            
+            updateNodeData(nodeId, { optionDetails: undefined });
+            nodeUpdateMadeRef.current = true;
+            
+            setTimeout(() => {
+              nodeUpdateMadeRef.current = false;
+            }, 500);
+          }
+          
+          // Update instrument type reference
+          previousInstrumentTypeRef.current = data.tradingInstrument?.type;
         }
       } catch (error) {
         console.error('Error fetching start node data:', error);
-      } finally {
-        // Reset the in-progress flag with a short delay
-        setTimeout(() => {
-          updateInProgressRef.current = false;
-        }, 50);
       }
     };
     
     // Run once immediately
     fetchStartNodeData();
     
-    // Use timeout instead of interval for better control
+    // Set up polling with longer interval (5 seconds)
+    const pollInterval = 5000;
+    
+    // Use recursive timeout instead of interval for better cleanup
     const schedulePoll = () => {
-      pollTimeoutRef.current = window.setTimeout(() => {
+      if (!isMounted) return;
+      
+      timeoutId = window.setTimeout(() => {
         fetchStartNodeData();
-        // Only schedule next poll if component is still mounted
         schedulePoll();
-      }, 3000); // Reduced polling frequency to 3 seconds
+      }, pollInterval);
     };
     
-    // Start polling
     schedulePoll();
     
-    // Clean up
+    // Cleanup function
     return () => {
-      if (pollTimeoutRef.current !== null) {
-        window.clearTimeout(pollTimeoutRef.current);
-        pollTimeoutRef.current = null;
+      isMounted = false;
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
       }
     };
-  }, []); // Empty dependency array - only run setup once
+  }, [nodeId, updateNodeData, getNodes, initialInstrument, hasOptionTrading, isSymbolMissing]);
   
   return { startNodeSymbol, hasOptionTrading, isSymbolMissing };
 };

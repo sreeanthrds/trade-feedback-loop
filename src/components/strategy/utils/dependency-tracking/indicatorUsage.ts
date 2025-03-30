@@ -6,15 +6,17 @@ import { UsageReference } from './types';
  * Recursively searches through conditions for an indicator
  */
 export function searchConditionsForIndicator(conditions: any[], indicatorName: string): boolean {
+  if (!conditions || !Array.isArray(conditions)) return false;
+  
   for (const condition of conditions) {
     // Group conditions
-    if (condition.groupLogic && condition.conditions) {
+    if (condition?.groupLogic && Array.isArray(condition.conditions)) {
       if (searchConditionsForIndicator(condition.conditions, indicatorName)) {
         return true;
       }
     }
     // Single condition with lhs/rhs
-    else if (condition.lhs || condition.rhs) {
+    else if (condition?.lhs || condition?.rhs) {
       // Check left-hand side expression
       if (condition.lhs?.type === 'indicator' && condition.lhs?.name === indicatorName) {
         return true;
@@ -70,15 +72,20 @@ export function searchExpressionForIndicator(expression: any, indicatorName: str
  * @returns Array of usage references
  */
 export function findIndicatorUsages(indicator: string, nodes: Node[]): UsageReference[] {
+  if (!indicator || !nodes || !Array.isArray(nodes)) {
+    return [];
+  }
+  
   const usages: UsageReference[] = [];
   
   for (const node of nodes) {
     // Skip the start node itself
-    if (node.type === 'startNode') continue;
+    if (!node || node.type === 'startNode') continue;
     
     // Check signal nodes for indicator usage in conditions
     if (node.type === 'signalNode' && node.data) {
-      if (node.data.conditions && Array.isArray(node.data.conditions)) {
+      // Check if conditions exists and is an array
+      if (Array.isArray(node.data.conditions)) {
         // Find any conditions using this indicator
         const hasIndicatorInCondition = searchConditionsForIndicator(
           node.data.conditions, 
@@ -88,7 +95,7 @@ export function findIndicatorUsages(indicator: string, nodes: Node[]): UsageRefe
         if (hasIndicatorInCondition) {
           usages.push({
             nodeId: node.id,
-            nodeName: node.data.label ? String(node.data.label) : 'Signal Node', // Fix: Ensure string type
+            nodeName: node.data.label ? String(node.data.label) : 'Signal Node',
             nodeType: 'signalNode',
             context: 'Signal condition'
           });
