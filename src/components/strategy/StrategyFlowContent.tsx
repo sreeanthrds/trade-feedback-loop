@@ -6,7 +6,7 @@ import FlowLayout from './layout/FlowLayout';
 import ReactFlowCanvas from './canvas/ReactFlowCanvas';
 import { createNodeTypes } from './nodes/nodeTypes';
 import { createEdgeTypes } from './edges/edgeTypes';
-import NodePanel from './NodePanel'; // Import directly instead of using lazy loading
+import NodePanel from './NodePanel';
 import '@xyflow/react/dist/style.css';
 import './styles/menus.css';
 
