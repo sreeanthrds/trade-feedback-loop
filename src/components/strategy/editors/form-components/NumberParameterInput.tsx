@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { IndicatorParameter } from '../../utils/indicatorConfig';
-import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
+import { TextField, FormHelperText, FormControl } from '@mui/material';
 
 interface NumberParameterInputProps {
   param: IndicatorParameter;
@@ -21,26 +21,45 @@ const NumberParameterInput: React.FC<NumberParameterInputProps> = ({
     (typeof param.step === 'number' && Number.isInteger(param.step) && param.step >= 1) : false;
     
   // Convert the step to a number or use a default value
-  // This addresses the type error by ensuring step is always a number
   const stepValue = param.step !== undefined ? 
     (typeof param.step === 'number' ? param.step : Number(param.step)) : 
-    (isIntegerOnly ? 1 : undefined);
+    (isIntegerOnly ? 1 : 0.01);
+
+  // Handle input change
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    if (newValue === '') {
+      onChange(undefined);
+    } else {
+      const numValue = parseFloat(newValue);
+      if (!isNaN(numValue)) {
+        onChange(numValue);
+      }
+    }
+  };
 
   return (
-    <div className="space-y-2" key={param.name}>
-      <EnhancedNumberInput
+    <FormControl fullWidth>
+      <TextField
         label={param.label}
         id={`param-${param.name}`}
-        value={value}
-        onChange={onChange}
-        step={stepValue}
-        min={param.min}
-        max={param.max}
-        className="h-8"
+        type="number"
+        value={value === undefined ? '' : value}
+        onChange={handleChange}
+        inputProps={{
+          step: stepValue,
+          min: param.min,
+          max: param.max
+        }}
         required={required}
-        description={param.description}
+        size="small"
+        variant="outlined"
+        margin="dense"
       />
-    </div>
+      {param.description && (
+        <FormHelperText>{param.description}</FormHelperText>
+      )}
+    </FormControl>
   );
 };
 
