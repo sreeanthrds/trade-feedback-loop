@@ -33,7 +33,7 @@ export function useCustomNodesChange(
         }, 50);
       }, 0);
     }
-  };
+  }, [baseChangeHandler]);
 
   // Create a custom handler that guards against concurrent processing
   const customNodesChangeHandler = useCallback((changes: NodeChange[]) => {
