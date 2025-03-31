@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Group, X } from 'lucide-react';
 import { GroupCondition } from '../../../utils/conditionTypes';
 import {
@@ -67,4 +67,5 @@ const GroupConditionTitle: React.FC<GroupConditionTitleProps> = ({
   );
 };
 
-export default GroupConditionTitle;
+// Use memo to prevent unnecessary re-renders
+export default memo(GroupConditionTitle);

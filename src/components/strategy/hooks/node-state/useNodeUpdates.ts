@@ -1,5 +1,5 @@
 
-import { useCallback, useMemo, useEffect } from 'react';
+import { useCallback, useMemo, useEffect, useRef } from 'react';
 import { Node } from '@xyflow/react';
 import { shouldUpdateNodes } from '../../utils/performanceUtils';
 import { useNodeUpdateStore } from './useNodeUpdateStore';
@@ -27,11 +27,44 @@ export function useNodeUpdates(strategyStore: any) {
     cleanup: cleanupUpdateProcessing
   } = useUpdateProcessing();
   
+  // Track consecutive updates to detect potential infinite loops
+  const consecutiveUpdatesRef = useRef({ count: 0, time: 0 });
+  
+  // Add update cycle detection
+  useEffect(() => {
+    const checkUpdateCycles = () => {
+      const now = Date.now();
+      if (now - consecutiveUpdatesRef.current.time < 1000) {
+        consecutiveUpdatesRef.current.count++;
+        
+        // If too many updates in a short time, might be an infinite loop
+        if (consecutiveUpdatesRef.current.count > 30) {
+          console.warn('Potential infinite render cycle detected, breaking cycle');
+          updateCycleRef.current = true;
+          
+          // Reset after a short delay
+          setTimeout(() => {
+            updateCycleRef.current = false;
+            consecutiveUpdatesRef.current.count = 0;
+          }, 2000);
+        }
+      } else {
+        // Reset counter if enough time has passed
+        consecutiveUpdatesRef.current.count = 1;
+      }
+      consecutiveUpdatesRef.current.time = now;
+    };
+    
+    const interval = setInterval(checkUpdateCycles, 500);
+    return () => clearInterval(interval);
+  }, [updateCycleRef]);
+  
   // Add cleanup effect to prevent memory leaks and lingering timers
   useEffect(() => {
     return () => {
       cleanupNodeUpdateStore();
       cleanupUpdateProcessing();
+      consecutiveUpdatesRef.current.count = 0;
     };
   }, [cleanupNodeUpdateStore, cleanupUpdateProcessing]);
   

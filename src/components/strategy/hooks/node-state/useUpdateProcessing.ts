@@ -5,11 +5,13 @@ import { handleError } from '../../utils/errorHandling';
 
 /**
  * Hook to manage the processing of queued node updates
+ * with improved performance and reduced timeouts
  */
 export function useUpdateProcessing() {
   const updateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isProcessingChangesRef = useRef(false);
   const pendingProcessTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastProcessTimeRef = useRef(0);
   
   // Clean up timeouts when component unmounts
   useEffect(() => {
@@ -33,17 +35,19 @@ export function useUpdateProcessing() {
       updateTimeoutRef.current = null;
     }
     
-    // Skip if we're already processing changes
-    if (isProcessingChangesRef.current) {
+    // Skip if we're already processing changes or processed very recently
+    const now = Date.now();
+    if (isProcessingChangesRef.current || now - lastProcessTimeRef.current < 150) {
       return;
     }
     
     // Set a flag to indicate that we're processing changes
     isProcessingChangesRef.current = true;
     
-    // Set a shorter timeout to reduce update frequency but avoid freezing
+    // Use a shorter timeout for more responsive updates
     updateTimeoutRef.current = setTimeout(() => {
       try {
+        lastProcessTimeRef.current = Date.now();
         process(nodes);
       } catch (error) {
         handleError(error, 'scheduleUpdate');
@@ -53,9 +57,9 @@ export function useUpdateProcessing() {
         // Reset the processing flag after a brief delay
         setTimeout(() => {
           isProcessingChangesRef.current = false;
-        }, 100);
+        }, 50);
       }
-    }, 300); // Reduced from 2000ms to 300ms
+    }, 100); // Reduced from 300ms for more responsive updates
   }, []);
 
   const cleanup = useCallback(() => {

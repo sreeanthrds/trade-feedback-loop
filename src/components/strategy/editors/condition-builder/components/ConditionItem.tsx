@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Condition, GroupCondition } from '../../../utils/conditionTypes';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
@@ -59,4 +59,5 @@ const ConditionItem: React.FC<ConditionItemProps> = ({
   }
 };
 
-export default ConditionItem;
+// Use memo to prevent unnecessary re-renders
+export default memo(ConditionItem);

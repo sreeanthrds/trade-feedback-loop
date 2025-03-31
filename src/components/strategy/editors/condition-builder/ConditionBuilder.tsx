@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo, useCallback } from 'react';
 import { 
   Condition, 
   GroupCondition, 
@@ -28,45 +28,45 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
   allowRemove = false,
   index = 0
 }) => {
-  // Add a new single condition to this group
-  const addCondition = () => {
+  // Use useCallback to prevent recreating functions on each render
+  const addCondition = useCallback(() => {
     const newCondition = createEmptyCondition();
     const updatedRoot = { 
       ...rootCondition,
       conditions: [...rootCondition.conditions, newCondition]
     };
     updateConditions(updatedRoot);
-  };
+  }, [rootCondition, updateConditions]);
 
-  // Add a new nested group condition
-  const addGroup = () => {
+  // Use useCallback for addGroup
+  const addGroup = useCallback(() => {
     const newGroup = createEmptyGroupCondition();
     const updatedRoot = { 
       ...rootCondition,
       conditions: [...rootCondition.conditions, newGroup]
     };
     updateConditions(updatedRoot);
-  };
+  }, [rootCondition, updateConditions]);
 
-  // Update this group's logic operator (AND/OR)
-  const updateGroupLogic = (value: string) => {
+  // Use useCallback for updateGroupLogic
+  const updateGroupLogic = useCallback((value: string) => {
     const updatedRoot = { 
       ...rootCondition,
       groupLogic: value as 'AND' | 'OR' 
     };
     updateConditions(updatedRoot);
-  };
+  }, [rootCondition, updateConditions]);
 
-  // Update a specific condition within this group
-  const updateChildCondition = (index: number, updated: Condition | GroupCondition) => {
+  // Use useCallback for updateChildCondition
+  const updateChildCondition = useCallback((index: number, updated: Condition | GroupCondition) => {
     const newConditions = [...rootCondition.conditions];
     newConditions[index] = updated;
     const updatedRoot = { ...rootCondition, conditions: newConditions };
     updateConditions(updatedRoot);
-  };
+  }, [rootCondition, updateConditions]);
 
-  // Remove a condition from this group
-  const removeCondition = (index: number) => {
+  // Use useCallback for removeCondition
+  const removeCondition = useCallback((index: number) => {
     // Don't remove the last condition
     if (rootCondition.conditions.length <= 1) {
       return;
@@ -76,14 +76,14 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
     newConditions.splice(index, 1);
     const updatedRoot = { ...rootCondition, conditions: newConditions };
     updateConditions(updatedRoot);
-  };
+  }, [rootCondition, updateConditions]);
 
-  // Remove this entire group
-  const removeGroup = () => {
+  // Use useCallback for removeGroup
+  const removeGroup = useCallback(() => {
     if (parentUpdateFn) {
       parentUpdateFn(createEmptyCondition());
     }
-  };
+  }, [parentUpdateFn]);
 
   return (
     <div className={`space-y-3 ${level > 0 ? 'condition-group' : ''}`}>
@@ -121,4 +121,5 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
   );
 };
 
-export default ConditionBuilder;
+// Use memo to prevent unnecessary re-renders
+export default memo(ConditionBuilder);

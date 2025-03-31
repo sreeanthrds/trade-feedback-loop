@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { ComparisonExpressionRow } from '../composite';
 import { ComparisonOperator } from '../ComparisonOperatorSelector';
 import { Button } from '@/components/ui/button';
@@ -53,4 +53,5 @@ const ConditionBuilderRow: React.FC<ConditionBuilderRowProps> = ({
   );
 };
 
-export default ConditionBuilderRow;
+// Use memo to prevent unnecessary re-renders
+export default memo(ConditionBuilderRow);

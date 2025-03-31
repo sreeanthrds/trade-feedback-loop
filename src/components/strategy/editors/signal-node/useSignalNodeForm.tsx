@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Node } from '@xyflow/react';
 import { GroupCondition } from '../../utils/conditionTypes';
 
@@ -34,6 +34,8 @@ export const useSignalNodeForm = ({ node, updateNodeData }: UseSignalNodeFormPro
       ];
   
   const [conditions, setConditions] = useState<GroupCondition[]>(initialConditions);
+  const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isUpdatingRef = useRef(false);
 
   const [formData, setFormData] = useState<SignalNodeFormData>({
     label: nodeData.label || 'Signal',
@@ -43,37 +45,80 @@ export const useSignalNodeForm = ({ node, updateNodeData }: UseSignalNodeFormPro
   const handleLabelChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setFormData(prev => ({ ...prev, label: newValue }));
-    updateNodeData(node.id, { ...nodeData, label: newValue });
+    
+    // Prevent multiple rapid updates
+    if (updateTimeoutRef.current) {
+      clearTimeout(updateTimeoutRef.current);
+    }
+    
+    updateTimeoutRef.current = setTimeout(() => {
+      updateNodeData(node.id, { ...nodeData, label: newValue });
+      updateTimeoutRef.current = null;
+    }, 300);
   }, [node.id, nodeData, updateNodeData]);
 
-  // Update node data when conditions change - use useCallback to memoize this function
+  // Update node data when conditions change - use debounce to avoid excessive updates
   useEffect(() => {
-    const timer = setTimeout(() => {
+    // Skip updates while already updating
+    if (isUpdatingRef.current) return;
+    
+    // Clear existing timeout
+    if (updateTimeoutRef.current) {
+      clearTimeout(updateTimeoutRef.current);
+    }
+    
+    updateTimeoutRef.current = setTimeout(() => {
+      isUpdatingRef.current = true;
+      
       updateNodeData(node.id, { 
         ...nodeData,
         conditions: conditions
       });
+      
+      // Reset update flag after a short delay
+      setTimeout(() => {
+        isUpdatingRef.current = false;
+      }, 100);
+      
+      updateTimeoutRef.current = null;
     }, 300);
     
-    return () => clearTimeout(timer);
+    return () => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+    };
   }, [conditions, node.id, nodeData, updateNodeData]);
 
   // Update local state if node data changes externally
   useEffect(() => {
     const safeNodeData = (node.data || {}) as SignalNodeData;
-    setFormData({
-      label: safeNodeData.label || 'Signal',
-      conditions: conditions
-    });
     
-    if (Array.isArray(safeNodeData.conditions)) {
-      setConditions(safeNodeData.conditions);
+    // Only update if not already updating to prevent loops
+    if (!isUpdatingRef.current) {
+      setFormData({
+        label: safeNodeData.label || 'Signal',
+        conditions: conditions
+      });
+      
+      if (Array.isArray(safeNodeData.conditions)) {
+        setConditions(safeNodeData.conditions);
+      }
     }
   }, [node.data?.label]);
 
   const updateConditions = useCallback((newConditions: GroupCondition[]) => {
     setConditions(newConditions);
     setFormData(prev => ({ ...prev, conditions: newConditions }));
+  }, []);
+
+  // Clean up timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+    };
   }, []);
 
   return {
