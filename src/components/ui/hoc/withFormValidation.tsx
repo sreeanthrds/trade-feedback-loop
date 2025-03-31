@@ -1,12 +1,7 @@
 
 import React from 'react';
 import { AlertTriangle } from 'lucide-react';
-
-export interface ValidationProps {
-  error?: string;
-  isRequired?: boolean;
-  isValid?: boolean;
-}
+import { ValidationProps } from './types';
 
 /**
  * HOC that adds form validation capabilities to any component

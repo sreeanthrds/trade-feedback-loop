@@ -1,10 +1,6 @@
 
 import React from 'react';
-
-export interface LoadingProps {
-  isLoading?: boolean;
-  loadingComponent?: React.ReactNode;
-}
+import { LoadingProps } from './types';
 
 /**
  * HOC that adds loading state visualization to any component

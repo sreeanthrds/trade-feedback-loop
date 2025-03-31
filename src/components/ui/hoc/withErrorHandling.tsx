@@ -1,13 +1,7 @@
 
 import React, { useCallback, useState } from 'react';
 import { toast } from '@/hooks/use-toast';
-
-export interface ErrorHandlingProps {
-  errorContext?: string;
-  handleError?: (error: Error) => void;
-  showToasts?: boolean;
-  catchRenderErrors?: boolean;
-}
+import { ErrorHandlingProps } from './types';
 
 /**
  * HOC that adds error handling capabilities to any component
