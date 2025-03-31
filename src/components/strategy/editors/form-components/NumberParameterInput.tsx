@@ -16,8 +16,11 @@ const NumberParameterInput: React.FC<NumberParameterInputProps> = ({
   onChange,
   required = false
 }) => {
-  // Extract number-specific properties
-  const { min, max, step } = param.options || {};
+  // Extract number-specific properties safely with type checks
+  const options = param.options || {};
+  const min = typeof options === 'object' && 'min' in options ? options.min as number : undefined;
+  const max = typeof options === 'object' && 'max' in options ? options.max as number : undefined;
+  const step = typeof options === 'object' && 'step' in options ? options.step as number : 1;
   
   return (
     <EnhancedNumberInput
@@ -27,8 +30,8 @@ const NumberParameterInput: React.FC<NumberParameterInputProps> = ({
       onChange={onChange}
       min={min}
       max={max}
-      step={step || 1}
-      placeholder={param.placeholder}
+      step={step}
+      placeholder={param.placeholder || `Enter ${param.name}`}
       description={param.description}
       required={required}
     />

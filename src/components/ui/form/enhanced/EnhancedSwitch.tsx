@@ -19,6 +19,7 @@ export interface EnhancedSwitchProps {
   description?: string;
   tooltip?: string;
   disabled?: boolean;
+  id?: string;
 }
 
 const EnhancedSwitch: React.FC<EnhancedSwitchProps> = ({
@@ -28,13 +29,14 @@ const EnhancedSwitch: React.FC<EnhancedSwitchProps> = ({
   className,
   description,
   tooltip,
-  disabled = false
+  disabled = false,
+  id
 }) => {
   return (
     <div className={cn("space-y-2", className)}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Label className="text-sm font-medium cursor-pointer">
+          <Label className="text-sm font-medium cursor-pointer" htmlFor={id}>
             {label}
           </Label>
           
@@ -53,6 +55,7 @@ const EnhancedSwitch: React.FC<EnhancedSwitchProps> = ({
         </div>
         
         <Switch
+          id={id}
           checked={checked}
           onCheckedChange={onCheckedChange}
           disabled={disabled}

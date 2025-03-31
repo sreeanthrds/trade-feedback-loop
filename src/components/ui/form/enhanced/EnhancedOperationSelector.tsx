@@ -21,7 +21,7 @@ export interface EnhancedOperationSelectorProps extends
   ValidationProps, 
   LoadingProps {
   value: MathOperation;
-  onValueChange: (value: string) => void;
+  onValueChange: (value: MathOperation) => void;
   className?: string;
   id?: string;
 }

@@ -7,6 +7,7 @@ export interface LabelProps {
   hideLabel?: boolean;
   labelClassName?: string;
   description?: string;
+  isRequired?: boolean;
 }
 
 export interface ValidationProps {

@@ -45,6 +45,15 @@ const BasicSettingsTab: React.FC<BasicSettingsTabProps> = ({
     { value: 'stock', label: 'Stock' }
   ];
 
+  // Convert string array options to correct format
+  const timeframeSelectOptions = Array.isArray(timeframeOptions) ? 
+    timeframeOptions.map(option => ({ value: option, label: option })) : 
+    timeframeOptions;
+    
+  const exchangeSelectOptions = Array.isArray(exchangeOptions) ?
+    exchangeOptions.map(option => ({ value: option, label: option })) :
+    exchangeOptions;
+
   const handleSymbolChange = (newSymbol: string) => {
     // If clearing the symbol or setting a new one when none exists
     if (!newSymbol || !formData.symbol) {
@@ -131,7 +140,7 @@ const BasicSettingsTab: React.FC<BasicSettingsTabProps> = ({
         label="Timeframe"
         id="node-timeframe"
         value={formData.timeframe || ''}
-        options={timeframeOptions}
+        options={timeframeSelectOptions}
         onChange={(value) => handleInputChange('timeframe', value)}
         placeholder="Select timeframe"
         required={true}
@@ -141,7 +150,7 @@ const BasicSettingsTab: React.FC<BasicSettingsTabProps> = ({
         label="Exchange"
         id="node-exchange"
         value={formData.exchange || ''}
-        options={exchangeOptions}
+        options={exchangeSelectOptions}
         onChange={(value) => handleInputChange('exchange', value)}
         placeholder="Select exchange"
         required={true}

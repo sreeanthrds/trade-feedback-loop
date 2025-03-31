@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { EnhancedOperationSelector } from '../enhanced';
+import EnhancedOperationSelector from '../enhanced/EnhancedOperationSelector';
 import type { MathOperation } from '../OperationSelector';
 import { cn } from '@/lib/utils';
 

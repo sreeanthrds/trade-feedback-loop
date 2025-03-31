@@ -19,7 +19,6 @@ const ForceEndNodeSettings: React.FC<ForceEndNodeSettingsProps> = ({
     <div className="space-y-4">
       <SwitchField 
         label="Close all open positions"
-        id="close-all" 
         checked={closeAll}
         onCheckedChange={onCloseAllChange}
       />
