@@ -5,13 +5,12 @@ import { handleError } from '../../utils/errorHandling';
 
 /**
  * Hook to manage the processing of queued node updates
- * with improved performance and reduced timeouts
+ * with improved performance and reduced render cycles
  */
 export function useUpdateProcessing() {
   const updateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isProcessingChangesRef = useRef(false);
   const pendingProcessTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const lastProcessTimeRef = useRef(0);
   
   // Clean up timeouts when component unmounts
   useEffect(() => {
@@ -29,37 +28,35 @@ export function useUpdateProcessing() {
   }, []);
 
   const scheduleUpdate = useCallback((nodes: Node[], process: (nodes: Node[]) => void) => {
+    // Skip if we're already processing changes 
+    if (isProcessingChangesRef.current) {
+      return;
+    }
+    
     // Clear any existing timeouts to prevent multiple updates
     if (updateTimeoutRef.current) {
       clearTimeout(updateTimeoutRef.current);
       updateTimeoutRef.current = null;
     }
     
-    // Skip if we're already processing changes or processed very recently
-    const now = Date.now();
-    if (isProcessingChangesRef.current || now - lastProcessTimeRef.current < 150) {
-      return;
-    }
-    
     // Set a flag to indicate that we're processing changes
     isProcessingChangesRef.current = true;
     
-    // Use a shorter timeout for more responsive updates
+    // Use a very short timeout to batch updates while still remaining responsive
     updateTimeoutRef.current = setTimeout(() => {
       try {
-        lastProcessTimeRef.current = Date.now();
         process(nodes);
       } catch (error) {
         handleError(error, 'scheduleUpdate');
       } finally {
         updateTimeoutRef.current = null;
         
-        // Reset the processing flag after a brief delay
+        // Reset the processing flag after a minimal delay
         setTimeout(() => {
           isProcessingChangesRef.current = false;
-        }, 50);
+        }, 50); // Reduced even further from 100ms to 50ms
       }
-    }, 100); // Reduced from 300ms for more responsive updates
+    }, 150); // Reduced from 300ms to 150ms for better responsiveness
   }, []);
 
   const cleanup = useCallback(() => {
