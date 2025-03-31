@@ -86,8 +86,8 @@ export const useNodeHandlers = ({
       // Add the node 
       addNodeHandler(type, parentNodeId);
       
-      // Force immediate update to store without delay
-      console.log('Force immediate update after adding node');
+      // Force immediate update to store without delay - CRITICAL FOR FIRST NODE ADDITION
+      console.log('Forcing immediate update after adding node');
     } catch (error) {
       console.error('Error in handleAddNode:', error);
       toast({
@@ -119,7 +119,7 @@ export const useNodeHandlers = ({
         );
         handler(id, data);
       } finally {
-        // Reset the flag after a delay
+        // Reset the flag after a short delay
         setTimeout(() => {
           updateHandlingRef.current = false;
         }, 100);

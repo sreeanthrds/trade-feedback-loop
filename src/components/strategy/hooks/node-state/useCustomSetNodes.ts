@@ -19,7 +19,7 @@ interface CustomSetNodesProps {
 
 /**
  * Hook to create a custom setNodes function with throttling and cycle detection
- * Now with improved performance optimizations
+ * Now with improved performance optimizations and better handling of first node operations
  */
 export function useCustomSetNodes({
   setLocalNodes,
@@ -35,8 +35,8 @@ export function useCustomSetNodes({
   // Track consecutive updates counter to detect potential infinite loops
   const consecutiveUpdatesRef = useMemo(() => ({ count: 0, lastUpdateTime: 0 }), []);
   
-  // Track initial node operations to handle them differently
-  const initialNodeOperationRef = useMemo(() => ({ done: false }), []);
+  // Track node add/remove operations to handle them differently
+  const nodeOperationsRef = useMemo(() => ({ firstAddDone: false }), []);
   
   // Custom setNodes wrapper with improved throttling and cycle detection
   const setNodes = useCallback((updatedNodes: Node[] | ((prevNodes: Node[]) => Node[])) => {
@@ -83,22 +83,23 @@ export function useCustomSetNodes({
         }
         consecutiveUpdatesRef.lastUpdateTime = now;
         
-        // Special handling for node count changes (add/remove nodes)
+        // **CRITICAL FIX**: Special handling for node count changes (add/remove nodes)
         if (newNodes.length !== prevNodes.length) {
           console.log(`Node count changed: ${prevNodes.length} -> ${newNodes.length}`);
           
-          // First node operation requires immediate update
-          const isInitialOperation = !initialNodeOperationRef.done && 
-            prevNodes.length <= 1 && newNodes.length > prevNodes.length;
+          // Critical: First node operation requires immediate update and special handling
+          const isFirstNodeAdd = !nodeOperationsRef.firstAddDone && 
+            prevNodes.length === 1 && newNodes.length > prevNodes.length;
           
-          if (isInitialOperation) {
-            console.log('Initial node operation detected, processing immediately');
-            initialNodeOperationRef.done = true;
+          if (isFirstNodeAdd) {
+            console.log('First node addition detected, processing immediately');
+            nodeOperationsRef.firstAddDone = true;
             
-            // Force immediate update for the first node operation
+            // Force immediate update when first adding a node after the start node
             setTimeout(() => {
+              console.log('Forcing immediate update for first node addition');
               processStoreUpdate(newNodes);
-            }, 50);
+            }, 0);
             
             return newNodes;
           }
@@ -109,20 +110,20 @@ export function useCustomSetNodes({
             return newNodes;
           }
           
-          // Schedule update with increased delay
+          // For other node count changes, schedule update with shorter delay
           if (updateTimeoutRef.current !== null) {
             clearTimeout(updateTimeoutRef.current);
           }
           
           updateTimeoutRef.current = setTimeout(() => {
             processStoreUpdate(newNodes);
-          }, 3000); // Increased from 1000ms to 3000ms
+            updateTimeoutRef.current = null;
+          }, 300); // Reduced from 3000ms to 300ms for faster node additions
           
           return newNodes;
         }
         
         // Skip if nodes haven't actually changed using a simplified comparison
-        // This avoids the expensive deep equality check in most cases
         if (!shouldUpdateNodes(newNodes, prevNodes)) {
           return prevNodes;
         }
@@ -137,7 +138,7 @@ export function useCustomSetNodes({
         
         // Throttle updates to the store during frequent operations
         const updateTime = Date.now();
-        if (updateTime - lastUpdateTimeRef.current > 4000) { // Increased from 2000ms to 4000ms
+        if (updateTime - lastUpdateTimeRef.current > 2000) { // Reduced from 4000ms to 2000ms
           lastUpdateTimeRef.current = updateTime;
           
           // Clear any pending timeout
@@ -147,10 +148,11 @@ export function useCustomSetNodes({
           }
           
           // Schedule the update to the store with setTimeout to break the React update cycle
-          console.log('Scheduling delayed update to store');
+          console.log('Scheduling update to store');
           updateTimeoutRef.current = setTimeout(() => {
             processStoreUpdate(newNodes);
-          }, 3000); // Increased from 1000ms to 3000ms
+            updateTimeoutRef.current = null;
+          }, 300); // Reduced from 3000ms to 300ms for better responsiveness
         } else {
           console.log('Throttling update, storing for later processing');
           pendingNodesUpdate.current = newNodes;
@@ -174,7 +176,7 @@ export function useCustomSetNodes({
     processStoreUpdate,
     handleError,
     consecutiveUpdatesRef,
-    initialNodeOperationRef
+    nodeOperationsRef
   ]);
 
   // Return a stable reference to prevent re-renders

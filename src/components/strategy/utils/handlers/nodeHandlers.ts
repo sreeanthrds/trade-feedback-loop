@@ -54,16 +54,17 @@ export const createAddNodeHandler = (
       setEdges(updatedEdges);
       
       // Then update the store directly to ensure persistence
-      // Use a minimal delay to ensure the UI update happens first
+      // CRITICAL: Use setTimeout to break the React cycle but use 0ms for immediate execution
       setTimeout(() => {
         try {
           strategyStore.setNodes(updatedNodes);
           strategyStore.setEdges(updatedEdges);
           strategyStore.addHistoryItem(updatedNodes, updatedEdges);
+          console.log('Node added and persisted to store:', newNode.id);
         } catch (error) {
           console.error('Error updating strategy store:', error);
         }
-      }, 50);
+      }, 0);
       
       toast({
         title: "Node added",

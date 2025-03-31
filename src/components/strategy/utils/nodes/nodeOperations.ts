@@ -65,7 +65,8 @@ export const addNode = (
                 ? 'Exit Order'
                 : type === 'alertNode'
                   ? 'Alert'
-                  : 'Action'
+                  : 'Action',
+    _lastUpdated: Date.now() // Add timestamp to force update detection
   };
   
   if (type === 'actionNode' || type === 'entryNode' || type === 'exitNode' || type === 'alertNode') {
@@ -122,12 +123,28 @@ export const addNode = (
     }
   }
   
+  // For signal nodes, initialize with default conditions structure
+  if (type === 'signalNode') {
+    defaultData = {
+      ...defaultData,
+      conditions: [
+        {
+          id: 'root',
+          groupLogic: 'AND',
+          conditions: []
+        }
+      ]
+    };
+  }
+  
   const newNode = {
     id: nodeId,
     type: type as any,
     position,
     data: defaultData
   };
+  
+  console.log('Created new node:', newNode);
   
   return { node: newNode, parentNode };
 };
