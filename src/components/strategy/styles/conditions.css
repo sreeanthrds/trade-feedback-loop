@@ -14,11 +14,13 @@
   border-radius: 6px;
   padding: 12px;
   margin-bottom: 10px;
-  background-color: transparent;
+  background-color: rgba(0, 0, 0, 0.02);
   position: relative;
   transition: all 0.2s ease;
   overflow: visible;
   width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .condition-item:hover {

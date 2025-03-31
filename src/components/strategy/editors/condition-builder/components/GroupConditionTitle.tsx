@@ -52,7 +52,7 @@ const GroupConditionTitle: React.FC<GroupConditionTitleProps> = ({
         </Select>
         
         <span className="text-xs text-muted-foreground">
-          Group with {rootCondition.conditions.length} condition(s)
+          {rootCondition.conditions.length} condition{rootCondition.conditions.length !== 1 ? 's' : ''}
         </span>
       </div>
 
