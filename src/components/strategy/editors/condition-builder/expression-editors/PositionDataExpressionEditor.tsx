@@ -1,5 +1,5 @@
 
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { Expression, PositionDataExpression } from '../../../utils/conditionTypes';
 import { 
   Select,
@@ -18,6 +18,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { HelpCircle } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 interface PositionDataExpressionEditorProps {
   expression: Expression;
@@ -36,6 +37,11 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
 
   const positionExpr = expression as PositionDataExpression;
   const nodes = useStrategyStore(state => state.nodes);
+  
+  // State for identifier type selection
+  const [identifierType, setIdentifierType] = useState<'vpi' | 'vpt'>(
+    positionExpr.vpi && positionExpr.vpi !== '_any' ? 'vpi' : 'vpt'
+  );
   
   // Extract VPI and VPT values from all nodes
   const positionIdentifiers = useMemo(() => {
@@ -64,19 +70,50 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
     };
   }, [nodes]);
   
-  // Ensure consistency between VPI and VPT
-  useEffect(() => {
-    if (positionExpr.vpi && positionExpr.vpi !== '_any') {
-      const associatedVpt = positionIdentifiers.vpiToVptMap.get(positionExpr.vpi);
-      if (associatedVpt && positionExpr.vpt !== associatedVpt) {
-        // If a specific VPI is selected, auto-select its associated VPT
-        updateExpression({
-          ...positionExpr,
-          vpt: associatedVpt
-        });
-      }
+  // Handle identifier type change
+  const handleIdentifierTypeChange = (value: string) => {
+    setIdentifierType(value as 'vpi' | 'vpt');
+    
+    // Reset the other identifier when type changes
+    if (value === 'vpi') {
+      updateExpression({
+        ...positionExpr,
+        vpt: '_any'
+      });
+    } else {
+      updateExpression({
+        ...positionExpr,
+        vpi: '_any'
+      });
     }
-  }, [positionExpr.vpi, positionIdentifiers.vpiToVptMap]);
+  };
+  
+  // Update the VPI
+  const updateVPI = (value: string) => {
+    if (value === '_any') {
+      // If "All Positions" is selected
+      updateExpression({
+        ...positionExpr,
+        vpi: value
+      });
+    } else {
+      // If a specific position is selected, also update its associated VPT
+      const associatedVpt = positionIdentifiers.vpiToVptMap.get(value) || '_any';
+      updateExpression({
+        ...positionExpr,
+        vpi: value,
+        vpt: associatedVpt
+      });
+    }
+  };
+
+  // Update the VPT
+  const updateVPT = (value: string) => {
+    updateExpression({
+      ...positionExpr,
+      vpt: value
+    });
+  };
   
   // Field options for position data
   const positionFields = [
@@ -96,41 +133,6 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
       field: value
     });
   };
-
-  // Update VPI
-  const updateVPI = (value: string) => {
-    if (value === '_any') {
-      // If "All Positions" is selected, no need to change VPT
-      updateExpression({
-        ...positionExpr,
-        vpi: value
-      });
-    } else {
-      // If a specific position is selected, auto-select its associated VPT
-      const associatedVpt = positionIdentifiers.vpiToVptMap.get(value) || '_any';
-      updateExpression({
-        ...positionExpr,
-        vpi: value,
-        vpt: associatedVpt
-      });
-    }
-  };
-
-  // Update VPT
-  const updateVPT = (value: string) => {
-    // If a specific VPI is selected, don't allow changing VPT
-    if (positionExpr.vpi && positionExpr.vpi !== '_any') {
-      return;
-    }
-    
-    updateExpression({
-      ...positionExpr,
-      vpt: value
-    });
-  };
-
-  // Should VPT be disabled?
-  const isVptDisabled = positionExpr.vpi && positionExpr.vpi !== '_any';
 
   return (
     <div className="space-y-3">
@@ -159,25 +161,48 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <div className="flex items-center gap-1 mb-1">
-            <Label htmlFor="position-vpi" className="text-xs">Position ID</Label>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="max-w-xs text-xs">
-                    Select a specific position ID, or choose "All Positions" to aggregate data across positions.
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+      <div className="space-y-2">
+        <div className="flex items-center gap-1 mb-1">
+          <Label className="text-xs">Filter By</Label>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="max-w-xs text-xs">
+                  Choose how to identify positions - by their unique ID or by their tag group
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+        
+        <RadioGroup
+          value={identifierType}
+          onValueChange={handleIdentifierTypeChange}
+          className="flex flex-col space-y-1"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="vpi" id="radio-vpi" />
+            <Label htmlFor="radio-vpi" className="text-sm font-normal cursor-pointer">
+              Position ID
+            </Label>
           </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="vpt" id="radio-vpt" />
+            <Label htmlFor="radio-vpt" className="text-sm font-normal cursor-pointer">
+              Position Tag
+            </Label>
+          </div>
+        </RadioGroup>
+      </div>
+
+      {identifierType === 'vpi' ? (
+        <div>
+          <Label htmlFor="position-vpi" className="text-xs block mb-1">Position ID</Label>
           <Select
-            value={positionExpr.vpi || ''}
+            value={positionExpr.vpi || '_any'}
             onValueChange={updateVPI}
           >
             <SelectTrigger 
@@ -196,32 +221,16 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
             </SelectContent>
           </Select>
         </div>
+      ) : (
         <div>
-          <div className="flex items-center gap-1 mb-1">
-            <Label htmlFor="position-vpt" className="text-xs">Position Tag</Label>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="max-w-xs text-xs">
-                    {isVptDisabled 
-                      ? "Tag is auto-selected based on the chosen Position ID." 
-                      : "Filter by tag to analyze similarly tagged positions."}
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
+          <Label htmlFor="position-vpt" className="text-xs block mb-1">Position Tag</Label>
           <Select
-            value={positionExpr.vpt || ''}
+            value={positionExpr.vpt || '_any'}
             onValueChange={updateVPT}
-            disabled={isVptDisabled}
           >
             <SelectTrigger 
               id="position-vpt" 
-              className={cn("h-8 text-xs", isVptDisabled && "opacity-70 cursor-not-allowed")}
+              className="h-8 text-xs"
             >
               <SelectValue placeholder="Select Position Tag" />
             </SelectTrigger>
@@ -235,7 +244,7 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
             </SelectContent>
           </Select>
         </div>
-      </div>
+      )}
     </div>
   );
 };
