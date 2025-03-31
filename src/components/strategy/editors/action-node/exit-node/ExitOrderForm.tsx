@@ -3,9 +3,9 @@ import React from 'react';
 import { Node } from '@xyflow/react';
 import { Separator } from '@/components/ui/separator';
 import SelectField from '../../shared/SelectField';
-import InputField from '../../shared/InputField';
 import SwitchField from '../../shared/SwitchField';
 import { useExitOrderForm } from './useExitOrderForm';
+import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
 
 interface ExitOrderFormProps {
   node: Node;
@@ -29,6 +29,31 @@ const ExitOrderForm: React.FC<ExitOrderFormProps> = React.memo(({ node, updateNo
     node, 
     updateNodeData 
   });
+
+  // Create enhanced handlers for the number inputs
+  const handleLimitPriceChangeEnhanced = (value: number | undefined) => {
+    const simulatedEvent = {
+      target: {
+        value: value !== undefined ? value.toString() : '',
+        id: 'exit-limit-price',
+        type: 'number'
+      }
+    } as React.ChangeEvent<HTMLInputElement>;
+    
+    handleLimitPriceChange(simulatedEvent);
+  };
+  
+  const handleQuantityPercentageChangeEnhanced = (value: number | undefined) => {
+    const simulatedEvent = {
+      target: {
+        value: value !== undefined ? value.toString() : '',
+        id: 'exit-quantity-percentage',
+        type: 'number'
+      }
+    } as React.ChangeEvent<HTMLInputElement>;
+    
+    handleQuantityPercentageChange(simulatedEvent);
+  };
 
   return (
     <div className="space-y-4">
@@ -57,12 +82,11 @@ const ExitOrderForm: React.FC<ExitOrderFormProps> = React.memo(({ node, updateNo
         />
         
         {orderType === 'limit' && (
-          <InputField
+          <EnhancedNumberInput
             label="Limit Price"
             id="exit-limit-price"
-            type="number"
-            value={limitPrice === undefined ? '' : limitPrice}
-            onChange={handleLimitPriceChange}
+            value={typeof limitPrice === 'string' ? parseFloat(limitPrice) : limitPrice}
+            onChange={handleLimitPriceChangeEnhanced}
             min={0}
             step={0.05}
             description="Price at which the limit order will be placed"
@@ -82,12 +106,11 @@ const ExitOrderForm: React.FC<ExitOrderFormProps> = React.memo(({ node, updateNo
         />
         
         {quantityType === 'partial' && (
-          <InputField
+          <EnhancedNumberInput
             label="Quantity Percentage"
             id="exit-quantity-percentage"
-            type="number"
-            value={quantityPercentage === undefined ? '' : quantityPercentage}
-            onChange={handleQuantityPercentageChange}
+            value={typeof quantityPercentage === 'string' ? parseFloat(quantityPercentage) : quantityPercentage}
+            onChange={handleQuantityPercentageChangeEnhanced}
             min={1}
             max={99}
             step={1}

@@ -49,7 +49,16 @@ const InputField: React.FC<InputFieldProps> = ({
     const stepValue = step !== undefined ? Number(step) : undefined;
     
     // Convert value to number if it's not undefined or empty
-    const numValue = value !== undefined && value !== '' ? Number(value) : undefined;
+    let numValue: number | undefined;
+    
+    if (typeof value === 'number') {
+      numValue = value;
+    } else if (value !== undefined && value !== '') {
+      numValue = Number(value);
+      if (isNaN(numValue)) numValue = undefined;
+    } else {
+      numValue = undefined;
+    }
     
     // Create a handler that wraps the original onChange
     const handleNumberChange = (newValue: number | undefined) => {

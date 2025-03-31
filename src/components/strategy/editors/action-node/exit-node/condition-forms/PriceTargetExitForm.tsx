@@ -1,6 +1,6 @@
 
 import React from 'react';
-import InputField from '../../../shared/InputField';
+import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
 import RadioGroupField from '../../../shared/RadioGroupField';
 import { ExitByPriceTarget } from '../types';
 
@@ -15,19 +15,11 @@ const PriceTargetExitForm: React.FC<PriceTargetExitFormProps> = ({
 }) => {
   return (
     <div className="space-y-4">
-      <InputField
+      <EnhancedNumberInput
         label="Target Price"
         id="target-price"
-        type="number"
-        value={exitCondition.price === undefined ? '' : exitCondition.price}
-        onChange={(e) => {
-          // Handle empty input
-          if (e.target.value === '') {
-            updateField('price', undefined);
-            return;
-          }
-          updateField('price', parseFloat(e.target.value))
-        }}
+        value={exitCondition.price}
+        onChange={(value) => updateField('price', value)}
         description="Target price level"
       />
       

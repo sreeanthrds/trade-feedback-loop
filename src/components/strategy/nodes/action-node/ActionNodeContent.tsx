@@ -69,6 +69,19 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
     updateNodeData(id, { positions: updatedPositions });
   };
   
+  // Enhanced handlers for number inputs
+  const handleLimitPriceChange = (value: number | undefined) => {
+    handlePositionChange({ limitPrice: value });
+  };
+  
+  const handleLotsChange = (value: number | undefined) => {
+    handlePositionChange({ lots: value });
+  };
+  
+  const handleStrikeValueChange = (value: number | undefined) => {
+    handleOptionDetailsChange({ strikeValue: value });
+  };
+  
   return (
     <div className={`px-4 py-2 rounded-md bg-background/95 border ${isSymbolMissing ? 'border-destructive/50' : 'border-border/50'}`}>
       <Handle
@@ -150,8 +163,8 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
           onPositionChange={handlePositionChange}
           onPositionTypeChange={(value) => handlePositionChange({ positionType: value as 'buy' | 'sell' })}
           onOrderTypeChange={(value) => handlePositionChange({ orderType: value as 'market' | 'limit' })}
-          onLimitPriceChange={(e) => handlePositionChange({ limitPrice: parseFloat(e.target.value) || 0 })}
-          onLotsChange={(e) => handlePositionChange({ lots: parseInt(e.target.value) || 1 })}
+          onLimitPriceChange={(e) => handleLimitPriceChange(parseFloat(e.target.value) || undefined)}
+          onLotsChange={(e) => handleLotsChange(parseInt(e.target.value) || undefined)}
           onProductTypeChange={(value) => handlePositionChange({ productType: value as 'intraday' | 'carryForward' })}
           onExpiryChange={(value) => {
             handleOptionDetailsChange({ expiry: value });
@@ -160,7 +173,7 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
             handleOptionDetailsChange({ strikeType: value as any });
           }}
           onStrikeValueChange={(e) => {
-            handleOptionDetailsChange({ strikeValue: parseFloat(e.target.value) || 0 });
+            handleStrikeValueChange(parseFloat(e.target.value) || undefined);
           }}
           onOptionTypeChange={(value) => {
             handleOptionDetailsChange({ optionType: value as 'CE' | 'PE' });

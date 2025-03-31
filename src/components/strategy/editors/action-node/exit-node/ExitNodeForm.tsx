@@ -4,10 +4,10 @@ import { Node } from '@xyflow/react';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SelectField from '../../shared/SelectField';
-import InputField from '../../shared/InputField';
 import SwitchField from '../../shared/SwitchField';
 import { useExitNodeForm } from './useExitNodeForm';
 import ExitConditionForm from './ExitConditionForm';
+import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
 
 interface ExitNodeFormProps {
   node: Node;
@@ -31,6 +31,20 @@ const ExitNodeForm: React.FC<ExitNodeFormProps> = React.memo(({ node, updateNode
     node, 
     updateNodeData 
   });
+
+  // Create an enhanced handler for the limit price
+  const handleLimitPriceChangeEnhanced = (value: number | undefined) => {
+    // Simulate an input event to maintain compatibility with existing code
+    const simulatedEvent = {
+      target: {
+        value: value !== undefined ? value.toString() : '',
+        id: 'limit-price',
+        type: 'number'
+      }
+    } as React.ChangeEvent<HTMLInputElement>;
+    
+    handleLimitPriceChange(simulatedEvent);
+  };
 
   return (
     <div className="space-y-4">
@@ -94,12 +108,11 @@ const ExitNodeForm: React.FC<ExitNodeFormProps> = React.memo(({ node, updateNode
           />
           
           {orderType === 'limit' && (
-            <InputField
+            <EnhancedNumberInput
               label="Limit Price"
               id="limit-price"
-              type="number"
-              value={limitPrice || ''}
-              onChange={handleLimitPriceChange}
+              value={typeof limitPrice === 'string' ? parseFloat(limitPrice) : limitPrice}
+              onChange={handleLimitPriceChangeEnhanced}
               min={0}
               step={0.05}
               description="Price at which the limit order will be placed"
