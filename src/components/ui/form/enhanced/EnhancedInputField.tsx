@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { 
   composeHOC, 
   withLabel, 
@@ -44,6 +43,20 @@ const InputField: React.FC<EnhancedInputFieldProps> = ({
   min,
   max,
   step,
+  // Exclude HOC-specific props before passing to Input
+  label,
+  hideLabel,
+  labelClassName,
+  description,
+  isRequired,
+  error,
+  isValid,
+  isLoading,
+  loadingComponent,
+  errorContext,
+  handleError,
+  showToasts,
+  catchRenderErrors,
   ...rest
 }) => {
   // For number inputs, handle empty value differently

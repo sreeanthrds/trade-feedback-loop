@@ -5,7 +5,7 @@ import { toast } from "@/hooks/use-toast";
 
 export interface ErrorHandlingProps {
   /** Custom error handler function */
-  onError?: (error: Error) => void;
+  handleError?: (error: Error) => void;
   /** Context name for error logging */
   errorContext?: string;
   /** Whether to automatically show toast notifications */
@@ -20,7 +20,7 @@ export interface ErrorHandlingProps {
 export function withErrorHandling<P>(Component: React.ComponentType<P>) {
   const WithErrorHandling = (props: P & ErrorHandlingProps) => {
     const { 
-      onError, 
+      handleError: customErrorHandler, 
       errorContext = 'component', 
       showToasts = true,
       catchRenderErrors = false,
@@ -55,8 +55,8 @@ export function withErrorHandling<P>(Component: React.ComponentType<P>) {
       }
       
       // Call custom error handler if provided
-      if (onError && typeof onError === 'function') {
-        onError(error);
+      if (customErrorHandler && typeof customErrorHandler === 'function') {
+        customErrorHandler(error);
       }
     };
     
