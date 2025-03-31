@@ -7,3 +7,6 @@ export type { EnhancedErrorHandlingSelectorProps } from './EnhancedErrorHandling
 
 export { default as EnhancedInputField } from './EnhancedInputField';
 export type { EnhancedInputFieldProps } from './EnhancedInputField';
+
+export { default as EnhancedNumberInput } from './EnhancedNumberInput';
+export type { EnhancedNumberInputProps } from './EnhancedNumberInput';

@@ -1,6 +1,7 @@
 
 import React from 'react';
-import InputField from '../../../shared/InputField';
+import { Label } from '@/components/ui/label';
+import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
 import RadioGroupField from '../../../shared/RadioGroupField';
 import { ExitByPnL } from '../types';
 
@@ -15,21 +16,17 @@ const PnlExitForm: React.FC<PnlExitFormProps> = ({
 }) => {
   return (
     <div className="space-y-4">
-      <InputField
-        label="P&L Value"
-        id="pnl-value"
-        type="number"
-        value={exitCondition.value === undefined ? '' : exitCondition.value}
-        onChange={(e) => {
-          // Handle empty input
-          if (e.target.value === '') {
-            updateField('value', undefined);
-            return;
-          }
-          updateField('value', parseFloat(e.target.value))
-        }}
-        description={`Target ${exitCondition.type === 'realized_pnl' ? 'realized' : 'unrealized'} P&L value`}
-      />
+      <div className="space-y-2">
+        <Label htmlFor="pnl-value" className="flex items-center">
+          P&L Value
+        </Label>
+        <EnhancedNumberInput
+          id="pnl-value"
+          value={exitCondition.value}
+          onChange={(value) => updateField('value', value)}
+          description={`Target ${exitCondition.type === 'realized_pnl' ? 'realized' : 'unrealized'} P&L value`}
+        />
+      </div>
       
       <RadioGroupField
         label="Direction"

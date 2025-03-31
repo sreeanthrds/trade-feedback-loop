@@ -1,6 +1,7 @@
 
 import React from 'react';
-import InputField from '../../../shared/InputField';
+import { Label } from '@/components/ui/label';
+import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
 import { ExitByTime } from '../types';
 
 interface TimeBasedExitFormProps {
@@ -13,28 +14,20 @@ const TimeBasedExitForm: React.FC<TimeBasedExitFormProps> = ({
   updateField 
 }) => {
   return (
-    <InputField
-      label="Minutes"
-      id="time-minutes"
-      type="number"
-      value={exitCondition.minutes === undefined ? '' : exitCondition.minutes}
-      onChange={(e) => {
-        // Handle empty input
-        if (e.target.value === '') {
-          updateField('minutes', undefined);
-          return;
-        }
-        
-        // Parse number value
-        const minutes = parseInt(e.target.value);
-        if (!isNaN(minutes)) {
-          updateField('minutes', minutes);
-        }
-      }}
-      min={1}
-      description="Minutes after entry to exit position"
-      required={true}
-    />
+    <div className="space-y-2">
+      <Label htmlFor="time-minutes" className="flex items-center">
+        Minutes
+        <span className="ml-1 text-red-500">*</span>
+      </Label>
+      <EnhancedNumberInput
+        id="time-minutes"
+        value={exitCondition.minutes}
+        onChange={(value) => updateField('minutes', value)}
+        min={1}
+        description="Minutes after entry to exit position"
+        required={true}
+      />
+    </div>
   );
 };
 

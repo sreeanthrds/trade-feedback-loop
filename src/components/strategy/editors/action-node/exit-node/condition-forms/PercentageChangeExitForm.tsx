@@ -1,6 +1,7 @@
 
 import React from 'react';
-import InputField from '../../../shared/InputField';
+import { Label } from '@/components/ui/label';
+import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
 import RadioGroupField from '../../../shared/RadioGroupField';
 import { ExitByPercentage } from '../types';
 
@@ -15,21 +16,17 @@ const PercentageChangeExitForm: React.FC<PercentageChangeExitFormProps> = ({
 }) => {
   return (
     <div className="space-y-4">
-      <InputField
-        label="Percentage"
-        id="percentage-change"
-        type="number"
-        value={exitCondition.percentage === undefined ? '' : exitCondition.percentage}
-        onChange={(e) => {
-          // Handle empty input
-          if (e.target.value === '') {
-            updateField('percentage', undefined);
-            return;
-          }
-          updateField('percentage', parseFloat(e.target.value))
-        }}
-        description={`Target percentage change in ${exitCondition.type === 'premium_change' ? 'premium' : 'position value'}`}
-      />
+      <div className="space-y-2">
+        <Label htmlFor="percentage-change" className="flex items-center">
+          Percentage
+        </Label>
+        <EnhancedNumberInput
+          id="percentage-change"
+          value={exitCondition.percentage}
+          onChange={(value) => updateField('percentage', value)}
+          description={`Target percentage change in ${exitCondition.type === 'premium_change' ? 'premium' : 'position value'}`}
+        />
+      </div>
       
       <RadioGroupField
         label="Direction"
