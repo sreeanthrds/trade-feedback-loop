@@ -119,13 +119,13 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
   
   // Field options for position data
   const positionFields = [
-    { value: 'unrealizedPnl', label: 'Unrealized P&L' },
-    { value: 'realizedPnl', label: 'Realized P&L' },
-    { value: 'quantity', label: 'Position Size' },
-    { value: 'entryPrice', label: 'Entry Price' },
-    { value: 'marketValue', label: 'Market Value' },
-    { value: 'costBasis', label: 'Cost Basis' },
-    { value: 'percentChange', label: 'Percent Change' },
+    { value: 'unrealizedPnl', label: 'Unrealized P&L', description: 'The current paper profit or loss of the position that has not been realized yet' },
+    { value: 'realizedPnl', label: 'Realized P&L', description: 'The actual profit or loss that has been locked in through closing all or part of the position' },
+    { value: 'quantity', label: 'Position Size', description: 'The number of shares, contracts, or units in the position' },
+    { value: 'entryPrice', label: 'Entry Price', description: 'The average price at which the position was opened' },
+    { value: 'marketValue', label: 'Market Value', description: 'The current total value of the position at market price' },
+    { value: 'costBasis', label: 'Cost Basis', description: 'The original amount invested in the position, including fees' },
+    { value: 'percentChange', label: 'Percent Change', description: 'The percentage change in value since the position was opened' },
   ];
 
   // Update the field
@@ -139,7 +139,21 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
   return (
     <div className="space-y-3">
       <div>
-        <Label htmlFor="position-field" className="text-xs block mb-1">Position Field</Label>
+        <div className="flex items-center gap-1 mb-1">
+          <Label htmlFor="position-field" className="text-xs">Position Field</Label>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p className="max-w-xs text-xs">
+                  Select what data you want to access from the position
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
         <Select 
           value={positionExpr.field || ''} 
           onValueChange={updateField}
@@ -153,7 +167,19 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
           <SelectContent>
             {positionFields.map(field => (
               <SelectItem key={field.value} value={field.value}>
-                {field.label}
+                <div className="flex items-center gap-1">
+                  {field.label}
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="right">
+                        <p className="max-w-xs text-xs">{field.description}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
               </SelectItem>
             ))}
           </SelectContent>
@@ -199,7 +225,21 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
 
       {useVpiFilter ? (
         <div>
-          <Label htmlFor="position-vpi" className="text-xs block mb-1">Position ID</Label>
+          <div className="flex items-center gap-1 mb-1">
+            <Label htmlFor="position-vpi" className="text-xs">Position ID</Label>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  <p className="max-w-xs text-xs">
+                    Select a specific position by its unique identifier (VPI). Each position has a unique ID.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
           <Select
             value={positionExpr.vpi || '_any'}
             onValueChange={updateVPI}
@@ -211,7 +251,23 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
               <SelectValue placeholder="Select Position ID" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="_any">All Positions</SelectItem>
+              <SelectItem value="_any">
+                <div className="flex items-center gap-1">
+                  All Positions
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="right">
+                        <p className="max-w-xs text-xs">
+                          Apply this condition to all positions in the strategy
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </SelectItem>
               {positionIdentifiers.vpiOptions.map(vpi => (
                 <SelectItem key={vpi} value={vpi}>
                   {vpi}
@@ -222,7 +278,21 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
         </div>
       ) : (
         <div>
-          <Label htmlFor="position-vpt" className="text-xs block mb-1">Position Tag</Label>
+          <div className="flex items-center gap-1 mb-1">
+            <Label htmlFor="position-vpt" className="text-xs">Position Tag</Label>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  <p className="max-w-xs text-xs">
+                    Filter positions by tag group. Tags can be shared by multiple positions.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
           <Select
             value={positionExpr.vpt || '_any'}
             onValueChange={updateVPT}
@@ -234,7 +304,23 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
               <SelectValue placeholder="Select Position Tag" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="_any">All Tags</SelectItem>
+              <SelectItem value="_any">
+                <div className="flex items-center gap-1">
+                  All Tags
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="right">
+                        <p className="max-w-xs text-xs">
+                          Apply this condition to positions with any tag
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </SelectItem>
               {positionIdentifiers.vptOptions.map(vpt => (
                 <SelectItem key={vpt} value={vpt}>
                   {vpt}
