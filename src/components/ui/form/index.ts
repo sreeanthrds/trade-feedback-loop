@@ -6,3 +6,9 @@ export type { TypeOption } from './TypeSelector';
 export { default as ComparisonOperatorSelector } from './ComparisonOperatorSelector';
 export type { ComparisonOperator } from './ComparisonOperatorSelector';
 export { default as ExpressionWrapper } from './ExpressionWrapper';
+
+// Second-level composite components
+export * from './composite';
+
+// Third-level advanced components
+export * from './advanced';
