@@ -29,6 +29,9 @@ const DropdownParameterInput: React.FC<DropdownParameterInputProps> = ({
   const isEmpty = value === undefined || value === null || value === '';
   const showRequired = required && isEmpty;
   
+  // Ensure options is an array of strings
+  const optionsArray = Array.isArray(param.options) ? param.options : [];
+  
   return (
     <div className="space-y-2" key={param.name}>
       <div className="flex items-center gap-2">
@@ -66,7 +69,7 @@ const DropdownParameterInput: React.FC<DropdownParameterInputProps> = ({
             <SelectValue placeholder="Select option" />
           </SelectTrigger>
           <SelectContent>
-            {param.options?.map((option) => (
+            {optionsArray.map((option) => (
               <SelectItem key={option} value={option}>
                 {option}
               </SelectItem>

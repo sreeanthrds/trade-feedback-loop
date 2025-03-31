@@ -29,6 +29,9 @@ const RadioButtonParameterInput: React.FC<RadioButtonParameterInputProps> = ({
   const isEmpty = value === undefined || value === null || value === '';
   const showRequired = required && isEmpty;
   
+  // Ensure options is an array of strings
+  const optionsArray = Array.isArray(param.options) ? param.options : [];
+  
   return (
     <div className="space-y-2" key={param.name}>
       <div className="flex items-center gap-2">
@@ -60,7 +63,7 @@ const RadioButtonParameterInput: React.FC<RadioButtonParameterInputProps> = ({
             showRequired && "border-red-300 p-2 rounded-md border"
           )}
         >
-          {param.options?.map((option) => (
+          {optionsArray.map((option) => (
             <div key={option} className="flex items-center space-x-2">
               <RadioGroupItem value={option} id={`param-${param.name}-${option}`} />
               <Label htmlFor={`param-${param.name}-${option}`} className="text-xs">

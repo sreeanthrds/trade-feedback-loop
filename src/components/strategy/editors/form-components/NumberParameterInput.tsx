@@ -28,9 +28,13 @@ const NumberParameterInput: React.FC<NumberParameterInputProps> = ({
     ? options.max as number 
     : param.max;
     
-  const step = typeof options === 'object' && 'step' in options 
-    ? options.step as number 
+  // Convert step to number if it's a string
+  const stepValue = typeof options === 'object' && 'step' in options 
+    ? options.step 
     : param.step || 1;
+  
+  // Ensure step is always a number
+  const step = typeof stepValue === 'string' ? parseFloat(stepValue) : stepValue as number;
   
   const placeholder = param.placeholder || `Enter ${param.name}`;
   

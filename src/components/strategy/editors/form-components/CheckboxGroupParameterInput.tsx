@@ -22,6 +22,9 @@ const CheckboxGroupParameterInput: React.FC<CheckboxGroupParameterInputProps> = 
   value = [],
   onChange
 }) => {
+  // Ensure options is an array of strings
+  const optionsArray = Array.isArray(param.options) ? param.options : [];
+
   return (
     <div className="space-y-2" key={param.name}>
       <div className="flex items-center gap-2">
@@ -40,7 +43,7 @@ const CheckboxGroupParameterInput: React.FC<CheckboxGroupParameterInputProps> = 
         )}
       </div>
       <div className="flex flex-col gap-2 pl-1">
-        {param.options?.map((option) => (
+        {optionsArray.map((option) => (
           <div className="flex items-center space-x-2" key={option}>
             <Checkbox
               id={`param-${param.name}-${option}`}
