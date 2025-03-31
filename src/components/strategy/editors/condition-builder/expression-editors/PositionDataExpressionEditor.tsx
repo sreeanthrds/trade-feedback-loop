@@ -11,6 +11,13 @@ import {
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { HelpCircle } from 'lucide-react';
 
 interface PositionDataExpressionEditorProps {
   expression: Expression;
@@ -114,7 +121,21 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
 
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <Label htmlFor="position-vpi" className="text-xs block mb-1">VPI Filter</Label>
+          <div className="flex items-center gap-1 mb-1">
+            <Label htmlFor="position-vpi" className="text-xs">Position ID</Label>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="max-w-xs text-xs">
+                    Specify a VPI to check data for a specific position, or select "All Positions" to aggregate data across all positions.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
           <Select
             value={positionExpr.vpi || ''}
             onValueChange={updateVPI}
@@ -126,7 +147,7 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
               <SelectValue placeholder="Select Position ID" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="_any">Any Position</SelectItem>
+              <SelectItem value="_any">All Positions</SelectItem>
               {positionIdentifiers.vpiOptions.map(vpi => (
                 <SelectItem key={vpi} value={vpi}>
                   {vpi}
@@ -136,7 +157,21 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
           </Select>
         </div>
         <div>
-          <Label htmlFor="position-vpt" className="text-xs block mb-1">VPT Filter</Label>
+          <div className="flex items-center gap-1 mb-1">
+            <Label htmlFor="position-vpt" className="text-xs">Position Tag</Label>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="max-w-xs text-xs">
+                    Filter positions by tag to check data for similarly tagged positions, or select "All Tags" to ignore tag filtering.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
           <Select
             value={positionExpr.vpt || ''}
             onValueChange={updateVPT}
@@ -148,7 +183,7 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
               <SelectValue placeholder="Select Position Tag" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="_any">Any Tag</SelectItem>
+              <SelectItem value="_any">All Tags</SelectItem>
               {positionIdentifiers.vptOptions.map(vpt => (
                 <SelectItem key={vpt} value={vpt}>
                   {vpt}

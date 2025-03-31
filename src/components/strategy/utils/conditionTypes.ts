@@ -1,4 +1,3 @@
-
 // Type definitions for condition builder
 
 // Expression component types
@@ -228,9 +227,21 @@ export const expressionToString = (expr: Expression, nodeData?: any): string => 
       return expr.function;
     
     case 'position_data':
-      const vpiPart = expr.vpi ? `(VPI:${expr.vpi})` : '';
-      const vptPart = expr.vpt ? `(VPT:${expr.vpt})` : '';
-      return `${expr.field}${vpiPart}${vptPart}`;
+      let positionContext = '';
+      if (expr.vpi === '_any' && expr.vpt === '_any') {
+        positionContext = '(All Positions)';
+      } else if (expr.vpi === '_any') {
+        positionContext = `(Tag:${expr.vpt})`;
+      } else if (expr.vpt === '_any') {
+        positionContext = `(ID:${expr.vpi})`;
+      } else if (expr.vpi && expr.vpt) {
+        positionContext = `(ID:${expr.vpi}, Tag:${expr.vpt})`;
+      } else if (expr.vpi) {
+        positionContext = `(ID:${expr.vpi})`;
+      } else if (expr.vpt) {
+        positionContext = `(Tag:${expr.vpt})`;
+      }
+      return `${expr.field}${positionContext}`;
     
     case 'strategy_metric':
       return `Strategy.${expr.metric}`;
@@ -259,4 +270,3 @@ export const expressionToString = (expr: Expression, nodeData?: any): string => 
       return '';
   }
 };
-
