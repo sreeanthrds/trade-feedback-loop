@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { IndicatorParameter } from '../../utils/indicatorConfig';
 import NumberParameterInput from './NumberParameterInput';
@@ -20,8 +19,9 @@ const ParameterInputRouter: React.FC<ParameterInputRouterProps> = ({
   onChange,
   required = false
 }) => {
-  // Set default value if undefined
-  const inputValue = value !== undefined ? value : param.default;
+  // Set default value if undefined, but keep undefined/null values as is for number inputs
+  const inputValue = value !== undefined ? value : 
+    (param.type === 'number' ? undefined : param.default);
   
   switch (param.type) {
     case 'number':

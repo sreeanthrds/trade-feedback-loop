@@ -38,6 +38,8 @@ const NumberParameterInput: React.FC<NumberParameterInputProps> = ({
   
   const placeholder = param.placeholder || `Enter ${param.name}`;
   
+  // Direct pass-through to EnhancedNumberInput
+  // This ensures empty values are properly handled as undefined
   return (
     <EnhancedNumberInput
       label={param.label || param.name}
