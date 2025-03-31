@@ -71,9 +71,16 @@ export function useNodeUpdateStore(strategyStore: any) {
       return;
     }
     
-    // Skip if we recently processed an update - use much longer throttle period
+    // Check if nodes have actually changed using our simple hash function
+    const newHash = generateNodesHash(newNodes);
+    if (newHash === nodeHashRef.current) {
+      // Skip update if the nodes haven't meaningfully changed
+      return;
+    }
+    
+    // Skip if we recently processed an update
     const now = Date.now();
-    if (now - lastUpdateTimeRef.current < 8000) { // Increased from 5000ms to 8000ms
+    if (now - lastUpdateTimeRef.current < 1000) { // Reduced from 8000ms to 1000ms to avoid long delays
       // Queue the update to happen later
       batchedNodesRef.current = newNodes;
       
@@ -85,16 +92,9 @@ export function useNodeUpdateStore(strategyStore: any) {
             batchedNodesRef.current = null;
           }
           pendingUpdateTimerRef.current = null;
-        }, 8000 - (now - lastUpdateTimeRef.current)); // Schedule to run when throttle period ends
+        }, 1000); // Schedule to run after a shorter delay
       }
       
-      return;
-    }
-    
-    // Check if nodes have actually changed using our simple hash function
-    const newHash = generateNodesHash(newNodes);
-    if (newHash === nodeHashRef.current) {
-      // Skip update if the nodes haven't meaningfully changed
       return;
     }
     
@@ -119,12 +119,12 @@ export function useNodeUpdateStore(strategyStore: any) {
         } catch (historyError) {
           handleError(historyError, 'addHistoryItem');
         }
-      }, 2000); // Increased from 1000ms to 2000ms
+      }, 500); // Reduced from 2000ms to 500ms
       
     } catch (error) {
       handleError(error, 'processStoreUpdate');
     } finally {
-      // Reset flags after a delay to prevent immediate re-entry
+      // Reset flags after a short delay to prevent immediate re-entry
       setTimeout(() => {
         updateCycleRef.current = false;
         storeUpdateInProgressRef.current = false;
@@ -137,15 +137,15 @@ export function useNodeUpdateStore(strategyStore: any) {
           // Wait a bit before processing the batched update
           setTimeout(() => {
             processStoreUpdate(batchedNodes);
-          }, 3000);
+          }, 500); // Reduced from 3000ms to 500ms
         }
-      }, 5000); // Increased from 3000ms to 5000ms
+      }, 500); // Reduced from 5000ms to 500ms
       
       // Set a brief skip period to avoid rapid double-updates
       skipNextUpdateRef.current = true;
       setTimeout(() => {
         skipNextUpdateRef.current = false;
-      }, 3000); // Increased from 2000ms to 3000ms
+      }, 500); // Reduced from 3000ms to 500ms
     }
   }, [strategyStore]);
 

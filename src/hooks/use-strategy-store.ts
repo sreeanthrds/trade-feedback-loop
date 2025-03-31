@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { Node, Edge } from '@xyflow/react';
 
@@ -26,8 +27,24 @@ export const useStrategyStore = create<StrategyStore>((set, get) => ({
       return;
     }
     
-    // For stability, don't do deep comparison here, just set the state
-    set({ nodes });
+    // For stability, only update if there's a meaningful change
+    const currentNodes = get().nodes;
+    
+    // Simple length check as first line of defense
+    if (currentNodes.length !== nodes.length) {
+      set({ nodes });
+      return;
+    }
+    
+    // Check if selected state has changed
+    const hasSelectionChanged = currentNodes.some((node, index) => {
+      return node.selected !== nodes[index]?.selected;
+    });
+    
+    // Only update if selection changed or we detect a position change
+    if (hasSelectionChanged || hasPositionChanged(currentNodes, nodes)) {
+      set({ nodes });
+    }
   },
   setEdges: (edges) => {
     // Skip invalid edges
@@ -36,8 +53,11 @@ export const useStrategyStore = create<StrategyStore>((set, get) => ({
       return;
     }
     
-    // For stability, don't do deep comparison here, just set the state
-    set({ edges });
+    // Only update if there's a meaningful change
+    const currentEdges = get().edges;
+    if (currentEdges.length !== edges.length || hasEdgeChanged(currentEdges, edges)) {
+      set({ edges });
+    }
   },
   addHistoryItem: (nodes, edges) => set((state) => {
     // Skip if the history is empty and we're adding empty content
@@ -112,3 +132,46 @@ export const useStrategyStore = create<StrategyStore>((set, get) => ({
     historyIndex: -1,
   }),
 }));
+
+// Helper functions to detect changes
+function hasPositionChanged(oldNodes: Node[], newNodes: Node[]): boolean {
+  // Quick check for obvious length mismatch
+  if (oldNodes.length !== newNodes.length) return true;
+  
+  // Map for quick lookups by id
+  const oldNodesMap = new Map(oldNodes.map(node => [node.id, node]));
+  
+  // Check for position changes
+  return newNodes.some(newNode => {
+    const oldNode = oldNodesMap.get(newNode.id);
+    if (!oldNode) return true; // Node didn't exist before
+    
+    // Check if position changed significantly (more than 1px to avoid floating point issues)
+    if (!oldNode.position || !newNode.position) return false;
+    
+    const xDiff = Math.abs((oldNode.position.x || 0) - (newNode.position.x || 0));
+    const yDiff = Math.abs((oldNode.position.y || 0) - (newNode.position.y || 0));
+    
+    return xDiff > 1 || yDiff > 1 || 
+           oldNode.selected !== newNode.selected || 
+           oldNode.dragging !== newNode.dragging;
+  });
+}
+
+function hasEdgeChanged(oldEdges: Edge[], newEdges: Edge[]): boolean {
+  // Quick check for obvious length mismatch
+  if (oldEdges.length !== newEdges.length) return true;
+  
+  // Map for quick lookups by id
+  const oldEdgesMap = new Map(oldEdges.map(edge => [edge.id, edge]));
+  
+  // Check for any edge changes
+  return newEdges.some(newEdge => {
+    const oldEdge = oldEdgesMap.get(newEdge.id);
+    if (!oldEdge) return true; // Edge didn't exist before
+    
+    return oldEdge.source !== newEdge.source || 
+           oldEdge.target !== newEdge.target ||
+           oldEdge.selected !== newEdge.selected;
+  });
+}

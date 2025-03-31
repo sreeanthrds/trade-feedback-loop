@@ -33,10 +33,15 @@ export function useUpdateProcessing() {
       updateTimeoutRef.current = null;
     }
     
+    // Skip if we're already processing changes
+    if (isProcessingChangesRef.current) {
+      return;
+    }
+    
     // Set a flag to indicate that we're processing changes
     isProcessingChangesRef.current = true;
     
-    // Set a much longer timeout to reduce update frequency
+    // Set a shorter timeout to reduce update frequency but avoid freezing
     updateTimeoutRef.current = setTimeout(() => {
       try {
         process(nodes);
@@ -45,12 +50,12 @@ export function useUpdateProcessing() {
       } finally {
         updateTimeoutRef.current = null;
         
-        // Reset the processing flag after a delay to prevent rapid re-entry
+        // Reset the processing flag after a brief delay
         setTimeout(() => {
           isProcessingChangesRef.current = false;
-        }, 500);
+        }, 100);
       }
-    }, 2000); // Increased from 1000ms to 2000ms to reduce update frequency
+    }, 300); // Reduced from 2000ms to 300ms
   }, []);
 
   const cleanup = useCallback(() => {
