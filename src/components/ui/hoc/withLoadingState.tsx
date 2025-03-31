@@ -7,20 +7,25 @@ export interface LoadingProps {
 }
 
 /**
- * HOC that adds loading state capabilities to any component
+ * HOC that adds loading state visualization to any component
  */
 export function withLoadingState<P>(Component: React.ComponentType<P>) {
-  const WithLoadingState = (props: P & LoadingProps) => {
-    const { isLoading, loadingComponent, ...componentProps } = props;
-
+  const WithLoadingState = React.forwardRef<
+    HTMLElement,
+    P & LoadingProps
+  >(({ isLoading, loadingComponent, ...props }, ref) => {
     if (isLoading) {
-      return loadingComponent || (
-        <div className="animate-pulse w-full h-8 bg-muted rounded-md"></div>
+      return loadingComponent ? (
+        <>{loadingComponent}</>
+      ) : (
+        <div className="flex items-center justify-center h-full w-full min-h-[40px]">
+          <div className="h-5 w-5 border-t-2 border-primary animate-spin rounded-full" />
+        </div>
       );
     }
 
-    return <Component {...(componentProps as P)} />;
-  };
+    return <Component ref={ref} {...(props as unknown as P)} />;
+  });
 
   WithLoadingState.displayName = `withLoadingState(${
     Component.displayName || Component.name || 'Component'

@@ -1,16 +1,11 @@
 
-import React, { useState, useEffect } from 'react';
-import { AlertTriangle } from 'lucide-react';
-import { toast } from "@/hooks/use-toast";
+import React, { useCallback, useState } from 'react';
+import { toast } from '@/hooks/use-toast';
 
 export interface ErrorHandlingProps {
-  /** Custom error handler function */
-  handleError?: (error: Error) => void;
-  /** Context name for error logging */
   errorContext?: string;
-  /** Whether to automatically show toast notifications */
+  handleError?: (error: Error) => void;
   showToasts?: boolean;
-  /** Whether to automatically catch and handle render errors */
   catchRenderErrors?: boolean;
 }
 
@@ -18,83 +13,61 @@ export interface ErrorHandlingProps {
  * HOC that adds error handling capabilities to any component
  */
 export function withErrorHandling<P>(Component: React.ComponentType<P>) {
-  const WithErrorHandling = (props: P & ErrorHandlingProps) => {
-    const { 
-      handleError: customErrorHandler, 
-      errorContext = 'component', 
-      showToasts = true,
-      catchRenderErrors = false,
-      ...componentProps 
-    } = props;
-    
+  const WithErrorHandling = React.forwardRef<
+    HTMLElement, 
+    P & ErrorHandlingProps
+  >(({ 
+    errorContext = 'component', 
+    handleError, 
+    showToasts = true,
+    catchRenderErrors = false,
+    ...props 
+  }, ref) => {
     const [hasError, setHasError] = useState(false);
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     
-    // Reset error state when props change
-    useEffect(() => {
-      if (hasError) {
-        setHasError(false);
-        setErrorMessage(null);
-      }
-    }, [componentProps]);
-    
-    // Central error handler
-    const handleError = (error: Error) => {
+    const errorHandler = useCallback((error: Error) => {
       console.error(`Error in ${errorContext}:`, error);
       
-      setHasError(true);
-      setErrorMessage(error.message || 'An unexpected error occurred');
-      
-      // Show toast if enabled
       if (showToasts) {
         toast({
-          title: "Error",
-          description: error.message || 'An unexpected error occurred',
-          variant: "destructive"
+          title: "An error occurred",
+          description: error.message || "Please try again or contact support",
+          variant: "destructive",
         });
       }
       
+      setHasError(true);
+      
       // Call custom error handler if provided
-      if (customErrorHandler && typeof customErrorHandler === 'function') {
-        customErrorHandler(error);
+      if (handleError) {
+        handleError(error);
       }
-    };
+    }, [errorContext, handleError, showToasts]);
     
-    // Handle render errors if enabled
-    if (catchRenderErrors && hasError) {
+    if (hasError && catchRenderErrors) {
       return (
-        <div className="p-4 border border-destructive rounded-md bg-destructive/10">
-          <div className="flex items-center gap-2 mb-2">
-            <AlertTriangle className="h-5 w-5 text-destructive" />
-            <h4 className="font-medium text-destructive">Something went wrong</h4>
-          </div>
-          {errorMessage && <p className="text-sm text-muted-foreground">{errorMessage}</p>}
+        <div className="p-2 border border-red-300 bg-red-50 dark:bg-red-950/20 rounded text-sm text-red-600 dark:text-red-400">
+          Error rendering component. Please try again.
         </div>
       );
     }
     
-    // Try/catch only works for non-async code
-    // For async errors, components should use the provided error handler
+    // If we get here, either there's no error or we're not catching render errors
     try {
-      return <Component {...(componentProps as unknown as P)} handleError={handleError} />;
+      return <Component ref={ref} {...(props as unknown as P)} />;
     } catch (error) {
       if (catchRenderErrors) {
-        handleError(error instanceof Error ? error : new Error(String(error)));
+        errorHandler(error instanceof Error ? error : new Error(String(error)));
         return (
-          <div className="p-4 border border-destructive rounded-md bg-destructive/10">
-            <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle className="h-5 w-5 text-destructive" />
-              <h4 className="font-medium text-destructive">Render Error</h4>
-            </div>
-            {errorMessage && <p className="text-sm text-muted-foreground">{errorMessage}</p>}
+          <div className="p-2 border border-red-300 bg-red-50 dark:bg-red-950/20 rounded text-sm text-red-600 dark:text-red-400">
+            Error rendering component. Please try again.
           </div>
         );
       } else {
-        // Re-throw if not catching render errors
-        throw error;
+        throw error; // Re-throw if not catching render errors
       }
     }
-  };
+  });
 
   WithErrorHandling.displayName = `withErrorHandling(${
     Component.displayName || Component.name || 'Component'
