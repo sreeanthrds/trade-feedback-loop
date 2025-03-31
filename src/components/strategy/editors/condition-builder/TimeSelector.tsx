@@ -12,15 +12,18 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 interface TimeSelectorProps {
   expression: Expression;
   updateExpression: (expr: Expression) => void;
+  required?: boolean;
 }
 
 const TimeSelector: React.FC<TimeSelectorProps> = ({
   expression,
-  updateExpression
+  updateExpression,
+  required = false
 }) => {
   if (expression.type !== 'time_function') {
     return null;
@@ -53,8 +56,13 @@ const TimeSelector: React.FC<TimeSelectorProps> = ({
         value={timeExpr.function} 
         onValueChange={updateFunction}
       >
-        <SelectTrigger className="h-8">
-          <SelectValue />
+        <SelectTrigger 
+          className={cn(
+            "h-8", 
+            required && !timeExpr.function && "border-red-300 focus:ring-red-200"
+          )}
+        >
+          <SelectValue placeholder="Select time function" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="today">Today</SelectItem>
@@ -73,7 +81,10 @@ const TimeSelector: React.FC<TimeSelectorProps> = ({
           min="1"
           value={timeExpr.parameters || 1}
           onChange={(e) => updateDaysParameter(e.target.value)}
-          className="h-8"
+          className={cn(
+            "h-8",
+            required && !timeExpr.parameters && "border-red-300 focus:ring-red-200"
+          )}
         />
       )}
     </div>
