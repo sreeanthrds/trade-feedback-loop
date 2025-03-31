@@ -18,7 +18,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { HelpCircle } from 'lucide-react';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Switch } from '@/components/ui/switch';
 
 interface PositionDataExpressionEditorProps {
   expression: Expression;
@@ -39,8 +39,8 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
   const nodes = useStrategyStore(state => state.nodes);
   
   // State for identifier type selection
-  const [identifierType, setIdentifierType] = useState<'vpi' | 'vpt'>(
-    positionExpr.vpi && positionExpr.vpi !== '_any' ? 'vpi' : 'vpt'
+  const [useVpiFilter, setUseVpiFilter] = useState<boolean>(
+    positionExpr.vpi && positionExpr.vpi !== '_any'
   );
   
   // Extract VPI and VPT values from all nodes
@@ -71,16 +71,18 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
   }, [nodes]);
   
   // Handle identifier type change
-  const handleIdentifierTypeChange = (value: string) => {
-    setIdentifierType(value as 'vpi' | 'vpt');
+  const handleIdentifierTypeChange = (checked: boolean) => {
+    setUseVpiFilter(checked);
     
-    // Reset the other identifier when type changes
-    if (value === 'vpi') {
+    // Reset the indicators based on the filter type
+    if (checked) {
+      // Switching to VPI, reset VPT to _any
       updateExpression({
         ...positionExpr,
         vpt: '_any'
       });
     } else {
+      // Switching to VPT, reset VPI to _any
       updateExpression({
         ...positionExpr,
         vpi: '_any'
@@ -162,43 +164,35 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
       </div>
 
       <div className="space-y-2">
-        <div className="flex items-center gap-1 mb-1">
-          <Label className="text-xs">Filter By</Label>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="max-w-xs text-xs">
-                  Choose how to identify positions - by their unique ID or by their tag group
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-1">
+            <Label className="text-xs">Filter By</Label>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="max-w-xs text-xs">
+                    Choose how to identify positions - by their unique ID or by their tag group
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="text-xs text-muted-foreground">Tag</span>
+            <Switch
+              checked={useVpiFilter}
+              onCheckedChange={handleIdentifierTypeChange}
+              id="filter-type-switch"
+            />
+            <span className="text-xs text-muted-foreground">ID</span>
+          </div>
         </div>
-        
-        <RadioGroup
-          value={identifierType}
-          onValueChange={handleIdentifierTypeChange}
-          className="flex flex-col space-y-1"
-        >
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="vpi" id="radio-vpi" />
-            <Label htmlFor="radio-vpi" className="text-sm font-normal cursor-pointer">
-              Position ID
-            </Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="vpt" id="radio-vpt" />
-            <Label htmlFor="radio-vpt" className="text-sm font-normal cursor-pointer">
-              Position Tag
-            </Label>
-          </div>
-        </RadioGroup>
       </div>
 
-      {identifierType === 'vpi' ? (
+      {useVpiFilter ? (
         <div>
           <Label htmlFor="position-vpi" className="text-xs block mb-1">Position ID</Label>
           <Select
