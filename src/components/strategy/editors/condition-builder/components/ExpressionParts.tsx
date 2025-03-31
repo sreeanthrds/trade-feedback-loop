@@ -21,8 +21,8 @@ const ExpressionParts: React.FC<ExpressionPartsProps> = ({
   showLabels = true
 }) => {
   return (
-    <div className="condition-scroll-container">
-      <div className="grid grid-cols-2 gap-3 min-w-[600px]">
+    <div className="w-full overflow-visible">
+      <div className="grid grid-cols-2 gap-3 w-full overflow-visible">
         <ExpressionWrapper
           label="Left Expression"
           expression={leftExpression}

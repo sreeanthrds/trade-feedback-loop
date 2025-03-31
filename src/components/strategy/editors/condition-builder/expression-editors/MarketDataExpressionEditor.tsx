@@ -51,10 +51,6 @@ const MarketDataExpressionEditor: React.FC<MarketDataExpressionEditorProps> = ({
   
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-1 mb-1">
-        <Label className="text-xs">Market Data</Label>
-        <FieldTooltip content="Select which market data point to use for this condition" />
-      </div>
       <Select 
         value={marketDataExpr.field} 
         onValueChange={updateField}

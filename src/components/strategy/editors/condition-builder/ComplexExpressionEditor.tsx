@@ -51,7 +51,7 @@ const ComplexExpressionEditor: React.FC<ComplexExpressionEditorProps> = ({
   
   return (
     <div className={cn(
-      "space-y-3 border border-border rounded-md p-3 mt-2",
+      "space-y-3 border border-border rounded-md p-3 mt-2 overflow-visible w-full",
       required && !complexExpr.operation && "border-red-300"
     )}>
       {/* Operation selector */}
