@@ -14,8 +14,8 @@ import { cn } from '@/lib/utils';
 
 interface NumberParameterInputProps {
   param: IndicatorParameter;
-  value: number;
-  onChange: (value: number) => void;
+  value: number | undefined;
+  onChange: (value: number | undefined) => void;
   required?: boolean;
 }
 
@@ -31,8 +31,8 @@ const NumberParameterInput: React.FC<NumberParameterInputProps> = ({
     
     // Allow empty string to clear the field
     if (inputValue === '') {
-      // Pass undefined to the onChange handler - this is key to clearing
-      onChange(undefined as any);
+      // Pass undefined to the onChange handler to fully clear the field
+      onChange(undefined);
       return;
     }
     

@@ -14,7 +14,7 @@ import {
 interface InputFieldProps {
   label: string;
   id: string;
-  value: string | number;
+  value: string | number | undefined;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
   type?: string;
@@ -42,9 +42,14 @@ const InputField: React.FC<InputFieldProps> = ({
 }) => {
   // For number inputs, handle empty value differently
   let inputValue = value;
-  if (type === 'number' && (value === '' || value === null || value === undefined)) {
+  if (type === 'number' && (value === undefined || value === null || value === '')) {
     inputValue = '';
   }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Pass through all changes, including empty values
+    onChange(e);
+  };
 
   return (
     <div className="space-y-2">
@@ -70,7 +75,7 @@ const InputField: React.FC<InputFieldProps> = ({
         id={id}
         type={type}
         value={inputValue}
-        onChange={onChange}
+        onChange={handleInputChange}
         placeholder={placeholder}
         className={cn(
           className,
