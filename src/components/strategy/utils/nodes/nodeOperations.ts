@@ -11,6 +11,75 @@ export const initialNodes: Node[] = [
   }
 ];
 
+// Helper function to find an empty position for a new node
+const findEmptyPosition = (nodes: Node[], startX: number, startY: number): { x: number, y: number } => {
+  // Default grid size
+  const gridSize = { width: 180, height: 100 };
+  const padding = 20;
+  const fullWidth = gridSize.width + padding;
+  const fullHeight = gridSize.height + padding;
+  
+  // Start with the suggested position
+  let position = { x: startX, y: startY };
+  
+  // Create a simple grid system for placing nodes
+  const isPositionOccupied = (pos: { x: number, y: number }): boolean => {
+    return nodes.some(node => {
+      const nodeX = node.position.x;
+      const nodeY = node.position.y;
+      
+      // Check if the proposed position overlaps with this node
+      return (
+        pos.x < nodeX + fullWidth &&
+        pos.x + fullWidth > nodeX &&
+        pos.y < nodeY + fullHeight &&
+        pos.y + fullHeight > nodeY
+      );
+    });
+  };
+  
+  // If position is already occupied, find a new one
+  if (isPositionOccupied(position)) {
+    // Try positioning in different areas using a spiral pattern
+    const spiralPoints = [];
+    const maxRadius = 5; // Maximum number of "rings" to check
+    const angleStep = Math.PI / 4; // 45 degrees
+    
+    for (let radius = 1; radius <= maxRadius; radius++) {
+      for (let angle = 0; angle < 2 * Math.PI; angle += angleStep) {
+        const x = startX + Math.cos(angle) * radius * fullWidth;
+        const y = startY + Math.sin(angle) * radius * fullHeight;
+        spiralPoints.push({ x, y });
+      }
+    }
+    
+    // Find the first non-occupied position
+    const emptyPosition = spiralPoints.find(pos => !isPositionOccupied(pos));
+    if (emptyPosition) {
+      position = emptyPosition;
+    } else {
+      // If all positions are occupied, use a position far away
+      position = { x: startX + fullWidth * maxRadius, y: startY };
+    }
+  }
+  
+  return position;
+};
+
+// Find the highest z-index in the existing nodes
+const getHighestZIndex = (nodes: Node[]): number => {
+  let highestZIndex = 0;
+  
+  nodes.forEach(node => {
+    const nodeZIndex = node.style?.zIndex ? parseInt(node.style.zIndex.toString()) : 0;
+    if (nodeZIndex > highestZIndex) {
+      highestZIndex = nodeZIndex;
+    }
+  });
+  
+  return highestZIndex;
+};
+
 export const addNode = (
   type: string, 
   reactFlowInstance: ReactFlowInstance,
@@ -18,17 +87,23 @@ export const addNode = (
   nodes: Node[],
   parentNodeId?: string
 ): { node: Node, parentNode?: Node } => {
-  const position = reactFlowInstance.screenToFlowPosition({
+  // Get the suggested center position from the viewport
+  const viewportCenter = reactFlowInstance.screenToFlowPosition({
     x: (reactFlowWrapper.current?.clientWidth || 800) / 2,
     y: (reactFlowWrapper.current?.clientHeight || 600) / 2,
   });
   
+  let suggestedPosition = { ...viewportCenter };
   const parentNode = parentNodeId ? nodes.find(node => node.id === parentNodeId) : undefined;
   
+  // If there's a parent node, suggest a position relative to it
   if (parentNode) {
-    position.x = parentNode.position.x + 200;
-    position.y = parentNode.position.y + 50;
+    suggestedPosition.x = parentNode.position.x + 200;
+    suggestedPosition.y = parentNode.position.y + 50;
   }
+  
+  // Find an empty position based on the suggested one
+  const position = findEmptyPosition(nodes, suggestedPosition.x, suggestedPosition.y);
   
   const getNodeTypePrefix = () => {
     switch (type) {
@@ -137,11 +212,16 @@ export const addNode = (
     };
   }
   
+  // Get the highest z-index and increase it by 1
+  const highestZIndex = getHighestZIndex(nodes);
+  const newZIndex = highestZIndex + 1;
+  
   const newNode = {
     id: nodeId,
     type: type as any,
     position,
-    data: defaultData
+    data: defaultData,
+    style: { zIndex: newZIndex }
   };
   
   console.log('Created new node:', newNode);

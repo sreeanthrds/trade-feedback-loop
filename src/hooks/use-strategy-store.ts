@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { Node, Edge } from '@xyflow/react';
 
@@ -45,13 +46,19 @@ export const useStrategyStore = create<StrategyStore>((set, get) => ({
       return;
     }
     
-    // Check for meaningful position or selection changes
+    // Check for meaningful position, selection, or z-index changes
     for (const node of nodes) {
       const currentNode = currentNodesMap.get(node.id);
       if (!currentNode) continue;
       
       // Check selection state
       if (node.selected !== currentNode.selected) {
+        set({ nodes });
+        return;
+      }
+      
+      // Check z-index changes
+      if (hasZIndexChanged(currentNode, node)) {
         set({ nodes });
         return;
       }
@@ -207,6 +214,13 @@ function haveSameEdgeIds(oldEdges: Edge[], newEdges: Edge[]): boolean {
   }
   
   return true;
+}
+
+function hasZIndexChanged(oldNode: Node, newNode: Node): boolean {
+  const oldZIndex = oldNode.style?.zIndex ? parseInt(oldNode.style.zIndex.toString()) : 0;
+  const newZIndex = newNode.style?.zIndex ? parseInt(newNode.style.zIndex.toString()) : 0;
+  
+  return oldZIndex !== newZIndex;
 }
 
 function hasPositionChangedSignificantly(oldNode: Node, newNode: Node): boolean {

@@ -8,6 +8,7 @@
   transition: box-shadow 0.2s, transform 0.1s;
   cursor: grab;
   user-select: none;
+  z-index: var(--z-index, 0); /* Use custom z-index variable */
 }
 
 .react-flow__node.dragging {
@@ -19,6 +20,7 @@
 
 .react-flow__node.selected {
   box-shadow: 0 0 0 2px hsl(var(--primary) / 0.8);
+  z-index: 5 !important; /* Selected nodes should appear above others but below dragging nodes */
 }
 
 /* Node type specific styles */
