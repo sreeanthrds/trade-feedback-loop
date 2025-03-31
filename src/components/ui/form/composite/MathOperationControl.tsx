@@ -1,9 +1,7 @@
 
 import React from 'react';
-import { Label } from '@/components/ui/label';
-import OperationSelector from '../OperationSelector';
+import { EnhancedOperationSelector } from '../enhanced';
 import type { MathOperation } from '../OperationSelector';
-import { FormItem, FormControl, FormLabel, FormMessage } from '../form';
 import { cn } from '@/lib/utils';
 
 interface MathOperationControlProps {
@@ -15,6 +13,7 @@ interface MathOperationControlProps {
   error?: string;
   className?: string;
   description?: string;
+  isLoading?: boolean;
 }
 
 const MathOperationControl: React.FC<MathOperationControlProps> = ({
@@ -25,26 +24,22 @@ const MathOperationControl: React.FC<MathOperationControlProps> = ({
   required = false,
   error,
   className,
-  description
+  description,
+  isLoading = false
 }) => {
   return (
-    <FormItem className={cn("space-y-1", className)}>
-      <FormLabel htmlFor={id} className="text-sm">
-        {label}
-        {required && <span className="text-destructive ml-1">*</span>}
-      </FormLabel>
-      <FormControl>
-        <OperationSelector
-          value={value}
-          onValueChange={onChange}
-          required={required}
-        />
-      </FormControl>
-      {description && (
-        <p className="text-xs text-muted-foreground">{description}</p>
-      )}
-      {error && <FormMessage>{error}</FormMessage>}
-    </FormItem>
+    <div className={cn("space-y-1", className)}>
+      <EnhancedOperationSelector
+        id={id}
+        label={label}
+        value={value}
+        onValueChange={onChange}
+        isRequired={required}
+        error={error}
+        description={description}
+        isLoading={isLoading}
+      />
+    </div>
   );
 };
 

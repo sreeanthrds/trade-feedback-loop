@@ -13,6 +13,9 @@ export * from './composite';
 // Third-level advanced components
 export * from './advanced';
 
+// Enhanced components with HOC patterns
+export * from './enhanced';
+
 // Export Radix UI form components
 export {
   useFormField,
