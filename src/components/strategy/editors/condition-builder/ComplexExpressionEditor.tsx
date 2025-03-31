@@ -12,14 +12,12 @@ interface ComplexExpressionEditorProps {
   expression: Expression;
   updateExpression: (expr: Expression) => void;
   required?: boolean;
-  showLabels?: boolean;
 }
 
 const ComplexExpressionEditor: React.FC<ComplexExpressionEditorProps> = ({
   expression,
   updateExpression,
-  required = false,
-  showLabels = true
+  required = false
 }) => {
   if (expression.type !== 'expression') {
     return null;
@@ -70,7 +68,6 @@ const ComplexExpressionEditor: React.FC<ComplexExpressionEditorProps> = ({
         updateLeft={updateLeft}
         updateRight={updateRight}
         required={required}
-        showLabels={showLabels}
       />
     </div>
   );

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Group, Combine } from 'lucide-react';
+import { Group } from 'lucide-react';
 import { GroupCondition } from '../../../utils/conditionTypes';
 import {
   Select,
@@ -27,16 +27,11 @@ const GroupConditionTitle: React.FC<GroupConditionTitleProps> = ({
   updateGroupLogic,
   removeGroup,
 }) => {
-  const isAnd = rootCondition.groupLogic === 'AND';
-  const badgeClass = isAnd ? 'and-badge' : 'or-badge';
-  
   return (
-    <div className={`condition-group-title ${isAnd ? 'and' : 'or'}`}>
-      <div className="flex items-center gap-2 flex-1">
-        {level > 0 ? (
-          <Combine className={`h-4 w-4 ${isAnd ? 'text-blue-500' : 'text-orange-500'}`} />
-        ) : (
-          <Group className={`h-4 w-4 ${isAnd ? 'text-blue-500' : 'text-orange-500'}`} />
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        {level > 0 && (
+          <Group className="h-4 w-4 text-muted-foreground" />
         )}
         <Select
           value={rootCondition.groupLogic}
@@ -50,8 +45,8 @@ const GroupConditionTitle: React.FC<GroupConditionTitleProps> = ({
             <SelectItem value="OR">OR</SelectItem>
           </SelectContent>
         </Select>
-        <span className={badgeClass}>
-          Group with {rootCondition.conditions.length} condition{rootCondition.conditions.length !== 1 ? 's' : ''}
+        <span className="text-xs text-muted-foreground">
+          Group with {rootCondition.conditions.length} condition(s)
         </span>
       </div>
 

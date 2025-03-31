@@ -9,13 +9,11 @@ import ExpressionWrapper from './components/ExpressionWrapper';
 interface SingleConditionEditorProps {
   condition: Condition;
   updateCondition: (updated: Condition) => void;
-  showLabels?: boolean;
 }
 
 const SingleConditionEditor: React.FC<SingleConditionEditorProps> = ({
   condition,
-  updateCondition,
-  showLabels = true
+  updateCondition
 }) => {
   // Update the condition operator
   const updateOperator = (value: string) => {
@@ -53,7 +51,6 @@ const SingleConditionEditor: React.FC<SingleConditionEditorProps> = ({
         expression={condition.lhs}
         updateExpression={updateLhs}
         required={requiresValues}
-        showLabel={showLabels}
       />
       
       {/* Operator */}
@@ -70,7 +67,6 @@ const SingleConditionEditor: React.FC<SingleConditionEditorProps> = ({
         expression={condition.rhs}
         updateExpression={updateRhs}
         required={requiresValues}
-        showLabel={showLabels}
       />
     </div>
   );

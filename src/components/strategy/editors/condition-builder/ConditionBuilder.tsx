@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   Condition, 
   GroupCondition, 
@@ -28,9 +28,6 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
   allowRemove = false,
   index = 0
 }) => {
-  // State to determine if we should show group headers
-  const [showGroupHeaders] = useState(true);
-  
   // Add a new single condition to this group
   const addCondition = () => {
     const newCondition = createEmptyCondition();
@@ -88,10 +85,12 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
     }
   };
 
-  // Check if we have regular conditions (not nested groups) to show headers for
-  const hasRegularConditions = rootCondition.conditions.some(
-    cond => !('groupLogic' in cond)
-  );
+  // Calculate indentation based on nesting level
+  const indentStyle = {
+    marginLeft: `${level * 16}px`,
+    borderLeft: level > 0 ? '2px solid #e5e7eb' : 'none',
+    paddingLeft: level > 0 ? '16px' : '0'
+  };
 
   return (
     <div className="space-y-3">
@@ -103,38 +102,23 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
         removeGroup={removeGroup}
       />
 
-      <div className={level > 0 ? "condition-group" : "space-y-3 pt-2"}>
-        {/* Display group headers if we have regular conditions and showGroupHeaders is true */}
-        {showGroupHeaders && hasRegularConditions && level === 0 && (
-          <div className="condition-group-headers">
-            <div className="header">Left Side</div>
-            <div className="header center-header">Operator</div>
-            <div className="header">Right Side</div>
+      <div style={indentStyle} className="space-y-3 pt-2">
+        {rootCondition.conditions.map((condition, idx) => (
+          <div key={condition.id} className="relative">
+            <ConditionItem 
+              condition={condition}
+              index={idx}
+              level={level}
+              updateCondition={(updated) => updateChildCondition(idx, updated)}
+              removeCondition={() => removeCondition(idx)}
+            />
           </div>
-        )}
+        ))}
 
-        {/* Wrapper with class to hide individual labels when group headers are shown */}
-        <div className={showGroupHeaders && hasRegularConditions ? "hide-individual-labels" : ""}>
-          {rootCondition.conditions.map((condition, idx) => (
-            <div key={condition.id} className="relative">
-              <ConditionItem 
-                condition={condition}
-                index={idx}
-                level={level}
-                updateCondition={(updated) => updateChildCondition(idx, updated)}
-                removeCondition={() => removeCondition(idx)}
-                showLabels={!showGroupHeaders || level > 0 || 'groupLogic' in condition}
-              />
-            </div>
-          ))}
-        </div>
-
-        <div className="condition-actions">
-          <ConditionActions 
-            addCondition={addCondition}
-            addGroup={addGroup}
-          />
-        </div>
+        <ConditionActions 
+          addCondition={addCondition}
+          addGroup={addGroup}
+        />
       </div>
 
       {level === 0 && (

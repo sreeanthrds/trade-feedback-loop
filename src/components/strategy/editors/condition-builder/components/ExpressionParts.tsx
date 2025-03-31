@@ -9,7 +9,6 @@ interface ExpressionPartsProps {
   updateLeft: (expr: Expression) => void;
   updateRight: (expr: Expression) => void;
   required?: boolean;
-  showLabels?: boolean;
 }
 
 const ExpressionParts: React.FC<ExpressionPartsProps> = ({
@@ -17,8 +16,7 @@ const ExpressionParts: React.FC<ExpressionPartsProps> = ({
   rightExpression,
   updateLeft,
   updateRight,
-  required = false,
-  showLabels = true
+  required = false
 }) => {
   return (
     <div className="grid grid-cols-2 gap-3">
@@ -27,14 +25,12 @@ const ExpressionParts: React.FC<ExpressionPartsProps> = ({
         expression={leftExpression}
         updateExpression={updateLeft}
         required={required}
-        showLabel={showLabels}
       />
       <ExpressionWrapper
         label="Right Expression"
         expression={rightExpression}
         updateExpression={updateRight}
         required={required}
-        showLabel={showLabels}
       />
     </div>
   );
