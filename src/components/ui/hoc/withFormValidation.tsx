@@ -29,7 +29,7 @@ export function withFormValidation<
         <Component
           ref={ref}
           className={`${className || ''} ${validationClass}`}
-          {...(props as P)}
+          {...(props as unknown as P)}
         />
         {error && (
           <div className="flex items-center text-destructive text-xs gap-1 mt-1">
