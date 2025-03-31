@@ -15,7 +15,7 @@ interface SingleConditionEditorProps {
 const SingleConditionEditor: React.FC<SingleConditionEditorProps> = ({
   condition,
   updateCondition,
-  showLabels = false
+  showLabels = true
 }) => {
   // Update the condition operator
   const updateOperator = (value: string) => {
@@ -54,7 +54,7 @@ const SingleConditionEditor: React.FC<SingleConditionEditorProps> = ({
           expression={condition.lhs}
           updateExpression={updateLhs}
           required={requiresValues}
-          showLabels={showLabels}
+          showLabels={true}
         />
         
         {/* Operator */}
@@ -71,7 +71,7 @@ const SingleConditionEditor: React.FC<SingleConditionEditorProps> = ({
           expression={condition.rhs}
           updateExpression={updateRhs}
           required={requiresValues}
-          showLabels={showLabels}
+          showLabels={true}
         />
       </div>
     </div>

@@ -14,7 +14,7 @@
   border-radius: 6px;
   padding: 12px;
   margin-bottom: 10px;
-  background-color: #f8fafc;
+  background-color: transparent;
   position: relative;
   transition: all 0.2s ease;
 }

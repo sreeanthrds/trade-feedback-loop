@@ -61,13 +61,14 @@ const ComplexExpressionEditor: React.FC<ComplexExpressionEditorProps> = ({
         required={required}
       />
       
-      {/* Left and right expressions */}
+      {/* Left and right expressions - always show labels */}
       <ExpressionParts
         leftExpression={complexExpr.left}
         rightExpression={complexExpr.right}
         updateLeft={updateLeft}
         updateRight={updateRight}
         required={required}
+        showLabels={true}
       />
     </div>
   );
