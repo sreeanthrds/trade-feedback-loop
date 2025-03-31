@@ -9,11 +9,13 @@ import ExpressionWrapper from './components/ExpressionWrapper';
 interface SingleConditionEditorProps {
   condition: Condition;
   updateCondition: (updated: Condition) => void;
+  showLabels?: boolean;
 }
 
 const SingleConditionEditor: React.FC<SingleConditionEditorProps> = ({
   condition,
-  updateCondition
+  updateCondition,
+  showLabels = false
 }) => {
   // Update the condition operator
   const updateOperator = (value: string) => {
@@ -44,30 +46,34 @@ const SingleConditionEditor: React.FC<SingleConditionEditorProps> = ({
   const requiresValues = ['>', '<', '>=', '<=', '==', '!='].includes(condition.operator);
 
   return (
-    <div className="grid grid-cols-[1fr,auto,1fr] gap-2 items-start">
-      {/* Left-hand side expression */}
-      <ExpressionWrapper
-        label="Left Side"
-        expression={condition.lhs}
-        updateExpression={updateLhs}
-        required={requiresValues}
-      />
-      
-      {/* Operator */}
-      <div className="pt-6">
-        <OperatorSelector 
-          operator={condition.operator}
-          updateOperator={updateOperator}
+    <div className="condition-scroll-container">
+      <div className="expression-grid">
+        {/* Left-hand side expression */}
+        <ExpressionWrapper
+          label="Left Side"
+          expression={condition.lhs}
+          updateExpression={updateLhs}
+          required={requiresValues}
+          showLabels={showLabels}
+        />
+        
+        {/* Operator */}
+        <div className="pt-6">
+          <OperatorSelector 
+            operator={condition.operator}
+            updateOperator={updateOperator}
+          />
+        </div>
+        
+        {/* Right-hand side expression */}
+        <ExpressionWrapper
+          label="Right Side"
+          expression={condition.rhs}
+          updateExpression={updateRhs}
+          required={requiresValues}
+          showLabels={showLabels}
         />
       </div>
-      
-      {/* Right-hand side expression */}
-      <ExpressionWrapper
-        label="Right Side"
-        expression={condition.rhs}
-        updateExpression={updateRhs}
-        required={requiresValues}
-      />
     </div>
   );
 };

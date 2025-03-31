@@ -28,6 +28,10 @@ export interface ExpressionWrapperProps {
    * Additional element to render next to the label
    */
   labelAdornment?: ReactNode;
+  /**
+   * Whether to show the label
+   */
+  showLabel?: boolean;
 }
 
 /**
@@ -39,19 +43,22 @@ const ExpressionWrapper: React.FC<ExpressionWrapperProps> = ({
   required = false,
   className,
   labelClassName,
-  labelAdornment
+  labelAdornment,
+  showLabel = true
 }) => {
   return (
     <div className={cn("space-y-2", className)}>
-      <div className="flex items-center justify-between">
-        <Label className={cn("text-xs flex items-center", labelClassName)}>
-          {label}
-          {required && <span className="ml-1 text-red-500">*</span>}
-        </Label>
-        {labelAdornment && (
-          <div>{labelAdornment}</div>
-        )}
-      </div>
+      {showLabel && (
+        <div className="flex items-center justify-between">
+          <Label className={cn("text-xs flex items-center", labelClassName)}>
+            {label}
+            {required && <span className="ml-1 text-red-500">*</span>}
+          </Label>
+          {labelAdornment && (
+            <div>{labelAdornment}</div>
+          )}
+        </div>
+      )}
       
       {children}
     </div>

@@ -28,11 +28,16 @@ const GroupConditionTitle: React.FC<GroupConditionTitleProps> = ({
   removeGroup,
 }) => {
   return (
-    <div className="flex items-center justify-between">
+    <div className="group-header">
       <div className="flex items-center gap-2">
         {level > 0 && (
           <Group className="h-4 w-4 text-muted-foreground" />
         )}
+        
+        <div className={`group-logic-badge ${rootCondition.groupLogic === 'AND' ? 'group-logic-and' : 'group-logic-or'}`}>
+          {rootCondition.groupLogic}
+        </div>
+        
         <Select
           value={rootCondition.groupLogic}
           onValueChange={updateGroupLogic}
@@ -45,12 +50,13 @@ const GroupConditionTitle: React.FC<GroupConditionTitleProps> = ({
             <SelectItem value="OR">OR</SelectItem>
           </SelectContent>
         </Select>
+        
         <span className="text-xs text-muted-foreground">
           Group with {rootCondition.conditions.length} condition(s)
         </span>
       </div>
 
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 ml-auto">
         {allowRemove && (
           <Button 
             variant="ghost" 

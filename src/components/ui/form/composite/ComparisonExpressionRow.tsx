@@ -14,6 +14,7 @@ interface ComparisonExpressionRowProps {
   rightComponent: React.ReactNode;
   className?: string;
   required?: boolean;
+  showLabels?: boolean;
 }
 
 const ComparisonExpressionRow: React.FC<ComparisonExpressionRowProps> = ({
@@ -24,13 +25,15 @@ const ComparisonExpressionRow: React.FC<ComparisonExpressionRowProps> = ({
   leftComponent,
   rightComponent,
   className,
-  required = false
+  required = false,
+  showLabels = true
 }) => {
   return (
-    <div className={cn("grid grid-cols-[1fr,auto,1fr] gap-2 items-start", className)}>
+    <div className={cn("expression-grid", className)}>
       <ExpressionWrapper
         label={leftLabel}
         required={required}
+        showLabel={showLabels}
       >
         {leftComponent}
       </ExpressionWrapper>
@@ -46,6 +49,7 @@ const ComparisonExpressionRow: React.FC<ComparisonExpressionRowProps> = ({
       <ExpressionWrapper
         label={rightLabel}
         required={required}
+        showLabel={showLabels}
       >
         {rightComponent}
       </ExpressionWrapper>

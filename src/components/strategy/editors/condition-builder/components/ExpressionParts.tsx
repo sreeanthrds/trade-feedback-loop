@@ -19,19 +19,21 @@ const ExpressionParts: React.FC<ExpressionPartsProps> = ({
   required = false
 }) => {
   return (
-    <div className="grid grid-cols-2 gap-3">
-      <ExpressionWrapper
-        label="Left Expression"
-        expression={leftExpression}
-        updateExpression={updateLeft}
-        required={required}
-      />
-      <ExpressionWrapper
-        label="Right Expression"
-        expression={rightExpression}
-        updateExpression={updateRight}
-        required={required}
-      />
+    <div className="condition-scroll-container">
+      <div className="grid grid-cols-2 gap-3 min-w-[600px]">
+        <ExpressionWrapper
+          label="Left Expression"
+          expression={leftExpression}
+          updateExpression={updateLeft}
+          required={required}
+        />
+        <ExpressionWrapper
+          label="Right Expression"
+          expression={rightExpression}
+          updateExpression={updateRight}
+          required={required}
+        />
+      </div>
     </div>
   );
 };

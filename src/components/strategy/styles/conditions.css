@@ -1,0 +1,83 @@
+
+/* Condition Group Styling */
+.condition-group {
+  border-left: 2px solid #e2e8f0;
+  padding-left: 16px;
+  margin-left: 8px;
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+/* Single Condition Styling */
+.condition-item {
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 10px;
+  background-color: #f8fafc;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.condition-item:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Group header styling */
+.group-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.group-logic-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 4px;
+  margin-right: 8px;
+}
+
+.group-logic-and {
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+.group-logic-or {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+/* Horizontal scroll container */
+.condition-scroll-container {
+  overflow-x: auto;
+  padding-bottom: 4px; /* Space for the scrollbar */
+}
+
+/* Expression grid */
+.expression-grid {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) auto minmax(200px, 1fr);
+  min-width: 700px; /* Minimum width to prevent squeezing */
+  gap: 12px;
+}
+
+/* Group indentation levels */
+.indent-level-0 {
+  margin-left: 0;
+}
+
+.indent-level-1 {
+  margin-left: 16px;
+}
+
+.indent-level-2 {
+  margin-left: 32px;
+}
+
+.indent-level-3 {
+  margin-left: 48px;
+}

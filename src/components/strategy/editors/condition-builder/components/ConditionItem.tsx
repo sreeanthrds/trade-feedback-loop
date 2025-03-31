@@ -36,7 +36,7 @@ const ConditionItem: React.FC<ConditionItemProps> = ({
   } else {
     // Render single condition
     return (
-      <div className="flex items-start">
+      <div className="condition-item flex items-start">
         <div className="flex-grow">
           <SingleConditionEditor
             condition={condition as Condition}
@@ -47,7 +47,7 @@ const ConditionItem: React.FC<ConditionItemProps> = ({
           variant="ghost" 
           size="sm" 
           onClick={removeCondition} 
-          className="ml-2 h-8 w-8 p-0 mt-1"
+          className="ml-2 h-8 w-8 p-0 mt-1 shrink-0"
         >
           <Trash2 className="h-4 w-4 text-destructive" />
         </Button>

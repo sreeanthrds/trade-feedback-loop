@@ -85,15 +85,8 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
     }
   };
 
-  // Calculate indentation based on nesting level
-  const indentStyle = {
-    marginLeft: `${level * 16}px`,
-    borderLeft: level > 0 ? '2px solid #e5e7eb' : 'none',
-    paddingLeft: level > 0 ? '16px' : '0'
-  };
-
   return (
-    <div className="space-y-3">
+    <div className={`space-y-3 ${level > 0 ? 'condition-group' : ''}`}>
       <GroupConditionTitle 
         rootCondition={rootCondition}
         level={level}
@@ -102,7 +95,17 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
         removeGroup={removeGroup}
       />
 
-      <div style={indentStyle} className="space-y-3 pt-2">
+      {level === 0 && (
+        <div className="px-4 py-2 bg-muted/30 rounded-lg mb-4">
+          <div className="expression-grid">
+            <div className="text-xs font-medium">Left Side</div>
+            <div className="text-xs font-medium text-center">Operator</div>
+            <div className="text-xs font-medium">Right Side</div>
+          </div>
+        </div>
+      )}
+
+      <div className={`space-y-3 ${level > 0 ? 'indent-level-' + level : ''}`}>
         {rootCondition.conditions.map((condition, idx) => (
           <div key={condition.id} className="relative">
             <ConditionItem 
