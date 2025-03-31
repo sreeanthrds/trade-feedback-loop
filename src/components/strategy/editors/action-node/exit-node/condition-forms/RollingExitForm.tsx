@@ -1,6 +1,6 @@
 
 import React from 'react';
-import InputField from '../../../shared/InputField';
+import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
 import { ExitWithRolling } from '../types';
 
 interface RollingExitFormProps {
@@ -14,36 +14,20 @@ const RollingExitForm: React.FC<RollingExitFormProps> = ({
 }) => {
   return (
     <div className="space-y-4">
-      <InputField
+      <EnhancedNumberInput
         label="Days Before Expiry"
         id="days-before-expiry"
-        type="number"
-        value={exitCondition.daysBeforeExpiry === undefined ? '' : exitCondition.daysBeforeExpiry}
-        onChange={(e) => {
-          // Handle empty input
-          if (e.target.value === '') {
-            updateField('daysBeforeExpiry', undefined);
-            return;
-          }
-          updateField('daysBeforeExpiry', parseInt(e.target.value))
-        }}
+        value={exitCondition.daysBeforeExpiry}
+        onChange={(value) => updateField('daysBeforeExpiry', value)}
         min={1}
         description="Roll position this many days before expiry"
       />
       
-      <InputField
+      <EnhancedNumberInput
         label="Strike Difference"
         id="strike-difference"
-        type="number"
-        value={exitCondition.strikeDifference === undefined ? '' : exitCondition.strikeDifference}
-        onChange={(e) => {
-          // Handle empty input
-          if (e.target.value === '') {
-            updateField('strikeDifference', undefined);
-            return;
-          }
-          updateField('strikeDifference', parseInt(e.target.value))
-        }}
+        value={exitCondition.strikeDifference}
+        onChange={(value) => updateField('strikeDifference', value)}
         description="Difference in strike price points (+/-)"
       />
     </div>
