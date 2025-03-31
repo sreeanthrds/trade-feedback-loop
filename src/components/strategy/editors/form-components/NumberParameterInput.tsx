@@ -4,6 +4,7 @@ import { IndicatorParameter } from '../../utils/indicatorConfig';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { HelpCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import {
   Tooltip,
   TooltipContent,
