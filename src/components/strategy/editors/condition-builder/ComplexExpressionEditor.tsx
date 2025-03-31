@@ -25,11 +25,11 @@ const ComplexExpressionEditor: React.FC<ComplexExpressionEditorProps> = ({
 
   const complexExpr = expression as ComplexExpression;
   
-  // Update the operation (+, -, *, /, %)
+  // Update the operation (+, -, *, /, %, +%, -%)
   const updateOperation = (value: string) => {
     updateExpression({
       ...complexExpr,
-      operation: value as '+' | '-' | '*' | '/' | '%'
+      operation: value as '+' | '-' | '*' | '/' | '%' | '+%' | '-%'
     });
   };
   

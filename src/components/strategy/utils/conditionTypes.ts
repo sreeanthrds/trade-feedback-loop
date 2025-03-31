@@ -77,7 +77,7 @@ export interface ExternalTriggerExpression extends BaseExpression {
 // Complex expression with operation
 export interface ComplexExpression extends BaseExpression {
   type: 'expression';
-  operation: '+' | '-' | '*' | '/' | '%';
+  operation: '+' | '-' | '*' | '/' | '%' | '+%' | '-%'; // Added +% and -% for percentage operations
   left: Expression;
   right: Expression;
 }
@@ -245,9 +245,18 @@ export const expressionToString = (expr: Expression, nodeData?: any): string => 
     case 'expression':
       const leftStr = expressionToString(expr.left, nodeData);
       const rightStr = expressionToString(expr.right, nodeData);
+      
+      // Handle percentage operations with special formatting
+      if (expr.operation === '+%') {
+        return `(${leftStr} increased by ${rightStr}%)`;
+      } else if (expr.operation === '-%') {
+        return `(${leftStr} decreased by ${rightStr}%)`;
+      }
+      
       return `(${leftStr} ${expr.operation} ${rightStr})`;
     
     default:
       return '';
   }
 };
+
