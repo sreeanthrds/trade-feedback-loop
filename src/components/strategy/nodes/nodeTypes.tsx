@@ -44,8 +44,7 @@ interface NodeWrapperProps {
 }
 
 // Create stable wrapper components
-const StartNodeWrapper = React.memo(({ data, id, onAddNode, ...rest }: NodeWrapperProps) => {
-  // We need to include draggable in rest, so we don't destructure it separately
+const StartNodeWrapper = React.memo(({ data, id, draggable, onAddNode, ...rest }: NodeWrapperProps) => {
   return (
     <div className="group">
       <MemoizedStartNode data={data} id={id} {...rest} />
@@ -55,8 +54,7 @@ const StartNodeWrapper = React.memo(({ data, id, onAddNode, ...rest }: NodeWrapp
 });
 StartNodeWrapper.displayName = 'StartNodeWrapper';
 
-const SignalNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, ...rest }: NodeWrapperProps) => {
-  // We need to include draggable in rest, so we don't destructure it separately
+const SignalNodeWrapper = React.memo(({ data, id, draggable, onDelete, onAddNode, ...rest }: NodeWrapperProps) => {
   return (
     <div className="group">
       <MemoizedSignalNode data={data} id={id} {...rest} />
@@ -67,7 +65,7 @@ const SignalNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, ...rest }
 });
 SignalNodeWrapper.displayName = 'SignalNodeWrapper';
 
-const ActionNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNodeData, ...rest }: NodeWrapperProps & { updateNodeData?: (id: string, data: any) => void }) => {
+const ActionNodeWrapper = React.memo(({ data, id, draggable, onDelete, onAddNode, updateNodeData, ...rest }: NodeWrapperProps & { updateNodeData?: (id: string, data: any) => void }) => {
   // Enhance data with updateNodeData function and ensure positions is always defined
   const enhancedData = React.useMemo(() => ({
     ...data,
@@ -85,7 +83,7 @@ const ActionNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNod
 });
 ActionNodeWrapper.displayName = 'ActionNodeWrapper';
 
-const EntryNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNodeData, ...rest }: NodeWrapperProps & { updateNodeData?: (id: string, data: any) => void }) => {
+const EntryNodeWrapper = React.memo(({ data, id, draggable, onDelete, onAddNode, updateNodeData, ...rest }: NodeWrapperProps & { updateNodeData?: (id: string, data: any) => void }) => {
   // Enhance data with updateNodeData function and ensure positions is always defined
   const enhancedData = React.useMemo(() => ({
     ...data,
@@ -104,7 +102,7 @@ const EntryNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNode
 });
 EntryNodeWrapper.displayName = 'EntryNodeWrapper';
 
-const ExitNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNodeData, ...rest }: NodeWrapperProps & { updateNodeData?: (id: string, data: any) => void }) => {
+const ExitNodeWrapper = React.memo(({ data, id, draggable, onDelete, onAddNode, updateNodeData, ...rest }: NodeWrapperProps & { updateNodeData?: (id: string, data: any) => void }) => {
   // Enhance data with updateNodeData function and ensure positions is always defined
   const enhancedData = React.useMemo(() => ({
     ...data,
@@ -123,7 +121,7 @@ const ExitNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNodeD
 });
 ExitNodeWrapper.displayName = 'ExitNodeWrapper';
 
-const AlertNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNodeData, ...rest }: NodeWrapperProps & { updateNodeData?: (id: string, data: any) => void }) => {
+const AlertNodeWrapper = React.memo(({ data, id, draggable, onDelete, onAddNode, updateNodeData, ...rest }: NodeWrapperProps & { updateNodeData?: (id: string, data: any) => void }) => {
   // Enhance data with updateNodeData function and ensure positions is always defined
   const enhancedData = React.useMemo(() => ({
     ...data,
@@ -142,8 +140,7 @@ const AlertNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNode
 });
 AlertNodeWrapper.displayName = 'AlertNodeWrapper';
 
-const EndNodeWrapper = React.memo(({ data, id, onDelete, ...rest }: NodeWrapperProps) => {
-  // We need to include draggable in rest, so we don't destructure it separately
+const EndNodeWrapper = React.memo(({ data, id, draggable, onDelete, ...rest }: NodeWrapperProps) => {
   return (
     <div className="group">
       <MemoizedEndNode data={data} id={id} {...rest} />
@@ -153,8 +150,7 @@ const EndNodeWrapper = React.memo(({ data, id, onDelete, ...rest }: NodeWrapperP
 });
 EndNodeWrapper.displayName = 'EndNodeWrapper';
 
-const ForceEndNodeWrapper = React.memo(({ data, id, onDelete, ...rest }: NodeWrapperProps) => {
-  // We need to include draggable in rest, so we don't destructure it separately
+const ForceEndNodeWrapper = React.memo(({ data, id, draggable, onDelete, ...rest }: NodeWrapperProps) => {
   return (
     <div className="group">
       <MemoizedForceEndNode data={data} id={id} {...rest} />

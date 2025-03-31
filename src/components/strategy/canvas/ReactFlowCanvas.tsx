@@ -55,6 +55,7 @@ const ReactFlowCanvas = ({
   
   // Custom nodes change handler with drag detection
   const customNodesChangeHandler = useCallback((changes) => {
+    console.log('ReactFlowCanvas: Node changes detected', changes);
     handleNodesChange(changes, onNodesChange);
   }, [handleNodesChange, onNodesChange]);
 
@@ -91,6 +92,11 @@ const ReactFlowCanvas = ({
     maxZoom: 0.85
   }), []);
 
+  // Log nodes on mount for debugging
+  useEffect(() => {
+    console.log('Nodes in ReactFlowCanvas:', nodes);
+  }, [nodes]);
+
   return (
     <div className="h-full w-full" ref={flowRef}>
       <ReactFlow
@@ -111,10 +117,11 @@ const ReactFlowCanvas = ({
         zoomOnScroll={false}
         zoomOnPinch={true}
         panOnScroll={true}
-        nodesDraggable={true} // Explicitly ensure draggability is enabled
+        nodesDraggable={true}
         elementsSelectable={true}
         proOptions={{ hideAttribution: true }}
         fitViewOptions={fitViewOptions}
+        className="strategy-flow"
       >
         <MemoizedCanvasControls nodeClassName={nodeClassName} />
         

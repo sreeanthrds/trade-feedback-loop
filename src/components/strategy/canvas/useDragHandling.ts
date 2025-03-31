@@ -1,3 +1,4 @@
+
 import { useCallback, useRef, useMemo, useEffect } from 'react';
 import { Node } from '@xyflow/react';
 
@@ -22,6 +23,7 @@ export function useDragHandling() {
       isNodeDraggingRef.current = true;
       dragStartTimeRef.current = Date.now();
       dragNodesRef.current.clear();
+      console.log('Drag started');
     }
   }, []);
 
@@ -36,7 +38,8 @@ export function useDragHandling() {
       isNodeDraggingRef.current = false;
       dragNodesRef.current.clear();
       dragThrottleTimeoutRef.current = null;
-    }, 500); // Wait a bit before considering drag truly complete
+      console.log('Drag stopped');
+    }, 300); // Wait a bit before considering drag truly complete
   }, []);
 
   // Enhanced nodes change handler with improved drag detection
@@ -45,6 +48,9 @@ export function useDragHandling() {
     if (!changes || changes.length === 0) {
       return onNodesChange(changes);
     }
+    
+    // Log changes for debugging
+    console.log('Node changes:', changes);
     
     // Detect start of dragging
     const dragStart = changes.find(change => 

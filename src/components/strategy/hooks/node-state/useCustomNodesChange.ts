@@ -40,6 +40,8 @@ export function useCustomNodesChange(
     // Skip if no changes
     if (!changes || changes.length === 0) return;
     
+    console.log('Custom nodes change handler called with:', changes);
+    
     // If we're already processing changes
     if (isProcessingChangesRef.current) {
       // For drag changes, we want to replace pending changes
