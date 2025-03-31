@@ -1,7 +1,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { IndicatorParameter } from '../../utils/indicatorConfig';
-import { TextField, FormHelperText, FormControl } from '@mui/material';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { HelpCircle } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface NumberParameterInputProps {
   param: IndicatorParameter;
@@ -58,28 +66,41 @@ const NumberParameterInput: React.FC<NumberParameterInputProps> = ({
   };
 
   return (
-    <FormControl fullWidth>
-      <TextField
-        label={param.label}
+    <div className="space-y-2">
+      <div className="flex items-center gap-2">
+        <Label htmlFor={`param-${param.name}`} className="text-sm">
+          {param.label}
+          {required && <span className="ml-1 text-destructive">*</span>}
+        </Label>
+        {param.description && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="max-w-xs text-xs">{param.description}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+      </div>
+      <Input
         id={`param-${param.name}`}
         type="number"
         value={inputValue}
         onChange={handleChange}
         onBlur={handleBlur}
-        inputProps={{
-          step: stepValue,
-          min: param.min,
-          max: param.max
-        }}
+        min={param.min}
+        max={param.max}
+        step={stepValue}
         required={required}
-        size="small"
-        variant="outlined"
-        margin="dense"
+        className="w-full"
       />
-      {param.description && (
-        <FormHelperText>{param.description}</FormHelperText>
+      {required && inputValue === '' && (
+        <p className="text-xs text-destructive mt-1">This field is required</p>
       )}
-    </FormControl>
+    </div>
   );
 };
 
