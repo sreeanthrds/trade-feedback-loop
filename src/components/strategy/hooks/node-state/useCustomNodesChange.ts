@@ -1,79 +1,87 @@
 
-import React, { useCallback, useRef, useMemo, useEffect } from 'react';
+import { useCallback, useRef } from 'react';
+import { NodeChange } from '@xyflow/react';
 
 /**
- * Hook to create a custom onNodesChange handler with processing prevention
- * Optimized for better performance
+ * Custom hook for handling node changes with additional processing guards
  */
-export function useCustomNodesChange(onNodesChangeWithDragDetection, onNodesChange) {
+export function useCustomNodesChange(
+  dragAwareHandler: (changes: NodeChange[], baseHandler: any, afterDragCallback: any) => void,
+  baseChangeHandler: (changes: NodeChange[]) => void
+) {
+  // Use a ref to track if changes are being processed
   const isProcessingChangesRef = useRef(false);
-  const lastProcessedTimeRef = useRef(0);
-  const pendingChangesRef = useRef(null);
+  const pendingChangesRef = useRef<NodeChange[] | null>(null);
   const processingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Enhanced node change handler with improved throttling
-  const customNodesChangeHandler = useCallback((changes) => {
-    // Skip updates during processing
-    if (isProcessingChangesRef.current) {
-      // Store pending changes and process them later
-      pendingChangesRef.current = changes;
-      return;
-    }
-    
-    // Apply stronger throttling - limit processing frequency
-    const now = Date.now();
-    if (now - lastProcessedTimeRef.current < 250) {
-      // Store the latest changes and process after a delay
-      pendingChangesRef.current = changes;
+  // Process any pending changes
+  const processPendingChanges = useCallback(() => {
+    if (pendingChangesRef.current && !isProcessingChangesRef.current) {
+      const changes = pendingChangesRef.current;
+      pendingChangesRef.current = null;
       
-      // If we don't have a timeout scheduled, schedule one
-      if (!processingTimeoutRef.current) {
-        processingTimeoutRef.current = setTimeout(() => {
-          if (pendingChangesRef.current) {
-            const pendingChanges = pendingChangesRef.current;
-            pendingChangesRef.current = null;
-            customNodesChangeHandler(pendingChanges);
-          }
-          processingTimeoutRef.current = null;
-        }, 250);
+      // Set processing flag
+      isProcessingChangesRef.current = true;
+      
+      // Process changes with minimum delay
+      setTimeout(() => {
+        baseChangeHandler(changes);
+        
+        // Reset processing flag with a slight delay
+        setTimeout(() => {
+          isProcessingChangesRef.current = false;
+        }, 50);
+      }, 0);
+    }
+  };
+
+  // Create a custom handler that guards against concurrent processing
+  const customNodesChangeHandler = useCallback((changes: NodeChange[]) => {
+    // Skip if no changes
+    if (!changes || changes.length === 0) return;
+    
+    // If we're already processing changes
+    if (isProcessingChangesRef.current) {
+      // For drag changes, we want to replace pending changes
+      const isDrag = changes.some(change => change.type === 'position');
+      
+      if (isDrag) {
+        // For drag operations, replace any pending changes
+        pendingChangesRef.current = changes;
+      } else if (pendingChangesRef.current) {
+        // For other operations, append to existing changes if any
+        pendingChangesRef.current = [...pendingChangesRef.current, ...changes];
+      } else {
+        // If no pending changes yet, create a new array
+        pendingChangesRef.current = [...changes];
       }
       
-      return;
-    }
-    
-    isProcessingChangesRef.current = true;
-    lastProcessedTimeRef.current = now;
-    
-    try {
-      onNodesChangeWithDragDetection(changes, onNodesChange);
-    } finally {
-      // Reset processing flag after a slightly longer delay to prevent immediate re-entry
-      setTimeout(() => {
-        isProcessingChangesRef.current = false;
-        
-        // Process any pending changes
-        if (pendingChangesRef.current) {
-          const pendingChanges = pendingChangesRef.current;
-          pendingChangesRef.current = null;
-          customNodesChangeHandler(pendingChanges);
-        }
-      }, 100);
-    }
-  }, [onNodesChangeWithDragDetection, onNodesChange]);
-
-  // Clean up timeouts
-  useEffect(() => {
-    return () => {
+      // Clear existing timeout if it exists
       if (processingTimeoutRef.current) {
         clearTimeout(processingTimeoutRef.current);
-        processingTimeoutRef.current = null;
       }
-    };
-  }, []);
-
-  // Return stable objects to prevent reference changes
-  return useMemo(() => ({
+      
+      // Schedule processing of pending changes
+      processingTimeoutRef.current = setTimeout(processPendingChanges, 100);
+      
+      return;
+    }
+    
+    // If not processing, use the drag-aware handler directly
+    isProcessingChangesRef.current = true;
+    
+    // Use specific handler for different change types
+    dragAwareHandler(changes, baseChangeHandler, () => {
+      // Reset processing flag after operation is complete
+      setTimeout(() => {
+        isProcessingChangesRef.current = false;
+      }, 100);
+    });
+  }, [dragAwareHandler, baseChangeHandler, processPendingChanges]);
+  
+  // Return the handler and the ref for external use
+  return {
     customNodesChangeHandler,
     isProcessingChangesRef
-  }), [customNodesChangeHandler]);
+  };
 }

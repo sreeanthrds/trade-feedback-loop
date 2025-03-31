@@ -38,6 +38,7 @@ export const createAddNodeHandler = (
       
       console.log('Before adding node:', nodes.length, 'existing nodes');
       
+      // Create new arrays for nodes and edges - don't modify the original arrays
       const updatedNodes = [...nodes, newNode];
       
       let updatedEdges = [...edges];
@@ -48,12 +49,21 @@ export const createAddNodeHandler = (
       
       console.log('After adding node:', updatedNodes.length, 'total nodes');
       
+      // Set local state first for immediate UI update
       setNodes(updatedNodes);
       setEdges(updatedEdges);
       
-      strategyStore.setNodes(updatedNodes);
-      strategyStore.setEdges(updatedEdges);
-      strategyStore.addHistoryItem(updatedNodes, updatedEdges);
+      // Then update the store directly to ensure persistence
+      // Use a minimal delay to ensure the UI update happens first
+      setTimeout(() => {
+        try {
+          strategyStore.setNodes(updatedNodes);
+          strategyStore.setEdges(updatedEdges);
+          strategyStore.addHistoryItem(updatedNodes, updatedEdges);
+        } catch (error) {
+          console.error('Error updating strategy store:', error);
+        }
+      }, 50);
       
       toast({
         title: "Node added",

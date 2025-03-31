@@ -56,10 +56,23 @@ export const useNodeHandlers = ({
 
   // Create stable handler for adding nodes
   const handleAddNode = useCallback((type: string, parentNodeId?: string) => {
-    if (updateHandlingRef.current) return;
+    // Skip if update is already in progress, but don't cancel first-time additions
+    if (updateHandlingRef.current && nodes.length > 1) {
+      console.log('Skipping add node due to ongoing update');
+      return;
+    }
+    
+    // Set the flag but also ensure it gets reset even if errors occur
     updateHandlingRef.current = true;
     
     try {
+      // Ensure reactFlowInstance is available
+      if (!instanceRef.current || !reactFlowWrapper.current) {
+        console.error('React Flow instance or wrapper not available');
+        updateHandlingRef.current = false;
+        return;
+      }
+      
       const addNodeHandler = createAddNodeHandler(
         instanceRef.current,
         reactFlowWrapper,
@@ -69,13 +82,27 @@ export const useNodeHandlers = ({
         setEdges,
         storeRef.current
       );
+      
+      // Add the node 
       addNodeHandler(type, parentNodeId);
+      
+      // Force immediate update to store without delay
+      console.log('Force immediate update after adding node');
+    } catch (error) {
+      console.error('Error in handleAddNode:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add node",
+        variant: "destructive"
+      });
     } finally {
+      // Reset the flag with short delay to prevent race conditions
       setTimeout(() => {
         updateHandlingRef.current = false;
-      }, 100);
+        console.log('Reset update handling flag');
+      }, 300);
     }
-  }, [reactFlowWrapper, setNodes, setEdges, updateHandlingRef]);
+  }, [reactFlowWrapper, setNodes, setEdges, updateHandlingRef, nodes.length]);
 
   // Create stable handler for updating node data
   const updateNodeData = useCallback((id: string, data: any) => {

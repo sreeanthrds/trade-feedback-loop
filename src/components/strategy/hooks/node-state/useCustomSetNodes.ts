@@ -35,6 +35,9 @@ export function useCustomSetNodes({
   // Track consecutive updates counter to detect potential infinite loops
   const consecutiveUpdatesRef = useMemo(() => ({ count: 0, lastUpdateTime: 0 }), []);
   
+  // Track initial node operations to handle them differently
+  const initialNodeOperationRef = useMemo(() => ({ done: false }), []);
+  
   // Custom setNodes wrapper with improved throttling and cycle detection
   const setNodes = useCallback((updatedNodes: Node[] | ((prevNodes: Node[]) => Node[])) => {
     // If already in an update cycle, skip to prevent loops
@@ -80,9 +83,25 @@ export function useCustomSetNodes({
         }
         consecutiveUpdatesRef.lastUpdateTime = now;
         
-        // Quick length check to skip deeper comparison if obviously changed
+        // Special handling for node count changes (add/remove nodes)
         if (newNodes.length !== prevNodes.length) {
           console.log(`Node count changed: ${prevNodes.length} -> ${newNodes.length}`);
+          
+          // First node operation requires immediate update
+          const isInitialOperation = !initialNodeOperationRef.done && 
+            prevNodes.length <= 1 && newNodes.length > prevNodes.length;
+          
+          if (isInitialOperation) {
+            console.log('Initial node operation detected, processing immediately');
+            initialNodeOperationRef.done = true;
+            
+            // Force immediate update for the first node operation
+            setTimeout(() => {
+              processStoreUpdate(newNodes);
+            }, 50);
+            
+            return newNodes;
+          }
           
           // Handle dragging state
           if (isDraggingRef.current) {
@@ -154,7 +173,8 @@ export function useCustomSetNodes({
     storeUpdateInProgressRef,
     processStoreUpdate,
     handleError,
-    consecutiveUpdatesRef
+    consecutiveUpdatesRef,
+    initialNodeOperationRef
   ]);
 
   // Return a stable reference to prevent re-renders
