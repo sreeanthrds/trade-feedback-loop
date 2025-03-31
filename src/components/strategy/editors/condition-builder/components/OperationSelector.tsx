@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { OperationSelector as BaseOperationSelector } from '@/components/ui/form';
+import OperationSelector from '@/components/ui/form/OperationSelector';
 import type { MathOperation } from '@/components/ui/form/OperationSelector';
 
 interface OperationSelectorProps {
@@ -16,7 +16,7 @@ const OperationSelector: React.FC<OperationSelectorProps> = ({
 }) => {
   return (
     <div>
-      <BaseOperationSelector
+      <OperationSelector
         value={operation}
         onValueChange={updateOperation}
         required={required}
