@@ -30,6 +30,7 @@ export const createAddNodeHandler = (
     }
     
     try {
+      // Generate the new node at a non-overlapping position
       const { node: newNode, parentNode } = addNode(type, reactFlowInstance, reactFlowWrapper, nodes, parentNodeId);
       
       if (!newNode) {
@@ -54,18 +55,27 @@ export const createAddNodeHandler = (
       setNodes(updatedNodes);
       setEdges(updatedEdges);
       
-      // Then update the store directly to ensure persistence
-      // CRITICAL: Use setTimeout to break the React cycle but use 0ms for immediate execution
-      setTimeout(() => {
-        try {
-          strategyStore.setNodes(updatedNodes);
-          strategyStore.setEdges(updatedEdges);
-          strategyStore.addHistoryItem(updatedNodes, updatedEdges);
-          console.log('Node added and persisted to store:', newNode.id);
-        } catch (error) {
-          console.error('Error updating strategy store:', error);
-        }
-      }, 0);
+      // For first node additions, we need to be extra careful to ensure it persists
+      if (nodes.length <= 1) {
+        console.log('First node addition - using immediate store update');
+        // Immediate store update for first nodes
+        strategyStore.setNodes(updatedNodes);
+        strategyStore.setEdges(updatedEdges);
+        strategyStore.addHistoryItem(updatedNodes, updatedEdges);
+      } else {
+        // For subsequent nodes, use the regular pattern
+        // CRITICAL: Use setTimeout to break the React cycle but use 0ms for immediate execution
+        setTimeout(() => {
+          try {
+            strategyStore.setNodes(updatedNodes);
+            strategyStore.setEdges(updatedEdges);
+            strategyStore.addHistoryItem(updatedNodes, updatedEdges);
+            console.log('Node added and persisted to store:', newNode.id);
+          } catch (error) {
+            console.error('Error updating strategy store:', error);
+          }
+        }, 0);
+      }
       
       toast({
         title: "Node added",

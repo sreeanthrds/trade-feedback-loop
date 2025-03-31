@@ -13,9 +13,9 @@ export const initialNodes: Node[] = [
 
 // Helper function to find an empty position for a new node
 const findEmptyPosition = (nodes: Node[], startX: number, startY: number): { x: number, y: number } => {
-  // Default grid size
+  // Default grid size - increase padding to ensure more space between nodes
   const gridSize = { width: 180, height: 100 };
-  const padding = 20;
+  const padding = 40; // Increased padding between nodes
   const fullWidth = gridSize.width + padding;
   const fullHeight = gridSize.height + padding;
   
@@ -29,6 +29,7 @@ const findEmptyPosition = (nodes: Node[], startX: number, startY: number): { x: 
       const nodeY = node.position.y;
       
       // Check if the proposed position overlaps with this node
+      // Use a larger overlap check area to ensure nodes are well separated
       return (
         pos.x < nodeX + fullWidth &&
         pos.x + fullWidth > nodeX &&
@@ -40,10 +41,10 @@ const findEmptyPosition = (nodes: Node[], startX: number, startY: number): { x: 
   
   // If position is already occupied, find a new one
   if (isPositionOccupied(position)) {
-    // Try positioning in different areas using a spiral pattern
+    // Try positioning in different areas using a spiral pattern with more points
     const spiralPoints = [];
-    const maxRadius = 5; // Maximum number of "rings" to check
-    const angleStep = Math.PI / 4; // 45 degrees
+    const maxRadius = 8; // Increased maximum number of "rings" to check
+    const angleStep = Math.PI / 6; // 30 degrees - more points per ring
     
     for (let radius = 1; radius <= maxRadius; radius++) {
       for (let angle = 0; angle < 2 * Math.PI; angle += angleStep) {
@@ -87,22 +88,29 @@ export const addNode = (
   nodes: Node[],
   parentNodeId?: string
 ): { node: Node, parentNode?: Node } => {
-  // Get the suggested center position from the viewport
-  const viewportCenter = reactFlowInstance.screenToFlowPosition({
+  // Get the viewport center position
+  const viewport = reactFlowInstance.getViewport();
+  
+  // Calculate center of the visible area in flow coordinates
+  const visibleCenter = reactFlowInstance.screenToFlowPosition({
     x: (reactFlowWrapper.current?.clientWidth || 800) / 2,
     y: (reactFlowWrapper.current?.clientHeight || 600) / 2,
   });
   
-  let suggestedPosition = { ...viewportCenter };
+  // Default to center of viewport
+  let suggestedPosition = { ...visibleCenter };
+  
+  // Find parent node if specified
   const parentNode = parentNodeId ? nodes.find(node => node.id === parentNodeId) : undefined;
   
   // If there's a parent node, suggest a position relative to it
   if (parentNode) {
-    suggestedPosition.x = parentNode.position.x + 200;
-    suggestedPosition.y = parentNode.position.y + 50;
+    // Position child node to the right and slightly below parent
+    suggestedPosition.x = parentNode.position.x + 220;  // More distance to the right
+    suggestedPosition.y = parentNode.position.y + 70;   // More distance below
   }
   
-  // Find an empty position based on the suggested one
+  // Find an empty position based on the suggested one - consider existing nodes
   const position = findEmptyPosition(nodes, suggestedPosition.x, suggestedPosition.y);
   
   const getNodeTypePrefix = () => {
