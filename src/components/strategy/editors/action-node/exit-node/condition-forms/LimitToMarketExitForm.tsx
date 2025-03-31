@@ -20,6 +20,7 @@ const LimitToMarketExitForm: React.FC<LimitToMarketExitFormProps> = ({
       onChange={(value) => updateField('waitSeconds', value)}
       min={1}
       description="Switch to market order after this many seconds"
+      required={true}
     />
   );
 };
