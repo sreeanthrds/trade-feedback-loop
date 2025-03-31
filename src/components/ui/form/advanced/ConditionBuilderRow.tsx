@@ -28,7 +28,7 @@ const ConditionBuilderRow: React.FC<ConditionBuilderRowProps> = ({
   required = false
 }) => {
   return (
-    <div className={cn("relative group", className)}>
+    <div className={cn("relative group condition-item", className)}>
       <ComparisonExpressionRow
         operator={operator}
         onOperatorChange={onOperatorChange}
