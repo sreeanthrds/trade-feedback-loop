@@ -28,7 +28,7 @@ const ConstantValueEditor: React.FC<ConstantValueEditorProps> = ({
   const updateConstantValue = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     
-    // Allow empty string for temporary editing state or as an actual empty value
+    // Allow empty string for temporary editing state
     if (value === '') {
       updateExpression({
         ...constantExpr,

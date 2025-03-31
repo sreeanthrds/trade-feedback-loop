@@ -29,7 +29,7 @@ const NumberParameterInput: React.FC<NumberParameterInputProps> = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
     
-    // Allow empty string to clear the field
+    // Allow empty string to clear the field and allow for re-entering
     if (inputValue === '') {
       // Pass undefined to the onChange handler to fully clear the field
       onChange(undefined);

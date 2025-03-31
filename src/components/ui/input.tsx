@@ -9,8 +9,10 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
     const inputProps = {...props};
     
     // This is critical for number inputs - allow empty string value
+    // We're checking multiple empty-like conditions to be safe
     if (type === 'number' && (props.value === '' || props.value === undefined || props.value === null)) {
       // Allow empty value for number inputs without converting to 0
+      // This prevents React from converting empty string to 0
       inputProps.value = '';
     }
 

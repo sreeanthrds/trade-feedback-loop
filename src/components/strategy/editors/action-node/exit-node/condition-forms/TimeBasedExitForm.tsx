@@ -24,7 +24,12 @@ const TimeBasedExitForm: React.FC<TimeBasedExitFormProps> = ({
           updateField('minutes', undefined);
           return;
         }
-        updateField('minutes', parseInt(e.target.value))
+        
+        // Parse number value
+        const minutes = parseInt(e.target.value);
+        if (!isNaN(minutes)) {
+          updateField('minutes', minutes);
+        }
       }}
       min={1}
       description="Minutes after entry to exit position"
