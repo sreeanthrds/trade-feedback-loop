@@ -15,16 +15,18 @@ import { useStrategyStore } from '@/hooks/use-strategy-store';
 import ExpressionIcon from './components/ExpressionIcon';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
-import { toast } from "@/hooks/use-toast";
+import { cn } from '@/lib/utils';
 
 interface IndicatorSelectorProps {
   expression: Expression;
   updateExpression: (expr: Expression) => void;
+  required?: boolean;
 }
 
 const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
   expression,
-  updateExpression
+  updateExpression,
+  required = false
 }) => {
   const strategyStore = useStrategyStore();
   const [availableIndicators, setAvailableIndicators] = useState<string[]>([]);
@@ -143,7 +145,11 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
         onValueChange={updateIndicatorName}
         disabled={availableIndicators.length === 0}
       >
-        <SelectTrigger className={`h-8 ${missingIndicator ? 'border-destructive' : ''}`}>
+        <SelectTrigger className={cn(
+          "h-8", 
+          missingIndicator ? 'border-destructive' : '',
+          required && !indicatorExpr.name && "border-red-300 focus:ring-red-200"
+        )}>
           <SelectValue placeholder="Select indicator">
             {indicatorExpr.name && (
               <div className="flex items-center gap-2">
@@ -176,7 +182,10 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
           value={indicatorExpr.parameter} 
           onValueChange={updateParameter}
         >
-          <SelectTrigger className="h-8">
+          <SelectTrigger className={cn(
+            "h-8",
+            required && !indicatorExpr.parameter && hasMultipleOutputs(indicatorExpr.name) && "border-red-300 focus:ring-red-200"
+          )}>
             <SelectValue placeholder="Select output">
               {indicatorExpr.parameter && (
                 <div className="flex items-center gap-2">
