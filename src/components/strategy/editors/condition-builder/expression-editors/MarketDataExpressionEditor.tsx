@@ -12,6 +12,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { Label } from '@/components/ui/label';
+import FieldTooltip from '../../shared/FieldTooltip';
 
 interface MarketDataExpressionEditorProps {
   expression: Expression;
@@ -38,8 +40,21 @@ const MarketDataExpressionEditor: React.FC<MarketDataExpressionEditorProps> = ({
     });
   };
   
+  const marketDataFields = [
+    { value: 'Open', label: 'Open', description: 'The price at which an asset opens for trading in a given period' },
+    { value: 'High', label: 'High', description: 'The highest price reached by an asset during the trading period' },
+    { value: 'Low', label: 'Low', description: 'The lowest price reached by an asset during the trading period' },
+    { value: 'Close', label: 'Close', description: 'The final price at which an asset is traded in a given period' },
+    { value: 'Volume', label: 'Volume', description: 'The total number of shares or contracts traded during the period' },
+    { value: 'LTP', label: 'LTP', description: 'Last Traded Price - the most recent price at which the asset was traded' }
+  ];
+  
   return (
     <div className="space-y-2">
+      <div className="flex items-center gap-1 mb-1">
+        <Label className="text-xs">Market Data</Label>
+        <FieldTooltip content="Select which market data point to use for this condition" />
+      </div>
       <Select 
         value={marketDataExpr.field} 
         onValueChange={updateField}
@@ -48,15 +63,17 @@ const MarketDataExpressionEditor: React.FC<MarketDataExpressionEditorProps> = ({
           "h-8",
           required && !marketDataExpr.field && "border-red-300 focus:ring-red-200"
         )}>
-          <SelectValue />
+          <SelectValue placeholder="Select data point" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="Open">Open</SelectItem>
-          <SelectItem value="High">High</SelectItem>
-          <SelectItem value="Low">Low</SelectItem>
-          <SelectItem value="Close">Close</SelectItem>
-          <SelectItem value="Volume">Volume</SelectItem>
-          <SelectItem value="LTP">LTP</SelectItem>
+          {marketDataFields.map(field => (
+            <SelectItem key={field.value} value={field.value}>
+              <div className="flex items-center gap-1">
+                {field.label}
+                <FieldTooltip content={field.description} />
+              </div>
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
     </div>

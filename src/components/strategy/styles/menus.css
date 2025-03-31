@@ -29,6 +29,18 @@
   z-index: 9999 !important;
 }
 
+/* Make tooltips visible and not truncated */
+[data-radix-tooltip-content] {
+  z-index: 99999 !important;
+  max-width: 300px !important;
+  overflow: visible !important;
+}
+
+/* Fix tooltip visibility in dropdowns */
+.select-content [data-radix-tooltip-content] {
+  z-index: 999999 !important;
+}
+
 /* Adjust dropdown width for node connect controls */
 .react-flow__node [data-radix-popper-content-wrapper] {
   width: auto !important;
