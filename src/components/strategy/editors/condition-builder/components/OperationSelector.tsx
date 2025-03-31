@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { OperationSelector as BaseOperationSelector } from '@/components/ui/form';
-import type { MathOperation } from '@/components/ui/form';
+import type { MathOperation } from '@/components/ui/form/OperationSelector';
 
 interface OperationSelectorProps {
   operation: MathOperation;

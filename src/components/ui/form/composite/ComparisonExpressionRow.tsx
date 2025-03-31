@@ -1,7 +1,8 @@
 
 import React from 'react';
-import { ComparisonOperatorSelector, ComparisonOperator } from '@/components/ui/form';
-import { ExpressionWrapper } from '@/components/ui/form';
+import ComparisonOperatorSelector from '../ComparisonOperatorSelector';
+import type { ComparisonOperator } from '../ComparisonOperatorSelector';
+import ExpressionWrapper from '../ExpressionWrapper';
 import { cn } from '@/lib/utils';
 
 interface ComparisonExpressionRowProps {

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { ComparisonExpressionRow } from '../composite';
-import { ComparisonOperator } from '@/components/ui/form';
+import { ComparisonOperator } from '../ComparisonOperatorSelector';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';

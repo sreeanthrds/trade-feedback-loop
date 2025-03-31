@@ -1,8 +1,9 @@
 
 import React from 'react';
 import { Label } from '@/components/ui/label';
-import { OperationSelector, MathOperation } from '@/components/ui/form';
-import { FormItem, FormControl, FormLabel, FormMessage } from '@/components/ui/form';
+import OperationSelector from '../OperationSelector';
+import type { MathOperation } from '../OperationSelector';
+import { FormItem, FormControl, FormLabel, FormMessage } from '../form';
 import { cn } from '@/lib/utils';
 
 interface MathOperationControlProps {

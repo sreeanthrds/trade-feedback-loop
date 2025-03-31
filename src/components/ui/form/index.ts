@@ -12,3 +12,15 @@ export * from './composite';
 
 // Third-level advanced components
 export * from './advanced';
+
+// Export Radix UI form components
+export {
+  useFormField,
+  Form,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormDescription,
+  FormMessage,
+  FormField,
+} from './form';

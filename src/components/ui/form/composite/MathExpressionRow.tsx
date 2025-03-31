@@ -1,7 +1,8 @@
 
 import React from 'react';
-import { OperationSelector, MathOperation } from '@/components/ui/form';
-import { ExpressionWrapper } from '@/components/ui/form';
+import OperationSelector from '../OperationSelector';
+import type { MathOperation } from '../OperationSelector';
+import ExpressionWrapper from '../ExpressionWrapper';
 import { cn } from '@/lib/utils';
 
 interface MathExpressionRowProps {
