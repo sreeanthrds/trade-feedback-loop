@@ -8,11 +8,12 @@ import {
   haveSameEdgeIds,
   hasEdgeChanged
 } from './change-detection';
+import { SetState, GetState } from './types';
 
 /**
  * Enhanced setNodes function with optimization to avoid unnecessary updates
  */
-export function createSetNodesFunction(set: any, get: any) {
+export function createSetNodesFunction(set: SetState, get: GetState) {
   return (nodes: Node[]) => {
     // Skip invalid nodes
     if (!nodes || !Array.isArray(nodes)) {
@@ -77,7 +78,7 @@ export function createSetNodesFunction(set: any, get: any) {
 /**
  * Enhanced setEdges function with optimization to avoid unnecessary updates
  */
-export function createSetEdgesFunction(set: any, get: any) {
+export function createSetEdgesFunction(set: SetState, get: GetState) {
   return (edges: Edge[]) => {
     // Skip invalid edges
     if (!edges || !Array.isArray(edges)) {

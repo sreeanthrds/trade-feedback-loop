@@ -1,10 +1,12 @@
+
 import { Node, Edge } from '@xyflow/react';
+import { SetState } from './types';
 
 /**
  * Creates the addHistoryItem function for the strategy store
  */
-export function createAddHistoryItemFunction(set: any) {
-  return (nodes: Node[], edges: Edge[]) => set((state: any) => {
+export function createAddHistoryItemFunction(set: SetState) {
+  return (nodes: Node[], edges: Edge[]) => set((state) => {
     // Skip if the history is empty and we're adding empty content
     if (state.history.length === 0 && nodes.length === 0 && edges.length === 0) {
       return state;
@@ -55,8 +57,8 @@ export function createAddHistoryItemFunction(set: any) {
 /**
  * Creates the undo function for the strategy store
  */
-export function createUndoFunction(set: any) {
-  return () => set((state: any) => {
+export function createUndoFunction(set: SetState) {
+  return () => set((state) => {
     if (state.historyIndex > 0) {
       const prevState = state.history[state.historyIndex - 1];
       return {
@@ -72,8 +74,8 @@ export function createUndoFunction(set: any) {
 /**
  * Creates the redo function for the strategy store
  */
-export function createRedoFunction(set: any) {
-  return () => set((state: any) => {
+export function createRedoFunction(set: SetState) {
+  return () => set((state) => {
     if (state.historyIndex < state.history.length - 1) {
       const nextState = state.history[state.historyIndex + 1];
       return {
@@ -89,7 +91,7 @@ export function createRedoFunction(set: any) {
 /**
  * Creates the resetHistory function for the strategy store
  */
-export function createResetHistoryFunction(set: any) {
+export function createResetHistoryFunction(set: SetState) {
   return () => set({
     history: [],
     historyIndex: -1,

@@ -13,3 +13,6 @@ export interface StrategyStore {
   redo: () => void;
   resetHistory: () => void;
 }
+
+export type SetState = (partial: Partial<StrategyStore> | ((state: StrategyStore) => Partial<StrategyStore>)) => void;
+export type GetState = () => StrategyStore;
