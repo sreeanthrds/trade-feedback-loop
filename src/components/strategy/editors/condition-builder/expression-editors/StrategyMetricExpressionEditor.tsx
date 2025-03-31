@@ -9,15 +9,18 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 
 interface StrategyMetricExpressionEditorProps {
   expression: Expression;
   updateExpression: (expr: Expression) => void;
+  required?: boolean;
 }
 
 const StrategyMetricExpressionEditor: React.FC<StrategyMetricExpressionEditorProps> = ({
   expression,
-  updateExpression
+  updateExpression,
+  required = false
 }) => {
   if (expression.type !== 'strategy_metric') {
     return null;
@@ -54,7 +57,10 @@ const StrategyMetricExpressionEditor: React.FC<StrategyMetricExpressionEditorPro
         value={strategyExpr.metric} 
         onValueChange={updateMetric}
       >
-        <SelectTrigger id="strategy-metric" className="h-8">
+        <SelectTrigger 
+          id="strategy-metric" 
+          className={cn("h-8", required && !strategyExpr.metric && "border-red-300 focus:ring-red-200")}
+        >
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

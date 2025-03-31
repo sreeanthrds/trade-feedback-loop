@@ -10,15 +10,18 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 
 interface ExecutionDataExpressionEditorProps {
   expression: Expression;
   updateExpression: (expr: Expression) => void;
+  required?: boolean;
 }
 
 const ExecutionDataExpressionEditor: React.FC<ExecutionDataExpressionEditorProps> = ({
   expression,
-  updateExpression
+  updateExpression,
+  required = false
 }) => {
   if (expression.type !== 'execution_data') {
     return null;
@@ -70,7 +73,10 @@ const ExecutionDataExpressionEditor: React.FC<ExecutionDataExpressionEditorProps
           value={executionExpr.field} 
           onValueChange={updateField}
         >
-          <SelectTrigger id="execution-field" className="h-8">
+          <SelectTrigger 
+            id="execution-field" 
+            className={cn("h-8", required && !executionExpr.field && "border-red-300 focus:ring-red-200")}
+          >
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

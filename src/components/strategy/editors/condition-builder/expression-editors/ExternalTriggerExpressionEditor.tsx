@@ -10,15 +10,18 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 interface ExternalTriggerExpressionEditorProps {
   expression: Expression;
   updateExpression: (expr: Expression) => void;
+  required?: boolean;
 }
 
 const ExternalTriggerExpressionEditor: React.FC<ExternalTriggerExpressionEditorProps> = ({
   expression,
-  updateExpression
+  updateExpression,
+  required = false
 }) => {
   if (expression.type !== 'external_trigger') {
     return null;
@@ -112,7 +115,10 @@ const ExternalTriggerExpressionEditor: React.FC<ExternalTriggerExpressionEditorP
           value={triggerExpr.triggerType} 
           onValueChange={updateTriggerType}
         >
-          <SelectTrigger id="trigger-type" className="h-8">
+          <SelectTrigger 
+            id="trigger-type" 
+            className={cn("h-8", required && !triggerExpr.triggerType && "border-red-300 focus:ring-red-200")}
+          >
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
