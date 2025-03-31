@@ -181,13 +181,18 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
             </TooltipProvider>
           </div>
           <div className="flex items-center space-x-2">
-            <span className="text-xs text-muted-foreground">Tag</span>
+            <span className={`text-xs font-semibold ${useVpiFilter ? 'text-muted-foreground' : 'text-indigo-500'}`}>
+              Tag
+            </span>
             <Switch
               checked={useVpiFilter}
               onCheckedChange={handleIdentifierTypeChange}
               id="filter-type-switch"
+              className="data-[state=checked]:bg-blue-500 data-[state=unchecked]:bg-indigo-500"
             />
-            <span className="text-xs text-muted-foreground">ID</span>
+            <span className={`text-xs font-semibold ${useVpiFilter ? 'text-blue-500' : 'text-muted-foreground'}`}>
+              ID
+            </span>
           </div>
         </div>
       </div>
