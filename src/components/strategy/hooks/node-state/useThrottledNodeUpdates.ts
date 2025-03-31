@@ -11,9 +11,9 @@ export function useThrottledNodeUpdates({
   updateTimeoutRef,
   processStoreUpdate
 }: {
-  pendingNodesUpdate: React.RefObject<Node[] | null>;
-  lastUpdateTimeRef: React.RefObject<number>;
-  updateTimeoutRef: React.RefObject<any>;
+  pendingNodesUpdate: React.MutableRefObject<Node[] | null>;
+  lastUpdateTimeRef: React.MutableRefObject<number>;
+  updateTimeoutRef: React.MutableRefObject<any>;
   processStoreUpdate: (nodes: Node[]) => void;
 }) {
   // Set up a throttled update interval for long operations

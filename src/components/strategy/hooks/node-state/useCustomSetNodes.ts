@@ -18,12 +18,12 @@ export function useCustomSetNodes({
   handleError
 }: {
   setLocalNodes: (nodes: Node[]) => void;
-  isDraggingRef: React.RefObject<boolean>;
-  pendingNodesUpdate: React.RefObject<Node[] | null>;
-  lastUpdateTimeRef: React.RefObject<number>;
-  updateTimeoutRef: React.RefObject<any>;
-  updateCycleRef: React.RefObject<boolean>;
-  storeUpdateInProgressRef: React.RefObject<boolean>;
+  isDraggingRef: React.MutableRefObject<boolean>;
+  pendingNodesUpdate: React.MutableRefObject<Node[] | null>;
+  lastUpdateTimeRef: React.MutableRefObject<number>;
+  updateTimeoutRef: React.MutableRefObject<any>;
+  updateCycleRef: React.MutableRefObject<boolean>;
+  storeUpdateInProgressRef: React.MutableRefObject<boolean>;
   shouldUpdateNodes: (oldNodes: Node[], newNodes: Node[]) => boolean;
   processStoreUpdate: (nodes: Node[]) => void;
   handleError: (error: unknown, context: string) => void;
