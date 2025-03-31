@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { RadioGroupField, SelectField, InputField } from '../shared';
+import { RadioGroupField, SelectField } from '../shared';
+import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
 import { Position } from './types';
 
 interface OrderDetailsSectionProps {
@@ -22,6 +23,31 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
   onLotsChange,
   onProductTypeChange
 }) => {
+  // Create wrapped handlers for the EnhancedNumberInput components
+  const handleLimitPriceChange = (value: number | undefined) => {
+    const simulatedEvent = {
+      target: {
+        value: value !== undefined ? value.toString() : '',
+        id: 'limit-price',
+        type: 'number'
+      }
+    } as React.ChangeEvent<HTMLInputElement>;
+    
+    onLimitPriceChange(simulatedEvent);
+  };
+  
+  const handleLotsChange = (value: number | undefined) => {
+    const simulatedEvent = {
+      target: {
+        value: value !== undefined ? value.toString() : '',
+        id: 'lots',
+        type: 'number'
+      }
+    } as React.ChangeEvent<HTMLInputElement>;
+    
+    onLotsChange(simulatedEvent);
+  };
+
   return (
     <div className="space-y-4">
       {actionType === 'entry' && (
@@ -49,26 +75,25 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
       />
       
       {position.orderType === 'limit' && (
-        <InputField
+        <EnhancedNumberInput
           label="Limit Price"
           id="limit-price"
-          type="number"
-          value={position.limitPrice === undefined ? '' : position.limitPrice}
-          onChange={onLimitPriceChange}
+          value={position.limitPrice}
+          onChange={handleLimitPriceChange}
           placeholder="Enter limit price"
           min={0.01}
           step={0.01}
         />
       )}
       
-      <InputField
+      <EnhancedNumberInput
         label="Quantity (Lots)"
         id="lots"
-        type="number"
-        min={1}
-        value={position.lots === undefined ? '' : position.lots}
-        onChange={onLotsChange}
+        value={position.lots}
+        onChange={handleLotsChange}
         placeholder="Number of lots"
+        min={1}
+        step={1}
       />
       
       <SelectField

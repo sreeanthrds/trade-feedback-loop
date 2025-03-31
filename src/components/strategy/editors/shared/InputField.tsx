@@ -10,6 +10,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
 
 interface InputFieldProps {
   label: string;
@@ -40,20 +41,51 @@ const InputField: React.FC<InputFieldProps> = ({
   step,
   description
 }) => {
-  // For number inputs, handle empty value differently
-  let inputValue = value;
-  if (type === 'number' && (value === undefined || value === null || value === '')) {
-    inputValue = '';
+  // If this is a number field, use our EnhancedNumberInput
+  if (type === 'number') {
+    // Convert string numbers to actual numbers
+    const minValue = min !== undefined ? Number(min) : undefined;
+    const maxValue = max !== undefined ? Number(max) : undefined;
+    const stepValue = step !== undefined ? Number(step) : undefined;
+    
+    // Convert value to number if it's not undefined or empty
+    const numValue = value !== undefined && value !== '' ? Number(value) : undefined;
+    
+    // Create a handler that wraps the original onChange
+    const handleNumberChange = (newValue: number | undefined) => {
+      // Simulate an input event to maintain compatibility
+      const simulatedEvent = {
+        target: {
+          value: newValue !== undefined ? newValue.toString() : '',
+          id,
+          type: 'number'
+        }
+      } as React.ChangeEvent<HTMLInputElement>;
+      
+      onChange(simulatedEvent);
+    };
+    
+    return (
+      <EnhancedNumberInput
+        label={label}
+        id={id}
+        value={numValue}
+        onChange={handleNumberChange}
+        min={minValue}
+        max={maxValue}
+        step={stepValue}
+        placeholder={placeholder}
+        className={className}
+        tooltip={description}
+        required={required}
+      />
+    );
   }
   
+  // For non-number fields, use the regular Input
   // Check if field is empty for required validation
-  const isEmpty = inputValue === '' || inputValue === undefined || inputValue === null;
+  const isEmpty = value === '' || value === undefined || value === null;
   const showRequired = required && isEmpty;
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Pass through all changes, including empty values
-    onChange(e);
-  };
 
   return (
     <div className="space-y-2">
@@ -81,16 +113,13 @@ const InputField: React.FC<InputFieldProps> = ({
         <Input
           id={id}
           type={type}
-          value={inputValue}
-          onChange={handleInputChange}
+          value={value}
+          onChange={onChange}
           placeholder={placeholder}
           className={cn(
             className,
             showRequired && "border-red-300 focus:ring-red-200"
           )}
-          min={min}
-          max={max}
-          step={step}
         />
       </div>
     </div>

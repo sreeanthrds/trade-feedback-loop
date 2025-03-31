@@ -4,6 +4,7 @@ import { Position } from '../types';
 import { InputField, RadioGroupField, SelectField } from '../../shared';
 import OptionsSettingsPanel from './OptionsSettingsPanel';
 import { Separator } from '@/components/ui/separator';
+import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
 
 interface PositionEditorProps {
   position: Position;
@@ -42,19 +43,45 @@ const PositionEditor: React.FC<PositionEditorProps> = ({
     onPositionChange({ vpt: e.target.value });
   };
 
-  const handlePriorityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+  const handlePriorityChange = (value: number | undefined) => {
+    onPositionChange({ priority: value });
+  };
+
+  // Create wrapped handlers for the EnhancedNumberInput components
+  const handleLimitPriceChange = (value: number | undefined) => {
+    const simulatedEvent = {
+      target: {
+        value: value !== undefined ? value.toString() : '',
+        id: 'limit-price',
+        type: 'number'
+      }
+    } as React.ChangeEvent<HTMLInputElement>;
     
-    // Allow clearing the field
-    if (value === '') {
-      onPositionChange({ priority: undefined });
-      return;
-    }
+    onLimitPriceChange(simulatedEvent);
+  };
+  
+  const handleLotsChange = (value: number | undefined) => {
+    const simulatedEvent = {
+      target: {
+        value: value !== undefined ? value.toString() : '',
+        id: 'lots',
+        type: 'number'
+      }
+    } as React.ChangeEvent<HTMLInputElement>;
     
-    const priority = parseInt(value);
-    if (!isNaN(priority) && priority > 0) {
-      onPositionChange({ priority });
-    }
+    onLotsChange(simulatedEvent);
+  };
+  
+  const handleStrikeValueChange = (value: number | undefined) => {
+    const simulatedEvent = {
+      target: {
+        value: value !== undefined ? value.toString() : '',
+        id: 'strike-value',
+        type: 'number'
+      }
+    } as React.ChangeEvent<HTMLInputElement>;
+    
+    onStrikeValueChange(simulatedEvent);
   };
 
   // Display limit price input conditionally
@@ -92,12 +119,11 @@ const PositionEditor: React.FC<PositionEditorProps> = ({
           />
         </div>
         
-        <InputField
+        <EnhancedNumberInput
           label="Priority"
           id="priority"
-          type="number"
           min={1}
-          value={position.priority === undefined ? '' : position.priority}
+          value={position.priority}
           onChange={handlePriorityChange}
           placeholder="Execution priority"
           description="Lower numbers execute first"
@@ -126,25 +152,23 @@ const PositionEditor: React.FC<PositionEditorProps> = ({
         />
         
         {showLimitPrice && (
-          <InputField
+          <EnhancedNumberInput
             label="Limit Price"
             id="limit-price"
-            type="number"
-            value={position.limitPrice === undefined ? '' : position.limitPrice}
-            onChange={onLimitPriceChange}
+            value={position.limitPrice}
+            onChange={handleLimitPriceChange}
             placeholder="Enter limit price"
             min={0.01}
             step={0.01}
           />
         )}
         
-        <InputField
+        <EnhancedNumberInput
           label="Quantity (Lots)"
           id="lots"
-          type="number"
           min={1}
-          value={position.lots === undefined ? '' : position.lots}
-          onChange={onLotsChange}
+          value={position.lots}
+          onChange={handleLotsChange}
           placeholder="Number of lots"
         />
         

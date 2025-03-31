@@ -3,7 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, HelpCircle } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 export interface EnhancedNumberInputProps {
   label?: string;
@@ -16,6 +22,7 @@ export interface EnhancedNumberInputProps {
   placeholder?: string;
   className?: string;
   description?: string;
+  tooltip?: string;
   required?: boolean;
   disabled?: boolean;
 }
@@ -31,6 +38,7 @@ const EnhancedNumberInput: React.FC<EnhancedNumberInputProps> = ({
   placeholder,
   className,
   description,
+  tooltip,
   required = false,
   disabled = false
 }) => {
@@ -103,38 +111,61 @@ const EnhancedNumberInput: React.FC<EnhancedNumberInputProps> = ({
   return (
     <div className={cn("space-y-2", className)}>
       {label && (
-        <Label 
-          htmlFor={id} 
-          className="text-sm font-medium flex items-center"
-        >
-          {label}
-          {required && <span className="ml-1 text-destructive">*</span>}
-        </Label>
+        <div className="flex items-center gap-2">
+          <Label 
+            htmlFor={id} 
+            className="text-sm font-medium"
+          >
+            {label}
+            {required && <span className="ml-1 text-destructive">*</span>}
+          </Label>
+          
+          {tooltip && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="max-w-xs text-xs">{tooltip}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
       )}
-      <Input
-        type="number"
-        id={id}
-        value={inputValue}
-        onChange={handleChange}
-        onBlur={handleBlur}
-        min={min}
-        max={max}
-        step={step}
-        placeholder={placeholder}
-        className={cn(
-          "w-full",
-          showError && "border-destructive focus-visible:ring-destructive"
+      
+      <div className="relative">
+        {showError && (
+          <span className="absolute -top-1 right-0 text-destructive text-xs">*</span>
         )}
-        required={required}
-        disabled={disabled}
-        aria-invalid={!!showError}
-      />
+        <Input
+          type="number"
+          id={id}
+          value={inputValue}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          min={min}
+          max={max}
+          step={step}
+          placeholder={placeholder}
+          className={cn(
+            "w-full",
+            showError && "border-destructive focus-visible:ring-destructive"
+          )}
+          required={required}
+          disabled={disabled}
+          aria-invalid={!!showError}
+        />
+      </div>
+      
       {showError && (
         <div className="flex items-center text-destructive text-xs gap-1 mt-1">
           <AlertTriangle className="h-3 w-3" />
           <span>{error}</span>
         </div>
       )}
+      
       {description && !showError && (
         <p className="text-xs text-muted-foreground">{description}</p>
       )}
