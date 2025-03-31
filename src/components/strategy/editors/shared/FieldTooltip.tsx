@@ -19,8 +19,8 @@ interface FieldTooltipProps {
 
 const FieldTooltip: React.FC<FieldTooltipProps> = ({
   content,
-  side = 'right',
-  align = 'start',
+  side = 'top',
+  align = 'center',
   className = '',
   iconClassName = 'h-3.5 w-3.5 text-muted-foreground cursor-help',
   sideOffset = 10,
