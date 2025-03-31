@@ -1,13 +1,7 @@
 
 import React from 'react';
-import { ComparisonOperator } from '../../../utils/conditionTypes';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import ComparisonOperatorSelector from '@/components/ui/form/ComparisonOperatorSelector';
+import type { ComparisonOperator } from '@/components/ui/form/ComparisonOperatorSelector';
 
 interface OperatorSelectorProps {
   operator: ComparisonOperator;
@@ -19,22 +13,10 @@ const OperatorSelector: React.FC<OperatorSelectorProps> = ({
   updateOperator
 }) => {
   return (
-    <Select 
-      value={operator} 
+    <ComparisonOperatorSelector
+      value={operator}
       onValueChange={updateOperator}
-    >
-      <SelectTrigger className="w-16">
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value=">">{'>'}</SelectItem>
-        <SelectItem value="<">{'<'}</SelectItem>
-        <SelectItem value=">=">{'≥'}</SelectItem>
-        <SelectItem value="<=">{'≤'}</SelectItem>
-        <SelectItem value="==">{'='}</SelectItem>
-        <SelectItem value="!=">{'≠'}</SelectItem>
-      </SelectContent>
-    </Select>
+    />
   );
 };
 
