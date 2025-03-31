@@ -1,6 +1,6 @@
 
 import React from 'react';
-import InputField from '../../../shared/InputField';
+import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
 import { ExitWithFallback } from '../types';
 
 interface LimitToMarketExitFormProps {
@@ -13,19 +13,11 @@ const LimitToMarketExitForm: React.FC<LimitToMarketExitFormProps> = ({
   updateField 
 }) => {
   return (
-    <InputField
+    <EnhancedNumberInput
       label="Wait Seconds"
       id="wait-seconds"
-      type="number"
-      value={exitCondition.waitSeconds === undefined ? '' : exitCondition.waitSeconds}
-      onChange={(e) => {
-        // Handle empty input
-        if (e.target.value === '') {
-          updateField('waitSeconds', undefined);
-          return;
-        }
-        updateField('waitSeconds', parseInt(e.target.value))
-      }}
+      value={exitCondition.waitSeconds}
+      onChange={(value) => updateField('waitSeconds', value)}
       min={1}
       description="Switch to market order after this many seconds"
     />

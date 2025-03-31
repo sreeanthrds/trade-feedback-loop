@@ -1,6 +1,6 @@
 
 import React from 'react';
-import InputField from '../../../shared/InputField';
+import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
 import { ExitBeforeMarketClose } from '../types';
 
 interface MarketCloseExitFormProps {
@@ -13,19 +13,11 @@ const MarketCloseExitForm: React.FC<MarketCloseExitFormProps> = ({
   updateField 
 }) => {
   return (
-    <InputField
+    <EnhancedNumberInput
       label="Minutes Before Close"
       id="minutes-before-close"
-      type="number"
-      value={exitCondition.minutesBefore === undefined ? '' : exitCondition.minutesBefore}
-      onChange={(e) => {
-        // Handle empty input
-        if (e.target.value === '') {
-          updateField('minutesBefore', undefined);
-          return;
-        }
-        updateField('minutesBefore', parseInt(e.target.value))
-      }}
+      value={exitCondition.minutesBefore}
+      onChange={(value) => updateField('minutesBefore', value)}
       min={1}
       description="Exit this many minutes before market close"
     />
