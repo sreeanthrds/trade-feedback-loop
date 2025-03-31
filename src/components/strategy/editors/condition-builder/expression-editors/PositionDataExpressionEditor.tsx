@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Expression, PositionDataExpression } from '../../../utils/conditionTypes';
 import { 
   Select,
@@ -8,9 +8,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import { useStrategyStore } from '@/hooks/use-strategy-store';
 
 interface PositionDataExpressionEditorProps {
   expression: Expression;
@@ -28,6 +28,27 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
   }
 
   const positionExpr = expression as PositionDataExpression;
+  const nodes = useStrategyStore(state => state.nodes);
+  
+  // Extract VPI and VPT values from all nodes
+  const positionIdentifiers = useMemo(() => {
+    const vpiValues = new Set<string>();
+    const vptValues = new Set<string>();
+    
+    nodes.forEach(node => {
+      if (node.data?.positions && Array.isArray(node.data.positions)) {
+        node.data.positions.forEach((position: any) => {
+          if (position.vpi) vpiValues.add(position.vpi);
+          if (position.vpt) vptValues.add(position.vpt);
+        });
+      }
+    });
+    
+    return {
+      vpiOptions: Array.from(vpiValues),
+      vptOptions: Array.from(vptValues)
+    };
+  }, [nodes]);
   
   // Field options for position data
   const positionFields = [
@@ -49,18 +70,18 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
   };
 
   // Update VPI
-  const updateVPI = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const updateVPI = (value: string) => {
     updateExpression({
       ...positionExpr,
-      vpi: event.target.value
+      vpi: value
     });
   };
 
   // Update VPT
-  const updateVPT = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const updateVPT = (value: string) => {
     updateExpression({
       ...positionExpr,
-      vpt: event.target.value
+      vpt: value
     });
   };
 
@@ -86,28 +107,55 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
             ))}
           </SelectContent>
         </Select>
+        {required && !positionExpr.field && (
+          <p className="text-xs text-destructive mt-1">This field is required</p>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <Label htmlFor="position-vpi" className="text-xs block mb-1">VPI Filter (Optional)</Label>
-          <Input
-            id="position-vpi"
-            className="h-8 text-xs"
-            placeholder="Position ID"
+          <Label htmlFor="position-vpi" className="text-xs block mb-1">VPI Filter</Label>
+          <Select
             value={positionExpr.vpi || ''}
-            onChange={updateVPI}
-          />
+            onValueChange={updateVPI}
+          >
+            <SelectTrigger 
+              id="position-vpi" 
+              className="h-8 text-xs"
+            >
+              <SelectValue placeholder="Select Position ID" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">Any Position</SelectItem>
+              {positionIdentifiers.vpiOptions.map(vpi => (
+                <SelectItem key={vpi} value={vpi}>
+                  {vpi}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div>
-          <Label htmlFor="position-vpt" className="text-xs block mb-1">VPT Filter (Optional)</Label>
-          <Input
-            id="position-vpt"
-            className="h-8 text-xs"
-            placeholder="Position Tag"
+          <Label htmlFor="position-vpt" className="text-xs block mb-1">VPT Filter</Label>
+          <Select
             value={positionExpr.vpt || ''}
-            onChange={updateVPT}
-          />
+            onValueChange={updateVPT}
+          >
+            <SelectTrigger 
+              id="position-vpt" 
+              className="h-8 text-xs"
+            >
+              <SelectValue placeholder="Select Position Tag" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">Any Tag</SelectItem>
+              {positionIdentifiers.vptOptions.map(vpt => (
+                <SelectItem key={vpt} value={vpt}>
+                  {vpt}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
     </div>
