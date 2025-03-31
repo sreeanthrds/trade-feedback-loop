@@ -54,7 +54,30 @@
 /* Horizontal scroll container */
 .condition-scroll-container {
   overflow-x: auto;
-  padding-bottom: 4px; /* Space for the scrollbar */
+  padding-bottom: 8px; /* Space for the scrollbar */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.condition-scroll-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+/* Track */
+.condition-scroll-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+/* Handle */
+.condition-scroll-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+/* Handle on hover */
+.condition-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 /* Expression grid */

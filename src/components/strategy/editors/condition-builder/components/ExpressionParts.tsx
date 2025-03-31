@@ -9,6 +9,7 @@ interface ExpressionPartsProps {
   updateLeft: (expr: Expression) => void;
   updateRight: (expr: Expression) => void;
   required?: boolean;
+  showLabels?: boolean;
 }
 
 const ExpressionParts: React.FC<ExpressionPartsProps> = ({
@@ -16,7 +17,8 @@ const ExpressionParts: React.FC<ExpressionPartsProps> = ({
   rightExpression,
   updateLeft,
   updateRight,
-  required = false
+  required = false,
+  showLabels = true
 }) => {
   return (
     <div className="condition-scroll-container">
@@ -26,12 +28,14 @@ const ExpressionParts: React.FC<ExpressionPartsProps> = ({
           expression={leftExpression}
           updateExpression={updateLeft}
           required={required}
+          showLabels={showLabels}
         />
         <ExpressionWrapper
           label="Right Expression"
           expression={rightExpression}
           updateExpression={updateRight}
           required={required}
+          showLabels={showLabels}
         />
       </div>
     </div>
