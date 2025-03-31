@@ -33,7 +33,7 @@ export function useCustomNodesChange(
         }, 50);
       }, 0);
     }
-  }, [baseChangeHandler]);
+  }, [baseChangeHandler]); // Fixed: Added missing dependency array with baseChangeHandler
 
   // Create a custom handler that guards against concurrent processing
   const customNodesChangeHandler = useCallback((changes: NodeChange[]) => {

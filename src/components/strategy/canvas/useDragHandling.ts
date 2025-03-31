@@ -1,4 +1,3 @@
-
 import { useCallback, useRef, useMemo, useEffect } from 'react';
 import { Node } from '@xyflow/react';
 
@@ -62,6 +61,9 @@ export function useDragHandling() {
       });
     }
     
+    // Always apply changes to keep UI responsive
+    onNodesChange(changes);
+    
     // Detect end of dragging
     const dragEnd = changes.find(change => 
       change.type === 'position' && 
@@ -72,9 +74,6 @@ export function useDragHandling() {
     if (dragEnd && isNodeDraggingRef.current) {
       handleDragStop();
     }
-    
-    // Apply the changes
-    onNodesChange(changes);
   }, [handleBeforeDrag, handleDragStop]);
 
   return useMemo(() => ({
