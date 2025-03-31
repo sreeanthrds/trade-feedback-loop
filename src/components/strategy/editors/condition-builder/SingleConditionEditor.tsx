@@ -46,8 +46,8 @@ const SingleConditionEditor: React.FC<SingleConditionEditorProps> = ({
   const requiresValues = ['>', '<', '>=', '<=', '==', '!='].includes(condition.operator);
 
   return (
-    <div className="condition-scroll-container">
-      <div className="expression-grid">
+    <div className="condition-scroll-container w-full overflow-visible">
+      <div className="expression-grid w-full min-w-[700px] overflow-visible">
         {/* Left-hand side expression */}
         <ExpressionWrapper
           label="Left Side"

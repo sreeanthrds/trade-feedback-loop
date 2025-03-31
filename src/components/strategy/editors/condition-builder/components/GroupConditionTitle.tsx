@@ -34,10 +34,6 @@ const GroupConditionTitle: React.FC<GroupConditionTitleProps> = ({
           <Group className="h-4 w-4 text-muted-foreground" />
         )}
         
-        <div className={`group-logic-badge ${rootCondition.groupLogic === 'AND' ? 'group-logic-and' : 'group-logic-or'}`}>
-          {rootCondition.groupLogic}
-        </div>
-        
         <Select
           value={rootCondition.groupLogic}
           onValueChange={updateGroupLogic}
