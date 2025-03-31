@@ -22,24 +22,18 @@ export const useActionTypeHandler = ({
 
   // Handler for action type changes
   const handleActionTypeChange = useCallback((value: string) => {
-    updateNodeData(nodeId, { 
-      actionType: value,
-      // Reset positions if changing to alert
-      ...(value === 'alert' && { positions: [] })
-    });
+    // If changing to 'alert' type, clear positions
+    const updates = value === 'alert' ? { actionType: value, positions: [] } : { actionType: value };
+    updateNodeData(nodeId, updates);
   }, [nodeId, updateNodeData]);
 
-  // Force update when action type changes
+  // Only remove positions when switching to alert mode
   useEffect(() => {
     if (nodeData?.actionType === 'alert' && nodeData?.positions?.length > 0) {
       // Reset positions when switching to alert
       updateNodeData(nodeId, { positions: [] });
-    } else if ((nodeData?.actionType === 'entry' || nodeData?.actionType === 'exit') && 
-              (!nodeData?.positions || nodeData.positions.length === 0)) {
-      // Ensure at least one position for entry/exit nodes
-      updateNodeData(nodeId, { positions: [createDefaultPosition()] });
     }
-  }, [nodeData?.actionType, nodeData?.positions, nodeId, updateNodeData, createDefaultPosition]);
+  }, [nodeData?.actionType, nodeData?.positions, nodeId, updateNodeData]);
 
   return {
     handleLabelChange,

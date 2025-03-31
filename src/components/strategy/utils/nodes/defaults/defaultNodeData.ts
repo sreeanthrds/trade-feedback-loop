@@ -9,25 +9,12 @@ export const createDefaultNodeData = (type: string, nodeId: string): any => {
   };
   
   if (type === 'actionNode' || type === 'entryNode' || type === 'exitNode' || type === 'alertNode') {
-    const positionId = `pos-${Date.now().toString().slice(-6)}`;
-    
-    // For entry and exit nodes, we need positions
+    // For entry and exit nodes, initialize with empty positions array
     if (type === 'entryNode' || type === 'exitNode') {
-      const defaultPosition = {
-        id: positionId,
-        vpi: `${nodeId}-pos1`,
-        vpt: '',
-        priority: 1,
-        positionType: type === 'entryNode' ? 'buy' : 'sell',
-        orderType: 'market',
-        lots: 1,
-        productType: 'intraday'
-      };
-      
       defaultData = {
         ...defaultData,
         actionType: type === 'entryNode' ? 'entry' : 'exit',
-        positions: [defaultPosition],
+        positions: [], // Start with empty positions array
         requiresSymbol: true
       };
     } 
@@ -42,21 +29,10 @@ export const createDefaultNodeData = (type: string, nodeId: string): any => {
     }
     // For general action nodes
     else {
-      const defaultPosition = {
-        id: positionId,
-        vpi: `${nodeId}-pos1`,
-        vpt: '',
-        priority: 1,
-        positionType: 'buy',
-        orderType: 'market',
-        lots: 1,
-        productType: 'intraday'
-      };
-      
       defaultData = {
         ...defaultData,
         actionType: 'entry', // Default to entry
-        positions: [defaultPosition],
+        positions: [], // Start with empty positions array
         requiresSymbol: true
       };
     }

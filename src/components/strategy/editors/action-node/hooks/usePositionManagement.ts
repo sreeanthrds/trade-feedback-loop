@@ -113,34 +113,17 @@ export const usePositionManagement = ({
     
     const updatedPositions = nodeData.positions.filter(pos => pos.id !== positionId);
     
-    // If we're deleting the last position and this is an entry/exit node, create a default one
-    if (updatedPositions.length === 0 && nodeData.actionType !== 'alert') {
-      const newPosition = createDefaultPosition();
-      updateNodeData(nodeId, { 
-        positions: [newPosition],
-        _lastUpdated: Date.now()
-      });
-      toast({
-        title: "Position deleted",
-        description: "Added a default position since at least one is required."
-      });
-    } else {
-      // Reindex the priorities if needed
-      const reindexedPositions = updatedPositions.map((pos, index) => ({
-        ...pos,
-        priority: index + 1
-      }));
-      
-      updateNodeData(nodeId, { 
-        positions: reindexedPositions,
-        _lastUpdated: Date.now()
-      });
-      toast({
-        title: "Position deleted",
-        description: "Position has been removed from this action node."
-      });
-    }
-  }, [nodeId, nodeData.positions, nodeData.actionType, updateNodeData]);
+    // Update with empty positions array - no need to create a default one
+    updateNodeData(nodeId, { 
+      positions: updatedPositions,
+      _lastUpdated: Date.now()
+    });
+    
+    toast({
+      title: "Position deleted",
+      description: "Position has been removed from this action node."
+    });
+  }, [nodeId, nodeData.positions, updateNodeData]);
 
   return {
     selectedPosition,

@@ -19,10 +19,7 @@ export const useInitializeNodeData = ({
   useEffect(() => {
     if (!initializedRef.current) {
       // Check if initialization is needed
-      const needsInitialization = 
-        !nodeData?.actionType || 
-        !nodeData?.positions || 
-        nodeData.positions.length === 0;
+      const needsInitialization = !nodeData?.actionType;
       
       if (needsInitialization) {
         // Create a clean defaultValues object only with the needed properties
@@ -31,36 +28,9 @@ export const useInitializeNodeData = ({
         // Add defaults only for missing values
         if (!nodeData?.actionType) defaultValues.actionType = 'entry';
         
-        // Initialize positions array if needed
-        if (!nodeData?.positions || nodeData.positions.length === 0) {
-          // Generate position ID
-          const positionId = `pos-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-          // Generate VPI using node ID
-          const positionNumber = 1;
-          const vpi = `${nodeId}-${positionNumber}`;
-          
-          // Create a default position
-          const defaultPosition: Position = {
-            id: positionId,
-            vpi: vpi,
-            vpt: '',
-            priority: 1,
-            positionType: 'buy',
-            orderType: 'market',
-            lots: 1,
-            productType: 'intraday'
-          };
-          
-          // Add default option details if needed for option instruments
-          if (nodeData?.instrument && nodeData.instrument.includes('OPT')) {
-            defaultPosition.optionDetails = {
-              expiry: 'W0',
-              strikeType: 'ATM',
-              optionType: 'CE'
-            };
-          }
-          
-          defaultValues.positions = [defaultPosition];
+        // Initialize empty positions array if it doesn't exist
+        if (!nodeData?.positions) {
+          defaultValues.positions = [];
         }
         
         // Only update if we have defaults to set
