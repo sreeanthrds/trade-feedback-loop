@@ -1,7 +1,7 @@
 
 import React, { useState, useCallback, memo } from 'react';
 import { Button } from '@/components/ui/button';
-import { Trash2 } from 'lucide-react';
+import { X } from 'lucide-react';
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -55,7 +55,7 @@ const NodeControls = ({ node, onDelete }: NodeControlsProps) => {
             onClick={(e) => e.stopPropagation()}
             title="Delete node"
           >
-            <Trash2 className="h-2.5 w-2.5" />
+            <X className="h-2.5 w-2.5" />
           </Button>
         </AlertDialogTrigger>
         <AlertDialogContent>

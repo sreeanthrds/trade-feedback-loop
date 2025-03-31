@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { EdgeProps } from '@xyflow/react';
 import { Button } from '@/components/ui/button';
-import { Trash2 } from 'lucide-react';
+import { X } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -73,7 +73,7 @@ const ButtonEdge = ({
                 }}
                 title="Delete connection"
               >
-                <Trash2 className="h-3 w-3" />
+                <X className="h-3 w-3" />
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>

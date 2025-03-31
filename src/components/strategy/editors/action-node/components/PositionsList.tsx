@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Trash2 } from 'lucide-react';
+import { PlusCircle, X } from 'lucide-react';
 import { Position } from '../types';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -70,7 +70,7 @@ const PositionsList: React.FC<PositionsListProps> = ({
                     onDeletePosition(position.id);
                   }}
                 >
-                  <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
+                  <X className="h-3.5 w-3.5 text-muted-foreground" />
                 </Button>
               </div>
               <div className="mt-1 flex gap-2 text-xs">

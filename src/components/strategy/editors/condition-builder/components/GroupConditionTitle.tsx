@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Group } from 'lucide-react';
+import { Group, X } from 'lucide-react';
 import { GroupCondition } from '../../../utils/conditionTypes';
 import {
   Select,
@@ -10,7 +10,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Trash2 } from 'lucide-react';
 
 interface GroupConditionTitleProps {
   rootCondition: GroupCondition;
@@ -60,7 +59,7 @@ const GroupConditionTitle: React.FC<GroupConditionTitleProps> = ({
             onClick={removeGroup}
             className="h-8 w-8 p-0"
           >
-            <Trash2 className="h-4 w-4 text-destructive" />
+            <X className="h-4 w-4 text-destructive" />
           </Button>
         )}
       </div>

@@ -3,7 +3,7 @@ import React from 'react';
 import { ComparisonExpressionRow } from '../composite';
 import { ComparisonOperator } from '../ComparisonOperatorSelector';
 import { Button } from '@/components/ui/button';
-import { Trash2 } from 'lucide-react';
+import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ConditionBuilderRowProps {
@@ -45,7 +45,7 @@ const ConditionBuilderRow: React.FC<ConditionBuilderRowProps> = ({
             onClick={onDelete}
             className="h-8 w-8 text-muted-foreground hover:text-destructive"
           >
-            <Trash2 className="h-4 w-4" />
+            <X className="h-4 w-4" />
           </Button>
         </div>
       )}

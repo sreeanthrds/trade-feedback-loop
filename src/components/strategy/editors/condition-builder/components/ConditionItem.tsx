@@ -2,7 +2,7 @@
 import React from 'react';
 import { Condition, GroupCondition } from '../../../utils/conditionTypes';
 import { Button } from '@/components/ui/button';
-import { Trash2 } from 'lucide-react';
+import { X } from 'lucide-react';
 import SingleConditionEditor from '../SingleConditionEditor';
 import ConditionBuilder from '../ConditionBuilder';
 import { Card, CardContent } from '@/components/ui/card';
@@ -51,7 +51,7 @@ const ConditionItem: React.FC<ConditionItemProps> = ({
             onClick={removeCondition} 
             className="ml-2 h-8 w-8 p-0 mt-1 shrink-0"
           >
-            <Trash2 className="h-4 w-4 text-destructive" />
+            <X className="h-4 w-4 text-destructive" />
           </Button>
         </CardContent>
       </Card>
