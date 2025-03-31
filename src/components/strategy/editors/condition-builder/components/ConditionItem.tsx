@@ -12,6 +12,7 @@ interface ConditionItemProps {
   level: number;
   updateCondition: (updated: Condition | GroupCondition) => void;
   removeCondition: () => void;
+  showLabels?: boolean;
 }
 
 const ConditionItem: React.FC<ConditionItemProps> = ({
@@ -20,6 +21,7 @@ const ConditionItem: React.FC<ConditionItemProps> = ({
   level,
   updateCondition,
   removeCondition,
+  showLabels = true,
 }) => {
   if ('groupLogic' in condition) {
     // Render nested group condition
@@ -42,6 +44,7 @@ const ConditionItem: React.FC<ConditionItemProps> = ({
             <SingleConditionEditor
               condition={condition as Condition}
               updateCondition={(updated) => updateCondition(updated)}
+              showLabels={showLabels}
             />
           </div>
           <Button 

@@ -15,6 +15,7 @@ interface ConditionBuilderRowProps {
   canDelete?: boolean;
   className?: string;
   required?: boolean;
+  showLabels?: boolean;
 }
 
 const ConditionBuilderRow: React.FC<ConditionBuilderRowProps> = ({
@@ -25,7 +26,8 @@ const ConditionBuilderRow: React.FC<ConditionBuilderRowProps> = ({
   onDelete,
   canDelete = true,
   className,
-  required = false
+  required = false,
+  showLabels = true
 }) => {
   return (
     <div className={cn("relative group condition-item", className)}>
@@ -35,6 +37,7 @@ const ConditionBuilderRow: React.FC<ConditionBuilderRowProps> = ({
         leftComponent={leftComponent}
         rightComponent={rightComponent}
         required={required}
+        showLabels={showLabels}
       />
       
       {canDelete && onDelete && (
