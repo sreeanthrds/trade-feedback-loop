@@ -6,15 +6,18 @@ import {
 } from '../../utils/conditionTypes';
 import OperationSelector from './components/OperationSelector';
 import ExpressionParts from './components/ExpressionParts';
+import { cn } from '@/lib/utils';
 
 interface ComplexExpressionEditorProps {
   expression: Expression;
   updateExpression: (expr: Expression) => void;
+  required?: boolean;
 }
 
 const ComplexExpressionEditor: React.FC<ComplexExpressionEditorProps> = ({
   expression,
-  updateExpression
+  updateExpression,
+  required = false
 }) => {
   if (expression.type !== 'expression') {
     return null;
@@ -47,11 +50,15 @@ const ComplexExpressionEditor: React.FC<ComplexExpressionEditorProps> = ({
   };
   
   return (
-    <div className="space-y-3 border border-border rounded-md p-3 mt-2">
+    <div className={cn(
+      "space-y-3 border border-border rounded-md p-3 mt-2",
+      required && !complexExpr.operation && "border-red-300"
+    )}>
       {/* Operation selector */}
       <OperationSelector 
         operation={complexExpr.operation}
         updateOperation={updateOperation}
+        required={required}
       />
       
       {/* Left and right expressions */}
@@ -60,6 +67,7 @@ const ComplexExpressionEditor: React.FC<ComplexExpressionEditorProps> = ({
         rightExpression={complexExpr.right}
         updateLeft={updateLeft}
         updateRight={updateRight}
+        required={required}
       />
     </div>
   );

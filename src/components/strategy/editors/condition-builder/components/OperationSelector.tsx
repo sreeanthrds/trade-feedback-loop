@@ -1,40 +1,48 @@
 
 import React from 'react';
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-
-type OperationType = '+' | '-' | '*' | '/' | '%';
+import { cn } from '@/lib/utils';
 
 interface OperationSelectorProps {
-  operation: OperationType;
+  operation: '+' | '-' | '*' | '/' | '%';
   updateOperation: (value: string) => void;
+  required?: boolean;
 }
 
-const OperationSelector: React.FC<OperationSelectorProps> = ({
-  operation,
-  updateOperation
+const OperationSelector: React.FC<OperationSelectorProps> = ({ 
+  operation, 
+  updateOperation,
+  required = false
 }) => {
   return (
-    <Select 
-      value={operation} 
-      onValueChange={updateOperation}
-    >
-      <SelectTrigger className="h-8 border border-input">
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="+">Addition (+)</SelectItem>
-        <SelectItem value="-">Subtraction (-)</SelectItem>
-        <SelectItem value="*">Multiplication (×)</SelectItem>
-        <SelectItem value="/">Division (÷)</SelectItem>
-        <SelectItem value="%">Modulo (%)</SelectItem>
-      </SelectContent>
-    </Select>
+    <div>
+      <Select 
+        value={operation} 
+        onValueChange={updateOperation}
+      >
+        <SelectTrigger 
+          className={cn(
+            "w-24 h-8", 
+            required && !operation && "border-red-300 focus:ring-red-200"
+          )}
+        >
+          <SelectValue placeholder="Operation" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="+">+</SelectItem>
+          <SelectItem value="-">-</SelectItem>
+          <SelectItem value="*">*</SelectItem>
+          <SelectItem value="/">/</SelectItem>
+          <SelectItem value="%">%</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
   );
 };
 
