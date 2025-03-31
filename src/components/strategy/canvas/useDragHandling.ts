@@ -49,18 +49,23 @@ export function useDragHandling() {
       return onNodesChange(changes);
     }
     
-    // Log changes for debugging
-    console.log('Node changes:', changes);
+    // Process actual changes
+    const positionChanges = changes.filter(change => change.type === 'position');
+    
+    // Log changes for debugging when relevant
+    if (positionChanges.length > 0) {
+      console.log('Position changes detected:', positionChanges);
+    }
     
     // Detect start of dragging
-    const dragStart = changes.find(change => 
+    const dragStart = positionChanges.find(change => 
       change.type === 'position' && change.dragging === true
     );
     
     if (dragStart) {
       handleBeforeDrag();
       // Track which nodes are being dragged
-      changes.forEach(change => {
+      positionChanges.forEach(change => {
         if (change.type === 'position' && change.id) {
           dragNodesRef.current.add(change.id);
         }
@@ -71,7 +76,7 @@ export function useDragHandling() {
     onNodesChange(changes);
     
     // Detect end of dragging
-    const dragEnd = changes.find(change => 
+    const dragEnd = positionChanges.find(change => 
       change.type === 'position' && 
       change.dragging === false &&
       dragNodesRef.current.has(change.id)

@@ -76,7 +76,12 @@ const ReactFlowCanvas = ({
   }, [nodes.length, reactFlowInstance, fitViewWithCustomZoom]);
 
   // Simple function to determine node class name for minimap
-  const nodeClassName = useCallback((node) => node.type, []);
+  const nodeClassName = useCallback((node) => {
+    const classNames = [node.type];
+    if (node.dragging) classNames.push('dragging');
+    if (node.selected) classNames.push('selected');
+    return classNames.join(' ');
+  }, []);
   
   // Memoize default edge options
   const defaultEdgeOptions = useMemo(() => ({

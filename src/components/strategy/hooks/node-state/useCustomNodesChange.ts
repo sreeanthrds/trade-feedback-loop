@@ -30,6 +30,7 @@ export function useCustomNodesChange(
         // Reset processing flag with a slight delay
         setTimeout(() => {
           isProcessingChangesRef.current = false;
+          console.log('Processing complete, ready for new changes');
         }, 50);
       }, 0);
     }
@@ -42,16 +43,23 @@ export function useCustomNodesChange(
     
     console.log('Custom nodes change handler called with:', changes);
     
+    // For drag operations, we want to process them immediately
+    const hasDragChanges = changes.some(change => 
+      change.type === 'position' && change.dragging !== undefined
+    );
+    
+    if (hasDragChanges) {
+      // For drag operations, process immediately without queueing
+      dragAwareHandler(changes, baseChangeHandler, () => {
+        isProcessingChangesRef.current = false;
+      });
+      return;
+    }
+    
     // If we're already processing changes
     if (isProcessingChangesRef.current) {
-      // For drag changes, we want to replace pending changes
-      const isDrag = changes.some(change => change.type === 'position');
-      
-      if (isDrag) {
-        // For drag operations, replace any pending changes
-        pendingChangesRef.current = changes;
-      } else if (pendingChangesRef.current) {
-        // For other operations, append to existing changes if any
+      // For other operations, append to existing changes if any
+      if (pendingChangesRef.current) {
         pendingChangesRef.current = [...pendingChangesRef.current, ...changes];
       } else {
         // If no pending changes yet, create a new array
@@ -69,16 +77,16 @@ export function useCustomNodesChange(
       return;
     }
     
-    // If not processing, use the drag-aware handler directly
+    // If not processing, use the handler directly
     isProcessingChangesRef.current = true;
     
-    // Use specific handler for different change types
-    dragAwareHandler(changes, baseChangeHandler, () => {
-      // Reset processing flag after operation is complete
-      setTimeout(() => {
-        isProcessingChangesRef.current = false;
-      }, 100);
-    });
+    // Use the base handler for non-drag changes
+    baseChangeHandler(changes);
+    
+    // Reset processing flag after operation is complete
+    setTimeout(() => {
+      isProcessingChangesRef.current = false;
+    }, 100);
   }, [dragAwareHandler, baseChangeHandler, processPendingChanges]);
   
   // Return the handler and the ref for external use

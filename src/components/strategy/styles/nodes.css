@@ -5,14 +5,16 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   min-width: 150px;
   font-size: 11px;
-  transition: box-shadow 0.2s;
+  transition: box-shadow 0.2s, transform 0.1s;
   cursor: grab;
+  user-select: none;
 }
 
 .react-flow__node.dragging {
-  cursor: grabbing;
+  cursor: grabbing !important;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   z-index: 10 !important;
+  transform: scale(1.02);
 }
 
 .react-flow__node.selected {
@@ -61,8 +63,13 @@
 }
 
 /* Group div handling for dragging state */
+.group {
+  cursor: grab;
+}
+
 .group.dragging {
-  cursor: grabbing;
+  cursor: grabbing !important;
+  z-index: 10;
 }
 
 .group.selected .react-flow__node {
@@ -71,6 +78,24 @@
 
 .group.dragging .react-flow__node {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Fix for pointer events */
+.react-flow__pane {
+  cursor: default;
+}
+
+.react-flow__node .draggable {
+  cursor: grab;
+}
+
+.react-flow__node.dragging .draggable {
+  cursor: grabbing;
+}
+
+/* Ensure that the grabbing cursor appears during drag operations */
+.react-flow--dragging .react-flow__node {
+  cursor: grabbing !important;
 }
 
 /* Node Controls */
