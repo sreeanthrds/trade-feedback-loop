@@ -230,16 +230,11 @@ export const expressionToString = (expr: Expression, nodeData?: any): string => 
       let positionContext = '';
       if (expr.vpi === '_any' && expr.vpt === '_any') {
         positionContext = '(All Positions)';
-      } else if (expr.vpi === '_any') {
+      } else if (expr.vpi === '_any' && expr.vpt) {
         positionContext = `(Tag:${expr.vpt})`;
-      } else if (expr.vpt === '_any') {
+      } else if (expr.vpi && expr.vpi !== '_any') {
+        // If specific VPI is selected, only show that (as it implies a specific VPT)
         positionContext = `(ID:${expr.vpi})`;
-      } else if (expr.vpi && expr.vpt) {
-        positionContext = `(ID:${expr.vpi}, Tag:${expr.vpt})`;
-      } else if (expr.vpi) {
-        positionContext = `(ID:${expr.vpi})`;
-      } else if (expr.vpt) {
-        positionContext = `(Tag:${expr.vpt})`;
       }
       return `${expr.field}${positionContext}`;
     

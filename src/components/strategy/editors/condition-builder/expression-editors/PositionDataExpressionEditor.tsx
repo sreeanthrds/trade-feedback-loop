@@ -1,5 +1,5 @@
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { Expression, PositionDataExpression } from '../../../utils/conditionTypes';
 import { 
   Select,
@@ -41,11 +41,17 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
   const positionIdentifiers = useMemo(() => {
     const vpiValues = new Set<string>();
     const vptValues = new Set<string>();
+    const vpiToVptMap = new Map<string, string>();
     
     nodes.forEach(node => {
       if (node.data?.positions && Array.isArray(node.data.positions)) {
         node.data.positions.forEach((position: any) => {
-          if (position.vpi) vpiValues.add(position.vpi);
+          if (position.vpi) {
+            vpiValues.add(position.vpi);
+            if (position.vpt) {
+              vpiToVptMap.set(position.vpi, position.vpt);
+            }
+          }
           if (position.vpt) vptValues.add(position.vpt);
         });
       }
@@ -53,9 +59,24 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
     
     return {
       vpiOptions: Array.from(vpiValues),
-      vptOptions: Array.from(vptValues)
+      vptOptions: Array.from(vptValues),
+      vpiToVptMap
     };
   }, [nodes]);
+  
+  // Ensure consistency between VPI and VPT
+  useEffect(() => {
+    if (positionExpr.vpi && positionExpr.vpi !== '_any') {
+      const associatedVpt = positionIdentifiers.vpiToVptMap.get(positionExpr.vpi);
+      if (associatedVpt && positionExpr.vpt !== associatedVpt) {
+        // If a specific VPI is selected, auto-select its associated VPT
+        updateExpression({
+          ...positionExpr,
+          vpt: associatedVpt
+        });
+      }
+    }
+  }, [positionExpr.vpi, positionIdentifiers.vpiToVptMap]);
   
   // Field options for position data
   const positionFields = [
@@ -78,19 +99,38 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
 
   // Update VPI
   const updateVPI = (value: string) => {
-    updateExpression({
-      ...positionExpr,
-      vpi: value
-    });
+    if (value === '_any') {
+      // If "All Positions" is selected, no need to change VPT
+      updateExpression({
+        ...positionExpr,
+        vpi: value
+      });
+    } else {
+      // If a specific position is selected, auto-select its associated VPT
+      const associatedVpt = positionIdentifiers.vpiToVptMap.get(value) || '_any';
+      updateExpression({
+        ...positionExpr,
+        vpi: value,
+        vpt: associatedVpt
+      });
+    }
   };
 
   // Update VPT
   const updateVPT = (value: string) => {
+    // If a specific VPI is selected, don't allow changing VPT
+    if (positionExpr.vpi && positionExpr.vpi !== '_any') {
+      return;
+    }
+    
     updateExpression({
       ...positionExpr,
       vpt: value
     });
   };
+
+  // Should VPT be disabled?
+  const isVptDisabled = positionExpr.vpi && positionExpr.vpi !== '_any';
 
   return (
     <div className="space-y-3">
@@ -130,7 +170,7 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="max-w-xs text-xs">
-                    Specify a VPI to check data for a specific position, or select "All Positions" to aggregate data across all positions.
+                    Select a specific position ID, or choose "All Positions" to aggregate data across positions.
                   </p>
                 </TooltipContent>
               </Tooltip>
@@ -166,7 +206,9 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="max-w-xs text-xs">
-                    Filter positions by tag to check data for similarly tagged positions, or select "All Tags" to ignore tag filtering.
+                    {isVptDisabled 
+                      ? "Tag is auto-selected based on the chosen Position ID." 
+                      : "Filter by tag to analyze similarly tagged positions."}
                   </p>
                 </TooltipContent>
               </Tooltip>
@@ -175,10 +217,11 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
           <Select
             value={positionExpr.vpt || ''}
             onValueChange={updateVPT}
+            disabled={isVptDisabled}
           >
             <SelectTrigger 
               id="position-vpt" 
-              className="h-8 text-xs"
+              className={cn("h-8 text-xs", isVptDisabled && "opacity-70 cursor-not-allowed")}
             >
               <SelectValue placeholder="Select Position Tag" />
             </SelectTrigger>
