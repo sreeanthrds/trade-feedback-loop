@@ -12,13 +12,18 @@ const RollingExitForm: React.FC<RollingExitFormProps> = ({
   exitCondition, 
   updateField 
 }) => {
+  // Handle number value change with proper type checking
+  const handleNumberChange = (field: string) => (value: number | undefined) => {
+    updateField(field, value);
+  };
+
   return (
     <div className="space-y-4">
       <EnhancedNumberInput
         label="Days Before Expiry"
         id="days-before-expiry"
         value={exitCondition.daysBeforeExpiry}
-        onChange={(value) => updateField('daysBeforeExpiry', value)}
+        onChange={handleNumberChange('daysBeforeExpiry')}
         min={1}
         description="Roll position this many days before expiry"
       />
@@ -27,7 +32,7 @@ const RollingExitForm: React.FC<RollingExitFormProps> = ({
         label="Strike Difference"
         id="strike-difference"
         value={exitCondition.strikeDifference}
-        onChange={(value) => updateField('strikeDifference', value)}
+        onChange={handleNumberChange('strikeDifference')}
         description="Difference in strike price points (+/-)"
       />
     </div>

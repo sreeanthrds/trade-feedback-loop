@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -32,19 +32,37 @@ const EnhancedNumberInput: React.FC<EnhancedNumberInputProps> = ({
   required = false,
   disabled = false
 }) => {
+  // Use local state to handle the input value as a string
+  const [inputValue, setInputValue] = useState<string>(value === undefined ? '' : value.toString());
+  
+  // Update local state when prop value changes
+  useEffect(() => {
+    setInputValue(value === undefined ? '' : value.toString());
+  }, [value]);
+
   // Handle input change, allowing for empty values
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value;
+    const newValue = e.target.value;
+    setInputValue(newValue);
     
-    if (inputValue === '') {
+    if (newValue === '') {
       // If the input is empty, pass undefined to the onChange handler
       onChange(undefined);
     } else {
       // Otherwise, parse the number and pass it to the onChange handler
-      const numValue = parseFloat(inputValue);
+      const numValue = parseFloat(newValue);
       if (!isNaN(numValue)) {
         onChange(numValue);
       }
+    }
+  };
+
+  // Handle blur event to ensure proper formatting
+  const handleBlur = () => {
+    if (inputValue !== '' && !isNaN(parseFloat(inputValue))) {
+      // Format the number properly on blur
+      const numValue = parseFloat(inputValue);
+      setInputValue(numValue.toString());
     }
   };
 
@@ -62,8 +80,9 @@ const EnhancedNumberInput: React.FC<EnhancedNumberInputProps> = ({
       <Input
         type="number"
         id={id}
-        value={value === undefined ? '' : value}
+        value={inputValue}
         onChange={handleChange}
+        onBlur={handleBlur}
         min={min}
         max={max}
         step={step}
