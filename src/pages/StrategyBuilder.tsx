@@ -1,15 +1,11 @@
 
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/ui/navbar';
 import Footer from '@/components/ui/footer';
 import { Button } from '@/components/ui/button';
 import { Maximize2, Minimize2 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
-
-// Lazy load the StrategyFlow component to improve initial page load time
-const StrategyFlow = lazy(() => 
-  import(/* webpackChunkName: "strategy-flow" */ '@/components/strategy/StrategyFlow')
-);
+import StrategyFlow from '@/components/strategy/StrategyFlow';
 
 const LoadingPlaceholder = () => (
   <div className="h-full w-full flex items-center justify-center bg-muted/20">
@@ -78,9 +74,7 @@ const StrategyBuilder = () => {
           </div>
           
           <div className={`border border-border overflow-hidden rounded-xl ${isExpanded ? 'flex-1' : 'h-[calc(100vh-250px)] min-h-[650px]'}`}>
-            <Suspense fallback={<LoadingPlaceholder />}>
-              <StrategyFlow />
-            </Suspense>
+            {isLoaded ? <StrategyFlow /> : <LoadingPlaceholder />}
           </div>
         </div>
       </main>

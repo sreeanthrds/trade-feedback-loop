@@ -26,4 +26,5 @@ const StrategyFlow = () => {
   );
 };
 
+// Make sure this is a proper default export
 export default StrategyFlow;
