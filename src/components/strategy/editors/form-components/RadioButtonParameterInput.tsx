@@ -27,14 +27,13 @@ const RadioButtonParameterInput: React.FC<RadioButtonParameterInputProps> = ({
 }) => {
   // Check if value is empty for validation - handle both null, undefined and empty string
   const isEmpty = value === undefined || value === null || value === '';
-  const showValidationError = required && isEmpty;
+  const showRequired = required && isEmpty;
   
   return (
     <div className="space-y-2" key={param.name}>
       <div className="flex items-center gap-2">
         <Label className="text-sm">
           {param.label}
-          {required && <span className="ml-1 text-red-500">*</span>}
         </Label>
         {param.description && (
           <TooltipProvider>
@@ -49,26 +48,28 @@ const RadioButtonParameterInput: React.FC<RadioButtonParameterInputProps> = ({
           </TooltipProvider>
         )}
       </div>
-      <RadioGroup
-        value={value}
-        onValueChange={onChange}
-        className={cn(
-          "flex flex-col space-y-1",
-          showValidationError && "border-red-300 p-2 rounded-md border"
+      <div className="relative">
+        {showRequired && (
+          <span className="absolute -top-1 right-0 text-red-500 text-xs">*</span>
         )}
-      >
-        {param.options?.map((option) => (
-          <div key={option} className="flex items-center space-x-2">
-            <RadioGroupItem value={option} id={`param-${param.name}-${option}`} />
-            <Label htmlFor={`param-${param.name}-${option}`} className="text-xs">
-              {option}
-            </Label>
-          </div>
-        ))}
-      </RadioGroup>
-      {showValidationError && (
-        <p className="text-xs text-red-500 mt-1">This field is required</p>
-      )}
+        <RadioGroup
+          value={value}
+          onValueChange={onChange}
+          className={cn(
+            "flex flex-col space-y-1",
+            showRequired && "border-red-300 p-2 rounded-md border"
+          )}
+        >
+          {param.options?.map((option) => (
+            <div key={option} className="flex items-center space-x-2">
+              <RadioGroupItem value={option} id={`param-${param.name}-${option}`} />
+              <Label htmlFor={`param-${param.name}-${option}`} className="text-xs">
+                {option}
+              </Label>
+            </div>
+          ))}
+        </RadioGroup>
+      </div>
     </div>
   );
 };

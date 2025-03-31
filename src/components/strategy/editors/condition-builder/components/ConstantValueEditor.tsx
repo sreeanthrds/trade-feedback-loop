@@ -23,6 +23,8 @@ const ConstantValueEditor: React.FC<ConstantValueEditorProps> = ({
   }
 
   const constantExpr = expression as ConstantExpression;
+  const isEmpty = constantExpr.value === undefined || constantExpr.value === null || constantExpr.value === '';
+  const showRequired = required && isEmpty;
   
   // Update constant value
   const updateConstantValue = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,12 +48,17 @@ const ConstantValueEditor: React.FC<ConstantValueEditorProps> = ({
   };
   
   return (
-    <Input
-      value={constantExpr.value?.toString() || ''}
-      onChange={updateConstantValue}
-      className={cn("h-8", required && constantExpr.value === '' && "border-red-300 focus:ring-red-200")}
-      placeholder={required ? "Required" : ""}
-    />
+    <div className="relative">
+      {showRequired && (
+        <span className="absolute -top-1 right-0 text-red-500 text-xs">*</span>
+      )}
+      <Input
+        value={constantExpr.value?.toString() || ''}
+        onChange={updateConstantValue}
+        className={cn("h-8", showRequired && "border-red-300 focus:ring-red-200")}
+        placeholder={required ? "Required" : ""}
+      />
+    </div>
   );
 };
 

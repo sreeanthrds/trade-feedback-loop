@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import ExpressionIcon from './ExpressionIcon';
 import { cn } from '@/lib/utils';
 
 interface IndicatorParameterSelectorProps {
@@ -17,35 +16,35 @@ const IndicatorParameterSelector: React.FC<IndicatorParameterSelectorProps> = ({
   onParameterChange,
   required = false
 }) => {
+  const isEmpty = !parameter;
+  const showRequired = required && isEmpty;
+  
   return (
-    <Select 
-      value={parameter} 
-      onValueChange={onParameterChange}
-    >
-      <SelectTrigger className={cn(
-        "h-8",
-        required && !parameter && "border-red-300 focus:ring-red-200"
-      )}>
-        <SelectValue placeholder="Select output">
-          {parameter && (
-            <div className="flex items-center gap-2">
-              <ExpressionIcon type="indicator" subType={parameter} />
-              <span>{parameter}</span>
-            </div>
+    <div className="relative">
+      {showRequired && (
+        <span className="absolute -top-1 right-0 text-red-500 text-xs">*</span>
+      )}
+      <Select
+        value={parameter}
+        onValueChange={onParameterChange}
+      >
+        <SelectTrigger 
+          className={cn(
+            "h-8 mt-1", 
+            showRequired && "border-red-300 focus:ring-red-200"
           )}
-        </SelectValue>
-      </SelectTrigger>
-      <SelectContent>
-        {parameters.map((param) => (
-          <SelectItem key={param} value={param}>
-            <div className="flex items-center gap-2">
-              <ExpressionIcon type="indicator" subType={param} />
-              <span>{param}</span>
-            </div>
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+        >
+          <SelectValue placeholder="Select parameter" />
+        </SelectTrigger>
+        <SelectContent>
+          {parameters.map((param) => (
+            <SelectItem key={param} value={param}>
+              {param}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   );
 };
 

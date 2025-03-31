@@ -27,14 +27,13 @@ const DropdownParameterInput: React.FC<DropdownParameterInputProps> = ({
 }) => {
   // Check if value is empty for validation - handle both null, undefined and empty string
   const isEmpty = value === undefined || value === null || value === '';
-  const showValidationError = required && isEmpty;
+  const showRequired = required && isEmpty;
   
   return (
     <div className="space-y-2" key={param.name}>
       <div className="flex items-center gap-2">
         <Label htmlFor={`param-${param.name}`} className="text-sm">
           {param.label}
-          {required && <span className="ml-1 text-red-500">*</span>}
         </Label>
         {param.description && (
           <TooltipProvider>
@@ -49,30 +48,32 @@ const DropdownParameterInput: React.FC<DropdownParameterInputProps> = ({
           </TooltipProvider>
         )}
       </div>
-      <Select
-        value={value}
-        onValueChange={onChange}
-      >
-        <SelectTrigger 
-          id={`param-${param.name}`} 
-          className={cn(
-            "h-8",
-            showValidationError && "border-red-300 focus:ring-red-200"
-          )}
+      <div className="relative">
+        {showRequired && (
+          <span className="absolute -top-1 right-0 text-red-500 text-xs">*</span>
+        )}
+        <Select
+          value={value}
+          onValueChange={onChange}
         >
-          <SelectValue placeholder="Select option" />
-        </SelectTrigger>
-        <SelectContent>
-          {param.options?.map((option) => (
-            <SelectItem key={option} value={option}>
-              {option}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      {showValidationError && (
-        <p className="text-xs text-red-500 mt-1">This field is required</p>
-      )}
+          <SelectTrigger 
+            id={`param-${param.name}`} 
+            className={cn(
+              "h-8",
+              showRequired && "border-red-300 focus:ring-red-200"
+            )}
+          >
+            <SelectValue placeholder="Select option" />
+          </SelectTrigger>
+          <SelectContent>
+            {param.options?.map((option) => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 };

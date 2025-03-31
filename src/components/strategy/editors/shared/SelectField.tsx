@@ -21,7 +21,7 @@ interface SelectFieldProps {
   className?: string;
   disabled?: boolean;
   required?: boolean;
-  description?: string; // Added description property
+  description?: string;
 }
 
 const SelectField: React.FC<SelectFieldProps> = ({
@@ -42,13 +42,15 @@ const SelectField: React.FC<SelectFieldProps> = ({
       ? { value: option, label: option } 
       : option
   );
+  
+  const isEmpty = !value;
+  const showRequired = required && isEmpty;
 
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
         <Label htmlFor={id} className="flex items-center">
           {label}
-          {required && <span className="ml-1 text-red-500">*</span>}
         </Label>
         {description && (
           <TooltipProvider>
@@ -63,28 +65,33 @@ const SelectField: React.FC<SelectFieldProps> = ({
           </TooltipProvider>
         )}
       </div>
-      <Select
-        value={value}
-        onValueChange={onChange}
-        disabled={disabled}
-      >
-        <SelectTrigger 
-          id={id}
-          className={cn(
-            className,
-            required && !value && "border-red-300 focus:ring-red-200"
-          )}
+      <div className="relative">
+        {showRequired && (
+          <span className="absolute -top-1 right-0 text-red-500 text-xs">*</span>
+        )}
+        <Select
+          value={value}
+          onValueChange={onChange}
+          disabled={disabled}
         >
-          <SelectValue placeholder={placeholder} />
-        </SelectTrigger>
-        <SelectContent>
-          {formattedOptions.map(option => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+          <SelectTrigger 
+            id={id}
+            className={cn(
+              className,
+              showRequired && "border-red-300 focus:ring-red-200"
+            )}
+          >
+            <SelectValue placeholder={placeholder} />
+          </SelectTrigger>
+          <SelectContent>
+            {formattedOptions.map(option => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 };

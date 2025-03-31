@@ -45,6 +45,10 @@ const InputField: React.FC<InputFieldProps> = ({
   if (type === 'number' && (value === undefined || value === null || value === '')) {
     inputValue = '';
   }
+  
+  // Check if field is empty for required validation
+  const isEmpty = inputValue === '' || inputValue === undefined || inputValue === null;
+  const showRequired = required && isEmpty;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Pass through all changes, including empty values
@@ -56,7 +60,6 @@ const InputField: React.FC<InputFieldProps> = ({
       <div className="flex items-center gap-2">
         <Label htmlFor={id} className="flex items-center">
           {label}
-          {required && <span className="ml-1 text-red-500">*</span>}
         </Label>
         {description && (
           <TooltipProvider>
@@ -71,24 +74,25 @@ const InputField: React.FC<InputFieldProps> = ({
           </TooltipProvider>
         )}
       </div>
-      <Input
-        id={id}
-        type={type}
-        value={inputValue}
-        onChange={handleInputChange}
-        placeholder={placeholder}
-        className={cn(
-          className,
-          required && type === 'number' && inputValue === '' && "border-red-300 focus:ring-red-200",
-          required && type === 'text' && inputValue === '' && "border-red-300 focus:ring-red-200"
+      <div className="relative">
+        {showRequired && (
+          <span className="absolute -top-1 right-0 text-red-500 text-xs">*</span>
         )}
-        min={min}
-        max={max}
-        step={step}
-      />
-      {required && ((type === 'number' && inputValue === '') || (type === 'text' && inputValue === '')) && (
-        <p className="text-xs text-red-500 mt-1">This field is required</p>
-      )}
+        <Input
+          id={id}
+          type={type}
+          value={inputValue}
+          onChange={handleInputChange}
+          placeholder={placeholder}
+          className={cn(
+            className,
+            showRequired && "border-red-300 focus:ring-red-200"
+          )}
+          min={min}
+          max={max}
+          step={step}
+        />
+      </div>
     </div>
   );
 };

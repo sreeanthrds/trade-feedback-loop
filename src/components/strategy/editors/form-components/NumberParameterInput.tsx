@@ -35,6 +35,10 @@ const NumberParameterInput: React.FC<NumberParameterInputProps> = ({
   const stepValue = param.step !== undefined ? 
     (typeof param.step === 'number' ? param.step : Number(param.step)) : 
     (isIntegerOnly ? 1 : 0.01);
+    
+  // Check if the field is empty and required
+  const isEmpty = inputValue === '';
+  const showRequired = required && isEmpty;
 
   // Update local state when prop value changes
   useEffect(() => {
@@ -70,7 +74,6 @@ const NumberParameterInput: React.FC<NumberParameterInputProps> = ({
       <div className="flex items-center gap-2">
         <Label htmlFor={`param-${param.name}`} className="text-sm">
           {param.label}
-          {required && <span className="ml-1 text-destructive">*</span>}
         </Label>
         {param.description && (
           <TooltipProvider>
@@ -85,21 +88,23 @@ const NumberParameterInput: React.FC<NumberParameterInputProps> = ({
           </TooltipProvider>
         )}
       </div>
-      <Input
-        id={`param-${param.name}`}
-        type="number"
-        value={inputValue}
-        onChange={handleChange}
-        onBlur={handleBlur}
-        min={param.min}
-        max={param.max}
-        step={stepValue}
-        required={required}
-        className="w-full"
-      />
-      {required && inputValue === '' && (
-        <p className="text-xs text-destructive mt-1">This field is required</p>
-      )}
+      <div className="relative">
+        {showRequired && (
+          <span className="absolute -top-1 right-0 text-red-500 text-xs">*</span>
+        )}
+        <Input
+          id={`param-${param.name}`}
+          type="number"
+          value={inputValue}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          min={param.min}
+          max={param.max}
+          step={stepValue}
+          required={required}
+          className={cn("w-full", showRequired && "border-red-300 focus:ring-red-200")}
+        />
+      </div>
     </div>
   );
 };
