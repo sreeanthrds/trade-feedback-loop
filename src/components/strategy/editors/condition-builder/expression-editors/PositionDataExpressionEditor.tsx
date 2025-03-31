@@ -126,7 +126,7 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
               <SelectValue placeholder="Select Position ID" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Any Position</SelectItem>
+              <SelectItem value="_any">Any Position</SelectItem>
               {positionIdentifiers.vpiOptions.map(vpi => (
                 <SelectItem key={vpi} value={vpi}>
                   {vpi}
@@ -148,7 +148,7 @@ const PositionDataExpressionEditor: React.FC<PositionDataExpressionEditorProps> 
               <SelectValue placeholder="Select Position Tag" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Any Tag</SelectItem>
+              <SelectItem value="_any">Any Tag</SelectItem>
               {positionIdentifiers.vptOptions.map(vpt => (
                 <SelectItem key={vpt} value={vpt}>
                   {vpt}

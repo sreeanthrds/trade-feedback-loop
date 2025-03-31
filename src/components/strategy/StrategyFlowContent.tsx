@@ -19,6 +19,13 @@ const NodePanelLoading = () => (
   </div>
 );
 
+// Create node types and edge types outside the component to prevent re-creation on each render
+const nodeTypesFactory = (handleDeleteNode, handleAddNode, updateNodeData) => 
+  createNodeTypes(handleDeleteNode, handleAddNode, updateNodeData);
+
+const edgeTypesFactory = (handleDeleteEdge) => 
+  createEdgeTypes(handleDeleteEdge);
+
 const StrategyFlowContent = () => {
   const { theme } = useTheme();
   
@@ -47,14 +54,14 @@ const StrategyFlowContent = () => {
     onNodeClick
   } = useFlowState();
 
-  // Create node types and edge types only once
+  // Create node types and edge types with stable reference using useCallback
   const nodeTypes = useMemo(() => 
-    createNodeTypes(handleDeleteNode, handleAddNode, updateNodeData), 
+    nodeTypesFactory(handleDeleteNode, handleAddNode, updateNodeData), 
     [handleDeleteNode, handleAddNode, updateNodeData]
   );
   
   const edgeTypes = useMemo(() => 
-    createEdgeTypes(handleDeleteEdge), 
+    edgeTypesFactory(handleDeleteEdge), 
     [handleDeleteEdge]
   );
 
