@@ -1,6 +1,6 @@
 
 import { useCallback, useRef, useMemo, useEffect } from 'react';
-import { Node } from '@xyflow/react';
+import { Node, NodeChange } from '@xyflow/react';
 
 export function useDragHandling() {
   const isNodeDraggingRef = useRef(false);
@@ -43,7 +43,7 @@ export function useDragHandling() {
   }, []);
 
   // Enhanced nodes change handler with improved drag detection
-  const handleNodesChange = useCallback((changes, onNodesChange) => {
+  const handleNodesChange = useCallback((changes: NodeChange[], onNodesChange: (changes: NodeChange[]) => void) => {
     // Early return if changes is empty
     if (!changes || changes.length === 0) {
       return onNodesChange(changes);

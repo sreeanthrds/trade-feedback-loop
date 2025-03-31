@@ -118,6 +118,7 @@ const ReactFlowCanvas = ({
         zoomOnPinch={true}
         panOnScroll={true}
         nodesDraggable={true}
+        nodesConnectable={true}
         elementsSelectable={true}
         proOptions={{ hideAttribution: true }}
         fitViewOptions={fitViewOptions}
