@@ -37,9 +37,9 @@ const ConditionItem: React.FC<ConditionItemProps> = ({
   } else {
     // Render single condition
     return (
-      <Card className="mb-3 bg-muted/40 border-border w-full">
+      <Card className="mb-3 bg-muted/40 border-border w-full overflow-visible">
         <CardContent className="p-3 flex items-start overflow-visible">
-          <div className="flex-grow min-w-0 overflow-visible">
+          <div className="flex-grow overflow-visible">
             <SingleConditionEditor
               condition={condition as Condition}
               updateCondition={(updated) => updateCondition(updated)}

@@ -24,7 +24,7 @@ const ExpressionWrapper: React.FC<ExpressionWrapperProps> = ({
   const EditorComponent = expression ? expressionEditorMap[expression.type] : null;
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 overflow-visible w-full">
       {showLabels && (
         <div className="flex items-center justify-between">
           <Label className="text-xs flex items-center">
