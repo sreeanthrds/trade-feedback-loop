@@ -24,14 +24,14 @@ const ExpressionParts: React.FC<ExpressionPartsProps> = ({
     <div className="w-full overflow-visible">
       <div className="grid grid-cols-2 gap-3 w-full overflow-visible">
         <ExpressionWrapper
-          label="Left Expression"
+          label=""
           expression={leftExpression}
           updateExpression={updateLeft}
           required={required}
           showLabels={showLabels}
         />
         <ExpressionWrapper
-          label="Right Expression"
+          label=""
           expression={rightExpression}
           updateExpression={updateRight}
           required={required}

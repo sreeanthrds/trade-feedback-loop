@@ -50,7 +50,7 @@ const SingleConditionEditor: React.FC<SingleConditionEditorProps> = ({
       <div className="expression-grid w-full overflow-visible">
         {/* Left-hand side expression */}
         <ExpressionWrapper
-          label="Left Side"
+          label=""
           expression={condition.lhs}
           updateExpression={updateLhs}
           required={requiresValues}
@@ -67,7 +67,7 @@ const SingleConditionEditor: React.FC<SingleConditionEditorProps> = ({
         
         {/* Right-hand side expression */}
         <ExpressionWrapper
-          label="Right Side"
+          label=""
           expression={condition.rhs}
           updateExpression={updateRhs}
           required={requiresValues}
