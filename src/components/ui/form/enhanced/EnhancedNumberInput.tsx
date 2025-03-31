@@ -84,6 +84,7 @@ const EnhancedNumberInput: React.FC<EnhancedNumberInputProps> = ({
     setTouched(true);
     
     if (newValue === '') {
+      // Important: Pass undefined when the field is emptied
       onChange(undefined);
     } else {
       const numValue = parseFloat(newValue);
