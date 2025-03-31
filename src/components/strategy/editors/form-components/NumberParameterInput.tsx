@@ -16,25 +16,20 @@ const NumberParameterInput: React.FC<NumberParameterInputProps> = ({
   onChange,
   required = false
 }) => {
-  // Determine if this should be an integer-only field
-  const isIntegerOnly = param.step ? 
-    (typeof param.step === 'number' && Number.isInteger(param.step) && param.step >= 1) : false;
-    
-  // Convert the step to a number or use a default value
-  const stepValue = param.step !== undefined ? 
-    (typeof param.step === 'number' ? param.step : Number(param.step)) : 
-    (isIntegerOnly ? 1 : 0.01);
-
+  // Extract number-specific properties
+  const { min, max, step } = param.options || {};
+  
   return (
     <EnhancedNumberInput
+      label={param.label || param.name}
       id={`param-${param.name}`}
-      label={param.label}
       value={value}
       onChange={onChange}
-      min={param.min as number | undefined}
-      max={param.max as number | undefined}
-      step={stepValue}
-      tooltip={param.description}
+      min={min}
+      max={max}
+      step={step || 1}
+      placeholder={param.placeholder}
+      description={param.description}
       required={required}
     />
   );

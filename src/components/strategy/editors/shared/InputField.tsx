@@ -1,15 +1,6 @@
 
 import React from 'react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
-import { HelpCircle } from 'lucide-react';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { EnhancedInputField } from '@/components/ui/form/enhanced';
 import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
 
 interface InputFieldProps {
@@ -91,47 +82,19 @@ const InputField: React.FC<InputFieldProps> = ({
     );
   }
   
-  // For non-number fields, use the regular Input
-  // Check if field is empty for required validation
-  const isEmpty = value === '' || value === undefined || value === null;
-  const showRequired = required && isEmpty;
-
+  // For non-number fields, use EnhancedInputField
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2">
-        <Label htmlFor={id} className="flex items-center">
-          {label}
-        </Label>
-        {description && (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="max-w-xs text-xs">{description}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
-      </div>
-      <div className="relative">
-        {showRequired && (
-          <span className="absolute -top-1 right-0 text-red-500 text-xs">*</span>
-        )}
-        <Input
-          id={id}
-          type={type}
-          value={value}
-          onChange={onChange}
-          placeholder={placeholder}
-          className={cn(
-            className,
-            showRequired && "border-red-300 focus:ring-red-200"
-          )}
-        />
-      </div>
-    </div>
+    <EnhancedInputField
+      label={label}
+      id={id}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      type={type}
+      className={className}
+      required={required}
+      description={description}
+    />
   );
 };
 

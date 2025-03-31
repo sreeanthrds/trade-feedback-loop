@@ -32,20 +32,6 @@ const ExitNodeForm: React.FC<ExitNodeFormProps> = React.memo(({ node, updateNode
     updateNodeData 
   });
 
-  // Create an enhanced handler for the limit price
-  const handleLimitPriceChangeEnhanced = (value: number | undefined) => {
-    // Simulate an input event to maintain compatibility with existing code
-    const simulatedEvent = {
-      target: {
-        value: value !== undefined ? value.toString() : '',
-        id: 'limit-price',
-        type: 'number'
-      }
-    } as React.ChangeEvent<HTMLInputElement>;
-    
-    handleLimitPriceChange(simulatedEvent);
-  };
-
   return (
     <div className="space-y-4">
       <Tabs defaultValue="exit_condition" className="w-full">
@@ -112,7 +98,9 @@ const ExitNodeForm: React.FC<ExitNodeFormProps> = React.memo(({ node, updateNode
               label="Limit Price"
               id="limit-price"
               value={typeof limitPrice === 'string' ? parseFloat(limitPrice) : limitPrice}
-              onChange={handleLimitPriceChangeEnhanced}
+              onChange={(value) => handleLimitPriceChange({ 
+                target: { value: value?.toString() || '' } 
+              } as React.ChangeEvent<HTMLInputElement>)}
               min={0}
               step={0.05}
               description="Price at which the limit order will be placed"
