@@ -34,7 +34,7 @@ const NumberParameterInput: React.FC<NumberParameterInputProps> = ({
     : param.step || 1;
   
   // Ensure step is always a number
-  const step = typeof stepValue === 'string' ? parseFloat(stepValue) : stepValue as number;
+  const step = typeof stepValue === 'string' ? parseFloat(stepValue) : (stepValue as number);
   
   const placeholder = param.placeholder || `Enter ${param.name}`;
   

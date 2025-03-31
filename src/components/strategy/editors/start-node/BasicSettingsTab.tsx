@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   InputField, 
@@ -46,13 +45,15 @@ const BasicSettingsTab: React.FC<BasicSettingsTabProps> = ({
   ];
 
   // Convert string array options to correct format
-  const timeframeSelectOptions = Array.isArray(timeframeOptions) ? 
-    timeframeOptions.map(option => ({ value: option, label: option })) : 
-    timeframeOptions;
+  const timeframeSelectOptions = timeframeOptions.map(option => ({ 
+    value: option, 
+    label: option 
+  }));
     
-  const exchangeSelectOptions = Array.isArray(exchangeOptions) ?
-    exchangeOptions.map(option => ({ value: option, label: option })) :
-    exchangeOptions;
+  const exchangeSelectOptions = exchangeOptions.map(option => ({ 
+    value: option, 
+    label: option 
+  }));
 
   const handleSymbolChange = (newSymbol: string) => {
     // If clearing the symbol or setting a new one when none exists
