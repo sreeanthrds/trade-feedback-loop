@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { EdgeProps, getBezierPath } from '@xyflow/react';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
@@ -32,10 +32,21 @@ const ButtonEdge = ({
 }: EdgeProps & { id: string; onDelete: (id: string) => void }) => {
   const { onDelete } = props;
   const [open, setOpen] = useState(false);
+  const [isReady, setIsReady] = useState(false);
+  
+  useEffect(() => {
+    // Set ready after a short delay to ensure all props are resolved
+    const timer = setTimeout(() => {
+      setIsReady(true);
+      console.log(`Edge ${id} is ready, onDelete is ${typeof onDelete}`);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [id, onDelete]);
   
   const handleDelete = () => {
     if (typeof onDelete === 'function') {
       onDelete(id);
+      console.log(`Deleting edge ${id}`);
       setOpen(false);
     } else {
       console.error('Edge onDelete is not a function', onDelete);
@@ -52,8 +63,6 @@ const ButtonEdge = ({
     targetPosition
   });
   
-  console.log(`Rendering edge ${id}, onDelete is ${typeof onDelete}`);
-  
   return (
     <>
       {/* Draw a bezier edge without animation */}
@@ -67,53 +76,55 @@ const ButtonEdge = ({
       
       {/* Add a delete button with hover state */}
       <foreignObject
-        width={30}
-        height={30}
-        x={(sourceX + targetX) / 2 - 15}
-        y={(sourceY + targetY) / 2 - 15}
+        width={40}
+        height={40}
+        x={(sourceX + targetX) / 2 - 20}
+        y={(sourceY + targetY) / 2 - 20}
         requiredExtensions="http://www.w3.org/1999/xhtml"
         className="edge-controls"
         data-id={id}
       >
-        <div className="flex items-center justify-center h-full">
-          <AlertDialog open={open} onOpenChange={setOpen}>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="destructive"
-                size="icon"
-                className="edge-delete-button h-6 w-6 p-0"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  console.log('Delete button clicked for edge:', id);
-                }}
-                title="Delete connection"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete Connection</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Are you sure you want to delete this connection between nodes? 
-                  This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel onClick={(e) => e.stopPropagation()}>Cancel</AlertDialogCancel>
-                <AlertDialogAction 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete();
+        {isReady && (
+          <div className="flex items-center justify-center h-full">
+            <AlertDialog open={open} onOpenChange={setOpen}>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  className="edge-delete-button h-8 w-8 p-0"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    console.log('Delete button clicked for edge:', id);
                   }}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  title="Delete connection"
                 >
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
+                  <X className="h-5 w-5" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Connection</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to delete this connection between nodes? 
+                    This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel onClick={(e) => e.stopPropagation()}>Cancel</AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete();
+                    }}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        )}
       </foreignObject>
     </>
   );

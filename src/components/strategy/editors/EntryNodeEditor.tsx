@@ -1,13 +1,12 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Node } from '@xyflow/react';
 import { NodeDetailsPanel } from './shared';
 import { useActionNodeForm } from './action-node/useActionNodeForm';
-import { Position } from './action-node/types';
-import PositionsList from './action-node/components/PositionsList';
-import PositionDialog from './action-node/components/PositionDialog';
 import InstrumentPanel from './action-node/components/InstrumentPanel';
 import { toast } from "@/hooks/use-toast";
+import PositionEditor from './action-node/components/PositionEditor';
+import { Separator } from '@/components/ui/separator';
 
 interface EntryNodeEditorProps {
   node: Node;
@@ -15,9 +14,6 @@ interface EntryNodeEditorProps {
 }
 
 const EntryNodeEditor = ({ node, updateNodeData }: EntryNodeEditorProps) => {
-  // State for controlling the dialog
-  const [isPositionDialogOpen, setIsPositionDialogOpen] = useState(false);
-  
   // Force actionType to be 'entry'
   if (node.data.actionType !== 'entry') {
     updateNodeData(node.id, { 
@@ -31,12 +27,9 @@ const EntryNodeEditor = ({ node, updateNodeData }: EntryNodeEditorProps) => {
     nodeData,
     hasOptionTrading,
     startNodeSymbol,
-    selectedPosition,
-    setSelectedPosition,
     handleLabelChange,
     handlePositionChange,
     handleAddPosition,
-    handleDeletePosition,
     validateVpiUniqueness,
     // Position-specific handlers
     handlePositionTypeChange,
@@ -50,21 +43,30 @@ const EntryNodeEditor = ({ node, updateNodeData }: EntryNodeEditorProps) => {
     handleOptionTypeChange
   } = useActionNodeForm({ node, updateNodeData });
 
+  // Create or get the default position
+  React.useEffect(() => {
+    // If there are no positions, create one
+    if ((!nodeData.positions || nodeData.positions.length === 0) && handleAddPosition) {
+      console.log("Creating initial position for entry node");
+      handleAddPosition();
+    }
+  }, [nodeData.positions, handleAddPosition]);
+
+  // Get the current position (there should be only one for entry nodes)
+  const position = nodeData.positions && nodeData.positions.length > 0 
+    ? nodeData.positions[0] 
+    : null;
+
   // Get the appropriate info message
   const getActionInfoTooltip = () => {
     return "Entry nodes open new positions when the strategy detects a signal. Configure quantity and order details based on your trading preferences.";
   };
 
-  const handlePositionSelect = (position: Position) => {
-    setSelectedPosition(position);
-    setIsPositionDialogOpen(true);
-  };
-
-  const handlePositionUpdate = (updates: Partial<Position>) => {
-    if (!selectedPosition) return;
+  const handlePositionUpdate = (updates: Partial<typeof position>) => {
+    if (!position) return;
     
     // We only check if the user is manually changing the VPI
-    if (updates.vpi && updates.vpi !== selectedPosition?.vpi && !validateVpiUniqueness(updates.vpi, selectedPosition.id)) {
+    if (updates.vpi && updates.vpi !== position?.vpi && !validateVpiUniqueness(updates.vpi, position.id)) {
       toast({
         title: "Duplicate VPI",
         description: "This Virtual Position ID is already in use. Please choose a unique identifier.",
@@ -73,71 +75,45 @@ const EntryNodeEditor = ({ node, updateNodeData }: EntryNodeEditorProps) => {
       return;
     }
 
-    handlePositionChange(selectedPosition.id, updates);
-  };
-
-  const onAddPosition = () => {
-    const newPosition = handleAddPosition();
-    if (newPosition) {
-      setSelectedPosition(newPosition);
-      setIsPositionDialogOpen(true);
-    } else {
-      console.error("Failed to create new position");
-    }
-  };
-
-  const onDeletePosition = (id: string) => {
-    handleDeletePosition(id);
-    // If we deleted the selected position, close the dialog
-    if (selectedPosition?.id === id) {
-      setIsPositionDialogOpen(false);
-      setSelectedPosition(null);
-    }
-  };
-
-  const closePositionDialog = () => {
-    setIsPositionDialogOpen(false);
+    handlePositionChange(position.id, updates);
   };
 
   return (
-    <>
+    <div className="space-y-4">
       <NodeDetailsPanel
         nodeLabel={nodeData?.label || ''}
         onLabelChange={handleLabelChange}
         infoTooltip={getActionInfoTooltip()}
-        additionalContent={
-          <div className="space-y-6">
-            <InstrumentPanel startNodeSymbol={startNodeSymbol} />
-            
-            <PositionsList 
-              positions={nodeData?.positions || []}
-              selectedPosition={selectedPosition}
-              onSelectPosition={handlePositionSelect}
-              onAddPosition={onAddPosition}
-              onDeletePosition={onDeletePosition}
-            />
-          </div>
-        }
       />
       
-      {/* Position Dialog */}
-      <PositionDialog
-        position={selectedPosition}
-        isOpen={isPositionDialogOpen}
-        onClose={closePositionDialog}
-        hasOptionTrading={hasOptionTrading}
-        onPositionChange={handlePositionUpdate}
-        onPositionTypeChange={handlePositionTypeChange}
-        onOrderTypeChange={handleOrderTypeChange}
-        onLimitPriceChange={handleLimitPriceChange}
-        onLotsChange={handleLotsChange}
-        onProductTypeChange={handleProductTypeChange}
-        onExpiryChange={handleExpiryChange}
-        onStrikeTypeChange={handleStrikeTypeChange}
-        onStrikeValueChange={handleStrikeValueChange}
-        onOptionTypeChange={handleOptionTypeChange}
-      />
-    </>
+      <Separator />
+      
+      <InstrumentPanel startNodeSymbol={startNodeSymbol} />
+      
+      <div className="bg-accent/10 rounded-md p-4">
+        <h3 className="text-base font-medium mb-3">Position Configuration</h3>
+        {position ? (
+          <PositionEditor
+            position={position}
+            hasOptionTrading={hasOptionTrading}
+            onPositionChange={handlePositionUpdate}
+            onPositionTypeChange={handlePositionTypeChange}
+            onOrderTypeChange={handleOrderTypeChange}
+            onLimitPriceChange={handleLimitPriceChange}
+            onLotsChange={handleLotsChange}
+            onProductTypeChange={handleProductTypeChange}
+            onExpiryChange={handleExpiryChange}
+            onStrikeTypeChange={handleStrikeTypeChange}
+            onStrikeValueChange={handleStrikeValueChange}
+            onOptionTypeChange={handleOptionTypeChange}
+          />
+        ) : (
+          <div className="text-center p-4 bg-background rounded-md">
+            <p className="text-sm text-muted-foreground">Loading position configuration...</p>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 
