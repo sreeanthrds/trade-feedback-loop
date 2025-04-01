@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Node } from '@xyflow/react';
 import { NodeDetailsPanel } from './shared';
 import { useActionNodeForm } from './action-node/useActionNodeForm';
@@ -7,6 +7,7 @@ import InstrumentPanel from './action-node/components/InstrumentPanel';
 import { toast } from "@/hooks/use-toast";
 import PositionEditor from './action-node/components/PositionEditor';
 import { Separator } from '@/components/ui/separator';
+import OrderDetailsSection from './action-node/OrderDetailsSection';
 
 interface EntryNodeEditorProps {
   node: Node;
@@ -31,6 +32,7 @@ const EntryNodeEditor = ({ node, updateNodeData }: EntryNodeEditorProps) => {
     handlePositionChange,
     handleAddPosition,
     validateVpiUniqueness,
+    createDefaultPosition,
     // Position-specific handlers
     handlePositionTypeChange,
     handleOrderTypeChange,
@@ -43,11 +45,13 @@ const EntryNodeEditor = ({ node, updateNodeData }: EntryNodeEditorProps) => {
     handleOptionTypeChange
   } = useActionNodeForm({ node, updateNodeData });
 
-  // Create or get the default position
-  React.useEffect(() => {
+  // Ensure we always have a position for entry nodes
+  useEffect(() => {
+    console.log("EntryNodeEditor: Checking if position exists", nodeData);
+    
     // If there are no positions, create one
     if ((!nodeData.positions || nodeData.positions.length === 0) && handleAddPosition) {
-      console.log("Creating initial position for entry node");
+      console.log("EntryNodeEditor: Creating initial position for entry node");
       handleAddPosition();
     }
   }, [nodeData.positions, handleAddPosition]);
@@ -57,12 +61,14 @@ const EntryNodeEditor = ({ node, updateNodeData }: EntryNodeEditorProps) => {
     ? nodeData.positions[0] 
     : null;
 
+  console.log("EntryNodeEditor: Current position", position);
+
   // Get the appropriate info message
   const getActionInfoTooltip = () => {
     return "Entry nodes open new positions when the strategy detects a signal. Configure quantity and order details based on your trading preferences.";
   };
 
-  const handlePositionUpdate = (updates: Partial<typeof position>) => {
+  const handlePositionUpdate = (updates: Partial<any>) => {
     if (!position) return;
     
     // We only check if the user is manually changing the VPI

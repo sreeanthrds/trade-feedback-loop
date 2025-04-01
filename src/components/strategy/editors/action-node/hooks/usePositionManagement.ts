@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { Position, NodeData } from '../types';
 import { toast } from "@/hooks/use-toast";
@@ -31,7 +32,7 @@ export const usePositionManagement = ({
     // Get next available priority
     const nextPriority = (nodeData?.positions?.length || 0) + 1;
     
-    return {
+    const newPosition = {
       id: generateUniqueId(),
       vpi: generateVPI(), 
       vpt: '',
@@ -46,6 +47,9 @@ export const usePositionManagement = ({
         optionType: 'CE'
       }
     };
+    
+    console.log("Created default position:", newPosition);
+    return newPosition;
   };
   
   // State for selected position
@@ -55,6 +59,8 @@ export const usePositionManagement = ({
 
   // Update selected position when positions change
   useEffect(() => {
+    console.log("usePositionManagement: positions changed", nodeData?.positions);
+    
     if (nodeData?.positions?.length > 0) {
       const currentSelected = selectedPosition ? 
         nodeData.positions.find(p => p.id === selectedPosition.id) : null;
@@ -75,6 +81,8 @@ export const usePositionManagement = ({
   const handlePositionChange = useCallback((positionId: string, updates: Partial<Position>) => {
     if (!nodeData.positions) return;
     
+    console.log("Updating position:", positionId, updates);
+    
     // Create a deep copy of the positions array to ensure React detects the changes
     const updatedPositions = nodeData.positions.map(pos => 
       pos.id === positionId ? { ...pos, ...updates } : pos
@@ -91,6 +99,8 @@ export const usePositionManagement = ({
   // Handler for adding a new position
   const handleAddPosition = useCallback(() => {
     const newPosition = createDefaultPosition();
+    
+    console.log("Adding new position:", newPosition);
     
     // Create a fresh array with all existing positions plus the new one
     const updatedPositions = [...(nodeData.positions || []), newPosition];

@@ -63,6 +63,12 @@ const ButtonEdge = ({
     targetPosition
   });
   
+  // Calculate the midpoint for the delete button
+  const centerX = (sourceX + targetX) / 2;
+  const centerY = (sourceY + targetY) / 2;
+  
+  console.log(`Edge ${id} - Button position: ${centerX}, ${centerY}`);
+  
   return (
     <>
       {/* Draw a bezier edge without animation */}
@@ -78,27 +84,27 @@ const ButtonEdge = ({
       <foreignObject
         width={40}
         height={40}
-        x={(sourceX + targetX) / 2 - 20}
-        y={(sourceY + targetY) / 2 - 20}
+        x={centerX - 20}
+        y={centerY - 20}
         requiredExtensions="http://www.w3.org/1999/xhtml"
         className="edge-controls"
         data-id={id}
       >
         {isReady && (
-          <div className="flex items-center justify-center h-full">
+          <div className="flex items-center justify-center h-full w-full">
             <AlertDialog open={open} onOpenChange={setOpen}>
               <AlertDialogTrigger asChild>
                 <Button
                   variant="destructive"
                   size="icon"
-                  className="edge-delete-button h-8 w-8 p-0"
+                  className="edge-delete-button"
                   onClick={(event) => {
                     event.stopPropagation();
                     console.log('Delete button clicked for edge:', id);
                   }}
                   title="Delete connection"
                 >
-                  <X className="h-5 w-5" />
+                  <X className="h-4 w-4" />
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
