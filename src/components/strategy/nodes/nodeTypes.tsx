@@ -7,6 +7,7 @@ import ActionNode from './ActionNode';
 import EntryNode from './EntryNode';
 import ExitNode from './ExitNode';
 import AlertNode from './AlertNode';
+import ModifyNode from './ModifyNode';
 import EndNode from './EndNode';
 import ForceEndNode from './ForceEndNode';
 import NodeControls from '../NodeControls';
@@ -19,6 +20,7 @@ const MemoizedActionNode = React.memo(ActionNode);
 const MemoizedEntryNode = React.memo(EntryNode);
 const MemoizedExitNode = React.memo(ExitNode);
 const MemoizedAlertNode = React.memo(AlertNode);
+const MemoizedModifyNode = React.memo(ModifyNode);
 const MemoizedEndNode = React.memo(EndNode);
 const MemoizedForceEndNode = React.memo(ForceEndNode);
 const MemoizedNodeControls = React.memo(NodeControls);
@@ -121,6 +123,24 @@ const ExitNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNodeD
 });
 ExitNodeWrapper.displayName = 'ExitNodeWrapper';
 
+const ModifyNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNodeData, ...rest }: NodeWrapperProps & { updateNodeData?: (id: string, data: any) => void }) => {
+  // Enhance data with updateNodeData function
+  const enhancedData = React.useMemo(() => ({
+    ...data,
+    updateNodeData,
+    actionType: 'modify' // Force action type to be 'modify'
+  }), [data, updateNodeData]);
+  
+  return (
+    <div className={`group ${rest.dragging ? 'dragging' : ''} ${rest.selected ? 'selected' : ''}`}>
+      <MemoizedModifyNode data={enhancedData} id={id} {...rest} />
+      <MemoizedNodeControls node={{ id, type: 'modifyNode', data }} onDelete={onDelete} />
+      <MemoizedNodeConnectControls showOn="action" onAddNode={onAddNode} parentNodeId={id} />
+    </div>
+  );
+});
+ModifyNodeWrapper.displayName = 'ModifyNodeWrapper';
+
 const AlertNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNodeData, ...rest }: NodeWrapperProps & { updateNodeData?: (id: string, data: any) => void }) => {
   // Enhance data with updateNodeData function and ensure positions is always defined
   const enhancedData = React.useMemo(() => ({
@@ -172,6 +192,7 @@ const createNodeTypes = (
     actionNode: (props) => <ActionNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} onAddNode={onAddNode} updateNodeData={updateNodeData} />,
     entryNode: (props) => <EntryNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} onAddNode={onAddNode} updateNodeData={updateNodeData} />,
     exitNode: (props) => <ExitNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} onAddNode={onAddNode} updateNodeData={updateNodeData} />,
+    modifyNode: (props) => <ModifyNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} onAddNode={onAddNode} updateNodeData={updateNodeData} />,
     alertNode: (props) => <AlertNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} onAddNode={onAddNode} updateNodeData={updateNodeData} />,
     endNode: (props) => <EndNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} />,
     forceEndNode: (props) => <ForceEndNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} />

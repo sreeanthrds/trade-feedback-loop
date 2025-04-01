@@ -1,6 +1,6 @@
 
 import React, { useCallback, memo } from 'react';
-import { ShoppingCart, LogOut, StopCircle, AlertTriangle, Activity, Play } from 'lucide-react';
+import { ShoppingCart, LogOut, StopCircle, AlertTriangle, Activity, Play, Edit } from 'lucide-react';
 import { 
   Tooltip,
   TooltipContent,
@@ -41,6 +41,13 @@ const nodeTypes: NodeTypeItem[] = [
     description: 'Execute buy/sell orders',
     icon: <ShoppingCart className="h-5 w-5 text-green-600 dark:text-green-400" />,
     color: 'border-green-600 dark:border-green-400 bg-green-600/10 dark:bg-green-400/10'
+  },
+  {
+    type: 'modifyNode',
+    label: 'Modify Node',
+    description: 'Update existing positions',
+    icon: <Edit className="h-5 w-5 text-orange-600 dark:text-orange-400" />,
+    color: 'border-orange-600 dark:border-orange-400 bg-orange-600/10 dark:bg-orange-400/10'
   },
   {
     type: 'exitNode',

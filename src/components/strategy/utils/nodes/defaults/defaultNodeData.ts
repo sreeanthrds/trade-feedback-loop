@@ -1,59 +1,121 @@
 
-/**
- * Creates default data for a specific node type and ID
- */
-export const createDefaultNodeData = (type: string, nodeId: string): any => {
-  let defaultData: any = { 
-    label: getDefaultNodeLabel(type),
-    _lastUpdated: Date.now() // Add timestamp to force update detection
-  };
-  
-  if (type === 'actionNode' || type === 'entryNode' || type === 'exitNode' || type === 'alertNode') {
-    // For entry and exit nodes, initialize with empty positions array
-    if (type === 'entryNode' || type === 'exitNode') {
-      defaultData = {
-        ...defaultData,
-        actionType: type === 'entryNode' ? 'entry' : 'exit',
-        positions: [], // Start with empty positions array
-        requiresSymbol: true
+import { v4 as uuidv4 } from 'uuid';
+
+export const createDefaultNodeData = (nodeType: string, nodeId: string) => {
+  const timestamp = Date.now();
+  const simpleId = nodeId.split('-')[1];
+
+  switch (nodeType) {
+    case 'startNode':
+      return {
+        label: `Start ${simpleId}`,
+        timeframe: '5MIN',
+        exchange: 'NSE',
+        tradingInstrument: {
+          type: 'stock',
+          underlyingType: 'index'
+        },
+        indicators: [],
+        symbol: 'NIFTY',
+        _lastUpdated: timestamp
       };
-    } 
-    // For alert nodes, we don't need positions but still need actionType
-    else if (type === 'alertNode') {
-      defaultData = {
-        ...defaultData,
-        actionType: 'alert',
-        positions: [],
-        requiresSymbol: true
-      };
-    }
-    // For general action nodes
-    else {
-      defaultData = {
-        ...defaultData,
-        actionType: 'entry', // Default to entry
-        positions: [], // Start with empty positions array
-        requiresSymbol: true
-      };
-    }
-  }
-  
-  // For signal nodes, initialize with default conditions structure
-  if (type === 'signalNode') {
-    defaultData = {
-      ...defaultData,
-      conditions: [
-        {
-          id: 'root',
-          groupLogic: 'AND',
+
+    case 'signalNode':
+      return {
+        label: `Signal ${simpleId}`,
+        _lastUpdated: timestamp,
+        conditions: {
+          type: 'simple',
+          operator: 'and',
           conditions: []
         }
-      ]
-    };
-  }
-  
-  return defaultData;
-};
+      };
 
-// Import the necessary function
-import { getDefaultNodeLabel } from '../types/nodeTypes';
+    case 'actionNode':
+      return {
+        label: `Action ${simpleId}`,
+        actionType: 'entry',
+        positions: [],
+        _lastUpdated: timestamp
+      };
+
+    case 'entryNode':
+      return {
+        label: `Entry ${simpleId}`,
+        actionType: 'entry',
+        positions: [
+          {
+            id: `pos-${uuidv4().slice(0, 6)}`,
+            vpi: `${nodeId}-pos1`,
+            vpt: '',
+            priority: 1,
+            positionType: 'buy',
+            orderType: 'market',
+            lots: 1,
+            productType: 'intraday',
+            optionDetails: {
+              expiry: 'W0',
+              strikeType: 'ATM',
+              optionType: 'CE'
+            },
+            _lastUpdated: timestamp
+          }
+        ],
+        _lastUpdated: timestamp
+      };
+
+    case 'exitNode':
+      return {
+        label: `Exit ${simpleId}`,
+        actionType: 'exit',
+        exitType: 'specific',
+        positions: [],
+        exitCondition: {
+          type: 'positionExit',
+          params: {}
+        },
+        _lastUpdated: timestamp
+      };
+      
+    case 'modifyNode':
+      return {
+        label: `Modify ${simpleId}`,
+        actionType: 'modify',
+        targetPositionId: null,
+        targetNodeId: null,
+        modifications: {},
+        _lastUpdated: timestamp
+      };
+
+    case 'alertNode':
+      return {
+        label: `Alert ${simpleId}`,
+        actionType: 'alert',
+        alertMessage: 'Strategy alert',
+        alertType: 'info',
+        sendEmail: false,
+        sendSms: false,
+        sendPush: true,
+        _lastUpdated: timestamp
+      };
+
+    case 'endNode':
+      return {
+        label: `End ${simpleId}`,
+        _lastUpdated: timestamp
+      };
+
+    case 'forceEndNode':
+      return {
+        label: `Force End ${simpleId}`,
+        closePositions: true,
+        _lastUpdated: timestamp
+      };
+
+    default:
+      return {
+        label: `Node ${simpleId}`,
+        _lastUpdated: timestamp
+      };
+  }
+};
