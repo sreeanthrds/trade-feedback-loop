@@ -24,7 +24,7 @@ const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
   infoTooltip,
 }) => {
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       <div className="flex items-center gap-2">
         <InputField
           label="Node Label"
@@ -52,7 +52,7 @@ const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
       
       {additionalContent && (
         <>
-          <Separator className="my-2" />
+          <Separator className="my-1" />
           {additionalContent}
         </>
       )}

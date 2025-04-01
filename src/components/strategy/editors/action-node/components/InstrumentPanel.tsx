@@ -9,12 +9,7 @@ interface InstrumentPanelProps {
 const InstrumentPanel: React.FC<InstrumentPanelProps> = ({
   startNodeSymbol
 }) => {
-  return (
-    <div className="space-y-4">
-      <h3 className="text-sm font-medium">Instrument</h3>
-      <InstrumentDisplay startNodeSymbol={startNodeSymbol} />
-    </div>
-  );
+  return <InstrumentDisplay startNodeSymbol={startNodeSymbol} />;
 };
 
 export default InstrumentPanel;

@@ -74,18 +74,18 @@ const EntryNodeEditor = ({ node, updateNodeData }: EntryNodeEditorProps) => {
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       <NodeDetailsPanel
         nodeLabel={nodeData?.label || ''}
         onLabelChange={handleLabelChange}
         infoTooltip="Entry nodes open new positions when the strategy detects a signal."
       />
       
-      <Separator className="my-2" />
+      <Separator className="my-1" />
       
-      <InstrumentPanel startNodeSymbol={startNodeSymbol} />
+      <InstrumentDisplay startNodeSymbol={startNodeSymbol} />
       
-      <div className="bg-accent/5 rounded-md p-3">
+      <div className="bg-accent/5 rounded-md p-2">
         {position ? (
           <PositionEditor
             position={position}
@@ -102,8 +102,8 @@ const EntryNodeEditor = ({ node, updateNodeData }: EntryNodeEditorProps) => {
             onOptionTypeChange={handleOptionTypeChange}
           />
         ) : (
-          <div className="text-center p-2">
-            <p className="text-sm text-muted-foreground">Loading position...</p>
+          <div className="text-center p-1">
+            <p className="text-xs text-muted-foreground">Loading position...</p>
           </div>
         )}
       </div>
