@@ -65,12 +65,13 @@ const ButtonEdge = ({
       
       {/* Add a delete button with hover state */}
       <foreignObject
-        width={20}
-        height={20}
-        x={(sourceX + targetX) / 2 - 10}
-        y={(sourceY + targetY) / 2 - 10}
+        width={24}
+        height={24}
+        x={(sourceX + targetX) / 2 - 12}
+        y={(sourceY + targetY) / 2 - 12}
         requiredExtensions="http://www.w3.org/1999/xhtml"
         className="edge-controls"
+        data-id={id}
       >
         <div className="flex items-center justify-center h-full">
           <AlertDialog open={open} onOpenChange={setOpen}>
@@ -78,7 +79,7 @@ const ButtonEdge = ({
               <Button
                 variant="destructive"
                 size="icon"
-                className="h-5 w-5 rounded-full"
+                className="edge-delete-button h-5 w-5 p-0"
                 onClick={(event) => {
                   event.stopPropagation();
                 }}

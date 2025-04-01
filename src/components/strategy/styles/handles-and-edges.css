@@ -24,9 +24,27 @@
   cursor: pointer;
   z-index: 10;
   opacity: 0;
+  transition: opacity 0.2s;
 }
 
 .react-flow__edge:hover .edge-controls {
   opacity: 1;
 }
 
+/* Style for the delete button to make it more visible */
+.edge-delete-button {
+  background-color: #f87171;
+  color: white;
+  height: 16px;
+  width: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 10px;
+  box-shadow: 0 0 0 2px white;
+}
+
+.edge-delete-button:hover {
+  background-color: #ef4444;
+}
