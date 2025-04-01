@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { EdgeProps, getSmoothStepPath } from '@xyflow/react';
+import { EdgeProps, getBezierPath } from '@xyflow/react';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 import {
@@ -42,8 +42,8 @@ const ButtonEdge = ({
     }
   };
   
-  // Use getSmoothStepPath for the edge path
-  const [edgePath] = getSmoothStepPath({
+  // Use getBezierPath for the edge path
+  const [edgePath] = getBezierPath({
     sourceX,
     sourceY,
     sourcePosition,
@@ -54,7 +54,7 @@ const ButtonEdge = ({
   
   return (
     <>
-      {/* Draw a smooth step edge without animation */}
+      {/* Draw a bezier edge without animation */}
       <path
         id={id}
         className="react-flow__edge-path"

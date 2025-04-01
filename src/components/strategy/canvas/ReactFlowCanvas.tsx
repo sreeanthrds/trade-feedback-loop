@@ -85,7 +85,7 @@ const ReactFlowCanvas = ({
   
   // Memoize default edge options
   const defaultEdgeOptions = useMemo(() => ({
-    type: 'smoothstep',
+    type: 'bezier',
     style: { strokeWidth: 1.5 }
   }), []);
   
