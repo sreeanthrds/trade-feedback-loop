@@ -51,7 +51,7 @@ const PositionEditor: React.FC<PositionEditorProps> = ({
   const handleLimitPriceChange = (value: number | undefined) => {
     const simulatedEvent = {
       target: {
-        value: value !== undefined ? value.toString() : '',
+        value: value !== undefined ? String(value) : '',
         id: 'limit-price',
         type: 'number'
       }
@@ -63,7 +63,7 @@ const PositionEditor: React.FC<PositionEditorProps> = ({
   const handleLotsChange = (value: number | undefined) => {
     const simulatedEvent = {
       target: {
-        value: value !== undefined ? value.toString() : '',
+        value: value !== undefined ? String(value) : '',
         id: 'lots',
         type: 'number'
       }
@@ -75,7 +75,7 @@ const PositionEditor: React.FC<PositionEditorProps> = ({
   const handleStrikeValueChange = (value: number | undefined) => {
     const simulatedEvent = {
       target: {
-        value: value !== undefined ? value.toString() : '',
+        value: value !== undefined ? String(value) : '',
         id: 'strike-value',
         type: 'number'
       }

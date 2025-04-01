@@ -70,7 +70,7 @@ const ActionNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNod
   const enhancedData = React.useMemo(() => ({
     ...data,
     updateNodeData,
-    positions: data.positions || [] // Ensure positions is always defined
+    positions: Array.isArray(data.positions) ? data.positions : [] // Ensure positions is always defined as an array
   }), [data, updateNodeData]);
   
   return (
@@ -88,7 +88,7 @@ const EntryNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNode
   const enhancedData = React.useMemo(() => ({
     ...data,
     updateNodeData,
-    positions: data.positions || [], // Ensure positions is always defined
+    positions: Array.isArray(data.positions) ? data.positions : [], // Ensure positions is always defined as an array
     actionType: 'entry' // Force action type to be 'entry'
   }), [data, updateNodeData]);
   
@@ -107,7 +107,7 @@ const ExitNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNodeD
   const enhancedData = React.useMemo(() => ({
     ...data,
     updateNodeData,
-    positions: data.positions || [], // Ensure positions is always defined
+    positions: Array.isArray(data.positions) ? data.positions : [], // Ensure positions is always defined as an array
     actionType: 'exit' // Force action type to be 'exit'
   }), [data, updateNodeData]);
   
@@ -126,7 +126,7 @@ const AlertNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNode
   const enhancedData = React.useMemo(() => ({
     ...data,
     updateNodeData,
-    positions: data.positions || [], // Ensure positions is always defined
+    positions: Array.isArray(data.positions) ? data.positions : [], // Ensure positions is always defined as an array
     actionType: 'alert' // Force action type to be 'alert'
   }), [data, updateNodeData]);
   

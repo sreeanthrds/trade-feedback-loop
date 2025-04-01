@@ -29,7 +29,7 @@ export const useActionTypeHandler = ({
 
   // Only remove positions when switching to alert mode
   useEffect(() => {
-    if (nodeData?.actionType === 'alert' && nodeData?.positions?.length > 0) {
+    if (nodeData?.actionType === 'alert' && Array.isArray(nodeData?.positions) && nodeData?.positions?.length > 0) {
       // Reset positions when switching to alert
       updateNodeData(nodeId, { positions: [] });
     }

@@ -25,8 +25,12 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
   id,
   updateNodeData
 }) => {
-  // Sort positions by priority
-  const sortedPositions = [...(data.positions || [])].sort((a, b) => a.priority - b.priority);
+  // Sort positions by priority, ensure we handle undefined or null safely
+  const positions = Array.isArray(data.positions) ? data.positions : [];
+  const sortedPositions = [...positions].sort((a, b) => 
+    (a.priority ?? Number.MAX_SAFE_INTEGER) - (b.priority ?? Number.MAX_SAFE_INTEGER)
+  );
+  
   const [editingPosition, setEditingPosition] = useState<PositionType | null>(null);
   const [isPositionDialogOpen, setIsPositionDialogOpen] = useState(false);
   
@@ -38,9 +42,9 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
   const handlePositionChange = (updates: Partial<PositionType>) => {
     if (!editingPosition || !updateNodeData) return;
     
-    const updatedPositions = data.positions?.map(pos => 
+    const updatedPositions = Array.isArray(data.positions) ? data.positions?.map(pos => 
       pos.id === editingPosition.id ? { ...pos, ...updates } : pos
-    ) || [];
+    ) : [];
     
     updateNodeData(id, { positions: updatedPositions });
   };
@@ -59,12 +63,12 @@ const ActionNodeContent: React.FC<ActionNodeContentProps> = ({
       ...optionUpdates
     };
     
-    const updatedPositions = data.positions?.map(pos => 
+    const updatedPositions = Array.isArray(data.positions) ? data.positions?.map(pos => 
       pos.id === editingPosition.id ? { 
         ...pos, 
         optionDetails: updatedOptionDetails 
       } : pos
-    ) || [];
+    ) : [];
     
     updateNodeData(id, { positions: updatedPositions });
   };
