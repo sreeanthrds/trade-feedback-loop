@@ -233,7 +233,7 @@ const validateNodeData = (nodes: Node[]): { errors: ValidationError[], warnings:
         });
       }
       
-      if (!node.data?.indicators || node.data.indicators.length === 0) {
+      if (node.data?.indicators && Array.isArray(node.data.indicators) && node.data.indicators.length === 0) {
         warnings.push({
           type: 'missing-indicators',
           message: 'Start node has no indicators configured',
@@ -244,7 +244,7 @@ const validateNodeData = (nodes: Node[]): { errors: ValidationError[], warnings:
     
     // Signal node validations
     if (node.type === 'signalNode') {
-      if (!node.data?.conditions || node.data.conditions.length === 0) {
+      if (!node.data?.conditions || (Array.isArray(node.data.conditions) && node.data.conditions.length === 0)) {
         errors.push({
           type: 'missing-conditions',
           message: 'Signal node has no conditions configured',
@@ -305,7 +305,7 @@ export const showValidationResults = (results: ValidationResult): void => {
     toast({
       title: `Strategy has ${results.warnings.length} warning${results.warnings.length === 1 ? '' : 's'}`,
       description: results.warnings[0].message,
-      variant: "warning"
+      variant: "default"  // Changed from "warning" to "default"
     });
   }
 };

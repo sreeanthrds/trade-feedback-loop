@@ -53,7 +53,7 @@ export const useWorkflowValidation = () => {
         toast({
           title: "Strategy has warnings",
           description: `There are ${results.warnings.length} warning(s) in your strategy`,
-          variant: "warning"
+          variant: "default"  // Changed from "warning" to "default"
         });
         
         // In a real implementation, we would show a confirmation dialog here
