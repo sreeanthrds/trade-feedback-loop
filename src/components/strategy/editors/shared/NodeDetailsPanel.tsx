@@ -24,7 +24,7 @@ const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
   infoTooltip,
 }) => {
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="flex items-center gap-2">
         <InputField
           label="Node Label"
@@ -52,7 +52,7 @@ const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
       
       {additionalContent && (
         <>
-          <Separator />
+          <Separator className="my-2" />
           {additionalContent}
         </>
       )}
@@ -60,5 +60,4 @@ const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
   );
 };
 
-// Memoize the component to prevent unnecessary re-renders
 export default memo(NodeDetailsPanel);

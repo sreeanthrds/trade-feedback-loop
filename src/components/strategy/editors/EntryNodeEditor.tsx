@@ -7,7 +7,6 @@ import InstrumentPanel from './action-node/components/InstrumentPanel';
 import { toast } from "@/hooks/use-toast";
 import PositionEditor from './action-node/components/PositionEditor';
 import { Separator } from '@/components/ui/separator';
-import OrderDetailsSection from './action-node/OrderDetailsSection';
 
 interface EntryNodeEditorProps {
   node: Node;
@@ -32,7 +31,7 @@ const EntryNodeEditor = ({ node, updateNodeData }: EntryNodeEditorProps) => {
     handlePositionChange,
     handleAddPosition,
     validateVpiUniqueness,
-    createDefaultPosition, // Now available since we exposed it
+    createDefaultPosition,
     // Position-specific handlers
     handlePositionTypeChange,
     handleOrderTypeChange,
@@ -47,11 +46,8 @@ const EntryNodeEditor = ({ node, updateNodeData }: EntryNodeEditorProps) => {
 
   // Ensure we always have a position for entry nodes
   useEffect(() => {
-    console.log("EntryNodeEditor: Checking if position exists", nodeData);
-    
     // If there are no positions, create one
     if ((!nodeData.positions || nodeData.positions.length === 0) && handleAddPosition) {
-      console.log("EntryNodeEditor: Creating initial position for entry node");
       handleAddPosition();
     }
   }, [nodeData.positions, handleAddPosition]);
@@ -61,13 +57,6 @@ const EntryNodeEditor = ({ node, updateNodeData }: EntryNodeEditorProps) => {
     ? nodeData.positions[0] 
     : null;
 
-  console.log("EntryNodeEditor: Current position", position);
-
-  // Get the appropriate info message
-  const getActionInfoTooltip = () => {
-    return "Entry nodes open new positions when the strategy detects a signal. Configure quantity and order details based on your trading preferences.";
-  };
-
   const handlePositionUpdate = (updates: Partial<any>) => {
     if (!position) return;
     
@@ -75,7 +64,7 @@ const EntryNodeEditor = ({ node, updateNodeData }: EntryNodeEditorProps) => {
     if (updates.vpi && updates.vpi !== position?.vpi && !validateVpiUniqueness(updates.vpi, position.id)) {
       toast({
         title: "Duplicate VPI",
-        description: "This Virtual Position ID is already in use. Please choose a unique identifier.",
+        description: "This Virtual Position ID is already in use.",
         variant: "destructive"
       });
       return;
@@ -85,19 +74,18 @@ const EntryNodeEditor = ({ node, updateNodeData }: EntryNodeEditorProps) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <NodeDetailsPanel
         nodeLabel={nodeData?.label || ''}
         onLabelChange={handleLabelChange}
-        infoTooltip={getActionInfoTooltip()}
+        infoTooltip="Entry nodes open new positions when the strategy detects a signal."
       />
       
-      <Separator />
+      <Separator className="my-2" />
       
       <InstrumentPanel startNodeSymbol={startNodeSymbol} />
       
-      <div className="bg-accent/10 rounded-md p-4">
-        <h3 className="text-base font-medium mb-3">Position Configuration</h3>
+      <div className="bg-accent/5 rounded-md p-3">
         {position ? (
           <PositionEditor
             position={position}
@@ -114,8 +102,8 @@ const EntryNodeEditor = ({ node, updateNodeData }: EntryNodeEditorProps) => {
             onOptionTypeChange={handleOptionTypeChange}
           />
         ) : (
-          <div className="text-center p-4 bg-background rounded-md">
-            <p className="text-sm text-muted-foreground">Loading position configuration...</p>
+          <div className="text-center p-2">
+            <p className="text-sm text-muted-foreground">Loading position...</p>
           </div>
         )}
       </div>

@@ -3,7 +3,6 @@ import React from 'react';
 import { Position } from '../types';
 import { InputField, RadioGroupField, SelectField } from '../../shared';
 import OptionsSettingsPanel from './OptionsSettingsPanel';
-import { Separator } from '@/components/ui/separator';
 import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
 
 interface PositionEditorProps {
@@ -89,23 +88,21 @@ const PositionEditor: React.FC<PositionEditorProps> = ({
 
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2">
         <InputField
-          label="VPI (Virtual Position ID)"
+          label="VPI"
           id="vpi"
           value={position.vpi || ''}
           onChange={handleVpiChange}
-          placeholder="Enter unique position ID"
-          description="Unique identifier across strategy"
+          placeholder="Position ID"
         />
         
         <InputField
-          label="VPT (Virtual Position Tag)"
+          label="VPT"
           id="vpt"
           value={position.vpt || ''}
           onChange={handleVptChange}
-          placeholder="Enter position tag"
-          description="Group related positions"
+          placeholder="Position tag"
         />
       </div>
       
@@ -115,8 +112,7 @@ const PositionEditor: React.FC<PositionEditorProps> = ({
         min={1}
         value={position.priority}
         onChange={handlePriorityChange}
-        placeholder="Execution priority"
-        description="Lower numbers execute first"
+        placeholder="Priority"
       />
       
       <RadioGroupField
@@ -130,16 +126,27 @@ const PositionEditor: React.FC<PositionEditorProps> = ({
         layout="horizontal"
       />
       
-      <SelectField
-        label="Order Type"
-        id="order-type"
-        value={position.orderType || 'market'}
-        onChange={onOrderTypeChange}
-        options={[
-          { value: 'market', label: 'Market' },
-          { value: 'limit', label: 'Limit' }
-        ]}
-      />
+      <div className="grid grid-cols-2 gap-2">
+        <SelectField
+          label="Order Type"
+          id="order-type"
+          value={position.orderType || 'market'}
+          onChange={onOrderTypeChange}
+          options={[
+            { value: 'market', label: 'Market' },
+            { value: 'limit', label: 'Limit' }
+          ]}
+        />
+        
+        <EnhancedNumberInput
+          label="Quantity (Lots)"
+          id="lots"
+          min={1}
+          value={position.lots}
+          onChange={handleLotsChange}
+          placeholder="Lots"
+        />
+      </div>
       
       {showLimitPrice && (
         <EnhancedNumberInput
@@ -147,20 +154,11 @@ const PositionEditor: React.FC<PositionEditorProps> = ({
           id="limit-price"
           value={position.limitPrice}
           onChange={handleLimitPriceChange}
-          placeholder="Enter limit price"
+          placeholder="Limit price"
           min={0.01}
           step={0.01}
         />
       )}
-      
-      <EnhancedNumberInput
-        label="Quantity (Lots)"
-        id="lots"
-        min={1}
-        value={position.lots}
-        onChange={handleLotsChange}
-        placeholder="Number of lots"
-      />
       
       <SelectField
         label="Product Type"

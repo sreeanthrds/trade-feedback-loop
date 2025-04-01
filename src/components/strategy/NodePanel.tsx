@@ -91,13 +91,13 @@ const NodePanel = memo(({ node, updateNodeData, onClose }: NodePanelProps) => {
   return (
     <div className="h-full overflow-y-auto">
       <Card className="border-0 rounded-none h-full">
-        <CardHeader className="flex flex-row items-center justify-between pb-2 sticky top-0 bg-background z-10 border-b">
-          <CardTitle className="text-lg">{title}</CardTitle>
-          <Button variant="ghost" size="sm" onClick={onClose} className="h-8 w-8 p-0">
+        <CardHeader className="flex flex-row items-center justify-between py-2 px-4 sticky top-0 bg-background z-10 border-b">
+          <CardTitle className="text-base">{title}</CardTitle>
+          <Button variant="ghost" size="sm" onClick={onClose} className="h-7 w-7 p-0">
             <X className="h-4 w-4" />
           </Button>
         </CardHeader>
-        <CardContent className="pt-4 px-4 sm:px-6 overflow-y-auto">
+        <CardContent className="pt-3 px-4 overflow-y-auto">
           {renderEditor()}
         </CardContent>
       </Card>
