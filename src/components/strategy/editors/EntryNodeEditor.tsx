@@ -32,7 +32,7 @@ const EntryNodeEditor = ({ node, updateNodeData }: EntryNodeEditorProps) => {
     handlePositionChange,
     handleAddPosition,
     validateVpiUniqueness,
-    createDefaultPosition,
+    createDefaultPosition, // Now available since we exposed it
     // Position-specific handlers
     handlePositionTypeChange,
     handleOrderTypeChange,

@@ -32,12 +32,12 @@ export const usePositionManagement = ({
     // Get next available priority
     const nextPriority = (nodeData?.positions?.length || 0) + 1;
     
-    const newPosition = {
+    const newPosition: Position = {
       id: generateUniqueId(),
       vpi: generateVPI(), 
       vpt: '',
       priority: nextPriority,
-      positionType: 'buy',
+      positionType: 'buy', // Explicitly typed as 'buy'
       orderType: 'market',
       lots: 1,
       productType: 'intraday',

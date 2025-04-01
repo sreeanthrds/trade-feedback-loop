@@ -83,6 +83,7 @@ export const useActionNodeForm = ({ node, updateNodeData }: UseActionNodeFormPro
     handleAddPosition,
     handleDeletePosition,
     validateVpiUniqueness,
+    createDefaultPosition, // Added this line to expose the createDefaultPosition function
     ...positionHandlers
   };
 };
