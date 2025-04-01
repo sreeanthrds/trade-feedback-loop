@@ -85,9 +85,9 @@ const ReactFlowCanvas = ({
   
   // Memoize default edge options
   const defaultEdgeOptions = useMemo(() => ({
-    animated: canvasReady, // Only animate edges after canvas is ready
+    type: 'smoothstep',
     style: { strokeWidth: 1.5 }
-  }), [canvasReady]);
+  }), []);
   
   // Memoize fit view options
   const fitViewOptions = useMemo(() => ({

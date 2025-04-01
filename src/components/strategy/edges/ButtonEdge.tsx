@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { EdgeProps } from '@xyflow/react';
+import { EdgeProps, getSmoothStepPath } from '@xyflow/react';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 import {
@@ -26,7 +26,8 @@ const ButtonEdge = ({
   target,
   style,
   selected,
-  animated, // We'll ignore this prop as we don't want animation
+  sourcePosition,
+  targetPosition,
   ...props 
 }: EdgeProps & { id: string; onDelete: (id: string) => void }) => {
   const { onDelete } = props;
@@ -41,13 +42,23 @@ const ButtonEdge = ({
     }
   };
   
+  // Use getSmoothStepPath for the edge path
+  const [edgePath] = getSmoothStepPath({
+    sourceX,
+    sourceY,
+    sourcePosition,
+    targetX,
+    targetY,
+    targetPosition
+  });
+  
   return (
     <>
-      {/* Draw a simple bezier edge without animation */}
+      {/* Draw a smooth step edge without animation */}
       <path
         id={id}
         className="react-flow__edge-path"
-        d={`M ${sourceX},${sourceY} C ${sourceX + 50},${sourceY} ${targetX - 50},${targetY} ${targetX},${targetY}`}
+        d={edgePath}
         style={style}
         strokeWidth={selected ? 3 : 2}
       />

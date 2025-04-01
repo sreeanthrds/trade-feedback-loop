@@ -5,7 +5,7 @@ import { toast } from "@/hooks/use-toast";
 export const createEdgeBetweenNodes = (
   sourceNode: Node,
   targetNode: Node,
-  edgeType: string = 'default'
+  edgeType: string = 'smoothstep'
 ): Edge => {
   return {
     id: `e-${sourceNode.id}-${targetNode.id}`,
