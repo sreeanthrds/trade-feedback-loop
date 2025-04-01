@@ -34,6 +34,9 @@ export const validateConnection = (
     return false;
   }
   
+  // ==== 1. Node Relationships & Linking Restrictions ====
+  
+  // Rule: End nodes cannot have outgoing connections
   if (sourceNode?.type === 'endNode' || sourceNode?.type === 'forceEndNode') {
     toast({
       title: "Invalid connection",
@@ -43,6 +46,7 @@ export const validateConnection = (
     return false;
   }
   
+  // Rule: Start nodes cannot have incoming connections
   if (targetNode?.type === 'startNode') {
     toast({
       title: "Invalid connection",
@@ -51,6 +55,39 @@ export const validateConnection = (
     });
     return false;
   }
+  
+  // Rule: Order nodes (entry, exit) shouldn't directly link to each other
+  if ((sourceNode?.type === 'entryNode' || sourceNode?.type === 'exitNode') && 
+      (targetNode?.type === 'entryNode' || targetNode?.type === 'exitNode')) {
+    toast({
+      title: "Invalid connection",
+      description: "Order nodes cannot directly link to each other",
+      variant: "destructive"
+    });
+    return false;
+  }
+  
+  // Rule: Order nodes should be triggered by only one signal
+  // Check if target node is an order node and already has an incoming signal connection
+  if ((targetNode?.type === 'entryNode' || targetNode?.type === 'exitNode')) {
+    const existingSignalConnections = edges.filter(edge => {
+      const existingSource = nodes.find(n => n.id === edge.source);
+      return edge.target === targetNode.id && 
+             (existingSource?.type === 'signalNode' || existingSource?.type === 'startNode');
+    });
+    
+    if (existingSignalConnections.length > 0 && 
+        (sourceNode?.type === 'signalNode' || sourceNode?.type === 'startNode')) {
+      toast({
+        title: "Invalid connection",
+        description: "An order node can only be triggered by one signal",
+        variant: "destructive"
+      });
+      return false;
+    }
+  }
+  
+  // ==== 2. Circular Dependency Prevention ====
   
   // Prevent self-connections
   if (sourceNode.id === targetNode.id) {
@@ -73,7 +110,7 @@ export const validateConnection = (
     return false;
   }
   
-  // Check for circular dependencies (simplified version)
+  // Check for circular dependencies
   if (wouldCreateCycle(sourceNode.id, targetNode.id, edges)) {
     toast({
       title: "Invalid connection",
@@ -83,7 +120,9 @@ export const validateConnection = (
     return false;
   }
   
-  // Node type-specific connection rules
+  // ==== 3. Node Type-Specific Rules ====
+  
+  // Rule: Entry nodes should only receive connections from Signal or Start nodes
   if (targetNode.type === 'entryNode' && sourceNode.type !== 'signalNode' && sourceNode.type !== 'startNode') {
     toast({
       title: "Invalid connection",
@@ -91,6 +130,19 @@ export const validateConnection = (
       variant: "destructive"
     });
     return false;
+  }
+  
+  // ==== 4. Preventing Too Many Connections ====
+  
+  // Limit the number of outgoing connections from a node for visual clarity
+  const outgoingConnections = edges.filter(edge => edge.source === sourceNode.id);
+  if (outgoingConnections.length >= 10) { // Adjust this number based on UI considerations
+    toast({
+      title: "Too many connections",
+      description: "A node cannot have more than 10 outgoing connections",
+      variant: "default"
+    });
+    // This is just a warning, not blocking the connection
   }
   
   return true;

@@ -108,6 +108,23 @@ export const validateWorkflow = (nodes: Node[], edges: Edge[]): ValidationResult
     });
   }
   
+  // ===== Additional Business Rule Validations =====
+  
+  // Validate signal nodes have unique priorities
+  validateSignalPriorities(nodes, result);
+  
+  // Validate action nodes (entry, exit) reference valid positions
+  validatePositionReferences(nodes, result);
+  
+  // Validate entry and exit nodes have valid triggers
+  validateOrderNodeTriggers(nodes, edges, result);
+  
+  // Validate positions are not used simultaneously in entry, modify, and exit nodes
+  validatePositionUsage(nodes, result);
+  
+  // Validate no circular dependencies
+  validateCircularDependencies(nodes, edges, result);
+  
   // Check for node-specific validation requirements
   const nodeValidationIssues = validateNodeData(nodes);
   result.errors.push(...nodeValidationIssues.errors);
@@ -120,6 +137,265 @@ export const validateWorkflow = (nodes: Node[], edges: Edge[]): ValidationResult
   
   return result;
 };
+
+/**
+ * Validates that signal nodes have unique priorities
+ */
+function validateSignalPriorities(nodes: Node[], result: ValidationResult) {
+  const signalNodes = nodes.filter(node => node.type === 'signalNode');
+  const priorities = new Map<number, string[]>();
+  
+  // Collect priorities
+  signalNodes.forEach(node => {
+    if (node.data?.priority !== undefined) {
+      const priority = Number(node.data.priority);
+      if (!priorities.has(priority)) {
+        priorities.set(priority, []);
+      }
+      priorities.get(priority)?.push(node.id);
+    } else {
+      // Signal without priority
+      result.warnings.push({
+        type: 'missing-priority',
+        message: `Signal node "${node.id}" has no priority set`,
+        nodeId: node.id
+      });
+    }
+  });
+  
+  // Check for duplicate priorities
+  priorities.forEach((nodeIds, priority) => {
+    if (nodeIds.length > 1) {
+      result.warnings.push({
+        type: 'duplicate-priority',
+        message: `Multiple signal nodes have the same priority (${priority})`,
+      });
+      
+      nodeIds.forEach(nodeId => {
+        result.warnings.push({
+          type: 'duplicate-priority-detail',
+          message: `Signal node "${nodeId}" shares priority ${priority} with other nodes`,
+          nodeId
+        });
+      });
+    }
+  });
+}
+
+/**
+ * Validates that action nodes reference valid positions
+ */
+function validatePositionReferences(nodes: Node[], result: ValidationResult) {
+  // Track all position IDs used across the strategy
+  const allVpis = new Set<string>();
+  const entryVpis = new Set<string>();
+  const modifyVpis = new Set<string>();
+  const exitVpis = new Set<string>();
+  
+  // Collect all VPIs first
+  nodes.forEach(node => {
+    if (['entryNode', 'exitNode', 'actionNode'].includes(node.type || '')) {
+      if (Array.isArray(node.data?.positions)) {
+        node.data.positions.forEach((pos: any) => {
+          if (pos.vpi) {
+            allVpis.add(pos.vpi);
+            
+            if (node.type === 'entryNode') entryVpis.add(pos.vpi);
+            else if (node.type === 'exitNode') exitVpis.add(pos.vpi);
+            else if (node.data?.actionType === 'modify') modifyVpis.add(pos.vpi);
+          }
+        });
+      }
+    }
+  });
+  
+  // Check if modify nodes reference existing VPIs
+  modifyVpis.forEach(vpi => {
+    if (!entryVpis.has(vpi)) {
+      result.errors.push({
+        type: 'invalid-position-reference',
+        message: `Modify operation references position ${vpi} that has no entry node`
+      });
+    }
+  });
+  
+  // Check if exit nodes reference existing VPIs
+  exitVpis.forEach(vpi => {
+    if (!entryVpis.has(vpi)) {
+      result.errors.push({
+        type: 'invalid-position-reference',
+        message: `Exit operation references position ${vpi} that has no entry node`
+      });
+    }
+  });
+  
+  // Check for positions used in multiple node types simultaneously
+  allVpis.forEach(vpi => {
+    let usageCount = 0;
+    if (entryVpis.has(vpi)) usageCount++;
+    if (modifyVpis.has(vpi)) usageCount++;
+    if (exitVpis.has(vpi)) usageCount++;
+    
+    if (usageCount > 2) {
+      result.errors.push({
+        type: 'invalid-position-usage',
+        message: `Position ${vpi} is used in Entry, Modify, and Exit nodes simultaneously`
+      });
+    }
+  });
+}
+
+/**
+ * Validates that order nodes have valid triggers
+ */
+function validateOrderNodeTriggers(nodes: Node[], edges: Edge[], result: ValidationResult) {
+  // Check each order node has at least one incoming edge from a signal
+  const orderNodes = nodes.filter(node => 
+    ['entryNode', 'exitNode'].includes(node.type || '')
+  );
+  
+  orderNodes.forEach(node => {
+    const incomingEdges = edges.filter(edge => edge.target === node.id);
+    
+    if (incomingEdges.length === 0) {
+      result.errors.push({
+        type: 'missing-trigger',
+        message: `${node.type === 'entryNode' ? 'Entry' : 'Exit'} node "${node.id}" has no trigger signal`,
+        nodeId: node.id
+      });
+    } else {
+      // Verify at least one incoming edge is from a signal node
+      const hasSignalTrigger = incomingEdges.some(edge => {
+        const sourceNode = nodes.find(n => n.id === edge.source);
+        return sourceNode && ['signalNode', 'startNode'].includes(sourceNode.type || '');
+      });
+      
+      if (!hasSignalTrigger) {
+        result.errors.push({
+          type: 'invalid-trigger',
+          message: `${node.type === 'entryNode' ? 'Entry' : 'Exit'} node "${node.id}" must be triggered by a signal`,
+          nodeId: node.id
+        });
+      }
+    }
+  });
+}
+
+/**
+ * Validates that positions are not used in conflicting ways
+ */
+function validatePositionUsage(nodes: Node[], result: ValidationResult) {
+  // Track VPIs used in different node types
+  const vpiUsage = new Map<string, Set<string>>();
+  
+  // Collect all position usages
+  nodes.forEach(node => {
+    if (['entryNode', 'exitNode', 'actionNode'].includes(node.type || '')) {
+      let nodeType = node.type;
+      if (node.type === 'actionNode' && node.data?.actionType) {
+        nodeType = node.data.actionType + 'Node';
+      }
+      
+      if (Array.isArray(node.data?.positions)) {
+        node.data.positions.forEach((pos: any) => {
+          if (pos.vpi) {
+            if (!vpiUsage.has(pos.vpi)) {
+              vpiUsage.set(pos.vpi, new Set());
+            }
+            vpiUsage.get(pos.vpi)?.add(nodeType || '');
+          }
+        });
+      }
+    }
+  });
+  
+  // Check for positions used in multiple modify nodes
+  vpiUsage.forEach((usages, vpi) => {
+    let modifyCount = 0;
+    nodes.forEach(node => {
+      if (node.type === 'actionNode' && node.data?.actionType === 'modify') {
+        if (Array.isArray(node.data?.positions)) {
+          if (node.data.positions.some((pos: any) => pos.vpi === vpi)) {
+            modifyCount++;
+          }
+        }
+      }
+    });
+    
+    if (modifyCount > 1) {
+      result.errors.push({
+        type: 'multiple-modify',
+        message: `Position ${vpi} is modified by ${modifyCount} different nodes`
+      });
+    }
+  });
+}
+
+/**
+ * Validates that there are no circular dependencies in the workflow
+ */
+function validateCircularDependencies(nodes: Node[], edges: Edge[], result: ValidationResult) {
+  // Build an adjacency list
+  const graph: Record<string, string[]> = {};
+  nodes.forEach(node => {
+    graph[node.id] = [];
+  });
+  
+  edges.forEach(edge => {
+    if (graph[edge.source]) {
+      graph[edge.source].push(edge.target);
+    }
+  });
+  
+  // Check for cycles
+  const visited = new Set<string>();
+  const recStack = new Set<string>();
+  const cyclePaths: string[][] = [];
+  
+  function isCyclic(nodeId: string, path: string[] = []): boolean {
+    if (!visited.has(nodeId)) {
+      visited.add(nodeId);
+      recStack.add(nodeId);
+      path.push(nodeId);
+      
+      for (const neighbor of graph[nodeId] || []) {
+        if (!visited.has(neighbor) && isCyclic(neighbor, [...path])) {
+          return true;
+        } else if (recStack.has(neighbor)) {
+          // Found a cycle
+          const cyclePath = [...path, neighbor];
+          cyclePaths.push(cyclePath);
+          return true;
+        }
+      }
+    }
+    
+    recStack.delete(nodeId);
+    return false;
+  }
+  
+  // Check each node for cycles
+  for (const node of nodes) {
+    if (!visited.has(node.id)) {
+      isCyclic(node.id);
+    }
+  }
+  
+  // Add errors for cycles found
+  if (cyclePaths.length > 0) {
+    result.errors.push({
+      type: 'circular-dependency',
+      message: `Strategy contains ${cyclePaths.length} circular dependencies`
+    });
+    
+    cyclePaths.forEach((path, index) => {
+      result.errors.push({
+        type: 'cycle-detail',
+        message: `Circular path ${index + 1}: ${path.join(' → ')}`
+      });
+    });
+  }
+}
 
 /**
  * Finds nodes that don't have any outgoing edges

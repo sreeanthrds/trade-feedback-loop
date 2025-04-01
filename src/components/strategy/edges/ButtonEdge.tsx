@@ -52,6 +52,8 @@ const ButtonEdge = ({
     targetPosition
   });
   
+  console.log(`Rendering edge ${id}, onDelete is ${typeof onDelete}`);
+  
   return (
     <>
       {/* Draw a bezier edge without animation */}
@@ -65,10 +67,10 @@ const ButtonEdge = ({
       
       {/* Add a delete button with hover state */}
       <foreignObject
-        width={24}
-        height={24}
-        x={(sourceX + targetX) / 2 - 12}
-        y={(sourceY + targetY) / 2 - 12}
+        width={30}
+        height={30}
+        x={(sourceX + targetX) / 2 - 15}
+        y={(sourceY + targetY) / 2 - 15}
         requiredExtensions="http://www.w3.org/1999/xhtml"
         className="edge-controls"
         data-id={id}
@@ -79,13 +81,14 @@ const ButtonEdge = ({
               <Button
                 variant="destructive"
                 size="icon"
-                className="edge-delete-button h-5 w-5 p-0"
+                className="edge-delete-button h-6 w-6 p-0"
                 onClick={(event) => {
                   event.stopPropagation();
+                  console.log('Delete button clicked for edge:', id);
                 }}
                 title="Delete connection"
               >
-                <X className="h-3 w-3" />
+                <X className="h-4 w-4" />
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
