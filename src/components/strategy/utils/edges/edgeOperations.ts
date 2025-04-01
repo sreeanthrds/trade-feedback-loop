@@ -11,8 +11,8 @@ export const createEdgeBetweenNodes = (
     id: `e-${sourceNode.id}-${targetNode.id}`,
     source: sourceNode.id,
     target: targetNode.id,
-    type: edgeType,
-    animated: true
+    type: edgeType
+    // Removed animated property
   };
 };
 

@@ -19,16 +19,7 @@
   stroke-width: 2;
 }
 
-.react-flow__edge.animated path {
-  stroke-dasharray: 5;
-  animation: dashdraw 0.5s linear infinite;
-}
-
-@keyframes dashdraw {
-  from {
-    stroke-dashoffset: 10;
-  }
-}
+/* Removed animation classes and dash array styling */
 
 /* Edge Controls */
 .edge-controls {

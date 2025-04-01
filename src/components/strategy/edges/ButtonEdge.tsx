@@ -26,7 +26,7 @@ const ButtonEdge = ({
   target,
   style,
   selected,
-  animated,
+  animated, // We'll ignore this prop as we don't want animation
   ...props 
 }: EdgeProps & { id: string; onDelete: (id: string) => void }) => {
   const { onDelete } = props;
@@ -43,10 +43,10 @@ const ButtonEdge = ({
   
   return (
     <>
-      {/* Draw a simple bezier edge */}
+      {/* Draw a simple bezier edge without animation */}
       <path
         id={id}
-        className={`react-flow__edge-path ${animated ? 'animated' : ''}`}
+        className="react-flow__edge-path"
         d={`M ${sourceX},${sourceY} C ${sourceX + 50},${sourceY} ${targetX - 50},${targetY} ${targetX},${targetY}`}
         style={style}
         strokeWidth={selected ? 3 : 2}
