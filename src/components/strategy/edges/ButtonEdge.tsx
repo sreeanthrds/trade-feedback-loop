@@ -70,7 +70,7 @@ const ButtonEdge = ({
         x={(sourceX + targetX) / 2 - 10}
         y={(sourceY + targetY) / 2 - 10}
         requiredExtensions="http://www.w3.org/1999/xhtml"
-        className="edge-controls opacity-0 hover:opacity-100 transition-opacity duration-200"
+        className="edge-controls"
       >
         <div className="flex items-center justify-center h-full">
           <AlertDialog open={open} onOpenChange={setOpen}>

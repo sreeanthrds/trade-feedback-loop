@@ -7,10 +7,10 @@ import ButtonEdge from './ButtonEdge';
 const MemoizedButtonEdge = React.memo(ButtonEdge);
 MemoizedButtonEdge.displayName = 'MemoizedButtonEdge';
 
-// Create a stable wrapper component
+// Create a stable wrapper component that properly passes the onDelete prop
 const ButtonEdgeWrapper = React.memo((props: any) => {
-  const { onDelete, ...rest } = props;
-  return <MemoizedButtonEdge {...rest} onDelete={onDelete} />;
+  const { data, id, onDelete, ...rest } = props;
+  return <MemoizedButtonEdge {...rest} id={id} onDelete={onDelete} />;
 });
 ButtonEdgeWrapper.displayName = 'ButtonEdgeWrapper';
 

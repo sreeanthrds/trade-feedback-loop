@@ -125,7 +125,7 @@ export function useEdgeStateManagement(initialEdges: Edge[] = [], strategyStore:
   // Handle connections with validation and improved cycle detection
   const onConnect = useCallback(
     (params: Connection, nodes: Node[]) => {
-      if (!validateConnection(params, nodes)) return;
+      if (!validateConnection(params, nodes, edges)) return;
       
       // Skip if we're in an update cycle or processing another update
       if (updateCycleRef.current || storeUpdateInProgressRef.current || isProcessingEdgeUpdateRef.current) return;

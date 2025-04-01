@@ -18,7 +18,8 @@ export const createEdgeBetweenNodes = (
 
 export const validateConnection = (
   connection: Connection, 
-  nodes: Node[]
+  nodes: Node[],
+  edges: Edge[] = []
 ): boolean => {
   const sourceNode = nodes.find(node => node.id === connection.source);
   const targetNode = nodes.find(node => node.id === connection.target);
@@ -62,7 +63,7 @@ export const validateConnection = (
   }
   
   // Check for existing connections between these nodes
-  const existingConnection = isConnectionExisting(sourceNode.id, targetNode.id, nodes);
+  const existingConnection = isConnectionExisting(sourceNode.id, targetNode.id, edges);
   if (existingConnection) {
     toast({
       title: "Connection exists",
@@ -73,7 +74,7 @@ export const validateConnection = (
   }
   
   // Check for circular dependencies (simplified version)
-  if (wouldCreateCycle(sourceNode.id, targetNode.id, nodes)) {
+  if (wouldCreateCycle(sourceNode.id, targetNode.id, edges)) {
     toast({
       title: "Invalid connection",
       description: "This would create a circular flow",
@@ -96,25 +97,14 @@ export const validateConnection = (
 };
 
 // Helper function to check if a connection already exists between two nodes
-const isConnectionExisting = (sourceId: string, targetId: string, nodes: Node[]): boolean => {
-  // Instead of using the internal __rf property, we need to extract edges from the nodes directly
-  // This may require iterating through all edges in the application
-  const edges: Edge[] = [];
-  
-  // Get all edges from the nodes
-  // Since we don't have access to __rf property, we need to use a different approach
-  // One solution is to pass edges as a separate parameter to this function
+const isConnectionExisting = (sourceId: string, targetId: string, edges: Edge[]): boolean => {
   return edges.some(edge => edge.source === sourceId && edge.target === targetId);
 };
 
 // Simple cycle detection algorithm
-const wouldCreateCycle = (sourceId: string, targetId: string, nodes: Node[]): boolean => {
+const wouldCreateCycle = (sourceId: string, targetId: string, edges: Edge[]): boolean => {
   // If we're connecting to a node that's upstream of us, we have a cycle
-  // This is a simplified version - we would need a more robust graph traversal for complex cases
   if (sourceId === targetId) return true;
-  
-  // Get edges from a different source since we can't use __rf property
-  const edges: Edge[] = [];
   
   // Check if target leads back to source
   const visited = new Set<string>();
