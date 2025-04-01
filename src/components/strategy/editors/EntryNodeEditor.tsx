@@ -1,9 +1,8 @@
-
 import React, { useEffect } from 'react';
 import { Node } from '@xyflow/react';
 import { NodeDetailsPanel } from './shared';
 import { useActionNodeForm } from './action-node/useActionNodeForm';
-import InstrumentPanel from './action-node/components/InstrumentPanel';
+import InstrumentDisplay from './action-node/InstrumentDisplay';
 import { toast } from "@/hooks/use-toast";
 import PositionEditor from './action-node/components/PositionEditor';
 import { Separator } from '@/components/ui/separator';
