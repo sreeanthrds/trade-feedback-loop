@@ -1,4 +1,3 @@
-
 import { Node } from '@xyflow/react';
 
 /**
@@ -41,11 +40,11 @@ export const findEmptyPosition = (nodes: Node[], startX: number, startY: number)
   // Check if the starting position is already occupied
   const startingGridKey = `${startGridX},${startGridY}`;
   if (!occupiedSpaces.has(startingGridKey)) {
-    // The suggested position is free, use it with slight randomization
-    return {
+    // The suggested position is free, use it but snap to grid
+    return snapToGrid({
       x: startX + (Math.random() * padding - padding/2),
       y: startY + (Math.random() * padding - padding/2)
-    };
+    });
   }
   
   // Implementation of a spiral search pattern to find empty space
@@ -110,18 +109,47 @@ export const findEmptyPosition = (nodes: Node[], startX: number, startY: number)
   
   // Convert grid coordinates back to canvas coordinates with slight randomization
   if (found) {
-    return {
+    return snapToGrid({
       x: gridX * effectiveWidth + (Math.random() * padding - padding/2),
       y: gridY * effectiveHeight + (Math.random() * padding - padding/2)
-    };
+    });
   }
   
   // Fallback: if no empty spot found, place far away from all nodes
   const maxX = nodes.reduce((max, node) => Math.max(max, node.position.x), 0);
   const maxY = nodes.reduce((max, node) => Math.max(max, node.position.y), 0);
   
-  return {
+  return snapToGrid({
     x: maxX + effectiveWidth * 2,
     y: maxY + effectiveHeight
+  });
+};
+
+/**
+ * Snaps a position to the nearest grid point
+ */
+export const snapToGrid = (position: { x: number, y: number }, gridSize: number = 15): { x: number, y: number } => {
+  return {
+    x: Math.round(position.x / gridSize) * gridSize,
+    y: Math.round(position.y / gridSize) * gridSize
+  };
+};
+
+/**
+ * Ensures a node stays within the viewable area of the canvas
+ */
+export const keepNodeInBounds = (
+  position: { x: number, y: number },
+  canvasWidth: number,
+  canvasHeight: number,
+  nodeWidth: number = 200,
+  nodeHeight: number = 120
+): { x: number, y: number } => {
+  // Add some padding to keep nodes fully visible
+  const padding = 20;
+  
+  return {
+    x: Math.max(padding, Math.min(position.x, canvasWidth - nodeWidth - padding)),
+    y: Math.max(padding, Math.min(position.y, canvasHeight - nodeHeight - padding))
   };
 };

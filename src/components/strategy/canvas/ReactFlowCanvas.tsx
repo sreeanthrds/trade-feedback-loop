@@ -6,6 +6,7 @@ import BottomToolbar from '../toolbars/BottomToolbar';
 import CanvasControls from './CanvasControls';
 import { useViewportUtils } from './useViewportUtils';
 import { useDragHandling } from './useDragHandling';
+import { snapToGrid } from '../utils/nodes/positioning/findEmptyPosition';
 
 interface ReactFlowCanvasProps {
   flowRef: React.RefObject<HTMLDivElement>;
@@ -52,11 +53,48 @@ const ReactFlowCanvas = ({
   const { fitViewWithCustomZoom } = useViewportUtils();
   const { isNodeDraggingRef, handleNodesChange } = useDragHandling();
   const [canvasReady, setCanvasReady] = useState(false);
+  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
+  
+  // Track canvas size for boundary calculations
+  useEffect(() => {
+    if (flowRef.current) {
+      const updateSize = () => {
+        setCanvasSize({
+          width: flowRef.current?.clientWidth || 0,
+          height: flowRef.current?.clientHeight || 0
+        });
+      };
+      
+      // Initial size calculation
+      updateSize();
+      
+      // Update on resize
+      const resizeObserver = new ResizeObserver(updateSize);
+      resizeObserver.observe(flowRef.current);
+      
+      return () => {
+        if (flowRef.current) {
+          resizeObserver.unobserve(flowRef.current);
+        }
+      };
+    }
+  }, [flowRef]);
   
   // Custom nodes change handler with drag detection
   const customNodesChangeHandler = useCallback((changes) => {
     console.log('ReactFlowCanvas: Node changes detected', changes);
-    handleNodesChange(changes, onNodesChange);
+    // Process drag events to snap to grid
+    const processedChanges = changes.map(change => {
+      if (change.type === 'position' && change.position) {
+        return {
+          ...change,
+          position: snapToGrid(change.position)
+        };
+      }
+      return change;
+    });
+    
+    handleNodesChange(processedChanges, onNodesChange);
   }, [handleNodesChange, onNodesChange]);
 
   // Only fit view on initial load or when explicitly requested (import)
@@ -116,7 +154,7 @@ const ReactFlowCanvas = ({
         minZoom={0.4}
         maxZoom={2}
         defaultViewport={{ x: 0, y: 0, zoom: 0.6 }}
-        snapToGrid
+        snapToGrid={true}
         snapGrid={[15, 15]}
         defaultEdgeOptions={defaultEdgeOptions}
         zoomOnScroll={false}

@@ -1,4 +1,3 @@
-
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { useReactFlow } from '@xyflow/react';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
@@ -7,6 +6,7 @@ import { useNodeStateManagement } from './useNodeStateManagement';
 import { useEdgeStateManagement } from './useEdgeStateManagement';
 import { useLocalStorageSync } from './useLocalStorageSync';
 import { usePanelState } from './usePanelState';
+import { useWorkflowValidation } from './useWorkflowValidation';
 import { 
   useNodeHandlers, 
   useEdgeHandlers, 
@@ -33,7 +33,7 @@ export function useFlowState() {
     isDraggingRef
   } = useNodeStateManagement(initialNodes, strategyStore);
   
-  // Edge state management
+  // Edge state management with validation
   const {
     edges,
     setEdges,
@@ -43,6 +43,13 @@ export function useFlowState() {
   
   // Panel state
   const { isPanelOpen, setIsPanelOpen } = usePanelState();
+  
+  // Workflow validation
+  const { 
+    validateCurrentWorkflow,
+    validateBeforeCriticalOperation,
+    isWorkflowValid
+  } = useWorkflowValidation();
   
   // Sync with localStorage - only run once
   const { isInitialLoadRef } = useLocalStorageSync(
@@ -109,7 +116,7 @@ export function useFlowState() {
     updateHandlingRef
   });
 
-  // Strategy handlers
+  // Strategy handlers with validation
   const {
     resetStrategy,
     handleImportSuccess
@@ -122,6 +129,17 @@ export function useFlowState() {
     closePanel,
     updateHandlingRef
   });
+  
+  // Validate workflow on critical operations
+  const validateAndRunOperation = useCallback(
+    async (operation: () => void, operationName: string) => {
+      const isValid = await validateBeforeCriticalOperation(operationName);
+      if (isValid) {
+        operation();
+      }
+    },
+    [validateBeforeCriticalOperation]
+  );
 
   return {
     nodes,
@@ -146,6 +164,11 @@ export function useFlowState() {
     updateNodeData,
     closePanel,
     resetStrategy,
-    handleImportSuccess
+    handleImportSuccess,
+    // Validation
+    validateCurrentWorkflow,
+    validateBeforeCriticalOperation,
+    isWorkflowValid,
+    validateAndRunOperation
   };
 }
