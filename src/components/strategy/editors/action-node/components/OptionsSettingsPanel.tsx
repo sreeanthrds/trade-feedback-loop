@@ -5,7 +5,7 @@ import OptionsSettingsSection from '../OptionsSettingsSection';
 
 interface OptionsSettingsPanelProps {
   position: Position;
-  hasOptionTrading?: boolean;
+  hasOptionTrading: boolean;
   onExpiryChange: (value: string) => void;
   onStrikeTypeChange: (value: string) => void;
   onStrikeValueChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -14,22 +14,20 @@ interface OptionsSettingsPanelProps {
 
 const OptionsSettingsPanel: React.FC<OptionsSettingsPanelProps> = ({
   position,
-  hasOptionTrading = true,
+  hasOptionTrading,
   onExpiryChange,
   onStrikeTypeChange,
   onStrikeValueChange,
   onOptionTypeChange
 }) => {
-  // If options trading is not enabled, don't render the panel
-  if (hasOptionTrading === false) {
+  if (!hasOptionTrading) {
     return null;
   }
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-sm font-medium">Options Settings</h3>
-      
-      <OptionsSettingsSection 
+    <div className="pt-2 border-t">
+      <h4 className="text-sm font-medium mb-3">Options Settings</h4>
+      <OptionsSettingsSection
         position={position}
         onExpiryChange={onExpiryChange}
         onStrikeTypeChange={onStrikeTypeChange}
