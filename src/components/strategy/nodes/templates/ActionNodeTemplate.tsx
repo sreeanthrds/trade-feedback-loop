@@ -56,17 +56,21 @@ const ActionNodeTemplate = ({
       <div className={`px-3 py-2 rounded-md border border-border bg-card shadow-sm max-w-xs`}>
         <div className="flex flex-col">
           <ActionLabel 
-            label={data?.label || 'Action'} 
+            label={data?.label} 
             description={data?.description} 
             actionType={data?.actionType} 
           />
           
-          <ActionIcon icon={data?.icon} />
+          <ActionIcon 
+            icon={data?.icon} 
+            actionType={data?.actionType} 
+          />
           
           <ActionDetails 
             positions={data?.positions} 
             actionType={data?.actionType}
             nodeId={id}
+            startNodeSymbol={data?.startNodeSymbol}
           />
           
           <div className="text-[9px] text-muted-foreground mt-1 text-right">

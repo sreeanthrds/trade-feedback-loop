@@ -1,37 +1,39 @@
+
 import React from 'react';
-import { ActionNodeData } from './types';
 
 interface ActionLabelProps {
-  data: ActionNodeData;
+  label?: string;
+  description?: string;
+  actionType: 'entry' | 'exit' | 'alert' | 'modify';
 }
 
-const ActionLabel: React.FC<ActionLabelProps> = ({ data }) => {
-  // For backward compatibility, check the first position if positions exist
-  const firstPosition = data.positions && data.positions.length > 0 ? data.positions[0] : null;
-  
-  // If there's a custom label, use it
-  if (data.label) {
-    return <>{data.label}</>;
-  }
+const ActionLabel: React.FC<ActionLabelProps> = ({ label, description, actionType }) => {
+  // Build a default label based on the action type if none provided
+  const displayLabel = label || (() => {
+    switch (actionType) {
+      case 'entry':
+        return 'Buy/Sell';
+      case 'exit':
+        return 'Exit Position';
+      case 'alert':
+        return 'Send Alert';
+      case 'modify':
+        return 'Modify Position';
+      default:
+        return 'Action';
+    }
+  })();
 
-  // Otherwise, build a default label based on the action type
-  let label;
-  
-  switch (data.actionType) {
-    case 'entry':
-      label = firstPosition?.positionType === 'buy' ? 'Buy' : 'Sell';
-      break;
-    case 'exit':
-      label = 'Exit Position';
-      break;
-    case 'alert':
-      label = 'Send Alert';
-      break;
-    default:
-      label = 'Action';
-  }
-
-  return <>{label}</>;
+  return (
+    <div className="flex items-center mb-1.5">
+      <div className="flex-1">
+        <div className="text-sm font-medium">{displayLabel}</div>
+        {description && (
+          <div className="text-xs text-muted-foreground">{description}</div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default ActionLabel;

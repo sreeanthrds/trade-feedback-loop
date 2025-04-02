@@ -1,15 +1,17 @@
 
 import React from 'react';
-import { ActionNodeData } from './types';
+import { Position } from '@/components/strategy/types/position-types';
 
 interface ActionDetailsProps {
-  data: ActionNodeData;
+  positions?: Position[];
+  actionType: 'entry' | 'exit' | 'alert' | 'modify';
+  nodeId: string;
   startNodeSymbol?: string;
 }
 
-const ActionDetails: React.FC<ActionDetailsProps> = ({ data, startNodeSymbol }) => {
-  // For backward compatibility, if positions exist, show the first position's details
-  const firstPosition = data.positions && data.positions.length > 0 ? data.positions[0] : null;
+const ActionDetails: React.FC<ActionDetailsProps> = ({ positions, actionType, nodeId, startNodeSymbol }) => {
+  // For backward compatibility, check the first position if positions exist
+  const firstPosition = positions && positions.length > 0 ? positions[0] : null;
   
   const getLots = () => {
     if (!firstPosition || !firstPosition.lots) return "Not set";
@@ -38,7 +40,7 @@ const ActionDetails: React.FC<ActionDetailsProps> = ({ data, startNodeSymbol }) 
   
   return (
     <div className="text-xs bg-background/80 p-2 rounded-md space-y-1.5">
-      {data.actionType !== 'alert' && (
+      {actionType !== 'alert' && (
         <>
           <div className="flex justify-between">
             <span className="text-foreground/60">Quantity:</span>
@@ -82,7 +84,7 @@ const ActionDetails: React.FC<ActionDetailsProps> = ({ data, startNodeSymbol }) 
         </>
       )}
       
-      {data.actionType === 'alert' && (
+      {actionType === 'alert' && (
         <div className="flex items-center justify-center py-1">
           <span className="font-medium text-amber-500 dark:text-amber-400">Send notification only</span>
         </div>
