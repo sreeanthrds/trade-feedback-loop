@@ -29,7 +29,7 @@ export function usePositionModification(
       ...currentPosition,
       ...updates,
       _lastUpdated: Date.now()
-    };
+    } as Position;
     
     setCurrentPosition(updatedPosition);
   };

@@ -3,18 +3,19 @@ import { useState, useEffect } from 'react';
 import { Node } from '@xyflow/react';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
 import { toast } from '@/hooks/use-toast';
+import { Position as ActionNodePosition } from '@/components/strategy/nodes/action-node/types';
 
-// Position interface copied from ModifyNodeEditor
+// Position interface aligned with action-node/types.ts
 export interface Position {
   id: string;
   vpi: string;
   vpt: string;
-  positionType: 'buy' | 'sell';
-  lots?: number;
-  orderType: 'market' | 'limit';
-  productType: string;
   priority: number;
+  positionType: 'buy' | 'sell';
+  orderType: 'market' | 'limit';
   limitPrice?: number;
+  lots?: number;
+  productType: 'intraday' | 'carryForward';
   optionDetails?: {
     expiry: string;
     strikeType: string;
@@ -22,6 +23,7 @@ export interface Position {
     optionType: string;
   };
   sourceNodeId?: string;
+  _lastUpdated?: number;
 }
 
 /**
@@ -41,12 +43,24 @@ export function useModifyPositions(node: Node) {
     
     nodes.forEach(n => {
       if (n.type === 'entryNode' && Array.isArray(n.data.positions)) {
-        n.data.positions.forEach((position: Position) => {
-          // Add source node information to each position
-          allPositions.push({
+        n.data.positions.forEach((position: ActionNodePosition) => {
+          // Convert ActionNodePosition to Position while adding source node information
+          const convertedPosition: Position = {
             ...position,
-            sourceNodeId: n.id
-          });
+            // Ensure required fields have values
+            positionType: position.positionType || 'buy',
+            orderType: position.orderType || 'market',
+            productType: (position.productType as 'intraday' | 'carryForward') || 'intraday',
+            sourceNodeId: n.id,
+            // Ensure optionDetails match the expected structure if present
+            optionDetails: position.optionDetails ? {
+              expiry: position.optionDetails.expiry || '',
+              strikeType: position.optionDetails.strikeType || '',
+              strikeValue: position.optionDetails.strikeValue,
+              optionType: position.optionDetails.optionType || ''
+            } : undefined
+          };
+          allPositions.push(convertedPosition);
         });
       }
     });

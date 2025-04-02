@@ -72,7 +72,7 @@ const ModifyNodeEditor: React.FC<ModifyNodeEditorProps> = ({ node, updateNodeDat
         <CardContent>
           <PositionSelector
             positions={positions}
-            selectedPositionId={selectedPositionId}
+            selectedPositionId={selectedPositionId || ''}
             onSelect={handlePositionSelect}
           />
 

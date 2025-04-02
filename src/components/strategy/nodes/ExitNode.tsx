@@ -19,7 +19,7 @@ const ExitNode: React.FC<NodeProps> = ({ id, data, selected }) => {
       updateNodeData: rawData.updateNodeData as ((id: string, data: Partial<ActionNodeData>) => void) | undefined,
       // Include actionType explicitly set to 'exit'
       actionType: 'exit' as const,
-      label: rawData.label as string || 'Exit Position',
+      label: (rawData.label as string) || 'Exit Position',
       instrument: rawData.instrument as string | undefined,
       _lastUpdated: rawData._lastUpdated as number | undefined,
       exitOrderConfig: rawData.exitOrderConfig as Record<string, unknown> | undefined

@@ -14,7 +14,7 @@ import {
 
 interface PositionSelectorProps {
   positions: Position[];
-  selectedPositionId: string | null;
+  selectedPositionId: string;
   onSelect: (positionId: string) => void;
 }
 

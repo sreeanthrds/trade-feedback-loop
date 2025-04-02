@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { X, Save } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import PositionEditor from '../action-node/components/PositionEditor';
+import { Position as ActionNodePosition } from '@/components/strategy/editors/action-node/types';
 
 interface ModifyPositionDialogProps {
   position: Position | null;
@@ -44,10 +45,12 @@ const ModifyPositionDialog: React.FC<ModifyPositionDialogProps> = ({
   };
   
   const handleProductTypeChange = (value: string) => {
-    onPositionChange({ productType: value });
+    onPositionChange({ productType: value as 'intraday' | 'carryForward' });
   };
   
   const handleExpiryChange = (value: string) => {
+    if (!position.optionDetails) return;
+    
     onPositionChange({ 
       optionDetails: {
         ...position.optionDetails,
@@ -57,6 +60,8 @@ const ModifyPositionDialog: React.FC<ModifyPositionDialogProps> = ({
   };
   
   const handleStrikeTypeChange = (value: string) => {
+    if (!position.optionDetails) return;
+    
     onPositionChange({ 
       optionDetails: {
         ...position.optionDetails,
@@ -66,6 +71,8 @@ const ModifyPositionDialog: React.FC<ModifyPositionDialogProps> = ({
   };
   
   const handleStrikeValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!position.optionDetails) return;
+    
     const value = e.target.value ? parseFloat(e.target.value) : undefined;
     onPositionChange({ 
       optionDetails: {
@@ -76,12 +83,33 @@ const ModifyPositionDialog: React.FC<ModifyPositionDialogProps> = ({
   };
   
   const handleOptionTypeChange = (value: string) => {
+    if (!position.optionDetails) return;
+    
     onPositionChange({ 
       optionDetails: {
         ...position.optionDetails,
         optionType: value 
       }
     });
+  };
+
+  // Convert Position to ActionNodePosition for the PositionEditor
+  const adaptedPosition: ActionNodePosition = {
+    id: position.id,
+    vpi: position.vpi,
+    vpt: position.vpt,
+    priority: position.priority,
+    positionType: position.positionType,
+    orderType: position.orderType,
+    limitPrice: position.limitPrice,
+    lots: position.lots,
+    productType: position.productType,
+    optionDetails: position.optionDetails ? {
+      expiry: position.optionDetails.expiry,
+      strikeType: position.optionDetails.strikeType as any,
+      strikeValue: position.optionDetails.strikeValue,
+      optionType: position.optionDetails.optionType as 'CE' | 'PE'
+    } : undefined
   };
   
   return (
@@ -98,9 +126,12 @@ const ModifyPositionDialog: React.FC<ModifyPositionDialogProps> = ({
         <ScrollArea className="h-[calc(90vh-180px)] pr-4">
           <div className="pb-6">
             <PositionEditor
-              position={position}
+              position={adaptedPosition}
               hasOptionTrading={!!position.optionDetails}
-              onPositionChange={onPositionChange}
+              onPositionChange={(updates) => {
+                // Convert ActionNodePosition updates to Position updates
+                onPositionChange(updates as unknown as Partial<Position>);
+              }}
               onPositionTypeChange={handlePositionTypeChange}
               onOrderTypeChange={handleOrderTypeChange}
               onLimitPriceChange={handleLimitPriceChange}

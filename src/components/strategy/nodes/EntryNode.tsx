@@ -19,7 +19,7 @@ const EntryNode: React.FC<NodeProps> = ({ id, data, selected }) => {
       updateNodeData: rawData.updateNodeData as ((id: string, data: Partial<ActionNodeData>) => void) | undefined,
       // Include actionType explicitly set to 'entry'
       actionType: 'entry' as const,
-      label: rawData.label as string | undefined,
+      label: (rawData.label as string) || 'Entry Order',
       instrument: rawData.instrument as string | undefined,
       _lastUpdated: rawData._lastUpdated as number | undefined
     } as ActionNodeData;

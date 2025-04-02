@@ -17,9 +17,9 @@ const ActionNode: React.FC<NodeProps> = ({ id, data, selected }) => {
       requiresSymbol: rawData.requiresSymbol as boolean | undefined,
       symbol: rawData.symbol as string | undefined,
       updateNodeData: rawData.updateNodeData as ((id: string, data: Partial<ActionNodeData>) => void) | undefined,
-      // Include other fields from ActionNodeData as needed
-      actionType: rawData.actionType as 'entry' | 'exit' | 'alert' | undefined,
-      label: rawData.label as string | undefined,
+      // Include actionType explicitly - FIXED: now using default of 'entry' if missing
+      actionType: (rawData.actionType as 'entry' | 'exit' | 'alert' | 'modify') || 'entry',
+      label: (rawData.label as string) || 'Action',
       instrument: rawData.instrument as string | undefined,
       _lastUpdated: rawData._lastUpdated as number | undefined
     } as ActionNodeData;

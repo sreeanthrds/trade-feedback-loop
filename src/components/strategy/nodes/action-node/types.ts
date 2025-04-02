@@ -15,12 +15,13 @@ export interface Position {
     strikeValue?: number;
     optionType?: 'CE' | 'PE';
   };
+  sourceNodeId?: string;
   _lastUpdated?: number; // Timestamp for forcing updates
 }
 
 export interface ActionNodeData {
   label: string; // Make label required
-  actionType?: 'entry' | 'exit' | 'alert' | 'modify';
+  actionType: 'entry' | 'exit' | 'alert' | 'modify';
   instrument?: string;
   symbol?: string;
   requiresSymbol?: boolean;
@@ -29,6 +30,7 @@ export interface ActionNodeData {
   _lastUpdated?: number; // Timestamp for forcing updates
   targetPositionId?: string;
   targetNodeId?: string;
+  modifications?: Record<string, any>;
 }
 
 export interface StartNodeData {
