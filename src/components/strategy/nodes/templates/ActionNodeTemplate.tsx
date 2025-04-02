@@ -83,6 +83,8 @@ const ActionNodeTemplate: React.FC<ActionNodeTemplateProps> = ({
     }
   };
 
+  const content = renderContent ? renderContent(data) : renderDefaultContent();
+
   return (
     <BaseNodeTemplate
       id={id}
@@ -90,7 +92,7 @@ const ActionNodeTemplate: React.FC<ActionNodeTemplateProps> = ({
       selected={selected}
       {...props}
     >
-      {renderContent ? renderContent(data) : renderDefaultContent()}
+      {content}
     </BaseNodeTemplate>
   );
 };

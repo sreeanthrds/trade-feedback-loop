@@ -7,7 +7,7 @@ import { getNodeIcon } from '../utils/nodes/nodeIcons';
 const ForceEndNode: React.FC<NodeProps> = ({ id, data, selected, isConnectable }) => {
   // Ensure data is properly structured with defaults
   const nodeData = {
-    label: data.label || 'Force End',
+    label: data?.label as string || 'Force End',
     icon: getNodeIcon('forceEndNode'),
     description: 'Close All Positions'
   };

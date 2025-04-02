@@ -7,7 +7,7 @@ import { getNodeIcon } from '../utils/nodes/nodeIcons';
 const EndNode: React.FC<NodeProps> = ({ id, data, selected, isConnectable }) => {
   // Ensure data is properly structured with defaults
   const nodeData = {
-    label: data.label || 'End',
+    label: data?.label as string || 'End',
     icon: getNodeIcon('endNode'),
     description: 'Strategy End Point'
   };

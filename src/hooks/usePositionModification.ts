@@ -27,7 +27,7 @@ export function usePositionModification(
     // Create a new position object by merging the current position with updates
     const updatedPosition: Position = {
       ...currentPosition,
-      ...updates,
+      ...(updates as Partial<Position>),
       _lastUpdated: Date.now()
     };
     

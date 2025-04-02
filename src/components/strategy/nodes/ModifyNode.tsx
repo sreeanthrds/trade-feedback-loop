@@ -7,12 +7,12 @@ import { getNodeIcon } from '../utils/nodes/nodeIcons';
 const ModifyNode: React.FC<NodeProps> = ({ id, data, selected, isConnectable }) => {
   // Ensure data is properly structured with defaults
   const nodeData = {
-    label: data.label || 'Modify Position',
+    label: data?.label as string || 'Modify Position',
     actionType: 'modify' as const,
-    positions: Array.isArray(data.positions) ? data.positions : [],
-    targetPositionId: data.targetPositionId,
-    targetNodeId: data.targetNodeId,
-    modifications: data.modifications || {},
+    positions: Array.isArray(data?.positions) ? data.positions : [],
+    targetPositionId: data?.targetPositionId,
+    targetNodeId: data?.targetNodeId,
+    modifications: data?.modifications || {},
     icon: getNodeIcon('modify'),
     description: 'Modify an existing position'
   };

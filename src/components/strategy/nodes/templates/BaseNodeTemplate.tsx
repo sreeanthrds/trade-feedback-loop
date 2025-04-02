@@ -16,6 +16,7 @@ export interface BaseNodeTemplateProps extends NodeProps {
   sourceHandlePosition?: Position;
   showSourceHandle?: boolean;
   showTargetHandle?: boolean;
+  children?: React.ReactNode;
 }
 
 /**
