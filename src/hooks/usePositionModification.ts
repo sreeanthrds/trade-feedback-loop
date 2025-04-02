@@ -8,20 +8,13 @@ export function usePositionModification(
   node: Node,
   updateNodeData: (id: string, data: any) => void
 ) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentPosition, setCurrentPosition] = useState<Position | null>(null);
 
-  const openModificationDialog = (position: Position) => {
-    setCurrentPosition(position);
-    setIsDialogOpen(true);
-  };
-
-  const closeModificationDialog = () => {
-    setIsDialogOpen(false);
-    setCurrentPosition(null);
-  };
-
   const handlePositionChange = (updates: Partial<Position>) => {
+    if (!node.data.targetPositionId) return;
+    
+    // Create a basic updated position with the current values from node.data
+    const currentPosition = node.data.selectedPosition;
     if (!currentPosition) return;
     
     // First, create a basic updated position with the current values
@@ -69,11 +62,16 @@ export function usePositionModification(
       }
     }
     
-    setCurrentPosition(updatedPosition);
+    // Update the selected position in the node data
+    updateNodeData(node.id, {
+      selectedPosition: updatedPosition
+    });
   };
 
   const saveModifiedPosition = () => {
-    if (!currentPosition || !node.data.targetNodeId) return;
+    if (!node.data.targetPositionId || !node.data.selectedPosition) return;
+    
+    const position = node.data.selectedPosition;
     
     // Prepare modifications object to be saved in the modify node
     const modifications: Record<string, any> = {};
@@ -86,19 +84,19 @@ export function usePositionModification(
     }
     
     // Add or update the current position modification
-    modifications[currentPosition.id] = {
-      id: currentPosition.id,
-      vpi: currentPosition.vpi,
-      vpt: currentPosition.vpt,
-      priority: currentPosition.priority,
-      positionType: currentPosition.positionType,
-      orderType: currentPosition.orderType,
-      limitPrice: currentPosition.limitPrice,
-      lots: currentPosition.lots,
-      productType: currentPosition.productType,
-      optionDetails: currentPosition.optionDetails,
-      sourceNodeId: currentPosition.sourceNodeId,
-      _lastUpdated: currentPosition._lastUpdated
+    modifications[position.id] = {
+      id: position.id,
+      vpi: position.vpi,
+      vpt: position.vpt,
+      priority: position.priority,
+      positionType: position.positionType,
+      orderType: position.orderType,
+      limitPrice: position.limitPrice,
+      lots: position.lots,
+      productType: position.productType,
+      optionDetails: position.optionDetails,
+      sourceNodeId: position.sourceNodeId,
+      _lastUpdated: position._lastUpdated
     };
 
     // Update the node with modifications data
@@ -109,17 +107,12 @@ export function usePositionModification(
 
     toast({
       title: "Position Modified",
-      description: `Modified position ${currentPosition.vpi}`
+      description: `Modified position ${position.vpi}`
     });
-    
-    closeModificationDialog();
   };
 
   return {
-    isDialogOpen,
     currentPosition,
-    openModificationDialog,
-    closeModificationDialog,
     handlePositionChange,
     saveModifiedPosition
   };

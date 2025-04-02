@@ -90,6 +90,7 @@ export function usePositionSelection(
       updateNodeData(node.id, {
         targetPositionId: positionId,
         targetNodeId: position.sourceNodeId,
+        selectedPosition: position // Store the selected position in node.data
       });
       
       toast({
