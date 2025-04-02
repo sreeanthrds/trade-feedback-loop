@@ -122,6 +122,7 @@ const ModifyPositionDialog: React.FC<ModifyPositionDialogProps> = ({
             <PositionEditor
               position={adaptedPosition}
               hasOptionTrading={!!position.optionDetails}
+              isEntryNode={false}
               onPositionChange={handlePositionChange}
               onPositionTypeChange={handlePositionTypeChange}
               onOrderTypeChange={handleOrderTypeChange}

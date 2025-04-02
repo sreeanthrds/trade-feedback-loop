@@ -82,7 +82,7 @@ const PositionDetails: React.FC<PositionDetailsProps> = ({ position, onEditClick
           onClick={handleEditClick}
         >
           <Edit className="h-4 w-4" />
-          Edit Modifications
+          Edit
         </Button>
       </div>
     </div>

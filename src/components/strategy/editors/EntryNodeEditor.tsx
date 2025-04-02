@@ -122,6 +122,7 @@ const EntryNodeEditor = ({ node, updateNodeData }: EntryNodeEditorProps) => {
             <PositionEditor
               position={position}
               hasOptionTrading={hasOptionTrading}
+              isEntryNode={true}
               onPositionChange={handlePositionUpdate}
               onPositionTypeChange={handlePositionTypeChange}
               onOrderTypeChange={handleOrderTypeChange}
@@ -147,6 +148,7 @@ const EntryNodeEditor = ({ node, updateNodeData }: EntryNodeEditorProps) => {
         isOpen={isPositionDialogOpen}
         onClose={handleClosePositionDialog}
         hasOptionTrading={hasOptionTrading}
+        isEntryNode={true}
         onPositionChange={handlePositionUpdate}
         onPositionTypeChange={handlePositionTypeChange}
         onOrderTypeChange={handleOrderTypeChange}

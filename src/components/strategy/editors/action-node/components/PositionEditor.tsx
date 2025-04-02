@@ -8,6 +8,7 @@ import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
 interface PositionEditorProps {
   position: Position;
   hasOptionTrading: boolean;
+  isEntryNode?: boolean;
   onPositionChange: (updates: Partial<Position>) => void;
   onPositionTypeChange: (value: string) => void;
   onOrderTypeChange: (value: string) => void;
@@ -23,6 +24,7 @@ interface PositionEditorProps {
 const PositionEditor: React.FC<PositionEditorProps> = ({
   position,
   hasOptionTrading,
+  isEntryNode = false,
   onPositionChange,
   onPositionTypeChange,
   onOrderTypeChange,
@@ -95,6 +97,8 @@ const PositionEditor: React.FC<PositionEditorProps> = ({
           value={position.vpi || ''}
           onChange={handleVpiChange}
           placeholder="Position ID"
+          readOnly={true} // Always read-only
+          description="Virtual Position ID (read-only)"
         />
         
         <InputField
@@ -103,6 +107,8 @@ const PositionEditor: React.FC<PositionEditorProps> = ({
           value={position.vpt || ''}
           onChange={handleVptChange}
           placeholder="Position tag"
+          readOnly={!isEntryNode} // Read-only except in entry nodes
+          description={isEntryNode ? "Virtual Position Tag" : "Virtual Position Tag (read-only)"}
         />
       </div>
       
