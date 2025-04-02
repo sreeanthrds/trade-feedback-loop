@@ -1,106 +1,106 @@
 
-import { useCallback } from 'react';
+import { useEffect } from 'react';
+import { Node } from '@xyflow/react';
 import { useStrategyStore } from '@/hooks/strategy-store/use-strategy-store';
+import { ExitNodeData } from '../types';
 
-/**
- * Hook for re-entry group synchronization
- */
-export const useReEntryGroupSync = () => {
+interface UseReEntryGroupSyncProps {
+  node: Node;
+  updateNodeData: (id: string, data: any) => void;
+  defaultExitNodeData: ExitNodeData;
+}
+
+export const useReEntryGroupSync = ({ 
+  node, 
+  updateNodeData, 
+  defaultExitNodeData 
+}: UseReEntryGroupSyncProps) => {
   const nodes = useStrategyStore(state => state.nodes);
   
-  /**
-   * Get the latest group number from all exit nodes
-   */
-  const getLatestGroupNumber = useCallback(() => {
-    let highestGroupNumber = 0;
+  // Sync all nodes with the same reEntry group when one node changes
+  useEffect(() => {
+    // Safe access to exitNodeData with proper type casting and validation
+    const nodeData = node.data as { exitNodeData?: ExitNodeData };
+    const exitNodeData = nodeData.exitNodeData;
+
+    // Only run sync if re-entry is enabled
+    if (exitNodeData?.reEntryConfig?.enabled) {
+      const currentGroup = exitNodeData?.reEntryConfig?.groupNumber;
+      const maxReEntries = exitNodeData?.reEntryConfig?.maxReEntries;
+
+      if (currentGroup !== undefined && maxReEntries !== undefined) {
+        // Find all exit nodes with the same group number
+        const groupNodes = nodes.filter(n => {
+          if (n.id === node.id) return false; // Skip current node
+          if (n.type !== 'exitNode') return false;
+          
+          const nData = n.data as { exitNodeData?: ExitNodeData };
+          return nData.exitNodeData?.reEntryConfig?.enabled && 
+                 nData.exitNodeData?.reEntryConfig?.groupNumber === currentGroup;
+        });
+        
+        // Update maxReEntries for all nodes in the group
+        groupNodes.forEach(n => {
+          const nData = n.data as { exitNodeData?: ExitNodeData };
+          if (nData.exitNodeData?.reEntryConfig?.maxReEntries !== maxReEntries) {
+            updateNodeData(n.id, {
+              ...n.data,
+              exitNodeData: {
+                ...nData.exitNodeData,
+                reEntryConfig: {
+                  ...nData.exitNodeData?.reEntryConfig,
+                  maxReEntries
+                }
+              }
+            });
+          }
+        });
+      }
+    }
+  }, [node.data, nodes, updateNodeData]);
+  
+  // Update existing node config when a new node joins a group
+  useEffect(() => {
+    // Safe access to exitNodeData with proper type casting and validation
+    const nodeData = node.data as { exitNodeData?: ExitNodeData };
+    const exitNodeData = nodeData.exitNodeData;
     
-    // Find the highest group number in all exit nodes
-    nodes.forEach(node => {
-      if (node.data && node.data.exitNodeData && 
-          node.data.exitNodeData.reEntryConfig && 
-          node.data.exitNodeData.reEntryConfig.enabled) {
-        const groupNumber = node.data.exitNodeData.reEntryConfig.groupNumber;
-        if (typeof groupNumber === 'number' && groupNumber > highestGroupNumber) {
-          highestGroupNumber = groupNumber;
+    // Only run if re-entry is enabled and we have a valid group number
+    if (exitNodeData?.reEntryConfig?.enabled && 
+        exitNodeData?.reEntryConfig?.groupNumber !== undefined) {
+      const currentGroup = exitNodeData.reEntryConfig.groupNumber;
+      
+      // Find other nodes in the same group
+      const groupLeader = nodes.find(n => {
+        if (n.id === node.id) return false; // Skip current node
+        if (n.type !== 'exitNode') return false;
+        
+        const nData = n.data as { exitNodeData?: ExitNodeData };
+        return nData.exitNodeData?.reEntryConfig?.enabled && 
+               nData.exitNodeData?.reEntryConfig?.groupNumber === currentGroup;
+      });
+      
+      // If a group leader is found, adopt its maxReEntries value
+      if (groupLeader) {
+        const leaderData = groupLeader.data as { exitNodeData?: ExitNodeData };
+        const leaderMaxReEntries = leaderData.exitNodeData?.reEntryConfig?.maxReEntries;
+        
+        if (leaderMaxReEntries !== undefined && 
+            exitNodeData.reEntryConfig.maxReEntries !== leaderMaxReEntries) {
+          updateNodeData(node.id, {
+            ...node.data,
+            exitNodeData: {
+              ...exitNodeData,
+              reEntryConfig: {
+                ...exitNodeData.reEntryConfig,
+                maxReEntries: leaderMaxReEntries
+              }
+            }
+          });
         }
       }
-    });
-    
-    return highestGroupNumber + 1;
-  }, [nodes]);
+    }
+  }, [nodes, node.id, updateNodeData]);
   
-  /**
-   * Get the latest max re-entries from a specific group
-   */
-  const getLatestGroupMaxReEntries = useCallback((currentMaxReEntries: number) => {
-    // Start with current value or 1
-    let highestMaxReEntries = currentMaxReEntries || 1;
-    
-    // Find nodes with the same group number
-    nodes.forEach(node => {
-      if (node.data && node.data.exitNodeData && 
-          node.data.exitNodeData.reEntryConfig && 
-          node.data.exitNodeData.reEntryConfig.enabled) {
-        const maxReEntries = node.data.exitNodeData.reEntryConfig.maxReEntries;
-        if (typeof maxReEntries === 'number' && maxReEntries > highestMaxReEntries) {
-          highestMaxReEntries = maxReEntries;
-        }
-      }
-    });
-    
-    return highestMaxReEntries;
-  }, [nodes]);
-  
-  /**
-   * Synchronize with an existing group
-   */
-  const syncWithExistingGroup = useCallback((groupNumber: number) => {
-    let maxReEntries = 1;
-    let foundGroup = false;
-    
-    // Find nodes with the same group number
-    nodes.forEach(node => {
-      if (node.data && node.data.exitNodeData && 
-          node.data.exitNodeData.reEntryConfig && 
-          node.data.exitNodeData.reEntryConfig.enabled &&
-          node.data.exitNodeData.reEntryConfig.groupNumber === groupNumber) {
-        foundGroup = true;
-        const nodeMaxReEntries = node.data.exitNodeData.reEntryConfig.maxReEntries;
-        if (typeof nodeMaxReEntries === 'number' && nodeMaxReEntries > maxReEntries) {
-          maxReEntries = nodeMaxReEntries;
-        }
-      }
-    });
-    
-    return { 
-      found: foundGroup, 
-      maxReEntries 
-    };
-  }, [nodes]);
-  
-  /**
-   * Synchronize group max re-entries across all nodes in the group
-   */
-  const syncGroupMaxReEntries = useCallback((groupNumber: number, maxReEntries: number) => {
-    // This function would update all nodes in the same group
-    // For now, this is a placeholder as we would need node update logic
-    // which should be handled in a different place
-    console.log(`Syncing group ${groupNumber} to max re-entries: ${maxReEntries}`);
-    
-    // Return all nodes that belong to this group
-    return nodes.filter(node => 
-      node.data && 
-      node.data.exitNodeData && 
-      node.data.exitNodeData.reEntryConfig &&
-      node.data.exitNodeData.reEntryConfig.enabled &&
-      node.data.exitNodeData.reEntryConfig.groupNumber === groupNumber
-    );
-  }, [nodes]);
-  
-  return {
-    getLatestGroupNumber,
-    getLatestGroupMaxReEntries,
-    syncWithExistingGroup,
-    syncGroupMaxReEntries
-  };
+  return {};
 };

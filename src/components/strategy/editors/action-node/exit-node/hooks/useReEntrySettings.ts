@@ -1,7 +1,8 @@
 
 import { useState, useEffect } from 'react';
 import { Node } from '@xyflow/react';
-import { ReEntryConfig, ExitNodeData } from '../types';
+import { ExitNodeData } from '../types';
+import { useReEntryConfig } from './useReEntryConfig';
 import { useReEntryEventHandlers } from './useReEntryEventHandlers';
 import { useReEntryGroupSync } from './useReEntryGroupSync';
 
@@ -12,69 +13,81 @@ interface UseReEntrySettingsProps {
   defaultExitNodeData: ExitNodeData;
 }
 
-export const useReEntrySettings = ({
-  node,
-  updateNodeData,
-  nodeData,
-  defaultExitNodeData
+export const useReEntrySettings = ({ 
+  node, 
+  updateNodeData, 
+  nodeData, 
+  defaultExitNodeData 
 }: UseReEntrySettingsProps) => {
-  // Get or initialize re-entry config
-  const exitNodeData = nodeData.exitNodeData as ExitNodeData | undefined;
-  const initialReEntryConfig: ReEntryConfig = exitNodeData?.reEntryConfig || {
-    enabled: false,
-    groupNumber: 0,
-    maxReEntries: 0
-  };
+  const exitNodeData = nodeData?.exitNodeData || defaultExitNodeData;
+  const { reEntryConfig: initialConfig } = exitNodeData;
   
-  // State for re-entry settings
-  const [reEntryEnabled, setReEntryEnabled] = useState<boolean>(
-    initialReEntryConfig.enabled || false
+  // Default values
+  const [reEntryEnabled, setReEntryEnabled] = useState(
+    initialConfig?.enabled || false
   );
   
-  const [groupNumber, setGroupNumber] = useState<number>(
-    initialReEntryConfig.groupNumber || 0
+  const [groupNumber, setGroupNumber] = useState(
+    initialConfig?.groupNumber || 1
   );
   
-  const [maxReEntries, setMaxReEntries] = useState<number>(
-    initialReEntryConfig.maxReEntries || 0
+  const [maxReEntries, setMaxReEntries] = useState(
+    initialConfig?.maxReEntries || 1
   );
-  
-  // Use group sync hook
-  const { getLatestGroupMaxReEntries } = useReEntryGroupSync({
+
+  // Use specialized hooks
+  useReEntryGroupSync({
     node,
     updateNodeData,
-    groupNumber,
-    reEntryEnabled
+    defaultExitNodeData
   });
   
-  // Use event handlers hook
-  const {
-    handleReEntryToggle,
-    handleGroupNumberChange,
-    handleMaxReEntriesChange
+  // Config management hook
+  const { updateReEntryConfig } = useReEntryConfig({
+    node,
+    updateNodeData,
+    nodeData,
+    defaultExitNodeData
+  });
+  
+  // Event handlers
+  const { 
+    handleReEntryToggle: onReEntryToggle, 
+    handleGroupNumberChange: onGroupNumberChange,
+    handleMaxReEntriesChange: onMaxReEntriesChange
   } = useReEntryEventHandlers({
     node,
     updateNodeData,
     nodeData,
     defaultExitNodeData,
-    reEntryEnabled,
-    setReEntryEnabled,
-    groupNumber,
-    setGroupNumber,
-    maxReEntries,
-    setMaxReEntries
+    updateReEntryConfig
   });
   
-  // Effect to check and sync with other nodes in the same group
+  // Sync local state with node data
   useEffect(() => {
-    // Get the latest max re-entries from the group (if any)
-    const latestMaxReEntries = getLatestGroupMaxReEntries(maxReEntries);
-    
-    // Only update state if the value has changed
-    if (latestMaxReEntries !== maxReEntries) {
-      setMaxReEntries(latestMaxReEntries);
+    const updatedData = node.data?.exitNodeData?.reEntryConfig;
+    if (updatedData) {
+      setReEntryEnabled(updatedData.enabled || false);
+      setGroupNumber(updatedData.groupNumber || 1);
+      setMaxReEntries(updatedData.maxReEntries || 1);
     }
-  }, [nodeData, groupNumber, reEntryEnabled]);
+  }, [node.data]);
+  
+  // Create handler functions with proper state updates
+  const handleReEntryToggle = (checked: boolean) => {
+    setReEntryEnabled(checked);
+    onReEntryToggle(checked);
+  };
+  
+  const handleGroupNumberChange = (value: number) => {
+    setGroupNumber(value);
+    onGroupNumberChange(value);
+  };
+  
+  const handleMaxReEntriesChange = (value: number) => {
+    setMaxReEntries(value);
+    onMaxReEntriesChange(value);
+  };
   
   return {
     reEntryEnabled,

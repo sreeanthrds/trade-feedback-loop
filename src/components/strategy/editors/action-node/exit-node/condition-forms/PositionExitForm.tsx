@@ -21,9 +21,9 @@ const PositionExitForm: React.FC<PositionExitFormProps> = ({
   const positionOptions = React.useMemo(() => {
     const uniqueValues = new Set<string>();
     
-    // Add an option for "All positions"
+    // Add an option for "All positions" with a non-empty value
     const options = [{
-      value: "",
+      value: "all",
       label: "All positions"
     }];
     
@@ -55,9 +55,12 @@ const PositionExitForm: React.FC<PositionExitFormProps> = ({
   }, [exitCondition.type]);
   
   const handleChange = (value: string) => {
-    updateField('identifier', value);
+    // If "all" is selected, convert it to empty string for the exitCondition
+    const identifierValue = value === "all" ? "" : value;
+    updateField('identifier', identifierValue);
     setTouched(true);
     
+    // Only show error for non-all positions and when the field is required
     if (!value && exitCondition.type !== 'all_positions') {
       setError('This field is required');
     } else {
@@ -65,16 +68,18 @@ const PositionExitForm: React.FC<PositionExitFormProps> = ({
     }
   };
   
-  const showError = touched && !exitCondition.identifier && exitCondition.type !== 'all_positions';
+  // Determine if an error should be shown
+  const showError = touched && 
+    (!exitCondition.identifier && exitCondition.type !== 'all_positions');
   
   return (
     <EnhancedSelectField
       label={exitCondition.type === 'vpi' ? 'Virtual Position ID' : 'Virtual Position Tag'}
-      value={exitCondition.identifier || ''}
+      value={exitCondition.identifier || 'all'}
       onChange={handleChange}
       options={positionOptions}
       description={`Select the ${exitCondition.type === 'vpi' ? 'VPI' : 'VPT'} to exit`}
-      required={true}
+      required={exitCondition.type !== 'all_positions'}
       tooltip={exitCondition.type === 'vpi' 
         ? "Select the specific position ID to exit" 
         : "Select the position tag to exit all positions with this tag"}
