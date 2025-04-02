@@ -27,8 +27,8 @@ export function usePositionModification(
     // Create a new position object by merging the current position with updates
     const updatedPosition: Position = {
       ...currentPosition,
-      // Use type assertion to explicitly treat updates as an object - avoids spread error
-      ...updates as object,
+      // Create a new object from updates to ensure it's a valid object for spreading
+      ...(Object.assign({}, updates)),
       _lastUpdated: Date.now()
     };
     
