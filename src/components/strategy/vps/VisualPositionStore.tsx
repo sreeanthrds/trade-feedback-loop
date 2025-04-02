@@ -5,6 +5,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { ScrollArea } from '@/components/ui/scroll-area';
 import PositionCard from './PositionCard';
 import { useStrategyStore } from '@/hooks/strategy-store/use-strategy-store';
+import { Position } from '@/components/strategy/types/position-types';
 
 const VisualPositionStore: React.FC = () => {
   const { isOpen, toggle, positions, setPositions } = useVpsStore();
@@ -12,8 +13,8 @@ const VisualPositionStore: React.FC = () => {
   
   // Extract positions from all nodes when nodes change
   useEffect(() => {
-    const allPositions = nodes.reduce<any[]>((acc, node) => {
-      if (node.data?.positions?.length) {
+    const allPositions = nodes.reduce<Position[]>((acc, node) => {
+      if (node.data?.positions && Array.isArray(node.data.positions) && node.data.positions.length > 0) {
         return [...acc, ...node.data.positions];
       }
       return acc;
