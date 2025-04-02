@@ -4,7 +4,7 @@ import { NodeProps } from '@xyflow/react';
 import ActionNodeTemplate from './templates/ActionNodeTemplate';
 import { getNodeIcon } from '../utils/nodes/nodeIcons';
 
-const ModifyNode: React.FC<NodeProps> = ({ id, data, selected, isConnectable }) => {
+const ModifyNode: React.FC<NodeProps> = ({ id, data, selected, isConnectable, type, zIndex, dragging, draggable, selectable, deletable, positionAbsoluteX, positionAbsoluteY }) => {
   // Ensure data is properly structured with defaults
   const nodeData = {
     label: data?.label as string || 'Modify Position',
@@ -23,6 +23,14 @@ const ModifyNode: React.FC<NodeProps> = ({ id, data, selected, isConnectable }) 
       data={nodeData}
       selected={selected}
       isConnectable={isConnectable}
+      type={type || 'modifyNode'}
+      zIndex={zIndex || 0}
+      dragging={dragging || false}
+      draggable={draggable !== undefined ? draggable : true}
+      selectable={selectable !== undefined ? selectable : true}
+      deletable={deletable !== undefined ? deletable : true}
+      positionAbsoluteX={positionAbsoluteX || 0}
+      positionAbsoluteY={positionAbsoluteY || 0}
     />
   );
 };

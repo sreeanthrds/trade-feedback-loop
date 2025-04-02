@@ -5,7 +5,7 @@ import ActionNodeTemplate from './templates/ActionNodeTemplate';
 import { getNodeIcon } from '../utils/nodes/nodeIcons';
 import { useStartNodeSymbol } from './action-node/useStartNodeSymbol';
 
-const ExitNode: React.FC<NodeProps> = ({ id, data, selected, isConnectable }) => {
+const ExitNode: React.FC<NodeProps> = ({ id, data, selected, isConnectable, type, zIndex, dragging, draggable, selectable, deletable, positionAbsoluteX, positionAbsoluteY }) => {
   const startNodeSymbol = useStartNodeSymbol();
   
   // Create a safe version of nodeData with default values for required fields
@@ -37,6 +37,14 @@ const ExitNode: React.FC<NodeProps> = ({ id, data, selected, isConnectable }) =>
       data={nodeData}
       selected={selected}
       isConnectable={isConnectable}
+      type={type || 'exitNode'}
+      zIndex={zIndex || 0}
+      dragging={dragging || false}
+      draggable={draggable !== undefined ? draggable : true}
+      selectable={selectable !== undefined ? selectable : true}
+      deletable={deletable !== undefined ? deletable : true}
+      positionAbsoluteX={positionAbsoluteX || 0}
+      positionAbsoluteY={positionAbsoluteY || 0}
     />
   );
 };

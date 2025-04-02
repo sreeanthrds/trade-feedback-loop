@@ -57,7 +57,7 @@ const ModifyNodeEditor: React.FC<ModifyNodeEditorProps> = ({ node, updateNodeDat
         <input
           id="label"
           className="border rounded p-1 flex-grow"
-          value={node.data?.label || ''}
+          value={String(node.data?.label || '')}
           onChange={handleLabelChange}
         />
       </div>

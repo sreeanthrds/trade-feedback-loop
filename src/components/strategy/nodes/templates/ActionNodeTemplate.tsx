@@ -85,12 +85,28 @@ const ActionNodeTemplate: React.FC<ActionNodeTemplateProps> = ({
 
   const content = renderContent ? renderContent(data) : renderDefaultContent();
 
+  // Add required props with defaults for NodeProps
+  const nodeProps: BaseNodeTemplateProps = {
+    id,
+    data,
+    selected: Boolean(selected),
+    // Add the missing required properties with default values
+    type: props.type || 'default',
+    zIndex: props.zIndex || 0,
+    dragging: props.dragging || false,
+    selectable: props.selectable !== undefined ? props.selectable : true,
+    deletable: props.deletable !== undefined ? props.deletable : true,
+    draggable: props.draggable !== undefined ? props.draggable : true,
+    positionAbsoluteX: props.positionAbsoluteX || 0,
+    positionAbsoluteY: props.positionAbsoluteY || 0,
+    isConnectable: props.isConnectable !== undefined ? props.isConnectable : true,
+    // Include all other props
+    ...props
+  };
+
   return (
     <BaseNodeTemplate
-      id={id}
-      data={data}
-      selected={selected}
-      {...props}
+      {...nodeProps}
     >
       {content}
     </BaseNodeTemplate>
