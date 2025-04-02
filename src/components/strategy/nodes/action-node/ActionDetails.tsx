@@ -4,8 +4,8 @@ import { Position } from '@/components/strategy/types/position-types';
 
 interface ActionDetailsProps {
   positions?: Position[];
-  actionType: 'entry' | 'exit' | 'alert' | 'modify';
-  nodeId: string;
+  actionType?: 'entry' | 'exit' | 'alert' | 'modify';
+  nodeId?: string;
   startNodeSymbol?: string;
 }
 
@@ -23,6 +23,10 @@ const ActionDetails: React.FC<ActionDetailsProps> = ({ positions, actionType, no
     
     const details = [];
     
+    if (firstPosition.positionType) {
+      details.push(firstPosition.positionType === 'buy' ? 'Buy' : 'Sell');
+    }
+    
     if (firstPosition.orderType) {
       details.push(`${firstPosition.orderType} order`);
     }
@@ -37,6 +41,39 @@ const ActionDetails: React.FC<ActionDetailsProps> = ({ positions, actionType, no
     
     return details.join(', ') || 'Default settings';
   };
+  
+  // If this is a modify node, show a specific message
+  if (actionType === 'modify') {
+    if (!firstPosition || !firstPosition.id) {
+      return (
+        <div className="text-xs bg-background/80 p-2 rounded-md">
+          <div className="text-amber-500 font-medium">No position selected</div>
+          <div className="text-muted-foreground mt-1">Select a position to modify</div>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="text-xs bg-background/80 p-2 rounded-md space-y-1.5">
+        <div className="flex justify-between">
+          <span className="text-foreground/60">Target:</span>
+          <span className="font-medium">{firstPosition.vpi || firstPosition.id}</span>
+        </div>
+        
+        <div className="flex justify-between">
+          <span className="text-foreground/60">Status:</span>
+          <span className="text-amber-500 font-medium">Will be modified</span>
+        </div>
+        
+        {startNodeSymbol && (
+          <div className="flex justify-between">
+            <span className="text-foreground/60">Instrument:</span>
+            <span className="font-medium">{startNodeSymbol}</span>
+          </div>
+        )}
+      </div>
+    );
+  }
   
   return (
     <div className="text-xs bg-background/80 p-2 rounded-md space-y-1.5">

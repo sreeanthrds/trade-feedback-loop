@@ -1,9 +1,10 @@
+
 import React from 'react';
-import { Play, PauseCircle, Bell, ArrowRight } from 'lucide-react';
+import { Play, PauseCircle, Bell, ArrowRight, Pencil } from 'lucide-react';
 
 interface ActionIconProps {
   icon?: React.ReactNode;
-  actionType: 'entry' | 'exit' | 'alert' | 'modify';
+  actionType?: 'entry' | 'exit' | 'alert' | 'modify';
 }
 
 const ActionIcon: React.FC<ActionIconProps> = ({ icon, actionType }) => {
@@ -19,7 +20,7 @@ const ActionIcon: React.FC<ActionIconProps> = ({ icon, actionType }) => {
     case 'alert':
       return <Bell className="h-4 w-4 text-warning mr-1.5" />;
     case 'modify':
-      return <ArrowRight className="h-4 w-4 text-amber-500 mr-1.5" />;
+      return <Pencil className="h-4 w-4 text-amber-500 mr-1.5" />;
     case 'entry':
     default:
       return <Play className="h-4 w-4 text-success mr-1.5" />;

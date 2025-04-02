@@ -10,24 +10,25 @@ import { Position as PositionType } from '@/components/strategy/types/position-t
 interface ActionNodeTemplateProps {
   id: string;
   data: {
-    label: string;
-    actionType: 'entry' | 'exit' | 'alert' | 'modify';
+    label?: string;
+    actionType?: 'entry' | 'exit' | 'alert' | 'modify';
     positions?: PositionType[];
     icon?: React.ReactNode;
     description?: string;
     updateNodeData?: (id: string, data: any) => void;
+    startNodeSymbol?: string;
     [key: string]: any;
   };
   selected: boolean;
   isConnectable: boolean;
   type: string;
-  zIndex: number;
-  dragging: boolean;
-  draggable: boolean;
-  selectable: boolean;
-  deletable: boolean;
-  positionAbsoluteX: number;
-  positionAbsoluteY: number;
+  zIndex?: number;
+  dragging?: boolean;
+  draggable?: boolean;
+  selectable?: boolean;
+  deletable?: boolean;
+  positionAbsoluteX?: number;
+  positionAbsoluteY?: number;
 }
 
 const ActionNodeTemplate = ({

@@ -4,7 +4,7 @@ import React from 'react';
 interface ActionLabelProps {
   label?: string;
   description?: string;
-  actionType: 'entry' | 'exit' | 'alert' | 'modify';
+  actionType?: 'entry' | 'exit' | 'alert' | 'modify';
 }
 
 const ActionLabel: React.FC<ActionLabelProps> = ({ label, description, actionType }) => {
