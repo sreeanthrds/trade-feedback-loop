@@ -6,6 +6,8 @@ import './styles/index.css';
 import './styles/mobile-fixes.css';
 import './styles/menus.css';
 import StrategyFlowContent from './StrategyFlowContent';
+import VisualPositionStore from './vps/VisualPositionStore';
+import FloatingVpsButton from './vps/FloatingVpsButton';
 
 const LoadingIndicator = () => (
   <div className="h-full w-full flex items-center justify-center bg-background/50">
@@ -21,6 +23,8 @@ const StrategyFlow = () => {
     <ReactFlowProvider>
       <Suspense fallback={<LoadingIndicator />}>
         <StrategyFlowContent />
+        <FloatingVpsButton />
+        <VisualPositionStore />
       </Suspense>
     </ReactFlowProvider>
   );
