@@ -1,7 +1,7 @@
 
 import { useEffect } from 'react';
 import { Node } from '@xyflow/react';
-import { ExitNodeData } from '../types';
+import { ExitNodeData, ReEntryConfig } from '../types';
 
 interface UseExitNodeInitializationProps {
   node: Node;
@@ -40,11 +40,13 @@ export const useExitNodeInitialization = ({
       initializedRef.current = true;
     } else {
       // Ensure re-entry config exists
-      if (!nodeData.exitNodeData.reEntryConfig) {
+      const exitNodeData = nodeData.exitNodeData as ExitNodeData;
+      
+      if (!exitNodeData.reEntryConfig) {
         updateNodeData(node.id, {
           ...nodeData,
           exitNodeData: {
-            ...nodeData.exitNodeData,
+            ...exitNodeData,
             reEntryConfig: defaultExitNodeData.reEntryConfig
           },
           _lastUpdated: Date.now()
