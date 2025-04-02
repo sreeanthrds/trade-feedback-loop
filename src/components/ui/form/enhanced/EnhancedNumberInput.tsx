@@ -28,7 +28,8 @@ export interface EnhancedNumberInputProps extends
   max?: number;
   step?: number;
   required?: boolean;
-  readOnly?: boolean; // Add readOnly prop
+  readOnly?: boolean;
+  tooltip?: string; // Added missing tooltip property
 }
 
 // Base number input component that will be enhanced
@@ -42,7 +43,7 @@ const NumberInput: React.FC<EnhancedNumberInputProps> = ({
   max,
   step = 1,
   required = false,
-  readOnly = false, // Default to false
+  readOnly = false,
   // Exclude HOC-specific props
   label,
   hideLabel,
@@ -119,7 +120,7 @@ const NumberInput: React.FC<EnhancedNumberInputProps> = ({
       max={max}
       step={step}
       required={required}
-      readOnly={readOnly} // Pass readOnly prop to Input
+      readOnly={readOnly}
       {...rest}
     />
   );
