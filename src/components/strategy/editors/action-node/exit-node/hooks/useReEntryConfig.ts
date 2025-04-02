@@ -6,17 +6,20 @@ interface UseReEntryConfigProps {
   node: Node;
   updateNodeData: (id: string, data: any) => void;
   nodeData: any;
+  defaultExitNodeData?: ExitNodeData;
 }
 
 export const useReEntryConfig = ({
   node,
   updateNodeData,
-  nodeData
+  nodeData,
+  defaultExitNodeData
 }: UseReEntryConfigProps) => {
   // Update the re-entry config in the node data
-  const updateReEntryConfig = (config: ReEntryConfig, defaultExitNodeData: ExitNodeData) => {
+  const updateReEntryConfig = (config: ReEntryConfig, fallbackDefaultData?: ExitNodeData) => {
     // Get the latest exit node data or use default
-    const currentExitNodeData = nodeData.exitNodeData || defaultExitNodeData;
+    const defaultData = fallbackDefaultData || defaultExitNodeData;
+    const currentExitNodeData = nodeData.exitNodeData || defaultData;
     
     // Create updated exit node data with new re-entry config
     const updatedExitNodeData = {

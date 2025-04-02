@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Node } from '@xyflow/react';
-import { ExitNodeData } from '../types';
+import { ExitNodeData, ReEntryConfig } from '../types';
 import { useReEntryConfig } from './useReEntryConfig';
 import { useReEntryEventHandlers } from './useReEntryEventHandlers';
 import { useReEntryGroupSync } from './useReEntryGroupSync';
@@ -35,7 +35,7 @@ export const useReEntrySettings = ({
     initialConfig?.maxReEntries || 1
   );
 
-  // Use specialized hooks
+  // Use specialized hooks with explicit props
   useReEntryGroupSync({
     node,
     updateNodeData,
@@ -46,8 +46,7 @@ export const useReEntrySettings = ({
   const { updateReEntryConfig } = useReEntryConfig({
     node,
     updateNodeData,
-    nodeData,
-    defaultExitNodeData
+    nodeData
   });
   
   // Event handlers

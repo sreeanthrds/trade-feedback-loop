@@ -61,7 +61,10 @@ const PositionExitForm: React.FC<PositionExitFormProps> = ({
     setTouched(true);
     
     // Only show error for non-all positions and when the field is required
-    if (!value && exitCondition.type !== 'all_positions') {
+    // Check if type is not 'all_positions' which is a different type than vpi/vpt
+    const isAllPositions = exitCondition.type === 'all_positions' as any;
+    
+    if (!value && !isAllPositions) {
       setError('This field is required');
     } else {
       setError(undefined);
@@ -70,7 +73,7 @@ const PositionExitForm: React.FC<PositionExitFormProps> = ({
   
   // Determine if an error should be shown
   const showError = touched && 
-    (!exitCondition.identifier && exitCondition.type !== 'all_positions');
+    (!exitCondition.identifier && exitCondition.type !== 'all_positions' as any);
   
   return (
     <EnhancedSelectField
@@ -79,7 +82,7 @@ const PositionExitForm: React.FC<PositionExitFormProps> = ({
       onChange={handleChange}
       options={positionOptions}
       description={`Select the ${exitCondition.type === 'vpi' ? 'VPI' : 'VPT'} to exit`}
-      required={exitCondition.type !== 'all_positions'}
+      required={exitCondition.type !== 'all_positions' as any}
       tooltip={exitCondition.type === 'vpi' 
         ? "Select the specific position ID to exit" 
         : "Select the position tag to exit all positions with this tag"}

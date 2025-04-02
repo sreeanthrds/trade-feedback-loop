@@ -9,6 +9,7 @@ interface UseReEntryEventHandlersProps {
   updateNodeData: (id: string, data: any) => void;
   nodeData: any;
   defaultExitNodeData: ExitNodeData;
+  updateReEntryConfig?: (config: any, defaultExitNodeData: ExitNodeData) => void;
 }
 
 export const useReEntryEventHandlers = ({
@@ -16,9 +17,14 @@ export const useReEntryEventHandlers = ({
   updateNodeData,
   nodeData,
   defaultExitNodeData,
+  updateReEntryConfig,
 }: UseReEntryEventHandlersProps) => {
-  // Get group sync utilities
-  const groupSync = useReEntryGroupSync();
+  // Get group sync utilities with proper props
+  const groupSync = useReEntryGroupSync({
+    node,
+    updateNodeData,
+    defaultExitNodeData
+  });
   
   // Handle toggle of re-entry feature
   const handleReEntryToggle = useCallback((enabled: boolean) => {
@@ -49,15 +55,20 @@ export const useReEntryEventHandlers = ({
       };
     }
     
-    // Update node data
-    updateNodeData(node.id, {
-      ...nodeData,
-      exitNodeData: {
-        ...currentExitNodeData,
-        reEntryConfig: updatedConfig
-      }
-    });
-  }, [node.id, nodeData, updateNodeData, defaultExitNodeData, groupSync]);
+    // Update node data directly or via the provided updateReEntryConfig function
+    if (updateReEntryConfig) {
+      updateReEntryConfig(updatedConfig, defaultExitNodeData);
+    } else {
+      // Fallback direct update
+      updateNodeData(node.id, {
+        ...nodeData,
+        exitNodeData: {
+          ...currentExitNodeData,
+          reEntryConfig: updatedConfig
+        }
+      });
+    }
+  }, [node.id, nodeData, updateNodeData, defaultExitNodeData, groupSync, updateReEntryConfig]);
 
   // Handle group number change
   const handleGroupNumberChange = useCallback((groupNumber: number) => {
@@ -75,18 +86,26 @@ export const useReEntryEventHandlers = ({
     const numericGroupNumber = typeof groupNumber === 'number' ? groupNumber : 
       parseInt(groupNumber as unknown as string) || 1;
     
-    // Update node data
-    updateNodeData(node.id, {
-      ...nodeData,
-      exitNodeData: {
-        ...currentExitNodeData,
-        reEntryConfig: {
-          ...currentReEntryConfig,
-          groupNumber: numericGroupNumber
+    // Create the updated config
+    const updatedConfig = {
+      ...currentReEntryConfig,
+      groupNumber: numericGroupNumber
+    };
+    
+    // Update node data directly or via the provided updateReEntryConfig function
+    if (updateReEntryConfig) {
+      updateReEntryConfig(updatedConfig, defaultExitNodeData);
+    } else {
+      // Fallback direct update
+      updateNodeData(node.id, {
+        ...nodeData,
+        exitNodeData: {
+          ...currentExitNodeData,
+          reEntryConfig: updatedConfig
         }
-      }
-    });
-  }, [node.id, nodeData, updateNodeData, defaultExitNodeData]);
+      });
+    }
+  }, [node.id, nodeData, updateNodeData, defaultExitNodeData, updateReEntryConfig]);
 
   // Handle max re-entries change
   const handleMaxReEntriesChange = useCallback((maxReEntries: number) => {
@@ -104,18 +123,26 @@ export const useReEntryEventHandlers = ({
     const numericMaxReEntries = typeof maxReEntries === 'number' ? maxReEntries : 
       parseInt(maxReEntries as unknown as string) || 1;
     
-    // Update node data
-    updateNodeData(node.id, {
-      ...nodeData,
-      exitNodeData: {
-        ...currentExitNodeData,
-        reEntryConfig: {
-          ...currentReEntryConfig,
-          maxReEntries: numericMaxReEntries
+    // Create the updated config
+    const updatedConfig = {
+      ...currentReEntryConfig,
+      maxReEntries: numericMaxReEntries
+    };
+    
+    // Update node data directly or via the provided updateReEntryConfig function
+    if (updateReEntryConfig) {
+      updateReEntryConfig(updatedConfig, defaultExitNodeData);
+    } else {
+      // Fallback direct update
+      updateNodeData(node.id, {
+        ...nodeData,
+        exitNodeData: {
+          ...currentExitNodeData,
+          reEntryConfig: updatedConfig
         }
-      }
-    });
-  }, [node.id, nodeData, updateNodeData, defaultExitNodeData]);
+      });
+    }
+  }, [node.id, nodeData, updateNodeData, defaultExitNodeData, updateReEntryConfig]);
 
   return {
     handleReEntryToggle,
