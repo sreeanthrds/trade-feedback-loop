@@ -1,28 +1,27 @@
 
-import React, { useMemo } from 'react';
+import React, { useMemo, memo } from 'react';
 import { NodeProps } from '@xyflow/react';
-import ActionNodeContent from './action-node/ActionNodeContent';
+import ActionNodeTemplate from './templates/ActionNodeTemplate';
+import { getNodeIcon } from '../utils/nodes/nodeIcons';
 import { useStartNodeSymbol } from './action-node/useStartNodeSymbol';
-import { ActionNodeData } from './action-node/types';
 
-// Properly type the NodeProps with ActionNodeData
-const AlertNode: React.FC<NodeProps> = ({ id, data, selected }) => {
+const AlertNode: React.FC<NodeProps> = ({ id, data, selected, isConnectable }) => {
   const startNodeSymbol = useStartNodeSymbol();
   
   // Create a safe version of nodeData with default values for required fields
   const nodeData = useMemo(() => {
     const rawData = data as Record<string, unknown>;
     return {
+      label: (rawData.label as string) || 'Alert',
+      actionType: 'alert' as const,
       positions: Array.isArray(rawData.positions) ? rawData.positions : [],
       requiresSymbol: rawData.requiresSymbol as boolean | undefined,
       symbol: rawData.symbol as string | undefined,
-      updateNodeData: rawData.updateNodeData as ((id: string, data: Partial<ActionNodeData>) => void) | undefined,
-      // Include actionType explicitly set to 'alert'
-      actionType: 'alert' as const,
-      label: (rawData.label as string) || 'Alert',
-      instrument: rawData.instrument as string | undefined,
-      _lastUpdated: rawData._lastUpdated as number | undefined
-    } as ActionNodeData;
+      icon: getNodeIcon('alert'),
+      description: 'Send a notification',
+      alertMessage: rawData.alertMessage as string || 'Strategy alert',
+      alertType: rawData.alertType as string || 'info'
+    };
   }, [data]);
   
   const isSymbolMissing = useMemo(() => {
@@ -34,18 +33,13 @@ const AlertNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   }, [nodeData.requiresSymbol, nodeData.symbol, startNodeSymbol, nodeData.positions]);
 
   return (
-    <ActionNodeContent
-      data={{
-        label: nodeData.label,
-        actionType: nodeData.actionType,
-        positions: nodeData.positions,
-      }}
-      startNodeSymbol={startNodeSymbol}
-      isSymbolMissing={isSymbolMissing}
+    <ActionNodeTemplate
       id={id}
-      updateNodeData={nodeData.updateNodeData}
+      data={nodeData}
+      selected={selected}
+      isConnectable={isConnectable}
     />
   );
 };
 
-export default AlertNode;
+export default memo(AlertNode);

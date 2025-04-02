@@ -93,14 +93,14 @@ const ModifyPositionDialog: React.FC<ModifyPositionDialogProps> = ({
     });
   };
 
-  // Create compatible position for PositionEditor by using our adapter function
+  // Create compatible position for PositionEditor
+  // Use type assertion to ensure TypeScript understands the compatibility
   const adaptedPosition = adaptPosition<ActionNodePosition>(position);
   
-  // Create a wrapper for onPositionChange that adapts the updates
+  // Create a wrapper for onPositionChange that converts ActionNodePosition updates to Position updates
   const handlePositionChange = (updates: Partial<ActionNodePosition>) => {
-    // Convert ActionNodePosition updates to Position updates
-    const convertedUpdates: Partial<Position> = { ...updates };
-    onPositionChange(convertedUpdates);
+    // Type assertion to help TypeScript understand the compatibility
+    onPositionChange(updates as unknown as Partial<Position>);
   };
   
   return (

@@ -86,13 +86,15 @@ const ModifyNodeEditor: React.FC<ModifyNodeEditorProps> = ({ node, updateNodeDat
       </Card>
 
       {/* Position Modification Dialog */}
-      <ModifyPositionDialog
-        position={currentPosition}
-        isOpen={isDialogOpen}
-        onClose={closeModificationDialog}
-        onSave={saveModifiedPosition}
-        onPositionChange={handlePositionChange}
-      />
+      {currentPosition && (
+        <ModifyPositionDialog
+          position={currentPosition}
+          isOpen={isDialogOpen}
+          onClose={closeModificationDialog}
+          onSave={saveModifiedPosition}
+          onPositionChange={handlePositionChange}
+        />
+      )}
     </div>
   );
 };

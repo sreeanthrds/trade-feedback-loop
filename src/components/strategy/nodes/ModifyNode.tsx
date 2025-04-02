@@ -1,53 +1,29 @@
 
 import React, { memo } from 'react';
-import { Handle, Position } from '@xyflow/react';
-import ActionNodeContent from './action-node/ActionNodeContent';
+import { NodeProps } from '@xyflow/react';
+import ActionNodeTemplate from './templates/ActionNodeTemplate';
+import { getNodeIcon } from '../utils/nodes/nodeIcons';
 
-interface ModifyNodeProps {
-  data: {
-    label: string;
-    actionType: 'modify';
-    targetPositionId?: string;
-    targetNodeId?: string;
-    modifications?: Record<string, any>;
-    positions?: any[];
-    startNodeSymbol?: string;
+const ModifyNode: React.FC<NodeProps> = ({ id, data, selected, isConnectable }) => {
+  // Ensure data is properly structured with defaults
+  const nodeData = {
+    label: data.label || 'Modify Position',
+    actionType: 'modify' as const,
+    positions: Array.isArray(data.positions) ? data.positions : [],
+    targetPositionId: data.targetPositionId,
+    targetNodeId: data.targetNodeId,
+    modifications: data.modifications || {},
+    icon: getNodeIcon('modify'),
+    description: 'Modify an existing position'
   };
-  isConnectable: boolean;
-  selected: boolean;
-  id: string;
-}
 
-const ModifyNode = ({ data, isConnectable, selected, id }: ModifyNodeProps) => {
   return (
-    <>
-      <Handle
-        type="target"
-        position={Position.Left}
-        isConnectable={isConnectable}
-        className="nodrag"
-      />
-      <div className="px-2 py-1 rounded-md">
-        <ActionNodeContent
-          data={{
-            label: data.label || 'Modify Position',
-            actionType: 'modify',
-            positions: data.positions || [],
-            targetPositionId: data.targetPositionId,
-            targetNodeId: data.targetNodeId,
-            modifications: data.modifications,
-          }}
-          id={id}
-          startNodeSymbol={data.startNodeSymbol}
-        />
-      </div>
-      <Handle
-        type="source"
-        position={Position.Right}
-        isConnectable={isConnectable}
-        className="nodrag"
-      />
-    </>
+    <ActionNodeTemplate
+      id={id}
+      data={nodeData}
+      selected={selected}
+      isConnectable={isConnectable}
+    />
   );
 };
 

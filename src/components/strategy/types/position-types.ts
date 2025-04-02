@@ -36,11 +36,12 @@ export function isPosition(obj: any): obj is Position {
   return obj && 
          typeof obj === 'object' && 
          typeof obj.id === 'string' && 
-         typeof obj.vpi === 'string';
+         typeof obj.vpi === 'string' &&
+         typeof obj.positionType === 'string';
 }
 
 // Utility function to safely convert between position types
-export function adaptPosition<T extends BasePosition>(position: any): T {
+export function adaptPosition<T extends Record<string, any>>(position: any): T {
   if (!position) return {} as T;
   
   // Create a base position object with required fields
@@ -54,7 +55,8 @@ export function adaptPosition<T extends BasePosition>(position: any): T {
     limitPrice: position.limitPrice,
     lots: position.lots,
     productType: position.productType || 'intraday',
-    sourceNodeId: position.sourceNodeId
+    sourceNodeId: position.sourceNodeId,
+    _lastUpdated: position._lastUpdated
   };
   
   // Add optionDetails if present

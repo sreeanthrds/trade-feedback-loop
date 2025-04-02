@@ -24,14 +24,14 @@ export function usePositionModification(
   const handlePositionChange = (updates: Partial<Position>) => {
     if (!currentPosition) return;
     
-    // Create a new object by merging the current position with updates
+    // Create a new position object by merging the current position with updates
     const updatedPosition: Position = {
       ...currentPosition,
       ...updates,
       _lastUpdated: Date.now()
     };
     
-    // Handle optionDetails separately to avoid spread operator issues
+    // Handle optionDetails separately
     if (updates.optionDetails && currentPosition.optionDetails) {
       updatedPosition.optionDetails = {
         ...currentPosition.optionDetails,
