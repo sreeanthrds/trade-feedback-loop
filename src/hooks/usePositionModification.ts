@@ -27,8 +27,8 @@ export function usePositionModification(
     // Create a new position object by merging the current position with updates
     const updatedPosition: Position = {
       ...currentPosition,
-      // Use explicit type casting for the update to avoid the spread type error
-      ...(updates as object) as Partial<Position>,
+      // Use type assertion to explicitly treat updates as an object - avoids spread error
+      ...updates as object,
       _lastUpdated: Date.now()
     };
     
