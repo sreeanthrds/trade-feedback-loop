@@ -1,77 +1,77 @@
 
 import React, { memo } from 'react';
-import { Handle, Position, NodeProps } from '@xyflow/react';
-import { cn } from '@/lib/utils';
+import { Handle, Position } from '@xyflow/react';
 
-export interface BaseNodeTemplateProps extends NodeProps {
+interface BaseNodeTemplateProps {
+  id: string;
   data: {
     label: string;
-    description?: string;
     icon?: React.ReactNode;
+    description?: string;
     [key: string]: any;
   };
-  headerClassName?: string;
-  contentClassName?: string;
-  targetHandlePosition?: Position;
-  sourceHandlePosition?: Position;
+  selected: boolean;
+  isConnectable: boolean;
+  type: string;
+  zIndex: number;
+  dragging: boolean;
+  draggable: boolean;
+  selectable: boolean;
+  deletable: boolean;
+  positionAbsoluteX: number;
+  positionAbsoluteY: number;
   showSourceHandle?: boolean;
   showTargetHandle?: boolean;
-  children?: React.ReactNode;
+  sourceHandlePosition?: Position;
+  targetHandlePosition?: Position;
 }
 
-/**
- * BaseNodeTemplate provides a consistent structure for all strategy node types
- * It handles common node elements like handles, headers, and content areas
- */
-const BaseNodeTemplate: React.FC<BaseNodeTemplateProps> = ({
+const BaseNodeTemplate = ({
   id,
   data,
   selected,
-  headerClassName,
-  contentClassName,
-  targetHandlePosition = Position.Left,
-  sourceHandlePosition = Position.Right,
+  isConnectable,
+  type,
+  zIndex = 0,
+  dragging,
+  draggable,
+  selectable,
+  deletable,
+  positionAbsoluteX,
+  positionAbsoluteY,
   showSourceHandle = true,
   showTargetHandle = true,
-  children,
-  isConnectable = true,
-}) => {
-  const {
-    label,
-    description,
-    icon,
-  } = data;
-
+  sourceHandlePosition = Position.Bottom,
+  targetHandlePosition = Position.Top,
+}: BaseNodeTemplateProps) => {
   return (
-    <div className={cn(
-      "px-3 py-2 rounded-md min-w-[120px]",
-      selected ? "ring-2 ring-primary/50" : ""
-    )}>
+    <>
       {showTargetHandle && (
         <Handle
           type="target"
           position={targetHandlePosition}
           isConnectable={isConnectable}
-          className="nodrag"
+          style={{ visibility: isConnectable ? 'visible' : 'hidden' }}
         />
       )}
       
-      <div className={cn(
-        "flex items-center gap-1.5",
-        headerClassName
-      )}>
-        {icon && icon}
-        <div className="font-medium text-sm">{label || id}</div>
-      </div>
-      
-      {description && (
-        <div className="text-xs text-muted-foreground mt-0.5">
-          {description}
+      <div className="px-3 py-2 rounded-md border border-border bg-card shadow-sm">
+        <div className="flex items-center space-x-2">
+          {data.icon && <div className="flex-shrink-0">{data.icon}</div>}
+          
+          <div className="flex-1">
+            <div className="font-medium">{data.label}</div>
+            {data.description && (
+              <div className="text-xs text-muted-foreground">
+                {data.description}
+              </div>
+            )}
+          </div>
         </div>
-      )}
-      
-      <div className={cn("mt-1", contentClassName)}>
-        {children}
+        
+        <div className="text-[9px] text-muted-foreground mt-1 text-right">
+          ID: {id}
+        </div>
       </div>
       
       {showSourceHandle && (
@@ -79,15 +79,10 @@ const BaseNodeTemplate: React.FC<BaseNodeTemplateProps> = ({
           type="source"
           position={sourceHandlePosition}
           isConnectable={isConnectable}
-          className="nodrag"
+          style={{ visibility: isConnectable ? 'visible' : 'hidden' }}
         />
       )}
-      
-      {/* Display node ID in small text */}
-      <div className="text-[9px] text-muted-foreground mt-2 text-right">
-        ID: {id}
-      </div>
-    </div>
+    </>
   );
 };
 

@@ -1,115 +1,87 @@
 
 import React, { memo } from 'react';
-import { NodeProps } from '@xyflow/react';
-import { Badge } from '@/components/ui/badge';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import BaseNodeTemplate, { BaseNodeTemplateProps } from './BaseNodeTemplate';
+import { Handle, Position } from '@xyflow/react';
+import BaseNodeTemplate from './BaseNodeTemplate';
+import ActionDetails from '../action-node/ActionDetails';
+import ActionLabel from '../action-node/ActionLabel';
+import ActionIcon from '../action-node/ActionIcon';
+import { Position as PositionType } from '@/components/strategy/types/position-types';
 
-export interface ActionNodeTemplateProps extends Omit<BaseNodeTemplateProps, 'data'> {
+interface ActionNodeTemplateProps {
+  id: string;
   data: {
     label: string;
     actionType: 'entry' | 'exit' | 'alert' | 'modify';
-    positions?: any[];
+    positions?: PositionType[];
+    icon?: React.ReactNode;
     description?: string;
-    icon: React.ReactNode;
+    updateNodeData?: (id: string, data: any) => void;
     [key: string]: any;
   };
-  renderContent?: (data: any) => React.ReactNode;
+  selected: boolean;
+  isConnectable: boolean;
+  type: string;
+  zIndex: number;
+  dragging: boolean;
+  draggable: boolean;
+  selectable: boolean;
+  deletable: boolean;
+  positionAbsoluteX: number;
+  positionAbsoluteY: number;
 }
 
-/**
- * ActionNodeTemplate provides a consistent structure for action-type nodes
- * like entry, exit, alert, and modify nodes
- */
-const ActionNodeTemplate: React.FC<ActionNodeTemplateProps> = ({
+const ActionNodeTemplate = ({
   id,
   data,
   selected,
-  renderContent,
-  ...props
-}) => {
-  const renderDefaultContent = () => {
-    const { positions = [], actionType } = data;
-
-    switch (actionType) {
-      case 'entry':
-        return (
-          positions.length > 0 ? (
-            <div className="flex flex-wrap gap-1">
-              {positions.map((position, index) => (
-                <TooltipProvider key={position.id || index}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Badge 
-                        variant={position.positionType === 'buy' ? 'default' : 'destructive'}
-                        className="text-xs"
-                      >
-                        {position.positionType === 'buy' ? 'B' : 'S'} {position.lots || 1}
-                      </Badge>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{position.vpi || `Position ${index + 1}`}</p>
-                      <p>{position.positionType === 'buy' ? 'Buy' : 'Sell'} {position.lots || 1} lot(s)</p>
-                      <p>{position.orderType} order</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              ))}
-            </div>
-          ) : (
-            <div className="text-xs text-muted-foreground">No positions defined</div>
-          )
-        );
-        
-      case 'exit':
-        return <div className="text-xs text-muted-foreground">Exit positions</div>;
-        
-      case 'alert':
-        return <div className="text-xs text-muted-foreground">Send notification</div>;
-        
-      case 'modify':
-        return (
-          data.targetPositionId ? (
-            <Badge variant="secondary" className="text-xs">
-              Modify position
-            </Badge>
-          ) : (
-            <div className="text-xs text-muted-foreground">No position selected</div>
-          )
-        );
-        
-      default:
-        return null;
-    }
-  };
-
-  const content = renderContent ? renderContent(data) : renderDefaultContent();
-
-  // Add required props with defaults for NodeProps
-  const nodeProps: BaseNodeTemplateProps = {
-    id,
-    data,
-    selected: Boolean(selected),
-    // Add the missing required properties with default values
-    type: props.type || 'default',
-    zIndex: props.zIndex || 0,
-    dragging: props.dragging || false,
-    selectable: props.selectable !== undefined ? props.selectable : true,
-    deletable: props.deletable !== undefined ? props.deletable : true,
-    draggable: props.draggable !== undefined ? props.draggable : true,
-    positionAbsoluteX: props.positionAbsoluteX || 0,
-    positionAbsoluteY: props.positionAbsoluteY || 0,
-    isConnectable: props.isConnectable !== undefined ? props.isConnectable : true,
-    // Include all other props
-    ...props
-  };
-
+  isConnectable,
+  type,
+  zIndex = 0,
+  dragging,
+  draggable,
+  selectable,
+  deletable,
+  positionAbsoluteX,
+  positionAbsoluteY,
+}: ActionNodeTemplateProps) => {
   return (
-    <BaseNodeTemplate
-      {...nodeProps}
-    >
-      {content}
-    </BaseNodeTemplate>
+    <>
+      <Handle
+        type="target"
+        position={Position.Top}
+        isConnectable={isConnectable}
+        style={{ visibility: isConnectable ? 'visible' : 'hidden' }}
+      />
+      
+      <div className={`px-3 py-2 rounded-md border border-border bg-card shadow-sm max-w-xs`}>
+        <div className="flex flex-col">
+          <ActionLabel 
+            label={data?.label || 'Action'} 
+            description={data?.description} 
+            actionType={data?.actionType} 
+          />
+          
+          <ActionIcon icon={data?.icon} />
+          
+          <ActionDetails 
+            positions={data?.positions} 
+            actionType={data?.actionType}
+            nodeId={id}
+          />
+          
+          <div className="text-[9px] text-muted-foreground mt-1 text-right">
+            ID: {id}
+          </div>
+        </div>
+      </div>
+      
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        isConnectable={isConnectable}
+        style={{ visibility: isConnectable ? 'visible' : 'hidden' }}
+      />
+    </>
   );
 };
 
