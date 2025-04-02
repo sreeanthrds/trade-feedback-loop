@@ -6,6 +6,7 @@ import ActionDetails from '../action-node/ActionDetails';
 import ActionLabel from '../action-node/ActionLabel';
 import ActionIcon from '../action-node/ActionIcon';
 import { Position as PositionType } from '@/components/strategy/types/position-types';
+import { RefreshCcw } from 'lucide-react';
 
 interface ActionNodeTemplateProps {
   id: string;
@@ -20,6 +21,12 @@ interface ActionNodeTemplateProps {
     targetPositionId?: string; // Added for modify node
     targetNodeId?: string;     // Added for modify node
     modifications?: Record<string, any>; // Added for modify node
+    // Add re-entry related props
+    reEntry?: {
+      enabled: boolean;
+      groupNumber: number;
+      maxReEntries: number;
+    };
     [key: string]: any;
   };
   selected: boolean;
@@ -48,6 +55,11 @@ const ActionNodeTemplate = ({
   positionAbsoluteX,
   positionAbsoluteY,
 }: ActionNodeTemplateProps) => {
+  // Check if re-entry is enabled
+  const hasReEntry = data?.reEntry?.enabled && data?.actionType === 'exit';
+  const reEntryGroup = hasReEntry ? data.reEntry.groupNumber : 0;
+  const maxReEntries = hasReEntry ? data.reEntry.maxReEntries : 0;
+  
   return (
     <>
       <Handle
@@ -59,11 +71,24 @@ const ActionNodeTemplate = ({
       
       <div className={`px-3 py-2 rounded-md border border-border bg-card shadow-sm max-w-xs`}>
         <div className="flex flex-col">
-          <ActionLabel 
-            label={data?.label} 
-            description={data?.description} 
-            actionType={data?.actionType} 
-          />
+          {/* Add re-entry indicator next to the label */}
+          <div className="flex items-center justify-between">
+            <ActionLabel 
+              label={data?.label} 
+              description={data?.description} 
+              actionType={data?.actionType} 
+            />
+            
+            {hasReEntry && (
+              <div 
+                className="flex items-center text-xs text-primary/80 gap-1 ml-2"
+                title={`Re-Entry Group ${reEntryGroup}: Max ${maxReEntries} re-entries`}
+              >
+                <RefreshCcw size={12} />
+                <span>{reEntryGroup}/{maxReEntries}</span>
+              </div>
+            )}
+          </div>
           
           <ActionIcon 
             icon={data?.icon} 

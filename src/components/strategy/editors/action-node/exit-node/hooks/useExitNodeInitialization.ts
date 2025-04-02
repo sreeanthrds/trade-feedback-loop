@@ -16,16 +16,44 @@ export const useExitNodeInitialization = ({
   initializedRef,
   defaultExitNodeData
 }: UseExitNodeInitializationProps) => {
-  // Initialize node data only once if needed
+  // Initialize the exit node data structure if it doesn't exist yet
   useEffect(() => {
+    if (initializedRef.current) return;
+    
     const nodeData = node.data || {};
-    if (!initializedRef.current && !nodeData.exitNodeData) {
-      initializedRef.current = true;
+    
+    // Check if exitNodeData exists and has required structure
+    if (!nodeData.exitNodeData) {
+      console.log('Initializing exit node data for:', node.id);
       
+      // Create default structure for the exit node
       updateNodeData(node.id, {
         ...nodeData,
-        exitNodeData: defaultExitNodeData
+        exitNodeData: {
+          ...defaultExitNodeData,
+          // Add additional initialization if needed
+          _initialized: true
+        },
+        _lastUpdated: Date.now()
       });
+      
+      initializedRef.current = true;
+    } else {
+      // Ensure re-entry config exists
+      if (!nodeData.exitNodeData.reEntryConfig) {
+        updateNodeData(node.id, {
+          ...nodeData,
+          exitNodeData: {
+            ...nodeData.exitNodeData,
+            reEntryConfig: defaultExitNodeData.reEntryConfig
+          },
+          _lastUpdated: Date.now()
+        });
+      }
+      
+      initializedRef.current = true;
     }
-  }, [node.id, initializedRef, updateNodeData]);
+  }, [node, updateNodeData, initializedRef, defaultExitNodeData]);
+  
+  return null;
 };

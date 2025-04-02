@@ -6,7 +6,8 @@ import {
   ExitOrderType, 
   ExitCondition, 
   ExitOrderConfig,
-  ExitNodeData
+  ExitNodeData,
+  ReEntryConfig
 } from '../types';
 
 interface UseExitNodeBaseProps {
@@ -20,6 +21,12 @@ export const useExitNodeBase = ({ node, updateNodeData }: UseExitNodeBaseProps) 
     exitOrderConfig: {
       orderType: 'market' as ExitOrderType,
       limitPrice: undefined
+    },
+    // Default re-entry config (disabled)
+    reEntryConfig: {
+      enabled: false,
+      groupNumber: 0,
+      maxReEntries: 0
     },
     // Include these for backward compatibility
     exitCondition: {
@@ -45,6 +52,8 @@ export const useExitNodeBase = ({ node, updateNodeData }: UseExitNodeBaseProps) 
         exitOrderConfig: rawExitNodeData.exitOrderConfig || defaultExitNodeData.exitOrderConfig,
         multipleOrders: rawExitNodeData.multipleOrders || false,
         orders: rawExitNodeData.orders || undefined,
+        // Initialize re-entry config
+        reEntryConfig: rawExitNodeData.reEntryConfig || defaultExitNodeData.reEntryConfig,
         // Include these for backward compatibility
         exitCondition: rawExitNodeData.exitCondition || defaultExitNodeData.exitCondition,
         orderConfig: rawExitNodeData.orderConfig || defaultExitNodeData.orderConfig

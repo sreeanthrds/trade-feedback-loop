@@ -10,11 +10,20 @@ export interface ExitOrderConfig {
   partialQuantityPercentage?: number;
 }
 
+// Re-entry configuration
+export interface ReEntryConfig {
+  enabled: boolean;
+  groupNumber: number;
+  maxReEntries: number;
+}
+
 // Overall exit node data
 export interface ExitNodeData {
   exitOrderConfig: ExitOrderConfig;
   multipleOrders?: boolean;
   orders?: ExitOrderConfig[];
+  // Re-entry configuration
+  reEntryConfig?: ReEntryConfig;
   // Adding these for backward compatibility
   exitCondition?: ExitCondition;
   orderConfig?: {

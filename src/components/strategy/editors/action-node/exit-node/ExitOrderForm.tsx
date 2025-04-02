@@ -2,9 +2,12 @@
 import React from 'react';
 import { Node } from '@xyflow/react';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SelectField from '../../shared/SelectField';
 import SwitchField from '../../shared/SwitchField';
 import { useExitOrderForm } from './useExitOrderForm';
+import ExitConditionForm from './ExitConditionForm';
+import ReEntryForm from './ReEntryForm';
 import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
 
 interface ExitOrderFormProps {
@@ -15,16 +18,23 @@ interface ExitOrderFormProps {
 // Use React.memo to prevent unnecessary re-renders
 const ExitOrderForm: React.FC<ExitOrderFormProps> = React.memo(({ node, updateNodeData }) => {
   const {
+    exitConditionType,
     orderType,
     limitPrice,
     multipleOrders,
-    quantityType,
-    quantityPercentage,
+    exitCondition,
+    handleExitConditionTypeChange,
     handleOrderTypeChange,
     handleLimitPriceChange,
     handleMultipleOrdersToggle,
-    handleQuantityTypeChange,
-    handleQuantityPercentageChange
+    updateExitConditionField,
+    // Re-entry related
+    reEntryEnabled,
+    groupNumber,
+    maxReEntries,
+    handleReEntryToggle,
+    handleGroupNumberChange,
+    handleMaxReEntriesChange
   } = useExitOrderForm({ 
     node, 
     updateNodeData 
@@ -32,71 +42,92 @@ const ExitOrderForm: React.FC<ExitOrderFormProps> = React.memo(({ node, updateNo
 
   return (
     <div className="space-y-4">
-      <div className="space-y-4">
-        <h3 className="text-sm font-medium">Exit Order Configuration</h3>
+      <Tabs defaultValue="exit_condition" className="w-full">
+        <TabsList className="grid grid-cols-3">
+          <TabsTrigger value="exit_condition">Exit Condition</TabsTrigger>
+          <TabsTrigger value="order_settings">Order Settings</TabsTrigger>
+          <TabsTrigger value="re_entry">Re-Entry</TabsTrigger>
+        </TabsList>
         
-        <Separator className="my-4" />
-        
-        <SwitchField
-          label="Multiple Exit Orders"
-          checked={multipleOrders}
-          onCheckedChange={handleMultipleOrdersToggle}
-          description="Enable to create multiple exit orders with different conditions"
-        />
-        
-        <SelectField
-          label="Order Type"
-          id="exit-order-type"
-          value={orderType}
-          onChange={handleOrderTypeChange}
-          options={[
-            { value: 'market', label: 'Market Order' },
-            { value: 'limit', label: 'Limit Order' }
-          ]}
-          description="Select the type of order to use for the exit"
-        />
-        
-        {orderType === 'limit' && (
-          <EnhancedNumberInput
-            label="Limit Price"
-            id="exit-limit-price"
-            value={typeof limitPrice === 'string' ? parseFloat(limitPrice) : limitPrice}
-            onChange={(value) => handleLimitPriceChange({ 
-              target: { value: value?.toString() || '' } 
-            } as React.ChangeEvent<HTMLInputElement>)}
-            min={0}
-            step={0.05}
-            description="Price at which the limit order will be placed"
+        <TabsContent value="exit_condition" className="space-y-4 pt-4">
+          <SelectField
+            label="Exit Condition Type"
+            id="exit-condition-type"
+            value={exitConditionType}
+            onChange={handleExitConditionTypeChange}
+            options={[
+              { value: 'vpi', label: 'By Virtual Position ID' },
+              { value: 'vpt', label: 'By Virtual Position Tag' },
+              { value: 'all_positions', label: 'All Open Positions' },
+              { value: 'realized_pnl', label: 'Realized P&L' },
+              { value: 'unrealized_pnl', label: 'Unrealized P&L (MTM)' },
+              { value: 'premium_change', label: '% Change in Premium' },
+              { value: 'position_value_change', label: '% Change in Position Value' },
+              { value: 'price_target', label: 'Price Target' },
+              { value: 'indicator_underlying', label: 'Indicator on Underlying' },
+              { value: 'indicator_contract', label: 'Indicator on Contract' },
+              { value: 'time_based', label: 'After Time Period' },
+              { value: 'market_close', label: 'Before Market Close' },
+              { value: 'limit_to_market', label: 'Limit to Market Fallback' },
+              { value: 'rolling', label: 'Rolling to Next Expiry' }
+            ]}
+            description="Select the condition that will trigger this exit"
           />
-        )}
-        
-        <SelectField
-          label="Quantity"
-          id="exit-quantity-type"
-          value={quantityType || 'all'}
-          onChange={handleQuantityTypeChange}
-          options={[
-            { value: 'all', label: 'Exit All Quantity' },
-            { value: 'partial', label: 'Exit Partial Quantity' }
-          ]}
-          description="Choose to exit all or partial position quantity"
-        />
-        
-        {quantityType === 'partial' && (
-          <EnhancedNumberInput
-            label="Quantity Percentage"
-            id="exit-quantity-percentage"
-            value={typeof quantityPercentage === 'string' ? parseFloat(quantityPercentage) : quantityPercentage}
-            onChange={(value) => handleQuantityPercentageChange({ 
-              target: { value: value?.toString() || '' } 
-            } as React.ChangeEvent<HTMLInputElement>)}
-            min={1}
-            max={99}
-            step={1}
-            description="Percentage of position to exit (1-99%)"
+          
+          <Separator className="my-4" />
+          
+          <ExitConditionForm 
+            exitCondition={exitCondition} 
+            updateField={updateExitConditionField}
           />
-        )}
-      </div>
+        </TabsContent>
+        
+        <TabsContent value="order_settings" className="space-y-4 pt-4">
+          <SwitchField
+            label="Multiple Exit Orders"
+            checked={multipleOrders}
+            onCheckedChange={handleMultipleOrdersToggle}
+            description="Enable to create multiple exit orders with different conditions"
+          />
+          
+          <SelectField
+            label="Order Type"
+            id="order-type"
+            value={orderType}
+            onChange={handleOrderTypeChange}
+            options={[
+              { value: 'market', label: 'Market Order' },
+              { value: 'limit', label: 'Limit Order' }
+            ]}
+            description="Select the type of order to use for the exit"
+          />
+          
+          {orderType === 'limit' && (
+            <EnhancedNumberInput
+              label="Limit Price"
+              id="limit-price"
+              value={typeof limitPrice === 'string' ? parseFloat(limitPrice) : limitPrice}
+              onChange={(value) => handleLimitPriceChange({ 
+                target: { value: value?.toString() || '' } 
+              } as React.ChangeEvent<HTMLInputElement>)}
+              min={0}
+              step={0.05}
+              description="Price at which the limit order will be placed"
+            />
+          )}
+        </TabsContent>
+        
+        <TabsContent value="re_entry" className="space-y-4 pt-4">
+          <ReEntryForm
+            reEntryEnabled={reEntryEnabled}
+            groupNumber={groupNumber}
+            maxReEntries={maxReEntries}
+            onReEntryToggle={handleReEntryToggle}
+            onGroupNumberChange={handleGroupNumberChange}
+            onMaxReEntriesChange={handleMaxReEntriesChange}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 });
