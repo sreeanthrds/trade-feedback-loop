@@ -24,15 +24,23 @@ export function usePositionModification(
   const handlePositionChange = (updates: Partial<Position>) => {
     if (!currentPosition) return;
     
-    // Create a new position object by merging the current position with updates
+    // First, create a basic updated position with the current values
     const updatedPosition: Position = {
       ...currentPosition,
-      // Create a new object from updates to ensure it's a valid object for spreading
-      ...(Object.assign({}, updates)),
       _lastUpdated: Date.now()
     };
+
+    // Then apply each property from updates individually to avoid spread operator issues
+    if (updates) {
+      Object.keys(updates).forEach(key => {
+        // Skip optionDetails as we handle it separately
+        if (key !== 'optionDetails') {
+          (updatedPosition as any)[key] = (updates as any)[key];
+        }
+      });
+    }
     
-    // Handle optionDetails separately
+    // Handle optionDetails separately - this avoids spreading potentially undefined values
     if (updates.optionDetails && currentPosition.optionDetails) {
       updatedPosition.optionDetails = {
         ...currentPosition.optionDetails,
