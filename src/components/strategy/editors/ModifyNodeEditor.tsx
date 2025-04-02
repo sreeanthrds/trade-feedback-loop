@@ -52,7 +52,9 @@ interface ModifyNodeEditorProps {
 const ModifyNodeEditor: React.FC<ModifyNodeEditorProps> = ({ node, updateNodeData }) => {
   const nodes = useStrategyStore(state => state.nodes);
   const [positions, setPositions] = useState<Position[]>([]);
-  const [selectedPositionId, setSelectedPositionId] = useState<string | null>(node.data.targetPositionId);
+  const [selectedPositionId, setSelectedPositionId] = useState<string | null>(
+    node.data.targetPositionId as string | null
+  );
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
 
   // Collect all positions from entry nodes
@@ -143,7 +145,7 @@ const ModifyNodeEditor: React.FC<ModifyNodeEditorProps> = ({ node, updateNodeDat
             </div>
           ) : (
             <Select
-              value={selectedPositionId || ''}
+              value={selectedPositionId || undefined}
               onValueChange={handlePositionSelect}
             >
               <SelectTrigger className="w-full">
@@ -173,7 +175,7 @@ const ModifyNodeEditor: React.FC<ModifyNodeEditorProps> = ({ node, updateNodeDat
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Type:</span>
-                  <Badge variant={selectedPosition.positionType === 'buy' ? 'success' : 'destructive'}>
+                  <Badge variant={selectedPosition.positionType === 'buy' ? 'default' : 'destructive'}>
                     {selectedPosition.positionType.toUpperCase()}
                   </Badge>
                 </div>

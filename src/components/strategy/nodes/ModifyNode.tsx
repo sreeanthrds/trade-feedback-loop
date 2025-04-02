@@ -13,12 +13,17 @@ const ModifyNode = ({ data, isConnectable, selected, id }) => {
         className="nodrag"
       />
       <div className="px-2 py-1 rounded-md">
-        <ActionNodeContent 
-          label={data.label || 'Modify Position'} 
-          actionType="modify"
-          selectedNode={selected}
-          positions={data.positions || []}
-          instrument={data.instrument}
+        <ActionNodeContent
+          data={{
+            label: data.label || 'Modify Position',
+            actionType: 'modify',
+            positions: data.positions || [],
+            instrument: data.instrument,
+            targetPositionId: data.targetPositionId,
+            targetNodeId: data.targetNodeId,
+          }}
+          id={id}
+          startNodeSymbol={data.startNodeSymbol}
         />
       </div>
       <Handle
