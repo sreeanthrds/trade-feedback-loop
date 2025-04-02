@@ -14,9 +14,8 @@ import { usePositionModification } from '@/hooks/usePositionModification';
 import PositionSelector from './modify-node/PositionSelector';
 import { NodeDetailsPanel } from './shared';
 import { toast } from '@/hooks/use-toast';
-import { adaptPosition } from '@/components/strategy/types/position-types';
 import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
-import { SelectField, RadioGroupField } from './shared';
+import { SelectField } from './shared';
 
 interface ModifyNodeEditorProps {
   node: Node;
@@ -189,7 +188,7 @@ const ModifyNodeEditor: React.FC<ModifyNodeEditorProps> = ({ node, updateNodeDat
                   value=""
                   onChange={(value) => handleRollOut(value)}
                   options={[
-                    { value: '', label: 'Select expiry...' },
+                    { value: "select-expiry", label: 'Select expiry...' },
                     { value: 'W1', label: 'Next Week' },
                     { value: 'W2', label: 'Week After Next' },
                     { value: 'M1', label: 'Next Month' },
