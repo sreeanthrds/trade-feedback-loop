@@ -1,7 +1,7 @@
+
+import { useCallback } from 'react';
 import { Node } from '@xyflow/react';
-import { toast } from "@/hooks/use-toast";
-import { ReEntryConfig, ExitNodeData } from '../types';
-import { useReEntryConfig } from './useReEntryConfig';
+import { ExitNodeData } from '../types';
 import { useReEntryGroupSync } from './useReEntryGroupSync';
 
 interface UseReEntryEventHandlersProps {
@@ -9,12 +9,6 @@ interface UseReEntryEventHandlersProps {
   updateNodeData: (id: string, data: any) => void;
   nodeData: any;
   defaultExitNodeData: ExitNodeData;
-  reEntryEnabled: boolean;
-  setReEntryEnabled: (enabled: boolean) => void;
-  groupNumber: number;
-  setGroupNumber: (group: number) => void;
-  maxReEntries: number;
-  setMaxReEntries: (max: number) => void;
 }
 
 export const useReEntryEventHandlers = ({
@@ -22,111 +16,107 @@ export const useReEntryEventHandlers = ({
   updateNodeData,
   nodeData,
   defaultExitNodeData,
-  reEntryEnabled,
-  setReEntryEnabled,
-  groupNumber,
-  setGroupNumber,
-  maxReEntries,
-  setMaxReEntries
 }: UseReEntryEventHandlersProps) => {
-  // Get configuration utilities
-  const { updateReEntryConfig, validateGroupNumber } = useReEntryConfig({
-    node,
-    updateNodeData,
-    nodeData
-  });
+  // Get group sync utilities
+  const groupSync = useReEntryGroupSync();
   
-  // Get group syncing utilities
-  const { syncWithExistingGroup, syncGroupMaxReEntries } = useReEntryGroupSync({
-    node,
-    updateNodeData,
-    groupNumber,
-    reEntryEnabled
-  });
-  
-  // Handle re-entry toggle
-  const handleReEntryToggle = (checked: boolean) => {
-    setReEntryEnabled(checked);
-    
-    // When enabled, default to group 1 and 3 max re-entries
-    const newGroupNumber = checked ? (groupNumber || 1) : 0;
-    const newMaxReEntries = checked ? (maxReEntries || 3) : 0;
-    
-    setGroupNumber(newGroupNumber);
-    setMaxReEntries(newMaxReEntries);
-    
-    const updatedConfig = {
-      enabled: checked,
-      groupNumber: newGroupNumber,
-      maxReEntries: newMaxReEntries
+  // Handle toggle of re-entry feature
+  const handleReEntryToggle = useCallback((enabled: boolean) => {
+    // Get current exit node data with type safety
+    const currentExitNodeData = (nodeData.exitNodeData as ExitNodeData) || defaultExitNodeData;
+
+    // Make sure reEntryConfig exists
+    const currentReEntryConfig = currentExitNodeData.reEntryConfig || {
+      enabled: false,
+      groupNumber: 0,
+      maxReEntries: 0
     };
     
-    updateReEntryConfig(updatedConfig, defaultExitNodeData);
-  };
-  
-  // Handle group number change
-  const handleGroupNumberChange = (value: number | undefined) => {
-    // Don't allow group number 0 when enabled
-    if (!validateGroupNumber(value, reEntryEnabled)) {
-      toast({
-        title: "Invalid group number",
-        description: "Group number must be at least 1 when re-entry is enabled",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    const newGroupNumber = reEntryEnabled ? (value || 1) : 0;
-    setGroupNumber(newGroupNumber);
-    
-    // If changing to a different group, check if we need to sync with that group
-    if (reEntryEnabled && newGroupNumber !== groupNumber) {
-      // This will return the max re-entries from the new group, or keep existing if no group exists
-      const newMaxReEntries = syncWithExistingGroup(newGroupNumber, maxReEntries);
+    // If enabling re-entry, sync with existing group if possible
+    let updatedConfig;
+    if (enabled) {
+      const maxReEntries = groupSync.getLatestGroupMaxReEntries(currentReEntryConfig.maxReEntries || 1);
       
-      if (newMaxReEntries !== maxReEntries) {
-        setMaxReEntries(newMaxReEntries);
-      }
-      
-      // Update config with potentially new max re-entries
-      updateReEntryConfig({
-        enabled: reEntryEnabled,
-        groupNumber: newGroupNumber,
-        maxReEntries: newMaxReEntries
-      }, defaultExitNodeData);
+      updatedConfig = {
+        enabled: true,
+        groupNumber: currentReEntryConfig.groupNumber || 1,
+        maxReEntries: maxReEntries
+      };
     } else {
-      // Just update this node's config
-      updateReEntryConfig({
-        enabled: reEntryEnabled,
-        groupNumber: newGroupNumber,
-        maxReEntries
-      }, defaultExitNodeData);
+      updatedConfig = {
+        ...currentReEntryConfig,
+        enabled: false
+      };
     }
-  };
-  
-  // Handle max re-entries change
-  const handleMaxReEntriesChange = (value: number | undefined) => {
-    // Don't allow negative values
-    if (value !== undefined && value < 0) return;
     
-    const newMaxReEntries = value !== undefined ? value : 0;
-    setMaxReEntries(newMaxReEntries);
-    
-    const updatedConfig = {
-      enabled: reEntryEnabled,
-      groupNumber,
-      maxReEntries: newMaxReEntries
+    // Update node data
+    updateNodeData(node.id, {
+      ...nodeData,
+      exitNodeData: {
+        ...currentExitNodeData,
+        reEntryConfig: updatedConfig
+      }
+    });
+  }, [node.id, nodeData, updateNodeData, defaultExitNodeData, groupSync]);
+
+  // Handle group number change
+  const handleGroupNumberChange = useCallback((groupNumber: number) => {
+    // Get current exit node data with type safety
+    const currentExitNodeData = (nodeData.exitNodeData as ExitNodeData) || defaultExitNodeData;
+
+    // Make sure reEntryConfig exists
+    const currentReEntryConfig = currentExitNodeData.reEntryConfig || {
+      enabled: false,
+      groupNumber: 0,
+      maxReEntries: 0
     };
     
-    // Update this node's config
-    updateReEntryConfig(updatedConfig, defaultExitNodeData);
+    // Ensure groupNumber is a number
+    const numericGroupNumber = typeof groupNumber === 'number' ? groupNumber : 
+      parseInt(groupNumber as unknown as string) || 1;
     
-    // If part of a group, sync all nodes in the same group
-    if (reEntryEnabled && groupNumber > 0) {
-      syncGroupMaxReEntries(groupNumber, newMaxReEntries);
-    }
-  };
-  
+    // Update node data
+    updateNodeData(node.id, {
+      ...nodeData,
+      exitNodeData: {
+        ...currentExitNodeData,
+        reEntryConfig: {
+          ...currentReEntryConfig,
+          groupNumber: numericGroupNumber
+        }
+      }
+    });
+  }, [node.id, nodeData, updateNodeData, defaultExitNodeData]);
+
+  // Handle max re-entries change
+  const handleMaxReEntriesChange = useCallback((maxReEntries: number) => {
+    // Get current exit node data with type safety
+    const currentExitNodeData = (nodeData.exitNodeData as ExitNodeData) || defaultExitNodeData;
+
+    // Make sure reEntryConfig exists
+    const currentReEntryConfig = currentExitNodeData.reEntryConfig || {
+      enabled: false,
+      groupNumber: 0,
+      maxReEntries: 0
+    };
+    
+    // Ensure maxReEntries is a number
+    const numericMaxReEntries = typeof maxReEntries === 'number' ? maxReEntries : 
+      parseInt(maxReEntries as unknown as string) || 1;
+    
+    // Update node data
+    updateNodeData(node.id, {
+      ...nodeData,
+      exitNodeData: {
+        ...currentExitNodeData,
+        reEntryConfig: {
+          ...currentReEntryConfig,
+          maxReEntries: numericMaxReEntries
+        }
+      }
+    });
+  }, [node.id, nodeData, updateNodeData, defaultExitNodeData]);
+
   return {
     handleReEntryToggle,
     handleGroupNumberChange,
