@@ -1,101 +1,30 @@
 
-import { useState, useRef, useMemo } from 'react';
 import { Node } from '@xyflow/react';
-import { 
-  ExitConditionType, 
-  ExitOrderType, 
-  ExitCondition, 
-  ExitOrderConfig,
-  ExitNodeData,
-  ReEntryConfig
-} from '../types';
+import { useExitNodeDefaults } from './useExitNodeDefaults';
+import { useExitNodeState } from './useExitNodeState';
 
 interface UseExitNodeBaseProps {
   node: Node;
   updateNodeData: (id: string, data: any) => void;
 }
 
+/**
+ * Base hook for exit node functionality
+ * This orchestrates the other smaller hooks for a complete solution
+ */
 export const useExitNodeBase = ({ node, updateNodeData }: UseExitNodeBaseProps) => {
-  // Default exit node data - memoized to avoid recreation on each render
-  const defaultExitNodeData = useMemo<ExitNodeData>(() => ({
-    exitOrderConfig: {
-      orderType: 'market' as ExitOrderType,
-      limitPrice: undefined
-    },
-    // Default re-entry config (disabled)
-    reEntryConfig: {
-      enabled: false,
-      groupNumber: 0,
-      maxReEntries: 0
-    },
-    // Include these for backward compatibility
-    exitCondition: {
-      type: 'all_positions' as ExitConditionType
-    } as ExitCondition,
-    orderConfig: {
-      orderType: 'market' as ExitOrderType,
-      limitPrice: undefined
-    }
-  }), []);
-
-  // Get exit node data from node or use default
+  // Get the node data
   const nodeData = node.data || {};
-  const rawExitNodeData = (nodeData.exitNodeData as ExitNodeData | null) || null;
   
-  // Track if we've done initialization
-  const initializedRef = useRef(false);
+  // Get default exit node data
+  const { defaultExitNodeData } = useExitNodeDefaults();
   
-  // Initialize with a properly typed version of the data
-  const initialExitNodeData = useMemo<ExitNodeData>(() => {
-    if (rawExitNodeData) {
-      return {
-        exitOrderConfig: rawExitNodeData.exitOrderConfig || defaultExitNodeData.exitOrderConfig,
-        multipleOrders: rawExitNodeData.multipleOrders || false,
-        orders: rawExitNodeData.orders || undefined,
-        // Initialize re-entry config
-        reEntryConfig: rawExitNodeData.reEntryConfig || defaultExitNodeData.reEntryConfig,
-        // Include these for backward compatibility
-        exitCondition: rawExitNodeData.exitCondition || defaultExitNodeData.exitCondition,
-        orderConfig: rawExitNodeData.orderConfig || defaultExitNodeData.orderConfig
-      };
-    }
-    return defaultExitNodeData;
-  }, [rawExitNodeData, defaultExitNodeData]);
-  
-  // State for exit node form
-  const [exitConditionType, setExitConditionType] = useState<ExitConditionType>(
-    initialExitNodeData.exitCondition?.type || 'all_positions'
-  );
-  
-  const [orderType, setOrderType] = useState<ExitOrderType>(
-    initialExitNodeData.orderConfig?.orderType || 'market'
-  );
-  
-  const [limitPrice, setLimitPrice] = useState<number | undefined>(
-    initialExitNodeData.orderConfig?.limitPrice
-  );
-  
-  const [multipleOrders, setMultipleOrders] = useState<boolean>(
-    initialExitNodeData.multipleOrders || false
-  );
-  
-  const [exitCondition, setExitCondition] = useState<ExitCondition>(
-    initialExitNodeData.exitCondition || { type: 'all_positions' } as ExitCondition
-  );
+  // Get state management
+  const exitNodeState = useExitNodeState({ nodeData });
 
   return {
     nodeData,
     defaultExitNodeData,
-    initializedRef,
-    exitConditionType,
-    setExitConditionType,
-    orderType,
-    setOrderType,
-    limitPrice,
-    setLimitPrice,
-    multipleOrders,
-    setMultipleOrders,
-    exitCondition,
-    setExitCondition
+    ...exitNodeState
   };
 };
