@@ -37,7 +37,7 @@ const PositionSelector: React.FC<PositionSelectorProps> = ({
   return (
     <Select
       value={selectedPositionId}
-      onValueChange={(value: string) => onSelect(value)}
+      onValueChange={onSelect}
     >
       <SelectTrigger className="w-full">
         <SelectValue placeholder="Select a position to modify" />

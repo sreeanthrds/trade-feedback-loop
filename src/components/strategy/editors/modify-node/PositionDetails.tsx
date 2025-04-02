@@ -3,7 +3,7 @@ import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
-import { Position } from '@/hooks/useModifyPositions';
+import { Position } from '@/components/strategy/types/position-types';
 
 interface PositionDetailsProps {
   position: Position;
