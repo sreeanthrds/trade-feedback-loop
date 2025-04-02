@@ -26,10 +26,14 @@ export function useModifyPositions(node: Node) {
           // Ensure the position has the required fields
           if (isPosition(position)) {
             const convertedPosition: Position = {
-              ...position,
-              // Ensure required fields have values
+              id: position.id,
+              vpi: position.vpi || '',
+              vpt: position.vpt || '',
+              priority: position.priority || 1,
               positionType: position.positionType || 'buy',
               orderType: position.orderType || 'market',
+              limitPrice: position.limitPrice,
+              lots: position.lots || 1,
               productType: position.productType || 'intraday',
               sourceNodeId: n.id,
               // Handle optionDetails if present
@@ -95,7 +99,7 @@ export function usePositionSelection(
       
       toast({
         title: "Position selected",
-        description: `Selected position ${position.vpi} for modification`
+        description: `Selected position ${position.vpi || ''} for modification`
       });
     }
   };

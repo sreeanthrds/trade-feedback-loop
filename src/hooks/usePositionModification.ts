@@ -14,20 +14,20 @@ export function usePositionModification(
     if (!node.data.targetPositionId) return;
     
     // Create a basic updated position with the current values from node.data
-    const currentPosition = node.data.selectedPosition;
+    const currentPosition = node.data.selectedPosition as Position;
     if (!currentPosition) return;
     
     // First, create a basic updated position with the current values
     const updatedPosition: Position = {
       id: currentPosition.id,
-      vpi: currentPosition.vpi,
-      vpt: currentPosition.vpt,
-      priority: currentPosition.priority,
-      positionType: currentPosition.positionType,
-      orderType: currentPosition.orderType,
+      vpi: currentPosition.vpi || '',
+      vpt: currentPosition.vpt || '',
+      priority: currentPosition.priority || 1,
+      positionType: currentPosition.positionType || 'buy',
+      orderType: currentPosition.orderType || 'market',
       limitPrice: currentPosition.limitPrice,
-      lots: currentPosition.lots,
-      productType: currentPosition.productType,
+      lots: currentPosition.lots || 1,
+      productType: currentPosition.productType || 'intraday',
       sourceNodeId: currentPosition.sourceNodeId,
       _lastUpdated: Date.now()
     };
@@ -46,10 +46,10 @@ export function usePositionModification(
     if (updates.optionDetails && currentPosition.optionDetails) {
       // Create a new optionDetails object without using spread operator
       updatedPosition.optionDetails = {
-        expiry: currentPosition.optionDetails.expiry,
-        strikeType: currentPosition.optionDetails.strikeType,
+        expiry: currentPosition.optionDetails.expiry || '',
+        strikeType: currentPosition.optionDetails.strikeType || '',
         strikeValue: currentPosition.optionDetails.strikeValue,
-        optionType: currentPosition.optionDetails.optionType
+        optionType: currentPosition.optionDetails.optionType || 'CE'
       };
       
       // Copy each property individually from updates
@@ -71,7 +71,7 @@ export function usePositionModification(
   const saveModifiedPosition = () => {
     if (!node.data.targetPositionId || !node.data.selectedPosition) return;
     
-    const position = node.data.selectedPosition;
+    const position = node.data.selectedPosition as Position;
     
     // Prepare modifications object to be saved in the modify node
     const modifications: Record<string, any> = {};
@@ -86,17 +86,17 @@ export function usePositionModification(
     // Add or update the current position modification
     modifications[position.id] = {
       id: position.id,
-      vpi: position.vpi,
-      vpt: position.vpt,
-      priority: position.priority,
-      positionType: position.positionType,
-      orderType: position.orderType,
+      vpi: position.vpi || '',
+      vpt: position.vpt || '',
+      priority: position.priority || 1,
+      positionType: position.positionType || 'buy',
+      orderType: position.orderType || 'market',
       limitPrice: position.limitPrice,
-      lots: position.lots,
-      productType: position.productType,
+      lots: position.lots || 1,
+      productType: position.productType || 'intraday',
       optionDetails: position.optionDetails,
       sourceNodeId: position.sourceNodeId,
-      _lastUpdated: position._lastUpdated
+      _lastUpdated: position._lastUpdated || Date.now()
     };
 
     // Update the node with modifications data
@@ -107,7 +107,7 @@ export function usePositionModification(
 
     toast({
       title: "Position Modified",
-      description: `Modified position ${position.vpi}`
+      description: `Modified position ${position.vpi || ''}`
     });
   };
 

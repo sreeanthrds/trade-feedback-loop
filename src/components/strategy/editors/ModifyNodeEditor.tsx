@@ -15,6 +15,7 @@ import PositionDetails from './modify-node/PositionDetails';
 import { NodeDetailsPanel } from './shared';
 import PositionEditor from './action-node/components/PositionEditor';
 import { Separator } from '@/components/ui/separator';
+import { adaptPosition } from '@/components/strategy/types/position-types';
 
 interface ModifyNodeEditorProps {
   node: Node;
@@ -155,14 +156,14 @@ const ModifyNodeEditor: React.FC<ModifyNodeEditorProps> = ({ node, updateNodeDat
       {selectedPosition && (
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Edit Position {selectedPosition.vpi}</CardTitle>
+            <CardTitle className="text-lg">Edit Position {selectedPosition.vpi || ''}</CardTitle>
             <CardDescription>
-              Modify parameters for {selectedPosition.positionType} {selectedPosition.orderType} order
+              Modify parameters for {selectedPosition.positionType || 'buy'} {selectedPosition.orderType || 'market'} order
             </CardDescription>
           </CardHeader>
           <CardContent>
             <PositionEditor
-              position={selectedPosition}
+              position={adaptPosition(selectedPosition)}
               hasOptionTrading={!!selectedPosition.optionDetails}
               isEntryNode={false}
               onPositionChange={handlePositionChange}
