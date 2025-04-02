@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { Play, PauseCircle, Bell, ArrowRight, Pencil } from 'lucide-react';
+import { ArrowDownUp, Bell, Pencil, X } from 'lucide-react';
 
 interface ActionIconProps {
   icon?: React.ReactNode;
@@ -10,21 +9,32 @@ interface ActionIconProps {
 const ActionIcon: React.FC<ActionIconProps> = ({ icon, actionType }) => {
   // If a custom icon is provided, use it
   if (icon) {
-    return <>{icon}</>;
+    return <div className="mb-1 flex items-center">{icon}</div>;
   }
   
-  // Otherwise, show an icon based on the action type
+  // Otherwise, use default icon based on action type
+  if (!actionType) return null;
+  
+  let defaultIcon;
+  
   switch (actionType) {
-    case 'exit':
-      return <PauseCircle className="h-4 w-4 text-destructive mr-1.5" />;
-    case 'alert':
-      return <Bell className="h-4 w-4 text-warning mr-1.5" />;
-    case 'modify':
-      return <Pencil className="h-4 w-4 text-amber-500 mr-1.5" />;
     case 'entry':
+      defaultIcon = <ArrowDownUp className="h-4 w-4 text-green-500 mr-1.5" />;
+      break;
+    case 'exit':
+      defaultIcon = <X className="h-4 w-4 text-red-500 mr-1.5" />;
+      break;
+    case 'alert':
+      defaultIcon = <Bell className="h-4 w-4 text-blue-500 mr-1.5" />;
+      break;
+    case 'modify':
+      defaultIcon = <Pencil className="h-4 w-4 text-amber-500 mr-1.5" />;
+      break;
     default:
-      return <Play className="h-4 w-4 text-success mr-1.5" />;
+      return null;
   }
+  
+  return <div className="mb-1 flex items-center">{defaultIcon}</div>;
 };
 
 export default ActionIcon;

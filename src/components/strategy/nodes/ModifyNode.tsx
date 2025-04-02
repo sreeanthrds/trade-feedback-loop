@@ -16,12 +16,13 @@ const ModifyNode: React.FC<NodeProps> = ({ id, data, selected, isConnectable, ty
   // create a positions array with a placeholder for the targeted position
   const nodePositions = targetPosition ? [targetPosition] : positions;
   
+  // Explicitly type the nodeData to match the ActionNodeTemplate expected props
   const nodeData = {
-    label: data?.label || 'Modify Position',
+    label: String(data?.label || 'Modify Position'),
     actionType: 'modify' as const,
     positions: nodePositions,
-    targetPositionId: data?.targetPositionId || '',
-    targetNodeId: data?.targetNodeId || '',
+    targetPositionId: String(data?.targetPositionId || ''),
+    targetNodeId: String(data?.targetNodeId || ''),
     modifications: data?.modifications || {},
     icon: <Pencil className="h-4 w-4 text-amber-500 mr-1.5" />,
     description: 'Modify an existing position'

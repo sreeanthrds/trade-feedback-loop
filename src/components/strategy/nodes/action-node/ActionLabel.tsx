@@ -8,30 +8,26 @@ interface ActionLabelProps {
 }
 
 const ActionLabel: React.FC<ActionLabelProps> = ({ label, description, actionType }) => {
-  // Build a default label based on the action type if none provided
-  const displayLabel = label || (() => {
+  // Default values for each action type if label is not provided
+  const defaultLabel = () => {
+    if (!actionType) return 'Action';
+    
     switch (actionType) {
-      case 'entry':
-        return 'Buy/Sell';
-      case 'exit':
-        return 'Exit Position';
-      case 'alert':
-        return 'Send Alert';
-      case 'modify':
-        return 'Modify Position';
-      default:
-        return 'Action';
+      case 'entry': return 'Entry';
+      case 'exit': return 'Exit';
+      case 'alert': return 'Alert';
+      case 'modify': return 'Modify';
+      default: return 'Action';
     }
-  })();
+  };
 
+  // Use provided label or fall back to default
+  const nodeLabel = label || defaultLabel();
+  
   return (
-    <div className="flex items-center mb-1.5">
-      <div className="flex-1">
-        <div className="text-sm font-medium">{displayLabel}</div>
-        {description && (
-          <div className="text-xs text-muted-foreground">{description}</div>
-        )}
-      </div>
+    <div className="mb-1">
+      <div className="font-medium text-sm">{nodeLabel}</div>
+      {description && <div className="text-[10px] text-muted-foreground">{description}</div>}
     </div>
   );
 };

@@ -17,6 +17,9 @@ interface ActionNodeTemplateProps {
     description?: string;
     updateNodeData?: (id: string, data: any) => void;
     startNodeSymbol?: string;
+    targetPositionId?: string; // Added for modify node
+    targetNodeId?: string;     // Added for modify node
+    modifications?: Record<string, any>; // Added for modify node
     [key: string]: any;
   };
   selected: boolean;
@@ -72,6 +75,9 @@ const ActionNodeTemplate = ({
             actionType={data?.actionType}
             nodeId={id}
             startNodeSymbol={data?.startNodeSymbol}
+            targetPositionId={data?.targetPositionId}
+            targetNodeId={data?.targetNodeId}
+            modifications={data?.modifications}
           />
           
           <div className="text-[9px] text-muted-foreground mt-1 text-right">
