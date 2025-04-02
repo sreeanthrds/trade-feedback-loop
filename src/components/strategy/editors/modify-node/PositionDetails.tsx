@@ -7,10 +7,17 @@ import { Position } from '@/hooks/useModifyPositions';
 
 interface PositionDetailsProps {
   position: Position;
+  onEditClick?: (position: Position) => void;
 }
 
-const PositionDetails: React.FC<PositionDetailsProps> = ({ position }) => {
+const PositionDetails: React.FC<PositionDetailsProps> = ({ position, onEditClick }) => {
   if (!position) return null;
+
+  const handleEditClick = () => {
+    if (onEditClick) {
+      onEditClick(position);
+    }
+  };
 
   return (
     <div className="mt-4 border rounded-md p-3">
@@ -69,7 +76,11 @@ const PositionDetails: React.FC<PositionDetailsProps> = ({ position }) => {
       </div>
       
       <div className="mt-3 pt-2 border-t">
-        <Button size="sm" className="w-full flex items-center gap-2">
+        <Button 
+          size="sm" 
+          className="w-full flex items-center gap-2"
+          onClick={handleEditClick}
+        >
           <Edit className="h-4 w-4" />
           Edit Modifications
         </Button>

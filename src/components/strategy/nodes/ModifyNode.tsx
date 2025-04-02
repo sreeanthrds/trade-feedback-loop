@@ -3,7 +3,22 @@ import React, { memo } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import ActionNodeContent from './action-node/ActionNodeContent';
 
-const ModifyNode = ({ data, isConnectable, selected, id }) => {
+interface ModifyNodeProps {
+  data: {
+    label: string;
+    actionType: 'modify';
+    targetPositionId?: string;
+    targetNodeId?: string;
+    modifications?: any;
+    positions?: any[];
+    instrument?: any;
+  };
+  isConnectable: boolean;
+  selected: boolean;
+  id: string;
+}
+
+const ModifyNode = ({ data, isConnectable, selected, id }: ModifyNodeProps) => {
   return (
     <>
       <Handle

@@ -19,14 +19,16 @@ export interface Position {
 }
 
 export interface ActionNodeData {
-  label?: string;
-  actionType?: 'entry' | 'exit' | 'alert';
+  label: string; // Make label required
+  actionType?: 'entry' | 'exit' | 'alert' | 'modify';
   instrument?: string;
   symbol?: string;
   requiresSymbol?: boolean;
-  positions: Position[];
+  positions?: Position[];
   updateNodeData?: (id: string, data: Partial<ActionNodeData>) => void;
   _lastUpdated?: number; // Timestamp for forcing updates
+  targetPositionId?: string;
+  targetNodeId?: string;
 }
 
 export interface StartNodeData {

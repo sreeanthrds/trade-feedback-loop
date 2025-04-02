@@ -10,8 +10,10 @@ import {
 } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useModifyPositions, usePositionSelection } from '@/hooks/useModifyPositions';
+import { usePositionModification } from '@/hooks/usePositionModification';
 import PositionSelector from './modify-node/PositionSelector';
 import PositionDetails from './modify-node/PositionDetails';
+import ModifyPositionDialog from './modify-node/ModifyPositionDialog';
 
 interface ModifyNodeEditorProps {
   node: Node;
@@ -39,6 +41,15 @@ const ModifyNodeEditor: React.FC<ModifyNodeEditorProps> = ({ node, updateNodeDat
     setSelectedPosition
   );
 
+  const {
+    isDialogOpen,
+    currentPosition,
+    openModificationDialog,
+    closeModificationDialog,
+    handlePositionChange,
+    saveModifiedPosition
+  } = usePositionModification(node, updateNodeData);
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
@@ -46,7 +57,7 @@ const ModifyNodeEditor: React.FC<ModifyNodeEditorProps> = ({ node, updateNodeDat
         <input
           id="label"
           className="border rounded p-1 flex-grow"
-          value={node.data.label || ''}
+          value={node.data?.label || ''}
           onChange={handleLabelChange}
         />
       </div>
@@ -65,9 +76,23 @@ const ModifyNodeEditor: React.FC<ModifyNodeEditorProps> = ({ node, updateNodeDat
             onSelect={handlePositionSelect}
           />
 
-          {selectedPosition && <PositionDetails position={selectedPosition} />}
+          {selectedPosition && (
+            <PositionDetails 
+              position={selectedPosition}
+              onEditClick={openModificationDialog}
+            />
+          )}
         </CardContent>
       </Card>
+
+      {/* Position Modification Dialog */}
+      <ModifyPositionDialog
+        position={currentPosition}
+        isOpen={isDialogOpen}
+        onClose={closeModificationDialog}
+        onSave={saveModifiedPosition}
+        onPositionChange={handlePositionChange}
+      />
     </div>
   );
 };
