@@ -76,22 +76,29 @@ export function usePositionModification(
     if (!currentPosition || !node.data.targetNodeId) return;
     
     // Prepare modifications object to be saved in the modify node
-    const modifications = {
-      ...node.data.modifications || {},
-      [currentPosition.id]: {
-        id: currentPosition.id,
-        vpi: currentPosition.vpi,
-        vpt: currentPosition.vpt,
-        priority: currentPosition.priority,
-        positionType: currentPosition.positionType,
-        orderType: currentPosition.orderType,
-        limitPrice: currentPosition.limitPrice,
-        lots: currentPosition.lots,
-        productType: currentPosition.productType,
-        optionDetails: currentPosition.optionDetails,
-        sourceNodeId: currentPosition.sourceNodeId,
-        _lastUpdated: currentPosition._lastUpdated
-      }
+    const modifications: Record<string, any> = {};
+    
+    // Create a new object for the modifications map
+    if (node.data.modifications) {
+      Object.keys(node.data.modifications).forEach(key => {
+        modifications[key] = node.data.modifications[key];
+      });
+    }
+    
+    // Add or update the current position modification
+    modifications[currentPosition.id] = {
+      id: currentPosition.id,
+      vpi: currentPosition.vpi,
+      vpt: currentPosition.vpt,
+      priority: currentPosition.priority,
+      positionType: currentPosition.positionType,
+      orderType: currentPosition.orderType,
+      limitPrice: currentPosition.limitPrice,
+      lots: currentPosition.lots,
+      productType: currentPosition.productType,
+      optionDetails: currentPosition.optionDetails,
+      sourceNodeId: currentPosition.sourceNodeId,
+      _lastUpdated: currentPosition._lastUpdated
     };
 
     // Update the node with modifications data
