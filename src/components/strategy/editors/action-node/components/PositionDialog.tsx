@@ -1,16 +1,18 @@
 
 import React from 'react';
 import { Position } from '../types';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogDescription } from '@/components/ui/dialog';
-import PositionEditor from './PositionEditor';
-import { X } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { X, Save } from 'lucide-react';
+import PositionEditor from './PositionEditor';
 
 interface PositionDialogProps {
   position: Position | null;
   isOpen: boolean;
   onClose: () => void;
   hasOptionTrading: boolean;
+  isEntryNode?: boolean; // Added isEntryNode prop
   onPositionChange: (updates: Partial<Position>) => void;
   onPositionTypeChange: (value: string) => void;
   onOrderTypeChange: (value: string) => void;
@@ -28,6 +30,7 @@ const PositionDialog: React.FC<PositionDialogProps> = ({
   isOpen,
   onClose,
   hasOptionTrading,
+  isEntryNode = false, // Default to false
   onPositionChange,
   onPositionTypeChange,
   onOrderTypeChange,
@@ -39,22 +42,25 @@ const PositionDialog: React.FC<PositionDialogProps> = ({
   onStrikeValueChange,
   onOptionTypeChange
 }) => {
-  if (!position) return null;
-  
+  if (!position) {
+    return null;
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="w-[95vw] max-w-[450px] h-auto max-h-[90vh] p-4">
-        <DialogHeader className="mb-2">
-          <DialogTitle>Edit Position {position.priority}</DialogTitle>
-          <DialogDescription>Configure position details and parameters</DialogDescription>
-          <DialogClose onClick={onClose} className="absolute right-4 top-4" />
+      <DialogContent className="w-[95vw] max-w-[500px] h-auto">
+        <DialogHeader>
+          <DialogTitle>
+            {position.positionType === 'buy' ? 'Buy' : 'Sell'} Position {position.vpi}
+          </DialogTitle>
         </DialogHeader>
         
-        <ScrollArea className="h-[calc(90vh-120px)] pr-4">
-          <div className="pb-2">
+        <ScrollArea className="h-[60vh]">
+          <div className="p-4">
             <PositionEditor
               position={position}
               hasOptionTrading={hasOptionTrading}
+              isEntryNode={isEntryNode} // Pass isEntryNode prop
               onPositionChange={onPositionChange}
               onPositionTypeChange={onPositionTypeChange}
               onOrderTypeChange={onOrderTypeChange}
@@ -68,6 +74,15 @@ const PositionDialog: React.FC<PositionDialogProps> = ({
             />
           </div>
         </ScrollArea>
+        
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} className="gap-2">
+            <X className="h-4 w-4" /> Cancel
+          </Button>
+          <Button onClick={onClose} className="gap-2">
+            <Save className="h-4 w-4" /> Save
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

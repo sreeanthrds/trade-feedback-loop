@@ -8,12 +8,12 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
 import { useModifyPositions, usePositionSelection } from '@/hooks/useModifyPositions';
 import { usePositionModification } from '@/hooks/usePositionModification';
 import PositionSelector from './modify-node/PositionSelector';
 import PositionDetails from './modify-node/PositionDetails';
 import ModifyPositionDialog from './modify-node/ModifyPositionDialog';
+import { NodeDetailsPanel } from './shared';
 
 interface ModifyNodeEditorProps {
   node: Node;
@@ -52,15 +52,12 @@ const ModifyNodeEditor: React.FC<ModifyNodeEditorProps> = ({ node, updateNodeDat
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <Label htmlFor="label">Node Label</Label>
-        <input
-          id="label"
-          className="border rounded p-1 flex-grow"
-          value={String(node.data?.label || '')}
-          onChange={handleLabelChange}
-        />
-      </div>
+      {/* Use NodeDetailsPanel for consistent node label editing */}
+      <NodeDetailsPanel
+        nodeLabel={node.data?.label || 'Modify Position'}
+        onLabelChange={handleLabelChange}
+        infoTooltip="Modify Nodes can change the parameters of existing positions"
+      />
 
       <Card>
         <CardHeader className="pb-3">

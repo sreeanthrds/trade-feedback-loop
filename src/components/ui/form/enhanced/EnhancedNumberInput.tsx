@@ -1,90 +1,82 @@
 
 import React, { useState, useEffect } from 'react';
-import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
-import { AlertTriangle, HelpCircle } from 'lucide-react';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { 
+  composeHOC, 
+  withLabel, 
+  withFormValidation, 
+  withLoadingState,
+  withErrorHandling,
+  LabelProps,
+  ValidationProps,
+  LoadingProps,
+  ErrorHandlingProps
+} from '@/components/ui/hoc';
 
-export interface EnhancedNumberInputProps {
-  label?: string;
-  id?: string;
-  value?: number | undefined;
+// Component props
+export interface EnhancedNumberInputProps extends 
+  LabelProps, 
+  ValidationProps, 
+  LoadingProps,
+  ErrorHandlingProps {
+  value: number | undefined;
   onChange: (value: number | undefined) => void;
+  placeholder?: string;
+  className?: string;
+  id?: string;
   min?: number;
   max?: number;
   step?: number;
-  placeholder?: string;
-  className?: string;
-  description?: string;
-  tooltip?: string;
   required?: boolean;
-  disabled?: boolean;
+  readOnly?: boolean; // Add readOnly prop
 }
 
-const EnhancedNumberInput: React.FC<EnhancedNumberInputProps> = ({
-  label,
-  id,
+// Base number input component that will be enhanced
+const NumberInput: React.FC<EnhancedNumberInputProps> = ({
   value,
   onChange,
+  placeholder,
+  className,
+  id,
   min,
   max,
   step = 1,
-  placeholder,
-  className,
-  description,
-  tooltip,
   required = false,
-  disabled = false
+  readOnly = false, // Default to false
+  // Exclude HOC-specific props
+  label,
+  hideLabel,
+  labelClassName,
+  description,
+  isRequired,
+  error,
+  isValid,
+  isLoading,
+  loadingComponent,
+  errorContext,
+  handleError,
+  showToasts,
+  catchRenderErrors,
+  tooltip,
+  ...rest
 }) => {
-  // Use local state to handle the input value as a string
-  const [inputValue, setInputValue] = useState<string>(value === undefined ? '' : value.toString());
-  const [touched, setTouched] = useState(false);
-  const [error, setError] = useState<string | undefined>(undefined);
-  
-  // Update local state when prop value changes
+  // State to track the input value as a string
+  const [inputValue, setInputValue] = useState<string>(
+    value !== undefined ? String(value) : ''
+  );
+
+  // Update the input value when the prop changes
   useEffect(() => {
-    setInputValue(value === undefined ? '' : value.toString());
+    setInputValue(value !== undefined ? String(value) : '');
   }, [value]);
 
-  // Validate the input
-  const validate = (): boolean => {
-    if (required && (inputValue === '' || inputValue === undefined)) {
-      setError('This field is required');
-      return false;
-    }
-    
-    if (inputValue !== '' && !isNaN(parseFloat(inputValue))) {
-      const numValue = parseFloat(inputValue);
-      
-      if (min !== undefined && numValue < min) {
-        setError(`Value must be at least ${min}`);
-        return false;
-      }
-      
-      if (max !== undefined && numValue > max) {
-        setError(`Value must be at most ${max}`);
-        return false;
-      }
-    }
-    
-    setError(undefined);
-    return true;
-  };
-
-  // Handle input change, allowing for empty values
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle input changes
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setInputValue(newValue);
-    setTouched(true);
     
+    // Only call onChange if the input is valid or empty
     if (newValue === '') {
-      // Important: Pass undefined when the field is emptied
       onChange(undefined);
     } else {
       const numValue = parseFloat(newValue);
@@ -94,84 +86,51 @@ const EnhancedNumberInput: React.FC<EnhancedNumberInputProps> = ({
     }
   };
 
-  // Handle blur event to run validation
+  // Handle blur event to format the value
   const handleBlur = () => {
-    setTouched(true);
-    validate();
-    
-    if (inputValue !== '' && !isNaN(parseFloat(inputValue))) {
-      // Format the number properly on blur
-      const numValue = parseFloat(inputValue);
-      setInputValue(numValue.toString());
+    if (inputValue === '') {
+      return;
     }
+    
+    let numValue = parseFloat(inputValue);
+    
+    // Apply min/max constraints
+    if (min !== undefined && numValue < min) {
+      numValue = min;
+    } else if (max !== undefined && numValue > max) {
+      numValue = max;
+    }
+    
+    // Update the displayed value
+    setInputValue(String(numValue));
+    onChange(numValue);
   };
 
-  // Determine if we should show validation errors
-  const showError = touched && error;
-
   return (
-    <div className={cn("space-y-2", className)}>
-      {label && (
-        <div className="flex items-center gap-2">
-          <Label 
-            htmlFor={id} 
-            className="text-sm font-medium"
-          >
-            {label}
-            {required && <span className="ml-1 text-destructive">*</span>}
-          </Label>
-          
-          {tooltip && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="max-w-xs text-xs">{tooltip}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-        </div>
-      )}
-      
-      <div className="relative">
-        {showError && (
-          <span className="absolute -top-1 right-0 text-destructive text-xs">*</span>
-        )}
-        <Input
-          type="number"
-          id={id}
-          value={inputValue}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          min={min}
-          max={max}
-          step={step}
-          placeholder={placeholder}
-          className={cn(
-            "w-full",
-            showError && "border-destructive focus-visible:ring-destructive"
-          )}
-          required={required}
-          disabled={disabled}
-          aria-invalid={!!showError}
-        />
-      </div>
-      
-      {showError && (
-        <div className="flex items-center text-destructive text-xs gap-1 mt-1">
-          <AlertTriangle className="h-3 w-3" />
-          <span>{error}</span>
-        </div>
-      )}
-      
-      {description && !showError && (
-        <p className="text-xs text-muted-foreground">{description}</p>
-      )}
-    </div>
+    <Input
+      id={id}
+      type="number"
+      value={inputValue}
+      onChange={handleInputChange}
+      onBlur={handleBlur}
+      placeholder={placeholder}
+      className={className}
+      min={min}
+      max={max}
+      step={step}
+      required={required}
+      readOnly={readOnly} // Pass readOnly prop to Input
+      {...rest}
+    />
   );
 };
+
+// Create enhanced number input with HOCs
+const EnhancedNumberInput = composeHOC(
+  withErrorHandling,
+  withLoadingState,
+  withFormValidation,
+  withLabel
+)(NumberInput);
 
 export default EnhancedNumberInput;

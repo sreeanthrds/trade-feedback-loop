@@ -29,6 +29,7 @@ export interface EnhancedInputFieldProps extends
   min?: string | number;
   max?: string | number;
   step?: string | number;
+  readOnly?: boolean; // Add readOnly prop
 }
 
 // Base input component that will be enhanced
@@ -43,6 +44,7 @@ const InputField: React.FC<EnhancedInputFieldProps> = ({
   min,
   max,
   step,
+  readOnly = false, // Default to false
   // Exclude HOC-specific props before passing to Input
   label,
   hideLabel,
@@ -77,6 +79,7 @@ const InputField: React.FC<EnhancedInputFieldProps> = ({
       max={max}
       step={step}
       required={required}
+      readOnly={readOnly} // Pass readOnly prop to Input
       {...rest}
     />
   );

@@ -16,6 +16,7 @@ interface InputFieldProps {
   max?: string | number;
   step?: string | number;
   description?: string;
+  readOnly?: boolean; // Added readOnly property
 }
 
 const InputField: React.FC<InputFieldProps> = ({
@@ -30,7 +31,8 @@ const InputField: React.FC<InputFieldProps> = ({
   min,
   max,
   step,
-  description
+  description,
+  readOnly = false // Default to false
 }) => {
   // If this is a number field, use our EnhancedNumberInput
   if (type === 'number') {
@@ -78,6 +80,7 @@ const InputField: React.FC<InputFieldProps> = ({
         className={className}
         tooltip={description}
         required={required}
+        readOnly={readOnly} // Pass readOnly prop
       />
     );
   }
@@ -94,6 +97,7 @@ const InputField: React.FC<InputFieldProps> = ({
       className={className}
       required={required}
       description={description}
+      readOnly={readOnly} // Pass readOnly prop
     />
   );
 };
