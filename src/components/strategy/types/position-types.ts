@@ -53,7 +53,8 @@ export function adaptPosition<T extends BasePosition>(position: any): T {
     orderType: position.orderType || 'market',
     limitPrice: position.limitPrice,
     lots: position.lots,
-    productType: position.productType || 'intraday'
+    productType: position.productType || 'intraday',
+    sourceNodeId: position.sourceNodeId
   };
   
   // Add optionDetails if present

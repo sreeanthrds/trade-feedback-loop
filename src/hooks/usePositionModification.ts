@@ -31,6 +31,14 @@ export function usePositionModification(
       _lastUpdated: Date.now()
     };
     
+    // Handle optionDetails separately to avoid spread operator issues
+    if (updates.optionDetails && currentPosition.optionDetails) {
+      updatedPosition.optionDetails = {
+        ...currentPosition.optionDetails,
+        ...updates.optionDetails
+      };
+    }
+    
     setCurrentPosition(updatedPosition);
   };
 

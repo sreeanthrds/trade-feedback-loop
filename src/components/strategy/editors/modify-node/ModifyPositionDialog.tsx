@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { X, Save } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import PositionEditor from '../action-node/components/PositionEditor';
+import { Position as ActionNodePosition } from '@/components/strategy/editors/action-node/types';
 
 interface ModifyPositionDialogProps {
   position: Position | null;
@@ -93,7 +94,14 @@ const ModifyPositionDialog: React.FC<ModifyPositionDialogProps> = ({
   };
 
   // Create compatible position for PositionEditor by using our adapter function
-  const adaptedPosition = adaptPosition(position);
+  const adaptedPosition = adaptPosition<ActionNodePosition>(position);
+  
+  // Create a wrapper for onPositionChange that adapts the updates
+  const handlePositionChange = (updates: Partial<ActionNodePosition>) => {
+    // Convert ActionNodePosition updates to Position updates
+    const convertedUpdates: Partial<Position> = { ...updates };
+    onPositionChange(convertedUpdates);
+  };
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -111,7 +119,7 @@ const ModifyPositionDialog: React.FC<ModifyPositionDialogProps> = ({
             <PositionEditor
               position={adaptedPosition}
               hasOptionTrading={!!position.optionDetails}
-              onPositionChange={onPositionChange}
+              onPositionChange={handlePositionChange}
               onPositionTypeChange={handlePositionTypeChange}
               onOrderTypeChange={handleOrderTypeChange}
               onLimitPriceChange={handleLimitPriceChange}
