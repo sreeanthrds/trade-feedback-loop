@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Position } from '@/hooks/useModifyPositions';
+import { Position, adaptPosition } from '@/components/strategy/types/position-types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { X, Save } from 'lucide-react';
@@ -92,29 +92,8 @@ const ModifyPositionDialog: React.FC<ModifyPositionDialogProps> = ({
     });
   };
 
-  // Create compatible position for PositionEditor
-  const adaptedPosition = {
-    id: position.id,
-    vpi: position.vpi,
-    vpt: position.vpt,
-    priority: position.priority,
-    positionType: position.positionType,
-    orderType: position.orderType,
-    limitPrice: position.limitPrice,
-    lots: position.lots,
-    productType: position.productType,
-    optionDetails: position.optionDetails ? {
-      expiry: position.optionDetails.expiry,
-      strikeType: position.optionDetails.strikeType,
-      strikeValue: position.optionDetails.strikeValue,
-      optionType: position.optionDetails.optionType
-    } : undefined
-  };
-
-  // Create the handler wrapper for type safety
-  const handleAdaptedPositionChange = (updates: any) => {
-    onPositionChange(updates);
-  };
+  // Create compatible position for PositionEditor by using our adapter function
+  const adaptedPosition = adaptPosition(position);
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -132,7 +111,7 @@ const ModifyPositionDialog: React.FC<ModifyPositionDialogProps> = ({
             <PositionEditor
               position={adaptedPosition}
               hasOptionTrading={!!position.optionDetails}
-              onPositionChange={handleAdaptedPositionChange}
+              onPositionChange={onPositionChange}
               onPositionTypeChange={handlePositionTypeChange}
               onOrderTypeChange={handleOrderTypeChange}
               onLimitPriceChange={handleLimitPriceChange}

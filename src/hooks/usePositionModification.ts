@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Position } from '@/hooks/useModifyPositions';
+import { Position } from '@/components/strategy/types/position-types';
 import { Node } from '@xyflow/react';
 import { toast } from '@/hooks/use-toast';
 
@@ -24,11 +24,12 @@ export function usePositionModification(
   const handlePositionChange = (updates: Partial<Position>) => {
     if (!currentPosition) return;
     
-    // Create updated position object without using spread on potentially non-object type
-    const updatedPosition = Object.assign({}, currentPosition, updates) as Position;
-    
-    // Add lastUpdated timestamp
-    updatedPosition._lastUpdated = Date.now();
+    // Create a new object by merging the current position with updates
+    const updatedPosition: Position = {
+      ...currentPosition,
+      ...updates,
+      _lastUpdated: Date.now()
+    };
     
     setCurrentPosition(updatedPosition);
   };

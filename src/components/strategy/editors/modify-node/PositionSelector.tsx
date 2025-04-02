@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Position } from '@/hooks/useModifyPositions';
+import { Position } from '@/components/strategy/types/position-types';
 import { AlertTriangle } from 'lucide-react';
 import {
   Select,
@@ -37,7 +37,7 @@ const PositionSelector: React.FC<PositionSelectorProps> = ({
   return (
     <Select
       value={selectedPositionId}
-      onValueChange={onSelect}
+      onValueChange={(value: string) => onSelect(value)}
     >
       <SelectTrigger className="w-full">
         <SelectValue placeholder="Select a position to modify" />
