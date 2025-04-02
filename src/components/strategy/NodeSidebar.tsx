@@ -69,13 +69,6 @@ const nodeTypes: NodeTypeItem[] = [
     description: 'End a strategy branch',
     icon: <StopCircle className="h-5 w-5 text-rose-600 dark:text-rose-500" />,
     color: 'border-rose-600 dark:border-rose-500 bg-rose-600/10 dark:bg-rose-500/10'
-  },
-  {
-    type: 'forceEndNode',
-    label: 'Force End Node',
-    description: 'Close positions and end strategy',
-    icon: <AlertTriangle className="h-5 w-5 text-red-500 dark:text-red-400" />,
-    color: 'border-red-500 dark:border-red-400 bg-red-500/10 dark:bg-red-400/10'
   }
 ];
 

@@ -23,7 +23,6 @@ const ActionDetails: React.FC<ActionDetailsProps> = ({
 }) => {
   if (!actionType) return null;
 
-  // This is just a placeholder, actual implementations would vary based on your app's needs
   return (
     <div className="mt-1 text-xs w-full">
       {/* ENTRY NODE */}
@@ -60,9 +59,14 @@ const ActionDetails: React.FC<ActionDetailsProps> = ({
       {actionType === 'modify' && (
         <div className="text-muted-foreground">
           {targetPositionId ? (
-            <div className="flex justify-between">
-              <span>Modify position</span>
-              <span className="text-primary/70">{targetPositionId}</span>
+            <div className="flex flex-col">
+              <div className="flex justify-between">
+                <span>Modify position:</span>
+                <span className="text-primary/70 truncate ml-1">{targetPositionId}</span>
+              </div>
+              {targetNodeId && (
+                <div className="text-xs opacity-70">from {targetNodeId}</div>
+              )}
             </div>
           ) : (
             <div>No position selected</div>
