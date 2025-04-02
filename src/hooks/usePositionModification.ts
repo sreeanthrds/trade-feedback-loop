@@ -29,6 +29,8 @@ export function usePositionModification(
       lots: currentPosition.lots || 1,
       productType: currentPosition.productType || 'intraday',
       sourceNodeId: currentPosition.sourceNodeId,
+      status: currentPosition.status,
+      isRolledOut: currentPosition.isRolledOut,
       _lastUpdated: Date.now()
     };
 
@@ -97,6 +99,8 @@ export function usePositionModification(
       productType: position.productType || 'intraday',
       optionDetails: position.optionDetails,
       sourceNodeId: position.sourceNodeId,
+      status: position.status,
+      isRolledOut: position.isRolledOut,
       _lastUpdated: position._lastUpdated || Date.now()
     };
 

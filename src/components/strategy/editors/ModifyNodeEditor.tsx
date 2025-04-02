@@ -8,12 +8,15 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { useModifyPositions, usePositionSelection } from '@/hooks/useModifyPositions';
 import { usePositionModification } from '@/hooks/usePositionModification';
 import PositionSelector from './modify-node/PositionSelector';
 import { NodeDetailsPanel } from './shared';
-import PositionEditor from './action-node/components/PositionEditor';
+import { toast } from '@/hooks/use-toast';
 import { adaptPosition } from '@/components/strategy/types/position-types';
+import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
+import { SelectField, RadioGroupField } from './shared';
 
 interface ModifyNodeEditorProps {
   node: Node;
@@ -45,79 +48,44 @@ const ModifyNodeEditor: React.FC<ModifyNodeEditorProps> = ({ node, updateNodeDat
     handlePositionChange
   } = usePositionModification(node, updateNodeData);
 
-  // For position handlers
-  const handlePositionTypeChange = (value: string) => {
+  // Only allow quantity modification for simplicity
+  const handleLotsChange = (value: number | undefined) => {
     if (!selectedPosition) return;
-    handlePositionChange({ positionType: value as 'buy' | 'sell' });
-  };
-  
-  const handleOrderTypeChange = (value: string) => {
-    if (!selectedPosition) return;
-    handlePositionChange({ orderType: value as 'market' | 'limit' });
-  };
-  
-  const handleLimitPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!selectedPosition) return;
-    const value = e.target.value ? parseFloat(e.target.value) : undefined;
-    handlePositionChange({ limitPrice: value });
-  };
-  
-  const handleLotsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!selectedPosition) return;
-    const value = e.target.value ? parseInt(e.target.value) : undefined;
     handlePositionChange({ lots: value });
   };
-  
-  const handleProductTypeChange = (value: string) => {
+
+  // Handle order cancellation
+  const handleCancelOrder = () => {
     if (!selectedPosition) return;
-    handlePositionChange({ productType: value as 'intraday' | 'carryForward' });
-  };
-  
-  const handleExpiryChange = (value: string) => {
-    if (!selectedPosition || !selectedPosition.optionDetails) return;
     
+    // Mark the position as cancelled in modifications
     handlePositionChange({ 
-      optionDetails: {
-        ...selectedPosition.optionDetails,
-        expiry: value 
-      }
+      status: 'cancelled',
+      _lastUpdated: Date.now()
+    });
+    
+    toast({
+      title: "Order Cancelled",
+      description: `Cancelled order for position ${selectedPosition.vpi || ''}`,
     });
   };
-  
-  const handleStrikeTypeChange = (value: string) => {
+
+  // Handle roll-out operation
+  const handleRollOut = (expiry: string) => {
     if (!selectedPosition || !selectedPosition.optionDetails) return;
     
-    handlePositionChange({ 
+    handlePositionChange({
       optionDetails: {
         ...selectedPosition.optionDetails,
-        strikeType: value 
-      }
+        expiry: expiry
+      },
+      isRolledOut: true,
+      _lastUpdated: Date.now()
     });
-  };
-  
-  const handleStrikeValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!selectedPosition || !selectedPosition.optionDetails) return;
     
-    const value = e.target.value ? parseFloat(e.target.value) : undefined;
-    handlePositionChange({ 
-      optionDetails: {
-        ...selectedPosition.optionDetails,
-        strikeValue: value 
-      }
-    });
-  };
-  
-  const handleOptionTypeChange = (value: string) => {
-    if (!selectedPosition || !selectedPosition.optionDetails) return;
-    
-    // Make sure value is only "CE" or "PE"
-    if (value !== "CE" && value !== "PE") return;
-    
-    handlePositionChange({ 
-      optionDetails: {
-        ...selectedPosition.optionDetails,
-        optionType: value as "CE" | "PE"
-      }
+    toast({
+      title: "Position Rolled Out",
+      description: `Position ${selectedPosition.vpi || ''} rolled out to ${expiry}`,
     });
   };
 
@@ -130,7 +98,7 @@ const ModifyNodeEditor: React.FC<ModifyNodeEditorProps> = ({ node, updateNodeDat
       <NodeDetailsPanel
         nodeLabel={nodeLabel}
         onLabelChange={handleLabelChange}
-        infoTooltip="Modify Nodes can change the parameters of existing positions"
+        infoTooltip="Modify Nodes can change parameters of existing positions"
       />
 
       <Card>
@@ -149,31 +117,87 @@ const ModifyNodeEditor: React.FC<ModifyNodeEditorProps> = ({ node, updateNodeDat
         </CardContent>
       </Card>
 
-      {/* Display position editor directly when a position is selected */}
+      {/* Display position modification options when a position is selected */}
       {selectedPosition && (
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Edit Position {selectedPosition.vpi || ''}</CardTitle>
+            <CardTitle className="text-lg">Modify Position {selectedPosition.vpi || ''}</CardTitle>
             <CardDescription>
-              Modify parameters for {selectedPosition.positionType || 'buy'} {selectedPosition.orderType || 'market'} order
+              {selectedPosition.positionType || 'buy'} {selectedPosition.orderType || 'market'} order
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <PositionEditor
-              position={adaptPosition(selectedPosition)}
-              hasOptionTrading={!!selectedPosition.optionDetails}
-              isEntryNode={false}
-              onPositionChange={handlePositionChange}
-              onPositionTypeChange={handlePositionTypeChange}
-              onOrderTypeChange={handleOrderTypeChange}
-              onLimitPriceChange={handleLimitPriceChange}
-              onLotsChange={handleLotsChange}
-              onProductTypeChange={handleProductTypeChange}
-              onExpiryChange={handleExpiryChange}
-              onStrikeTypeChange={handleStrikeTypeChange}
-              onStrikeValueChange={handleStrikeValueChange}
-              onOptionTypeChange={handleOptionTypeChange}
-            />
+          <CardContent className="space-y-4">
+            {/* Position Information */}
+            <div className="grid grid-cols-2 gap-2 text-sm mb-4">
+              <div className="font-medium">Product:</div>
+              <div>{selectedPosition.productType || 'intraday'}</div>
+              
+              <div className="font-medium">Order Type:</div>
+              <div>{selectedPosition.orderType || 'market'}</div>
+              
+              {selectedPosition.orderType === 'limit' && (
+                <>
+                  <div className="font-medium">Limit Price:</div>
+                  <div>{selectedPosition.limitPrice}</div>
+                </>
+              )}
+              
+              {selectedPosition.optionDetails && (
+                <>
+                  <div className="font-medium">Option Type:</div>
+                  <div>{selectedPosition.optionDetails.optionType || 'CE'}</div>
+                  
+                  <div className="font-medium">Expiry:</div>
+                  <div>{selectedPosition.optionDetails.expiry || ''}</div>
+                  
+                  <div className="font-medium">Strike:</div>
+                  <div>{selectedPosition.optionDetails.strikeType || ''}</div>
+                </>
+              )}
+            </div>
+            
+            {/* Quantity Modification */}
+            <div className="py-2 border-t">
+              <EnhancedNumberInput
+                label="Modify Quantity (Lots)"
+                id="lots"
+                min={1}
+                value={selectedPosition.lots}
+                onChange={handleLotsChange}
+                placeholder="Lots"
+              />
+            </div>
+            
+            {/* Cancel Order */}
+            <div className="pt-2 border-t">
+              <Button 
+                variant="destructive"
+                className="w-full"
+                onClick={handleCancelOrder}
+              >
+                Cancel Order
+              </Button>
+            </div>
+            
+            {/* Roll Out Options (only for option positions) */}
+            {selectedPosition.optionDetails && (
+              <div className="pt-2 border-t">
+                <h3 className="text-sm font-medium mb-2">Roll Out Option</h3>
+                <SelectField
+                  label="New Expiry"
+                  id="new-expiry"
+                  value=""
+                  onChange={(value) => handleRollOut(value)}
+                  options={[
+                    { value: '', label: 'Select expiry...' },
+                    { value: 'W1', label: 'Next Week' },
+                    { value: 'W2', label: 'Week After Next' },
+                    { value: 'M1', label: 'Next Month' },
+                    { value: 'M2', label: 'Month After Next' }
+                  ]}
+                />
+              </div>
+            )}
           </CardContent>
         </Card>
       )}

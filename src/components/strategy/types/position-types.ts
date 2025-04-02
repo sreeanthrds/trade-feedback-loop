@@ -19,6 +19,8 @@ export interface Position {
     optionType?: 'CE' | 'PE';
   };
   sourceNodeId?: string;
+  status?: 'active' | 'cancelled' | 'filled' | 'partial';
+  isRolledOut?: boolean;
   _lastUpdated?: number;
 }
 
@@ -38,6 +40,8 @@ export function createDefaultPosition(nodeId: string): Position {
     orderType: 'market',
     lots: 1,
     productType: 'intraday',
+    status: 'active',
+    isRolledOut: false,
     optionDetails: {
       expiry: 'W0',
       strikeType: 'ATM',
@@ -63,6 +67,8 @@ export function adaptPosition<T>(position: Position | null): T | null {
     limitPrice: position.limitPrice,
     lots: position.lots || 1,
     productType: position.productType || 'intraday',
+    status: position.status || 'active',
+    isRolledOut: position.isRolledOut || false,
     optionDetails: position.optionDetails ? {
       expiry: position.optionDetails.expiry || 'W0',
       strikeType: position.optionDetails.strikeType || 'ATM',
