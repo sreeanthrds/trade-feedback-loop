@@ -1,311 +1,233 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Node } from '@xyflow/react';
-import { NodeDetailsPanel } from './shared';
-import { useActionNodeForm } from './action-node/useActionNodeForm';
-import InstrumentDisplay from './action-node/InstrumentDisplay';
-import { toast } from "@/hooks/use-toast";
-import { Separator } from '@/components/ui/separator';
-import { Button } from '@/components/ui/button';
-import { Edit2, ExternalLink } from 'lucide-react';
-import PositionDialog from './action-node/components/PositionDialog';
-import { Position } from './action-node/types';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
+import { 
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { toast } from '@/hooks/use-toast';
+import { Edit, AlertTriangle } from 'lucide-react';
+
+interface Position {
+  id: string;
+  vpi: string;
+  vpt: string;
+  positionType: 'buy' | 'sell';
+  lots?: number;
+  orderType: 'market' | 'limit';
+  productType: string;
+  priority: number;
+  limitPrice?: number;
+  optionDetails?: {
+    expiry: string;
+    strikeType: string;
+    strikeValue?: number;
+    optionType: string;
+  };
+  // Add the sourceNodeId property
+  sourceNodeId?: string;
+}
 
 interface ModifyNodeEditorProps {
   node: Node;
   updateNodeData: (id: string, data: any) => void;
 }
 
-const ModifyNodeEditor = ({ node, updateNodeData }: ModifyNodeEditorProps) => {
-  // Force actionType to be 'modify'
-  if (node.data.actionType !== 'modify') {
-    updateNodeData(node.id, { 
-      ...node.data, 
-      actionType: 'modify',
-      _lastUpdated: Date.now()
-    });
-  }
-  
-  const [isPositionDialogOpen, setIsPositionDialogOpen] = useState(false);
-  const [availablePositions, setAvailablePositions] = useState<Position[]>([]);
-  const [selectedPositionId, setSelectedPositionId] = useState<string | null>(null);
-  
-  const { 
-    nodeData,
-    hasOptionTrading,
-    startNodeSymbol,
-    handleLabelChange,
-    handlePositionChange,
-    validateVpiUniqueness,
-    // Position-specific handlers
-    handlePositionTypeChange,
-    handleOrderTypeChange,
-    handleLimitPriceChange,
-    handleLotsChange,
-    handleProductTypeChange,
-    handleExpiryChange,
-    handleStrikeTypeChange,
-    handleStrikeValueChange,
-    handleOptionTypeChange
-  } = useActionNodeForm({ node, updateNodeData });
-
-  // Get all nodes to find available positions
+const ModifyNodeEditor: React.FC<ModifyNodeEditorProps> = ({ node, updateNodeData }) => {
   const nodes = useStrategyStore(state => state.nodes);
-  
+  const [positions, setPositions] = useState<Position[]>([]);
+  const [selectedPositionId, setSelectedPositionId] = useState<string | null>(node.data.targetPositionId);
+  const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
+
+  // Collect all positions from entry nodes
   useEffect(() => {
-    // Scan all nodes to find entry nodes with positions
-    const positions: Position[] = [];
+    const allPositions: Position[] = [];
     
-    nodes.forEach(node => {
-      if (node.type === 'entryNode' && node.data.positions && node.data.positions.length > 0) {
-        node.data.positions.forEach((position: Position) => {
-          positions.push({
+    nodes.forEach(n => {
+      if (n.type === 'entryNode' && Array.isArray(n.data.positions)) {
+        n.data.positions.forEach((position: Position) => {
+          // Add source node information to each position
+          allPositions.push({
             ...position,
-            sourceNodeId: node.id
+            sourceNodeId: n.id
           });
         });
       }
     });
     
-    setAvailablePositions(positions);
+    setPositions(allPositions);
     
-    // Ensure we have a selected position if one is already set in the node data
-    if (nodeData.targetPositionId && !selectedPositionId) {
-      setSelectedPositionId(nodeData.targetPositionId);
+    // If we have a previously selected position, find and select it again
+    if (node.data.targetPositionId) {
+      const position = allPositions.find(p => p.id === node.data.targetPositionId);
+      if (position) {
+        setSelectedPosition(position);
+      } else {
+        // If the selected position no longer exists, reset the selection
+        setSelectedPosition(null);
+        updateNodeData(node.id, { 
+          targetPositionId: null,
+          targetNodeId: null
+        });
+      }
     }
-  }, [nodes, nodeData.targetPositionId, selectedPositionId]);
+  }, [nodes]);
 
-  // Get the currently selected position from available positions
-  const selectedPosition = selectedPositionId 
-    ? availablePositions.find(pos => pos.id === selectedPositionId) 
-    : null;
+  const handlePositionSelect = (positionId: string) => {
+    const position = positions.find(p => p.id === positionId);
     
-  // Add a position to modify
-  const handleAddPositionToModify = (positionId: string) => {
-    const position = availablePositions.find(pos => pos.id === positionId);
-    if (!position) return;
-    
-    // Store just the reference to the position, not the position itself
-    updateNodeData(node.id, {
-      targetPositionId: position.id,
-      targetNodeId: position.sourceNodeId,
-      // Store a copy of the modifications we want to make
-      modifications: {
-        positionType: position.positionType,
-        orderType: position.orderType,
-        limitPrice: position.limitPrice,
-        lots: position.lots,
-        productType: position.productType,
-        optionDetails: position.optionDetails ? { ...position.optionDetails } : undefined
-      },
-      _lastUpdated: Date.now()
-    });
-    
-    setSelectedPositionId(position.id);
-  };
-  
-  const handlePositionUpdate = (updates: Partial<any>) => {
-    if (!selectedPosition) return;
-    
-    // We only check if the user is manually changing the VPI
-    if (updates.vpi && updates.vpi !== selectedPosition?.vpi && !validateVpiUniqueness(updates.vpi, selectedPosition.id)) {
-      toast({
-        title: "Duplicate VPI",
-        description: "This Virtual Position ID is already in use.",
-        variant: "destructive"
+    if (position) {
+      setSelectedPositionId(positionId);
+      setSelectedPosition(position);
+      
+      // Update the node data with the selected position and source node
+      updateNodeData(node.id, {
+        targetPositionId: positionId,
+        targetNodeId: position.sourceNodeId,
       });
-      return;
+      
+      toast({
+        title: "Position selected",
+        description: `Selected position ${position.vpi} for modification`
+      });
     }
+  };
 
-    // Update the modifications in the node data
-    const currentModifications = nodeData.modifications || {};
-    updateNodeData(node.id, {
-      modifications: {
-        ...currentModifications,
-        ...updates
-      },
-      _lastUpdated: Date.now()
-    });
-  };
-  
-  const handleEditPosition = () => {
-    if (selectedPosition) {
-      setIsPositionDialogOpen(true);
-    }
-  };
-  
-  const handleClosePositionDialog = () => {
-    setIsPositionDialogOpen(false);
-  };
-  
-  const handleSelectPosition = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const positionId = e.target.value;
-    handleAddPositionToModify(positionId);
+  // Modify the label field
+  const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    updateNodeData(node.id, { label: e.target.value });
   };
 
   return (
-    <div className="space-y-2">
-      <NodeDetailsPanel
-        nodeLabel={nodeData?.label || ''}
-        onLabelChange={handleLabelChange}
-        infoTooltip="Modify nodes allow you to change parameters of already opened positions."
-      />
-      
-      <Separator className="my-1" />
-      
-      <InstrumentDisplay startNodeSymbol={startNodeSymbol} />
-      
-      <div className="bg-accent/5 rounded-md p-2">
-        <div className="space-y-2">
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-medium">Select Position to Modify</label>
-            <select 
-              className="px-3 py-1 rounded-md bg-background border"
-              value={selectedPositionId || ""}
-              onChange={handleSelectPosition}
-            >
-              <option value="">-- Select a position --</option>
-              {availablePositions.map(position => (
-                <option key={position.id} value={position.id}>
-                  {position.vpi} - {position.positionType === 'buy' ? 'Long' : 'Short'}
-                </option>
-              ))}
-            </select>
-          </div>
-          
-          {selectedPosition ? (
-            <div className="mt-2">
-              <div className="flex items-center justify-between mb-1">
-                <div className="flex items-center gap-1">
-                  <span className="text-xs font-medium">Position Details</span>
-                  <span className="text-xs bg-primary/10 px-1 rounded" title={selectedPosition.vpi}>
-                    VPI: {selectedPosition.vpi}
-                  </span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-7 w-7" 
-                    onClick={handleEditPosition}
-                  >
-                    <Edit2 className="h-3 w-3" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7"
-                    onClick={() => {
-                      // Navigate to the source node's edit panel (in a real app)
-                      toast({
-                        title: "Position Source",
-                        description: `This position comes from node ${selectedPosition.sourceNodeId}`,
-                      });
-                    }}
-                  >
-                    <ExternalLink className="h-3 w-3" />
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="text-xs text-muted-foreground mb-2">
-                Modify the parameters you want to change for this position.
-              </div>
-              
-              {/* Current position details displayed as read-only */}
-              <div className="bg-background/50 p-2 rounded-md mb-2">
-                <div className="grid grid-cols-2 gap-1">
-                  <div className="text-xs">
-                    <span className="font-medium">Type:</span> {selectedPosition.positionType === 'buy' ? 'Long' : 'Short'}
-                  </div>
-                  <div className="text-xs">
-                    <span className="font-medium">Order:</span> {selectedPosition.orderType}
-                  </div>
-                  <div className="text-xs">
-                    <span className="font-medium">Lots:</span> {selectedPosition.lots || 0}
-                  </div>
-                  {selectedPosition.orderType === 'limit' && (
-                    <div className="text-xs">
-                      <span className="font-medium">Limit:</span> {selectedPosition.limitPrice || 'N/A'}
-                    </div>
-                  )}
-                </div>
-              </div>
-              
-              {/* Buttons to make common modifications */}
-              <div className="flex flex-wrap gap-1 mt-2">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="text-xs h-7"
-                  onClick={() => handlePositionUpdate({ orderType: 'market' })}
-                >
-                  Convert to Market
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="text-xs h-7"
-                  onClick={() => handlePositionUpdate({ orderType: 'limit' })}
-                >
-                  Convert to Limit
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="text-xs h-7"
-                  onClick={() => handlePositionUpdate({ lots: (selectedPosition.lots || 1) + 1 })}
-                >
-                  Increase Lots
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="text-xs h-7"
-                  onClick={() => {
-                    const currentLots = selectedPosition.lots || 1;
-                    if (currentLots > 1) {
-                      handlePositionUpdate({ lots: currentLots - 1 });
-                    }
-                  }}
-                >
-                  Decrease Lots
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center p-4">
-              <p className="text-sm text-muted-foreground">
-                Select a position to modify its parameters
+    <div className="space-y-4">
+      <div className="flex items-center gap-3">
+        <Label htmlFor="label">Node Label</Label>
+        <input
+          id="label"
+          className="border rounded p-1 flex-grow"
+          value={node.data.label || ''}
+          onChange={handleLabelChange}
+        />
+      </div>
+
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg">Position Selection</CardTitle>
+          <CardDescription>
+            Select a position to modify from an Entry Node
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {positions.length === 0 ? (
+            <div className="flex items-center space-x-2 p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-md">
+              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              <p className="text-sm text-amber-700 dark:text-amber-300">
+                No positions found. Create a position in an Entry Node first.
               </p>
             </div>
+          ) : (
+            <Select
+              value={selectedPositionId || ''}
+              onValueChange={handlePositionSelect}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a position to modify" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Available positions</SelectLabel>
+                  {positions.map((position) => (
+                    <SelectItem key={position.id} value={position.id}>
+                      {position.vpi} - {position.positionType.toUpperCase()} - {position.orderType}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           )}
-        </div>
-      </div>
-      
-      {/* Position Dialog for detailed editing */}
-      {selectedPosition && (
-        <PositionDialog
-          position={{
-            ...selectedPosition,
-            ...nodeData.modifications,
-          }}
-          isOpen={isPositionDialogOpen}
-          onClose={handleClosePositionDialog}
-          hasOptionTrading={hasOptionTrading}
-          onPositionChange={handlePositionUpdate}
-          onPositionTypeChange={handlePositionTypeChange}
-          onOrderTypeChange={handleOrderTypeChange}
-          onLimitPriceChange={handleLimitPriceChange}
-          onLotsChange={handleLotsChange}
-          onProductTypeChange={handleProductTypeChange}
-          onExpiryChange={handleExpiryChange}
-          onStrikeTypeChange={handleStrikeTypeChange}
-          onStrikeValueChange={handleStrikeValueChange}
-          onOptionTypeChange={handleOptionTypeChange}
-        />
-      )}
+
+          {selectedPosition && (
+            <div className="mt-4 border rounded-md p-3">
+              <h3 className="font-medium mb-2">Position Details</h3>
+              
+              <div className="space-y-1 mb-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">ID:</span>
+                  <span className="text-sm">{selectedPosition.vpi}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Type:</span>
+                  <Badge variant={selectedPosition.positionType === 'buy' ? 'success' : 'destructive'}>
+                    {selectedPosition.positionType.toUpperCase()}
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Order:</span>
+                  <span className="text-sm">{selectedPosition.orderType}</span>
+                </div>
+                {selectedPosition.orderType === 'limit' && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Limit Price:</span>
+                    <span className="text-sm">{selectedPosition.limitPrice}</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Quantity:</span>
+                  <span className="text-sm">{selectedPosition.lots} lots</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Product:</span>
+                  <span className="text-sm">{selectedPosition.productType}</span>
+                </div>
+                {selectedPosition.optionDetails && (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Expiry:</span>
+                      <span className="text-sm">{selectedPosition.optionDetails.expiry}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Strike:</span>
+                      <span className="text-sm">{selectedPosition.optionDetails.strikeType}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Option:</span>
+                      <span className="text-sm">{selectedPosition.optionDetails.optionType}</span>
+                    </div>
+                  </>
+                )}
+                
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Source:</span>
+                  <span className="text-sm">{selectedPosition.sourceNodeId}</span>
+                </div>
+              </div>
+              
+              <div className="mt-3 pt-2 border-t">
+                <Button size="sm" className="w-full flex items-center gap-2">
+                  <Edit className="h-4 w-4" />
+                  Edit Modifications
+                </Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };
