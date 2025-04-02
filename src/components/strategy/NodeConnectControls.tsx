@@ -1,6 +1,6 @@
 
 import React, { useState, useCallback, memo } from 'react';
-import { Play, Activity, SlidersHorizontal, StopCircle, AlertTriangle, Plus, ShoppingCart, LogOut, Bell, Edit } from 'lucide-react';
+import { Play, Activity, SlidersHorizontal, StopCircle, AlertTriangle, Plus, ShoppingCart, LogOut, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -29,7 +29,6 @@ const nodeTypeIcons = {
   entryNode: { icon: ShoppingCart, label: 'Entry Node', color: 'text-green-500' },
   exitNode: { icon: LogOut, label: 'Exit Node', color: 'text-amber-500' },
   alertNode: { icon: Bell, label: 'Alert Node', color: 'text-purple-500' },
-  modifyNode: { icon: Edit, label: 'Modify Node', color: 'text-orange-500' },
   endNode: { icon: StopCircle, label: 'End Node', color: 'text-rose-600' },
   forceEndNode: { icon: AlertTriangle, label: 'Force End Node', color: 'text-purple-500' }
 };
@@ -44,7 +43,8 @@ const NodeConnectControls = memo(({ showOn, onAddNode, parentNodeId }: NodeConne
         { value: 'signalNode', label: 'Signal Node' },
         { value: 'entryNode', label: 'Entry Node' },
         { value: 'exitNode', label: 'Exit Node' },
-        { value: 'modifyNode', label: 'Modify Node' },
+        // Temporarily hiding the Modify Node option
+        // { value: 'modifyNode', label: 'Modify Node' },
         { value: 'alertNode', label: 'Alert Node' },
         { value: 'endNode', label: 'End Node' },
         { value: 'forceEndNode', label: 'Force End Node' }
@@ -54,7 +54,8 @@ const NodeConnectControls = memo(({ showOn, onAddNode, parentNodeId }: NodeConne
         { value: 'signalNode', label: 'Signal Node' },
         { value: 'entryNode', label: 'Entry Node' },
         { value: 'exitNode', label: 'Exit Node' },
-        { value: 'modifyNode', label: 'Modify Node' },
+        // Temporarily hiding the Modify Node option
+        // { value: 'modifyNode', label: 'Modify Node' },
         { value: 'alertNode', label: 'Alert Node' },
         { value: 'endNode', label: 'End Node' },
         { value: 'forceEndNode', label: 'Force End Node' }
