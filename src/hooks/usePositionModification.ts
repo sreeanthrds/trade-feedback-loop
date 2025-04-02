@@ -26,7 +26,16 @@ export function usePositionModification(
     
     // First, create a basic updated position with the current values
     const updatedPosition: Position = {
-      ...currentPosition,
+      id: currentPosition.id,
+      vpi: currentPosition.vpi,
+      vpt: currentPosition.vpt,
+      priority: currentPosition.priority,
+      positionType: currentPosition.positionType,
+      orderType: currentPosition.orderType,
+      limitPrice: currentPosition.limitPrice,
+      lots: currentPosition.lots,
+      productType: currentPosition.productType,
+      sourceNodeId: currentPosition.sourceNodeId,
       _lastUpdated: Date.now()
     };
 
@@ -42,12 +51,15 @@ export function usePositionModification(
     
     // Handle optionDetails separately - this avoids spreading potentially undefined values
     if (updates.optionDetails && currentPosition.optionDetails) {
-      // Create a new optionDetails object without using spread on updates.optionDetails
+      // Create a new optionDetails object without using spread operator
       updatedPosition.optionDetails = {
-        ...currentPosition.optionDetails
+        expiry: currentPosition.optionDetails.expiry,
+        strikeType: currentPosition.optionDetails.strikeType,
+        strikeValue: currentPosition.optionDetails.strikeValue,
+        optionType: currentPosition.optionDetails.optionType
       };
       
-      // Copy each property individually
+      // Copy each property individually from updates
       if (updates.optionDetails) {
         Object.keys(updates.optionDetails).forEach(key => {
           if (updatedPosition.optionDetails) {
@@ -67,7 +79,18 @@ export function usePositionModification(
     const modifications = {
       ...node.data.modifications || {},
       [currentPosition.id]: {
-        ...currentPosition
+        id: currentPosition.id,
+        vpi: currentPosition.vpi,
+        vpt: currentPosition.vpt,
+        priority: currentPosition.priority,
+        positionType: currentPosition.positionType,
+        orderType: currentPosition.orderType,
+        limitPrice: currentPosition.limitPrice,
+        lots: currentPosition.lots,
+        productType: currentPosition.productType,
+        optionDetails: currentPosition.optionDetails,
+        sourceNodeId: currentPosition.sourceNodeId,
+        _lastUpdated: currentPosition._lastUpdated
       }
     };
 
