@@ -24,12 +24,10 @@ export function usePositionModification(
   const handlePositionChange = (updates: Partial<Position>) => {
     if (!currentPosition) return;
     
-    // Create updated position object
-    const updatedPosition = {
-      ...currentPosition,
-      ...updates,
+    // Create updated position object - fix for spread type error
+    const updatedPosition = Object.assign({}, currentPosition, updates, {
       _lastUpdated: Date.now()
-    } as Position;
+    }) as Position;
     
     setCurrentPosition(updatedPosition);
   };

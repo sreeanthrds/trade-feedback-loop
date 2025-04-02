@@ -11,7 +11,6 @@ interface ModifyNodeProps {
     targetNodeId?: string;
     modifications?: any;
     positions?: any[];
-    instrument?: any;
     startNodeSymbol?: string;
   };
   isConnectable: boolean;
@@ -34,7 +33,6 @@ const ModifyNode = ({ data, isConnectable, selected, id }: ModifyNodeProps) => {
             label: data.label || 'Modify Position',
             actionType: 'modify',
             positions: data.positions || [],
-            instrument: data.instrument,
             targetPositionId: data.targetPositionId,
             targetNodeId: data.targetNodeId,
             modifications: data.modifications,

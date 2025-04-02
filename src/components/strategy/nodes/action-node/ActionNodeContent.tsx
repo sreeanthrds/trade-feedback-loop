@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -13,9 +14,11 @@ interface ActionNodeContentProps {
   };
   id: string;
   startNodeSymbol?: string;
+  isSymbolMissing?: boolean;
+  updateNodeData?: (id: string, data: any) => void;
 }
 
-const ActionNodeContent: React.FC<ActionNodeContentProps> = ({ data, id, startNodeSymbol }) => {
+const ActionNodeContent: React.FC<ActionNodeContentProps> = ({ data, id, startNodeSymbol, isSymbolMissing }) => {
   const { label, actionType, positions = [], targetPositionId, targetNodeId } = data;
   
   const getIcon = () => {

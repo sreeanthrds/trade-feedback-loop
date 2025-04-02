@@ -36,7 +36,11 @@ const ExitNode: React.FC<NodeProps> = ({ id, data, selected }) => {
 
   return (
     <ActionNodeContent
-      data={nodeData}
+      data={{
+        label: nodeData.label,
+        actionType: nodeData.actionType,
+        positions: nodeData.positions,
+      }}
       startNodeSymbol={startNodeSymbol}
       isSymbolMissing={isSymbolMissing}
       id={id}
