@@ -37,7 +37,7 @@ export function useModifyPositions(node: Node) {
                 expiry: position.optionDetails.expiry || '',
                 strikeType: position.optionDetails.strikeType || '',
                 strikeValue: position.optionDetails.strikeValue,
-                optionType: position.optionDetails.optionType || ''
+                optionType: position.optionDetails.optionType || 'CE' // Default to CE
               } : undefined
             };
             allPositions.push(convertedPosition);

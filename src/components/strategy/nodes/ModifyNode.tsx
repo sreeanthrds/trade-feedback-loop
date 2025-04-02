@@ -20,8 +20,8 @@ const ModifyNode: React.FC<NodeProps> = ({ id, data, selected, isConnectable, ty
     label: data?.label || 'Modify Position',
     actionType: 'modify' as const,
     positions: nodePositions,
-    targetPositionId: data?.targetPositionId,
-    targetNodeId: data?.targetNodeId,
+    targetPositionId: data?.targetPositionId || '',
+    targetNodeId: data?.targetNodeId || '',
     modifications: data?.modifications || {},
     icon: <Pencil className="h-4 w-4 text-amber-500 mr-1.5" />,
     description: 'Modify an existing position'

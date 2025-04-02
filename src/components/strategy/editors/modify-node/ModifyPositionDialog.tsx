@@ -85,10 +85,13 @@ const ModifyPositionDialog: React.FC<ModifyPositionDialogProps> = ({
   const handleOptionTypeChange = (value: string) => {
     if (!position.optionDetails) return;
     
+    // Make sure value is only "CE" or "PE"
+    if (value !== "CE" && value !== "PE") return;
+    
     onPositionChange({ 
       optionDetails: {
         ...position.optionDetails,
-        optionType: value 
+        optionType: value as "CE" | "PE"
       }
     });
   };
