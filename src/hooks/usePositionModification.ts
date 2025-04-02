@@ -42,10 +42,19 @@ export function usePositionModification(
     
     // Handle optionDetails separately - this avoids spreading potentially undefined values
     if (updates.optionDetails && currentPosition.optionDetails) {
+      // Create a new optionDetails object without using spread on updates.optionDetails
       updatedPosition.optionDetails = {
-        ...currentPosition.optionDetails,
-        ...updates.optionDetails
+        ...currentPosition.optionDetails
       };
+      
+      // Copy each property individually
+      if (updates.optionDetails) {
+        Object.keys(updates.optionDetails).forEach(key => {
+          if (updatedPosition.optionDetails) {
+            (updatedPosition.optionDetails as any)[key] = (updates.optionDetails as any)[key];
+          }
+        });
+      }
     }
     
     setCurrentPosition(updatedPosition);
