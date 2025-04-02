@@ -66,12 +66,13 @@ export function usePositionModification(
     updateNodeData(node.id, {
       selectedPosition: updatedPosition
     });
+    
+    // Automatically save the modification to the node
+    saveModifiedPosition(updatedPosition);
   };
 
-  const saveModifiedPosition = () => {
-    if (!node.data.targetPositionId || !node.data.selectedPosition) return;
-    
-    const position = node.data.selectedPosition as Position;
+  const saveModifiedPosition = (position: Position) => {
+    if (!position) return;
     
     // Prepare modifications object to be saved in the modify node
     const modifications: Record<string, any> = {};
@@ -104,16 +105,10 @@ export function usePositionModification(
       modifications,
       _lastUpdated: Date.now()
     });
-
-    toast({
-      title: "Position Modified",
-      description: `Modified position ${position.vpi || ''}`
-    });
   };
 
   return {
     currentPosition,
-    handlePositionChange,
-    saveModifiedPosition
+    handlePositionChange
   };
 }

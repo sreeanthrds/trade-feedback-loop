@@ -11,10 +11,8 @@ import {
 import { useModifyPositions, usePositionSelection } from '@/hooks/useModifyPositions';
 import { usePositionModification } from '@/hooks/usePositionModification';
 import PositionSelector from './modify-node/PositionSelector';
-import PositionDetails from './modify-node/PositionDetails';
 import { NodeDetailsPanel } from './shared';
 import PositionEditor from './action-node/components/PositionEditor';
-import { Separator } from '@/components/ui/separator';
 import { adaptPosition } from '@/components/strategy/types/position-types';
 
 interface ModifyNodeEditorProps {
@@ -44,8 +42,7 @@ const ModifyNodeEditor: React.FC<ModifyNodeEditorProps> = ({ node, updateNodeDat
   );
 
   const {
-    handlePositionChange,
-    saveModifiedPosition
+    handlePositionChange
   } = usePositionModification(node, updateNodeData);
 
   // For position handlers
@@ -177,17 +174,6 @@ const ModifyNodeEditor: React.FC<ModifyNodeEditorProps> = ({ node, updateNodeDat
               onStrikeValueChange={handleStrikeValueChange}
               onOptionTypeChange={handleOptionTypeChange}
             />
-            
-            <Separator className="my-4" />
-            
-            <div className="flex justify-end">
-              <button 
-                className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90"
-                onClick={saveModifiedPosition}
-              >
-                Save Changes
-              </button>
-            </div>
           </CardContent>
         </Card>
       )}
