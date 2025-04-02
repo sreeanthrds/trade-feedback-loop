@@ -20,19 +20,19 @@ export const useReEntrySettings = ({
   defaultExitNodeData 
 }: UseReEntrySettingsProps) => {
   const exitNodeData = nodeData?.exitNodeData || defaultExitNodeData;
-  const { reEntryConfig: initialConfig } = exitNodeData;
+  const reEntryConfig = exitNodeData?.reEntryConfig as ReEntryConfig | undefined;
   
   // Default values
   const [reEntryEnabled, setReEntryEnabled] = useState(
-    initialConfig?.enabled || false
+    reEntryConfig?.enabled || false
   );
   
   const [groupNumber, setGroupNumber] = useState(
-    initialConfig?.groupNumber || 1
+    reEntryConfig?.groupNumber || 1
   );
   
   const [maxReEntries, setMaxReEntries] = useState(
-    initialConfig?.maxReEntries || 1
+    reEntryConfig?.maxReEntries || 1
   );
 
   // Use specialized hooks with explicit props
@@ -64,13 +64,18 @@ export const useReEntrySettings = ({
   
   // Sync local state with node data
   useEffect(() => {
-    const updatedData = node.data?.exitNodeData?.reEntryConfig;
-    if (updatedData) {
-      setReEntryEnabled(updatedData.enabled || false);
-      setGroupNumber(updatedData.groupNumber || 1);
-      setMaxReEntries(updatedData.maxReEntries || 1);
+    // Safely access the node data with proper type casting
+    if (node?.data) {
+      const nodeDataObj = node.data as { exitNodeData?: ExitNodeData };
+      const updatedConfig = nodeDataObj.exitNodeData?.reEntryConfig;
+      
+      if (updatedConfig) {
+        setReEntryEnabled(updatedConfig.enabled || false);
+        setGroupNumber(updatedConfig.groupNumber || 1);
+        setMaxReEntries(updatedConfig.maxReEntries || 1);
+      }
     }
-  }, [node.data]);
+  }, [node?.data]);
   
   // Create handler functions with proper state updates
   const handleReEntryToggle = (checked: boolean) => {
