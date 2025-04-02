@@ -24,10 +24,11 @@ export function usePositionModification(
   const handlePositionChange = (updates: Partial<Position>) => {
     if (!currentPosition) return;
     
-    // Create updated position object - fix for spread type error
-    const updatedPosition = Object.assign({}, currentPosition, updates, {
-      _lastUpdated: Date.now()
-    }) as Position;
+    // Create updated position object without using spread on potentially non-object type
+    const updatedPosition = Object.assign({}, currentPosition, updates) as Position;
+    
+    // Add lastUpdated timestamp
+    updatedPosition._lastUpdated = Date.now();
     
     setCurrentPosition(updatedPosition);
   };

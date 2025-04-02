@@ -9,7 +9,7 @@ interface ModifyNodeProps {
     actionType: 'modify';
     targetPositionId?: string;
     targetNodeId?: string;
-    modifications?: any;
+    modifications?: Record<string, any>;
     positions?: any[];
     startNodeSymbol?: string;
   };

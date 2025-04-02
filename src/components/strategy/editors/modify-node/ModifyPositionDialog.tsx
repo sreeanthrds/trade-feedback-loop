@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { X, Save } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import PositionEditor from '../action-node/components/PositionEditor';
-import { Position as ActionNodePosition } from '@/components/strategy/editors/action-node/types';
 
 interface ModifyPositionDialogProps {
   position: Position | null;
@@ -93,8 +92,8 @@ const ModifyPositionDialog: React.FC<ModifyPositionDialogProps> = ({
     });
   };
 
-  // Convert Position to ActionNodePosition for the PositionEditor
-  const adaptedPosition: ActionNodePosition = {
+  // Create compatible position for PositionEditor
+  const adaptedPosition = {
     id: position.id,
     vpi: position.vpi,
     vpt: position.vpt,
@@ -106,10 +105,15 @@ const ModifyPositionDialog: React.FC<ModifyPositionDialogProps> = ({
     productType: position.productType,
     optionDetails: position.optionDetails ? {
       expiry: position.optionDetails.expiry,
-      strikeType: position.optionDetails.strikeType as any,
+      strikeType: position.optionDetails.strikeType,
       strikeValue: position.optionDetails.strikeValue,
-      optionType: position.optionDetails.optionType as 'CE' | 'PE'
+      optionType: position.optionDetails.optionType
     } : undefined
+  };
+
+  // Create the handler wrapper for type safety
+  const handleAdaptedPositionChange = (updates: any) => {
+    onPositionChange(updates);
   };
   
   return (
@@ -128,10 +132,7 @@ const ModifyPositionDialog: React.FC<ModifyPositionDialogProps> = ({
             <PositionEditor
               position={adaptedPosition}
               hasOptionTrading={!!position.optionDetails}
-              onPositionChange={(updates) => {
-                // Convert ActionNodePosition updates to Position updates
-                onPositionChange(updates as unknown as Partial<Position>);
-              }}
+              onPositionChange={handleAdaptedPositionChange}
               onPositionTypeChange={handlePositionTypeChange}
               onOrderTypeChange={handleOrderTypeChange}
               onLimitPriceChange={handleLimitPriceChange}

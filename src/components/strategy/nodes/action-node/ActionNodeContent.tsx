@@ -11,6 +11,7 @@ interface ActionNodeContentProps {
     positions?: any[];
     targetPositionId?: string;
     targetNodeId?: string;
+    modifications?: Record<string, any>;
   };
   id: string;
   startNodeSymbol?: string;
