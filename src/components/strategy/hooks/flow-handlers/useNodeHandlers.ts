@@ -17,8 +17,8 @@ interface UseNodeHandlersProps {
   reactFlowWrapper: React.RefObject<HTMLDivElement>;
   setSelectedNode: (node: Node | null) => void;
   setIsPanelOpen: (isOpen: boolean) => void;
-  setNodes: (nodes: Node[]) => void;
-  setEdges: (edges: any[]) => void;
+  setNodes: (nodes: Node[] | ((nds: Node[]) => Node[])) => void;
+  setEdges: (edges: any[] | ((eds: any[]) => any[])) => void;
   strategyStore: any;
   updateHandlingRef: React.MutableRefObject<boolean>;
 }
@@ -139,7 +139,7 @@ export const useNodeHandlers = ({
               
               // Create a retry node floating to the left of the exit node
               const retryNodeId = `retry-${uuidv4().substring(0, 6)}`;
-              const retryNode = {
+              const retryNode: Node = {
                 id: retryNodeId,
                 type: 'retryNode',
                 position: {
@@ -170,8 +170,8 @@ export const useNodeHandlers = ({
               handler(id, data);
               
               // Then add the retry node and edge
-              setNodes(prev => [...prev, retryNode]);
-              setEdges(prev => [...prev, floatingEdge]);
+              setNodes((prev: Node[]) => [...prev, retryNode]);
+              setEdges((prev: any[]) => [...prev, floatingEdge]);
               
               // Update store
               setTimeout(() => {

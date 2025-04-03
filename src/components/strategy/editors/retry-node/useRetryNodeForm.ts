@@ -10,12 +10,12 @@ interface UseRetryNodeFormProps {
 export const useRetryNodeForm = ({ node, updateNodeData }: UseRetryNodeFormProps) => {
   // Get the node data
   const nodeData = node.data || {};
-  const retryConfig = nodeData.retryConfig || {};
+  const retryConfig = nodeData.retryConfig || { groupNumber: 1, maxReEntries: 1 };
   
   // State
-  const [label, setLabel] = useState(nodeData.label || 'Retry');
-  const [groupNumber, setGroupNumber] = useState(retryConfig.groupNumber || 1);
-  const [maxReEntries, setMaxReEntries] = useState(retryConfig.maxReEntries || 1);
+  const [label, setLabel] = useState<string>(nodeData.label || 'Retry');
+  const [groupNumber, setGroupNumber] = useState<number>(retryConfig.groupNumber || 1);
+  const [maxReEntries, setMaxReEntries] = useState<number>(retryConfig.maxReEntries || 1);
   
   // Update state when node data changes
   useEffect(() => {
@@ -44,12 +44,12 @@ export const useRetryNodeForm = ({ node, updateNodeData }: UseRetryNodeFormProps
     updateNodeData(node.id, {
       ...nodeData,
       retryConfig: {
-        ...retryConfig,
+        ...(nodeData.retryConfig || {}),
         groupNumber: newGroupNumber
       },
       _lastUpdated: Date.now()
     });
-  }, [node.id, nodeData, retryConfig, updateNodeData]);
+  }, [node.id, nodeData, updateNodeData]);
   
   // Handler for max re-entries change
   const handleMaxReEntriesChange = useCallback((value: number) => {
@@ -59,12 +59,12 @@ export const useRetryNodeForm = ({ node, updateNodeData }: UseRetryNodeFormProps
     updateNodeData(node.id, {
       ...nodeData,
       retryConfig: {
-        ...retryConfig,
+        ...(nodeData.retryConfig || {}),
         maxReEntries: newMaxReEntries
       },
       _lastUpdated: Date.now()
     });
-  }, [node.id, nodeData, retryConfig, updateNodeData]);
+  }, [node.id, nodeData, updateNodeData]);
   
   return {
     label,

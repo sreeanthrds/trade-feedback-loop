@@ -57,9 +57,16 @@ export const validateConnection = (
   }
   
   // Rule: Order nodes (entry, exit) shouldn't directly link to each other, except for retry nodes
-  if ((sourceNode?.type === 'entryNode' || sourceNode?.type === 'exitNode') && 
-      (targetNode?.type === 'entryNode' || targetNode?.type === 'exitNode') &&
-      targetNode?.type !== 'retryNode' && sourceNode?.type !== 'retryNode') {
+  const isOrderNode = (nodeType: string | undefined): boolean => 
+    nodeType === 'entryNode' || nodeType === 'exitNode';
+    
+  const isRetryNode = (nodeType: string | undefined): boolean => 
+    nodeType === 'retryNode';
+    
+  if (isOrderNode(sourceNode?.type) && 
+      isOrderNode(targetNode?.type) && 
+      !isRetryNode(targetNode?.type) && 
+      !isRetryNode(sourceNode?.type)) {
     toast({
       title: "Invalid connection",
       description: "Order nodes cannot directly link to each other",
