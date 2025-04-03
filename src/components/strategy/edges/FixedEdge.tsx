@@ -1,6 +1,6 @@
 
 import React, { memo } from 'react';
-import { EdgeProps, getSmoothStepPath } from '@xyflow/react';
+import { EdgeProps, getStraightPath } from '@xyflow/react';
 
 // Custom edge with fixed length
 const FixedEdge = ({ 
@@ -41,20 +41,17 @@ const FixedEdge = ({
     adjustedTargetY = sourceY + normalizedDy * length;
   }
   
-  // Use getSmoothStepPath for the edge path with floating effect
-  const [edgePath] = getSmoothStepPath({
+  // Use getStraightPath for a straight edge path
+  const [edgePath] = getStraightPath({
     sourceX,
     sourceY,
-    sourcePosition,
     targetX: adjustedTargetX,
-    targetY: adjustedTargetY,
-    targetPosition,
-    curvature: 0.3 // Increased curvature for floating effect
+    targetY: adjustedTargetY
   });
   
   return (
     <>
-      {/* Draw a smooth step edge with fixed length and floating appearance */}
+      {/* Draw a straight edge with fixed length */}
       <path
         id={id}
         className="react-flow__edge-path fixed-edge-path"

@@ -1,6 +1,6 @@
 
 import React, { memo } from 'react';
-import { EdgeProps, getBezierPath } from '@xyflow/react';
+import { EdgeProps, getStraightPath } from '@xyflow/react';
 
 // Custom edge with dashed line styling and arrow marker
 const DashEdge = ({ 
@@ -18,14 +18,12 @@ const DashEdge = ({
   animated,
   ...props 
 }: EdgeProps) => {
-  // Use getBezierPath for the edge path
-  const [edgePath] = getBezierPath({
+  // Use getStraightPath for a straight edge path
+  const [edgePath] = getStraightPath({
     sourceX,
     sourceY,
-    sourcePosition,
     targetX,
-    targetY,
-    targetPosition
+    targetY
   });
   
   const edgeStyle = {
@@ -55,7 +53,7 @@ const DashEdge = ({
         </marker>
       </defs>
       
-      {/* Draw a bezier edge with dashed line and animation if needed */}
+      {/* Draw a straight edge with dashed line and animation if needed */}
       <path
         id={id}
         className="react-flow__edge-path dashed-edge-path"
