@@ -2,7 +2,7 @@
 import React, { memo } from 'react';
 import { EdgeProps, getStraightPath } from '@xyflow/react';
 
-// Custom edge with fixed length
+// Custom edge that can optionally have fixed length
 const FixedEdge = ({ 
   id, 
   sourceX, 

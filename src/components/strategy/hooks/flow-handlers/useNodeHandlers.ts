@@ -1,3 +1,4 @@
+
 import { useCallback, useRef, useEffect } from 'react';
 import { Node } from '@xyflow/react';
 import { toast } from "@/hooks/use-toast";
@@ -176,23 +177,17 @@ export const useNodeHandlers = ({
                   }
                 };
                 
-                // Create fixed-length edge from exit node to retry node
-                const fixedEdge = {
+                // Create regular edge from exit node to retry node (remove fixed-length)
+                const connectingEdge = {
                   id: `e-${id}-${retryNodeId}`,
                   source: id,
                   target: retryNodeId,
-                  type: 'fixedEdge',
                   style: { 
                     stroke: '#9b59b6', 
                     strokeWidth: 2 
                   },
                   sourceHandle: null,
-                  targetHandle: null,
-                  // Fixed length edge properties
-                  data: {
-                    fixedLength: true,
-                    length: 120
-                  }
+                  targetHandle: null
                 };
                 
                 // Find any entry node to connect with animated dashed edge
@@ -221,17 +216,17 @@ export const useNodeHandlers = ({
                 // Then add the retry node and edges
                 setNodes((prev: Node[]) => [...prev, retryNode]);
                 
-                // Add edges (both fixed and dashed if available)
+                // Add edges (both connecting and dashed if available)
                 if (dashEdge) {
-                  setEdges((prev: any[]) => [...prev, fixedEdge, dashEdge]);
+                  setEdges((prev: any[]) => [...prev, connectingEdge, dashEdge]);
                 } else {
-                  setEdges((prev: any[]) => [...prev, fixedEdge]);
+                  setEdges((prev: any[]) => [...prev, connectingEdge]);
                 }
                 
                 // Update store
                 setTimeout(() => {
                   const updatedNodes = [...nodesRef.current, retryNode];
-                  let updatedEdges = [...edgesRef.current, fixedEdge];
+                  let updatedEdges = [...edgesRef.current, connectingEdge];
                   if (dashEdge) {
                     updatedEdges.push(dashEdge);
                   }
