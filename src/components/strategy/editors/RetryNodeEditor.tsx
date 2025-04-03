@@ -39,11 +39,11 @@ const RetryNodeEditor: React.FC<RetryNodeEditorProps> = ({ node, updateNodeData 
 
   // Get the appropriate info message
   const getActionInfoTooltip = () => {
-    return "Retry nodes allow a strategy to re-enter a position after an exit, with configurable attempt limits.";
+    return "Re-entry nodes allow a strategy to re-enter a position after an exit, with configurable attempt limits.";
   };
 
   // Ensure we always pass a string to nodeLabel
-  const nodeLabel = typeof label === 'string' ? label : 'Retry';
+  const nodeLabel = typeof label === 'string' ? label : 'Re-entry';
 
   return (
     <NodeDetailsPanel

@@ -1,3 +1,4 @@
+
 import { useCallback, useRef, useEffect } from 'react';
 import { Node } from '@xyflow/react';
 import { toast } from "@/hooks/use-toast";
@@ -150,7 +151,7 @@ export const useNodeHandlers = ({
                   y: exitNodePosition.y + 20    // Slightly below
                 },
                 data: {
-                  label: 'Retry',
+                  label: 'Re-entry',  // Changed from 'Retry' to 'Re-entry'
                   actionType: 'retry',
                   retryConfig: {
                     groupNumber: (newConfig as { groupNumber?: number })?.groupNumber || 1,
@@ -159,27 +160,67 @@ export const useNodeHandlers = ({
                 }
               };
               
-              // Create visual connection
-              const floatingEdge = {
+              // Create fixed-length edge from exit node to retry node
+              const fixedEdge = {
                 id: `e-${id}-${retryNodeId}`,
                 source: id,
                 target: retryNodeId,
                 type: 'default',
-                animated: true,
-                style: { stroke: '#9b59b6', strokeWidth: 2 }
+                style: { 
+                  stroke: '#9b59b6', 
+                  strokeWidth: 2 
+                },
+                sourceHandle: null,
+                targetHandle: null,
+                // Fixed length edge properties
+                data: {
+                  fixedLength: true,
+                  length: 100
+                }
               };
+              
+              // Find any entry node to connect with animated dashed edge
+              const entryNodes = nodesRef.current.filter(n => n.type === 'entryNode');
+              let dashEdge = null;
+              
+              if (entryNodes.length > 0) {
+                // Connect to the first entry node with a dashed animated edge
+                const targetEntryNode = entryNodes[0];
+                dashEdge = {
+                  id: `e-${retryNodeId}-${targetEntryNode.id}`,
+                  source: retryNodeId,
+                  target: targetEntryNode.id,
+                  type: 'dashEdge',  // New edge type for dashed animated edges
+                  animated: true,
+                  style: { 
+                    stroke: '#9b59b6', 
+                    strokeWidth: 2,
+                    strokeDasharray: '5, 5' // Creates dashed line
+                  }
+                };
+              }
               
               // Update node data first
               handler(id, data);
               
-              // Then add the retry node and edge
+              // Then add the retry node and edges
               setNodes((prev: Node[]) => [...prev, retryNode]);
-              setEdges((prev: any[]) => [...prev, floatingEdge]);
+              
+              // Add edges (both fixed and dashed if available)
+              if (dashEdge) {
+                setEdges((prev: any[]) => [...prev, fixedEdge, dashEdge]);
+              } else {
+                setEdges((prev: any[]) => [...prev, fixedEdge]);
+              }
               
               // Update store
               setTimeout(() => {
                 const updatedNodes = [...nodesRef.current, retryNode];
-                const updatedEdges = [...edgesRef.current, floatingEdge];
+                let updatedEdges = [...edgesRef.current, fixedEdge];
+                if (dashEdge) {
+                  updatedEdges.push(dashEdge);
+                }
+                
                 storeRef.current.setNodes(updatedNodes);
                 storeRef.current.setEdges(updatedEdges);
                 storeRef.current.addHistoryItem(updatedNodes, updatedEdges);

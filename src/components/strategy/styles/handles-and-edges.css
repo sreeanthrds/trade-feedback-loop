@@ -69,3 +69,26 @@
 .react-flow__edge:hover .edge-controls {
   filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8));
 }
+
+/* Dashed animated edge styles */
+.dashed-edge-path {
+  stroke-dasharray: 5, 5;
+}
+
+@keyframes dash {
+  from {
+    stroke-dashoffset: 10;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.react-flow__edge.animated .dashed-edge-path {
+  animation: dash 1s linear infinite;
+}
+
+/* Fixed-length edge styles */
+.fixed-edge-path {
+  stroke-width: 2;
+}

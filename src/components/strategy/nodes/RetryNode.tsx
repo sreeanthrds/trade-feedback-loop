@@ -12,7 +12,7 @@ const RetryNode: React.FC<NodeProps> = ({ id, data, selected, isConnectable, typ
   const nodeData = useMemo(() => {
     const rawData = data as Record<string, unknown>;
     return {
-      label: (rawData.label as string) || 'Retry',
+      label: (rawData.label as string) || 'Re-entry', // Changed from 'Retry' to 'Re-entry'
       actionType: 'retry' as const,
       positions: Array.isArray(rawData.positions) ? rawData.positions : [],
       icon: getNodeIcon('retry'),
