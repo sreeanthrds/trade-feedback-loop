@@ -64,6 +64,11 @@
   border: 1px solid #9C27B0;
 }
 
+.react-flow__node-retryNode {
+  background-color: rgba(156, 39, 176, 0.1);
+  border: 1px solid #9C27B0;
+}
+
 /* Group div handling for dragging state */
 .group {
   cursor: grab;

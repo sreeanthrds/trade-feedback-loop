@@ -1,14 +1,20 @@
 
 import { Node } from '@xyflow/react';
 import { 
+  ExitConditionType, 
+  ExitOrderType, 
+  ExitCondition, 
+  ExitNodeData
+} from './types';
+import {
   useExitNodeBase,
   useExitNodeInitialization,
   useExitConditionType,
   useOrderSettings,
   useMultipleOrders,
   useExitConditionField,
+  useReEntrySettings
 } from './hooks';
-import { useReEntryToggle } from './hooks/useReEntryToggle';
 
 interface UseExitOrderFormProps {
   node: Node;
@@ -78,7 +84,7 @@ export const useExitOrderForm = ({ node, updateNodeData }: UseExitOrderFormProps
   });
   
   // Use re-entry toggle hook
-  const { reEntryEnabled, handleReEntryToggle } = useReEntryToggle({
+  const { reEntryEnabled, handleReEntryToggle } = useReEntrySettings({
     node,
     updateNodeData,
     nodeData,

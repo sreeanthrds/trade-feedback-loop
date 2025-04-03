@@ -34,10 +34,9 @@ const RetryNode: React.FC<NodeProps> = ({ id, data, selected, isConnectable, typ
       id={id}
       data={{
         ...nodeData,
-        // Make actionType compatible with ActionNodeTemplate expectations 
-        // Since it only accepts certain action types, we're mapping retry to a compatible type
-        // but maintaining the icon and functionality of retry
-        actionType: 'action',
+        // Since ActionNodeTemplate expects a specific set of action types, 
+        // we'll set it as 'entry' which is compatible
+        actionType: 'entry',
         _actionTypeInternal: 'retry'
       }}
       selected={selected}

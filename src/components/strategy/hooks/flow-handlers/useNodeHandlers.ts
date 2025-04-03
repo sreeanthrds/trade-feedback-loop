@@ -121,15 +121,15 @@ export const useNodeHandlers = ({
         
         // Special handling for exit nodes with re-entry toggle
         if (
-          data?.exitNodeData?.reEntryConfig &&
-          typeof data.exitNodeData.reEntryConfig === 'object'
+          data?.exitNodeData &&
+          data.exitNodeData?.reEntryConfig
         ) {
           const node = nodesRef.current.find(n => n.id === id);
           const oldConfig = node?.data?.exitNodeData?.reEntryConfig;
           const newConfig = data.exitNodeData.reEntryConfig;
           
           // If re-entry was toggled on, create a retry node
-          if (!oldConfig?.enabled && newConfig.enabled) {
+          if (oldConfig?.enabled === false && newConfig.enabled === true) {
             console.log('Re-entry was enabled, creating retry node');
             
             // Get node position
@@ -150,8 +150,8 @@ export const useNodeHandlers = ({
                   label: 'Retry',
                   actionType: 'retry',
                   retryConfig: {
-                    groupNumber: newConfig.groupNumber,
-                    maxReEntries: newConfig.maxReEntries
+                    groupNumber: newConfig.groupNumber || 1,
+                    maxReEntries: newConfig.maxReEntries || 1
                   }
                 }
               };
@@ -170,12 +170,12 @@ export const useNodeHandlers = ({
               handler(id, data);
               
               // Then add the retry node and edge
-              setNodes(prev => [...prev, retryNode as any]);
+              setNodes(prev => [...prev, retryNode]);
               setEdges(prev => [...prev, floatingEdge]);
               
               // Update store
               setTimeout(() => {
-                const updatedNodes = [...nodesRef.current, retryNode as any];
+                const updatedNodes = [...nodesRef.current, retryNode];
                 const updatedEdges = [...edgesRef.current, floatingEdge];
                 storeRef.current.setNodes(updatedNodes);
                 storeRef.current.setEdges(updatedEdges);

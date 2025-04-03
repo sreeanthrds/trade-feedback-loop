@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { Node } from '@xyflow/react';
 
 interface UseRetryNodeFormProps {
@@ -7,86 +7,65 @@ interface UseRetryNodeFormProps {
   updateNodeData: (id: string, data: any) => void;
 }
 
-interface RetryConfig {
-  groupNumber: number;
-  maxReEntries: number;
-}
-
 export const useRetryNodeForm = ({ node, updateNodeData }: UseRetryNodeFormProps) => {
-  const [label, setLabel] = useState<string>((node.data?.label as string) || 'Retry');
+  // Get the node data
+  const nodeData = node.data || {};
+  const retryConfig = nodeData.retryConfig || {};
   
-  // Safely access retryConfig or fallback to direct properties
-  const initialRetryConfig: RetryConfig = (() => {
-    if (node.data?.retryConfig && typeof node.data.retryConfig === 'object') {
-      return {
-        groupNumber: (node.data.retryConfig as any).groupNumber || 1,
-        maxReEntries: (node.data.retryConfig as any).maxReEntries || 1
-      };
-    }
-    return {
-      groupNumber: (node.data?.groupNumber as number) || 1,
-      maxReEntries: (node.data?.maxReEntries as number) || 1
-    };
-  })();
+  // State
+  const [label, setLabel] = useState(nodeData.label || 'Retry');
+  const [groupNumber, setGroupNumber] = useState(retryConfig.groupNumber || 1);
+  const [maxReEntries, setMaxReEntries] = useState(retryConfig.maxReEntries || 1);
   
-  const [groupNumber, setGroupNumber] = useState<number>(initialRetryConfig.groupNumber);
-  const [maxReEntries, setMaxReEntries] = useState<number>(initialRetryConfig.maxReEntries);
-
-  // Sync with node data when it changes
+  // Update state when node data changes
   useEffect(() => {
-    if (node.data) {
-      setLabel((node.data.label as string) || 'Retry');
-      
-      // Handle both structured and flat formats
-      if (node.data.retryConfig && typeof node.data.retryConfig === 'object') {
-        setGroupNumber((node.data.retryConfig as any).groupNumber || 1);
-        setMaxReEntries((node.data.retryConfig as any).maxReEntries || 1);
-      } else {
-        setGroupNumber((node.data.groupNumber as number) || 1);
-        setMaxReEntries((node.data.maxReEntries as number) || 1);
-      }
-    }
-  }, [node.data]);
-
+    setLabel(nodeData.label || 'Retry');
+    setGroupNumber(retryConfig.groupNumber || 1);
+    setMaxReEntries(retryConfig.maxReEntries || 1);
+  }, [nodeData, retryConfig]);
+  
   // Handler for label change
-  const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLabelChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newLabel = e.target.value;
     setLabel(newLabel);
+    
     updateNodeData(node.id, {
-      ...node.data as object,
+      ...nodeData,
       label: newLabel,
       _lastUpdated: Date.now()
     });
-  };
-
+  }, [node.id, nodeData, updateNodeData]);
+  
   // Handler for group number change
-  const handleGroupNumberChange = (value: number) => {
-    const safeValue = value || 1;
-    setGroupNumber(safeValue);
+  const handleGroupNumberChange = useCallback((value: number) => {
+    const newGroupNumber = value || 1;
+    setGroupNumber(newGroupNumber);
+    
     updateNodeData(node.id, {
-      ...node.data as object,
+      ...nodeData,
       retryConfig: {
-        groupNumber: safeValue,
-        maxReEntries: maxReEntries
+        ...retryConfig,
+        groupNumber: newGroupNumber
       },
       _lastUpdated: Date.now()
     });
-  };
-
-  // Handler for maximum re-entries change
-  const handleMaxReEntriesChange = (value: number) => {
-    const safeValue = value || 1;
-    setMaxReEntries(safeValue);
+  }, [node.id, nodeData, retryConfig, updateNodeData]);
+  
+  // Handler for max re-entries change
+  const handleMaxReEntriesChange = useCallback((value: number) => {
+    const newMaxReEntries = value || 1;
+    setMaxReEntries(newMaxReEntries);
+    
     updateNodeData(node.id, {
-      ...node.data as object,
+      ...nodeData,
       retryConfig: {
-        groupNumber: groupNumber,
-        maxReEntries: safeValue
+        ...retryConfig,
+        maxReEntries: newMaxReEntries
       },
       _lastUpdated: Date.now()
     });
-  };
-
+  }, [node.id, nodeData, retryConfig, updateNodeData]);
+  
   return {
     label,
     groupNumber,

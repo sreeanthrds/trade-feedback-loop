@@ -1,25 +1,16 @@
 
 import React from 'react';
 import { RefreshCcw } from 'lucide-react';
-import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
 import SwitchField from '../../shared/SwitchField';
 
 interface ReEntryFormProps {
   reEntryEnabled: boolean;
-  groupNumber: number;
-  maxReEntries: number;
   onReEntryToggle: (checked: boolean) => void;
-  onGroupNumberChange: (value: number | undefined) => void;
-  onMaxReEntriesChange: (value: number | undefined) => void;
 }
 
 const ReEntryForm: React.FC<ReEntryFormProps> = ({
   reEntryEnabled,
-  groupNumber,
-  maxReEntries,
-  onReEntryToggle,
-  onGroupNumberChange,
-  onMaxReEntriesChange
+  onReEntryToggle
 }) => {
   return (
     <div className="space-y-4">
@@ -36,25 +27,11 @@ const ReEntryForm: React.FC<ReEntryFormProps> = ({
       />
       
       {reEntryEnabled && (
-        <>
-          <EnhancedNumberInput
-            label="Group Number"
-            value={groupNumber}
-            onChange={onGroupNumberChange}
-            min={1}
-            step={1}
-            description="Exits with the same group number share re-entry counter"
-          />
-          
-          <EnhancedNumberInput
-            label="Max Re-Entries"
-            value={maxReEntries}
-            onChange={onMaxReEntriesChange}
-            min={1}
-            step={1}
-            description="Maximum number of times positions can re-enter"
-          />
-        </>
+        <div className="rounded-md bg-muted p-3 text-sm">
+          <p className="text-muted-foreground">
+            A Retry Node has been created and linked to this Exit Node. Configure the retry settings in the Retry Node's panel.
+          </p>
+        </div>
       )}
     </div>
   );

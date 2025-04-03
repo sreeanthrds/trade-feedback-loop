@@ -3,7 +3,7 @@ import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useExitOrderForm } from './useExitOrderForm';
 import { Node } from '@xyflow/react';
-import { Exit } from 'lucide-react';
+import { RefreshCcw } from 'lucide-react';
 import ExitConditionForm from './ExitConditionForm';
 import ReEntryForm from './ReEntryForm';
 import { Separator } from '@/components/ui/separator';
@@ -30,11 +30,7 @@ const ExitOrderForm: React.FC<ExitOrderFormProps> = ({ node, updateNodeData }) =
     updateExitConditionField,
     // Re-entry related
     reEntryEnabled,
-    handleReEntryToggle,
-    groupNumber,
-    maxReEntries,
-    handleGroupNumberChange,
-    handleMaxReEntriesChange
+    handleReEntryToggle
   } = useExitOrderForm({ node, updateNodeData });
 
   return (
@@ -117,11 +113,7 @@ const ExitOrderForm: React.FC<ExitOrderFormProps> = ({ node, updateNodeData }) =
         <TabsContent value="re_entry" className="space-y-4 pt-4">
           <ReEntryForm
             reEntryEnabled={reEntryEnabled}
-            groupNumber={groupNumber}
-            maxReEntries={maxReEntries}
             onReEntryToggle={handleReEntryToggle}
-            onGroupNumberChange={handleGroupNumberChange}
-            onMaxReEntriesChange={handleMaxReEntriesChange}
           />
         </TabsContent>
       </Tabs>
