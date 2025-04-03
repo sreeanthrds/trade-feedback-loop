@@ -8,7 +8,7 @@ import {
   useMultipleOrders,
   useExitConditionField,
 } from './hooks';
-import { useReEntrySettings } from './hooks/useReEntrySettings';
+import { useReEntryToggle } from './hooks/useReEntryToggle';
 
 interface UseExitOrderFormProps {
   node: Node;
@@ -77,15 +77,8 @@ export const useExitOrderForm = ({ node, updateNodeData }: UseExitOrderFormProps
     defaultExitNodeData
   });
   
-  // Use re-entry settings hook
-  const {
-    reEntryEnabled,
-    groupNumber,
-    maxReEntries,
-    handleReEntryToggle,
-    handleGroupNumberChange,
-    handleMaxReEntriesChange
-  } = useReEntrySettings({
+  // Use re-entry toggle hook
+  const { reEntryEnabled, handleReEntryToggle } = useReEntryToggle({
     node,
     updateNodeData,
     nodeData,
@@ -105,10 +98,6 @@ export const useExitOrderForm = ({ node, updateNodeData }: UseExitOrderFormProps
     updateExitConditionField,
     // Re-entry related
     reEntryEnabled,
-    groupNumber,
-    maxReEntries,
-    handleReEntryToggle,
-    handleGroupNumberChange,
-    handleMaxReEntriesChange
+    handleReEntryToggle
   };
 };

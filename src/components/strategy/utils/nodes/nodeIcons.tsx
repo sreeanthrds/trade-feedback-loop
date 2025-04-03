@@ -1,50 +1,40 @@
 
 import React from 'react';
 import { 
-  ArrowRight, 
+  Play, 
+  AlertTriangle, 
   ArrowRightLeft, 
-  Bell, 
-  LogIn, 
-  LogOut, 
-  PlayCircle,
-  AlertTriangle,
-  StopCircle,
-  PowerOff
+  ArrowUpRight, 
+  ArrowDownRight, 
+  Ban, 
+  Pencil,
+  RefreshCcw
 } from 'lucide-react';
 
-export const getNodeIcon = (nodeType: string, customSize: number = 4) => {
-  const iconProps = { className: `h-${customSize} w-${customSize}` };
-
-  switch (nodeType) {
-    case 'startNode':
-      return <PlayCircle className={`${iconProps.className} text-green-600`} />;
-      
-    case 'signalNode':
-      return <ArrowRight className={`${iconProps.className} text-blue-500`} />;
-      
+// Add retry icon to nodeIcons map
+export const getNodeIcon = (type: string): React.ReactNode => {
+  switch (type) {
+    case 'start':
+      return <Play className="h-4 w-4 text-primary" />;
+    case 'signal':
+      return <AlertTriangle className="h-4 w-4 text-primary" />;
+    case 'action':
+      return <ArrowRightLeft className="h-4 w-4 text-primary" />;
     case 'entry':
-    case 'entryNode':
-      return <LogIn className={`${iconProps.className} text-green-500`} />;
-      
+      return <ArrowUpRight className="h-4 w-4 text-primary" />;
     case 'exit':
-    case 'exitNode':
-      return <LogOut className={`${iconProps.className} text-red-500`} />;
-      
+      return <ArrowDownRight className="h-4 w-4 text-primary" />;
     case 'alert':
-    case 'alertNode':
-      return <Bell className={`${iconProps.className} text-amber-500`} />;
-      
+      return <AlertTriangle className="h-4 w-4 text-primary" />;
     case 'modify':
-    case 'modifyNode':
-      return <ArrowRightLeft className={`${iconProps.className} text-blue-500`} />;
-      
-    case 'endNode':
-      return <StopCircle className={`${iconProps.className} text-rose-600`} />;
-      
-    case 'forceEndNode':
-      return <AlertTriangle className={`${iconProps.className} text-purple-500`} />;
-      
+      return <Pencil className="h-4 w-4 text-primary" />;
+    case 'end':
+      return <Ban className="h-4 w-4 text-primary" />;
+    case 'forceEnd':
+      return <Ban className="h-4 w-4 text-primary" />;
+    case 'retry':
+      return <RefreshCcw className="h-4 w-4 text-primary" />;
     default:
-      return <ArrowRight className={`${iconProps.className} text-gray-500`} />;
+      return <ArrowRightLeft className="h-4 w-4 text-primary" />;
   }
 };

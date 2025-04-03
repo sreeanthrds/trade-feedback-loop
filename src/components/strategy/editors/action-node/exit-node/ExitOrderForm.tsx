@@ -1,22 +1,20 @@
 
 import React from 'react';
 import { Node } from '@xyflow/react';
-import { Separator } from '@/components/ui/separator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import SelectField from '../../shared/SelectField';
-import SwitchField from '../../shared/SwitchField';
+import { Card, CardContent } from '@/components/ui/card';
 import { useExitOrderForm } from './useExitOrderForm';
+import { ExitConditionType } from './types';
+import { ExitConditionOptions } from './ExitConditionOptions';
 import ExitConditionForm from './ExitConditionForm';
-import ReEntryForm from './ReEntryForm';
-import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
+import { OrderTypeOptions } from './OrderTypeOptions';
+import { ReEntryToggle } from './ReEntryToggle';
 
 interface ExitOrderFormProps {
   node: Node;
   updateNodeData: (id: string, data: any) => void;
 }
 
-// Use React.memo to prevent unnecessary re-renders
-const ExitOrderForm: React.FC<ExitOrderFormProps> = React.memo(({ node, updateNodeData }) => {
+const ExitOrderForm: React.FC<ExitOrderFormProps> = ({ node, updateNodeData }) => {
   const {
     exitConditionType,
     orderType,
@@ -28,111 +26,57 @@ const ExitOrderForm: React.FC<ExitOrderFormProps> = React.memo(({ node, updateNo
     handleLimitPriceChange,
     handleMultipleOrdersToggle,
     updateExitConditionField,
-    // Re-entry related
+    // Re-entry config
     reEntryEnabled,
-    groupNumber,
-    maxReEntries,
-    handleReEntryToggle,
-    handleGroupNumberChange,
-    handleMaxReEntriesChange
-  } = useExitOrderForm({ 
-    node, 
-    updateNodeData 
-  });
-
+    handleReEntryToggle
+  } = useExitOrderForm({ node, updateNodeData });
+  
   return (
     <div className="space-y-4">
-      <Tabs defaultValue="exit_condition" className="w-full">
-        <TabsList className="grid grid-cols-3">
-          <TabsTrigger value="exit_condition">Exit Condition</TabsTrigger>
-          <TabsTrigger value="order_settings">Order Settings</TabsTrigger>
-          <TabsTrigger value="re_entry">Re-Entry</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="exit_condition" className="space-y-4 pt-4">
-          <SelectField
-            label="Exit Condition Type"
-            id="exit-condition-type"
-            value={exitConditionType}
-            onChange={handleExitConditionTypeChange}
-            options={[
-              { value: 'vpi', label: 'By Virtual Position ID' },
-              { value: 'vpt', label: 'By Virtual Position Tag' },
-              { value: 'all_positions', label: 'All Open Positions' },
-              { value: 'realized_pnl', label: 'Realized P&L' },
-              { value: 'unrealized_pnl', label: 'Unrealized P&L (MTM)' },
-              { value: 'premium_change', label: '% Change in Premium' },
-              { value: 'position_value_change', label: '% Change in Position Value' },
-              { value: 'price_target', label: 'Price Target' },
-              { value: 'indicator_underlying', label: 'Indicator on Underlying' },
-              { value: 'indicator_contract', label: 'Indicator on Contract' },
-              { value: 'time_based', label: 'After Time Period' },
-              { value: 'market_close', label: 'Before Market Close' },
-              { value: 'limit_to_market', label: 'Limit to Market Fallback' },
-              { value: 'rolling', label: 'Rolling to Next Expiry' }
-            ]}
-            description="Select the condition that will trigger this exit"
-          />
-          
-          <Separator className="my-4" />
-          
-          <ExitConditionForm 
-            exitCondition={exitCondition} 
-            updateField={updateExitConditionField}
-          />
-        </TabsContent>
-        
-        <TabsContent value="order_settings" className="space-y-4 pt-4">
-          <SwitchField
-            label="Multiple Exit Orders"
-            checked={multipleOrders}
-            onCheckedChange={handleMultipleOrdersToggle}
-            description="Enable to create multiple exit orders with different conditions"
-          />
-          
-          <SelectField
-            label="Order Type"
-            id="order-type"
-            value={orderType}
-            onChange={handleOrderTypeChange}
-            options={[
-              { value: 'market', label: 'Market Order' },
-              { value: 'limit', label: 'Limit Order' }
-            ]}
-            description="Select the type of order to use for the exit"
-          />
-          
-          {orderType === 'limit' && (
-            <EnhancedNumberInput
-              label="Limit Price"
-              id="limit-price"
-              value={typeof limitPrice === 'string' ? parseFloat(limitPrice) : limitPrice}
-              onChange={(value) => handleLimitPriceChange({ 
-                target: { value: value?.toString() || '' } 
-              } as React.ChangeEvent<HTMLInputElement>)}
-              min={0}
-              step={0.05}
-              description="Price at which the limit order will be placed"
+      {/* Exit Condition Section */}
+      <Card>
+        <CardContent className="pt-4">
+          <div className="space-y-4">
+            <h3 className="text-sm font-medium">Exit Condition</h3>
+            
+            {/* Re-entry toggle - now in exit condition section */}
+            <ReEntryToggle 
+              enabled={reEntryEnabled}
+              onToggle={handleReEntryToggle}
             />
-          )}
-        </TabsContent>
-        
-        <TabsContent value="re_entry" className="space-y-4 pt-4">
-          <ReEntryForm
-            reEntryEnabled={reEntryEnabled}
-            groupNumber={groupNumber}
-            maxReEntries={maxReEntries}
-            onReEntryToggle={handleReEntryToggle}
-            onGroupNumberChange={handleGroupNumberChange}
-            onMaxReEntriesChange={handleMaxReEntriesChange}
-          />
-        </TabsContent>
-      </Tabs>
+            
+            <ExitConditionOptions
+              value={exitConditionType as ExitConditionType}
+              onChange={handleExitConditionTypeChange}
+            />
+            
+            <ExitConditionForm
+              exitCondition={exitCondition}
+              updateField={updateExitConditionField}
+            />
+          </div>
+        </CardContent>
+      </Card>
+      
+      {/* Order Type Section */}
+      <Card>
+        <CardContent className="pt-4">
+          <div className="space-y-4">
+            <h3 className="text-sm font-medium">Order Settings</h3>
+            
+            <OrderTypeOptions
+              orderType={orderType}
+              limitPrice={limitPrice}
+              onChange={handleOrderTypeChange}
+              onLimitPriceChange={handleLimitPriceChange}
+              multipleOrders={multipleOrders}
+              onMultipleOrdersToggle={handleMultipleOrdersToggle}
+            />
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
-});
-
-// Add display name
-ExitOrderForm.displayName = 'ExitOrderForm';
+};
 
 export default ExitOrderForm;

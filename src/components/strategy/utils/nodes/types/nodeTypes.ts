@@ -1,33 +1,29 @@
-
 /**
- * Helper function to get the node type prefix for generating IDs
+ * Get a prefix for node IDs based on the node type
  */
-export const getNodeTypePrefix = (type: string): string => {
+export const getNodeTypePrefix = (type: string) => {
   switch (type) {
-    case 'startNode': return 'start';
-    case 'signalNode': return 'signal';
-    case 'actionNode': return 'action';
-    case 'entryNode': return 'entry';
-    case 'exitNode': return 'exit';
-    case 'alertNode': return 'alert';
-    case 'endNode': return 'end';
-    case 'forceEndNode': return 'force-end';
-    default: return type.replace('Node', '').toLowerCase();
-  }
-};
-
-/**
- * Get the default label for a node based on its type
- */
-export const getDefaultNodeLabel = (type: string): string => {
-  switch (type) {
-    case 'startNode': return 'Start';
-    case 'endNode': return 'End';
-    case 'forceEndNode': return 'Force End';
-    case 'signalNode': return 'Signal';
-    case 'entryNode': return 'Entry Order';
-    case 'exitNode': return 'Exit Order';
-    case 'alertNode': return 'Alert';
-    default: return 'Action';
+    case 'startNode':
+      return 'start';
+    case 'signalNode':
+      return 'signal';
+    case 'actionNode':
+      return 'action';
+    case 'entryNode':
+      return 'entry';
+    case 'exitNode':
+      return 'exit';
+    case 'alertNode':
+      return 'alert';
+    case 'modifyNode':
+      return 'modify';
+    case 'endNode':
+      return 'end';
+    case 'forceEndNode':
+      return 'force-end';
+    case 'retryNode':
+      return 'retry';
+    default:
+      return 'node';
   }
 };

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { NodeTypes, Position } from '@xyflow/react';
 import StartNode from './StartNode';
@@ -10,6 +9,7 @@ import AlertNode from './AlertNode';
 import ModifyNode from './ModifyNode';
 import EndNode from './EndNode';
 import ForceEndNode from './ForceEndNode';
+import RetryNode from './RetryNode';
 import NodeControls from '../NodeControls';
 import NodeConnectControls from '../NodeConnectControls';
 
@@ -23,6 +23,7 @@ const MemoizedAlertNode = React.memo(AlertNode);
 const MemoizedModifyNode = React.memo(ModifyNode);
 const MemoizedEndNode = React.memo(EndNode);
 const MemoizedForceEndNode = React.memo(ForceEndNode);
+const MemoizedRetryNode = React.memo(RetryNode);
 const MemoizedNodeControls = React.memo(NodeControls);
 const MemoizedNodeConnectControls = React.memo(NodeConnectControls);
 
@@ -180,6 +181,24 @@ const ForceEndNodeWrapper = React.memo(({ data, id, onDelete, ...rest }: NodeWra
 });
 ForceEndNodeWrapper.displayName = 'ForceEndNodeWrapper';
 
+const RetryNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNodeData, ...rest }: NodeWrapperProps & { updateNodeData?: (id: string, data: any) => void }) => {
+  // Enhance data with updateNodeData function
+  const enhancedData = React.useMemo(() => ({
+    ...data,
+    updateNodeData,
+    actionType: 'retry' // Force action type to be 'retry'
+  }), [data, updateNodeData]);
+  
+  return (
+    <div className={`group ${rest.dragging ? 'dragging' : ''} ${rest.selected ? 'selected' : ''}`}>
+      <MemoizedRetryNode data={enhancedData} id={id} {...rest} />
+      <MemoizedNodeControls node={{ id, type: 'retryNode', data }} onDelete={onDelete} />
+      <MemoizedNodeConnectControls showOn="action" onAddNode={onAddNode} parentNodeId={id} />
+    </div>
+  );
+});
+RetryNodeWrapper.displayName = 'RetryNodeWrapper';
+
 // Create a function to generate nodeTypes with stable renderer functions
 const createNodeTypes = (
   onDeleteNode: (id: string) => void, 
@@ -194,6 +213,7 @@ const createNodeTypes = (
     exitNode: (props) => <ExitNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} onAddNode={onAddNode} updateNodeData={updateNodeData} />,
     modifyNode: (props) => <ModifyNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} onAddNode={onAddNode} updateNodeData={updateNodeData} />,
     alertNode: (props) => <AlertNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} onAddNode={onAddNode} updateNodeData={updateNodeData} />,
+    retryNode: (props) => <RetryNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} onAddNode={onAddNode} updateNodeData={updateNodeData} />,
     endNode: (props) => <EndNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} />,
     forceEndNode: (props) => <ForceEndNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} />
   };

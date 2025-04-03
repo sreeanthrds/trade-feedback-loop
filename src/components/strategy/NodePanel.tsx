@@ -14,6 +14,7 @@ import AlertNodeEditor from './editors/AlertNodeEditor';
 import ModifyNodeEditor from './editors/ModifyNodeEditor';
 import EndNodeEditor from './editors/EndNodeEditor';
 import ForceEndNodeEditor from './editors/ForceEndNodeEditor';
+import RetryNodeEditor from './editors/RetryNodeEditor';
 
 interface NodePanelProps {
   node: Node;
@@ -31,6 +32,7 @@ const MemoizedAlertNodeEditor = memo(AlertNodeEditor);
 const MemoizedModifyNodeEditor = memo(ModifyNodeEditor);
 const MemoizedEndNodeEditor = memo(EndNodeEditor);
 const MemoizedForceEndNodeEditor = memo(ForceEndNodeEditor);
+const MemoizedRetryNodeEditor = memo(RetryNodeEditor);
 
 const NodePanel = memo(({ node, updateNodeData, onClose }: NodePanelProps) => {
   const isMobile = useIsMobile();
@@ -61,6 +63,8 @@ const NodePanel = memo(({ node, updateNodeData, onClose }: NodePanelProps) => {
         return <MemoizedAlertNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       case 'modifyNode':
         return <MemoizedModifyNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
+      case 'retryNode':
+        return <MemoizedRetryNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       case 'endNode':
         return <MemoizedEndNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       case 'forceEndNode':
@@ -80,6 +84,7 @@ const NodePanel = memo(({ node, updateNodeData, onClose }: NodePanelProps) => {
       case 'exitNode': return 'Exit Node';
       case 'alertNode': return 'Alert Node';
       case 'modifyNode': return 'Modify Position Node';
+      case 'retryNode': return 'Retry Node';
       case 'endNode': return 'End Node';
       case 'forceEndNode': return 'Force End Node';
       default: return 'Node Settings';
