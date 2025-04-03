@@ -92,3 +92,10 @@
 .fixed-edge-path {
   stroke-width: 2;
 }
+
+/* Add arrow styling for dashed edges */
+.arrow-marker polygon {
+  fill: #9b59b6;
+  stroke: none;
+}
+

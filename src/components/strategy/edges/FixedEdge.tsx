@@ -41,25 +41,28 @@ const FixedEdge = ({
     adjustedTargetY = sourceY + normalizedDy * length;
   }
   
-  // Use getSmoothStepPath for the edge path
+  // Use getSmoothStepPath for the edge path with floating effect
   const [edgePath] = getSmoothStepPath({
     sourceX,
     sourceY,
     sourcePosition,
     targetX: adjustedTargetX,
     targetY: adjustedTargetY,
-    targetPosition
+    targetPosition,
+    curvature: 0.3 // Increased curvature for floating effect
   });
   
   return (
     <>
-      {/* Draw a smooth step edge with fixed length */}
+      {/* Draw a smooth step edge with fixed length and floating appearance */}
       <path
         id={id}
         className="react-flow__edge-path fixed-edge-path"
         d={edgePath}
-        style={style}
-        strokeWidth={selected ? 3 : 2}
+        style={{
+          ...style,
+          strokeWidth: selected ? 3 : 2
+        }}
       />
     </>
   );

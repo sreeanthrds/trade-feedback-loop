@@ -2,7 +2,7 @@
 import React, { memo } from 'react';
 import { EdgeProps, getBezierPath } from '@xyflow/react';
 
-// Custom edge with dashed line styling
+// Custom edge with dashed line styling and arrow marker
 const DashEdge = ({ 
   id, 
   sourceX, 
@@ -34,8 +34,27 @@ const DashEdge = ({
     animation: animated ? 'dash 1s linear infinite' : 'none'
   };
   
+  // Define unique marker ID for this edge
+  const markerId = `dashEdgeArrow-${id}`;
+  
   return (
     <>
+      {/* SVG defs for the arrow marker */}
+      <defs>
+        <marker
+          id={markerId}
+          viewBox="0 0 10 10"
+          refX="8"
+          refY="5"
+          markerWidth="6"
+          markerHeight="6"
+          orient="auto-start-reverse"
+          className="arrow-marker"
+        >
+          <polygon points="0 0, 10 5, 0 10" />
+        </marker>
+      </defs>
+      
       {/* Draw a bezier edge with dashed line and animation if needed */}
       <path
         id={id}
@@ -43,7 +62,7 @@ const DashEdge = ({
         d={edgePath}
         style={edgeStyle}
         strokeWidth={selected ? 3 : 2}
-        markerEnd={props.markerEnd}
+        markerEnd={`url(#${markerId})`}
       />
     </>
   );

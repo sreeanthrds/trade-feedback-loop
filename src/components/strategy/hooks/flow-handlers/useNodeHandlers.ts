@@ -1,4 +1,3 @@
-
 import { useCallback, useRef, useEffect } from 'react';
 import { Node } from '@xyflow/react';
 import { toast } from "@/hooks/use-toast";
@@ -168,7 +167,7 @@ export const useNodeHandlers = ({
                     y: exitNodePosition.y + 20    // Slightly below
                   },
                   data: {
-                    label: 'Re-entry',  // Changed from 'Retry' to 'Re-entry'
+                    label: 'Re-entry',
                     actionType: 'retry',
                     retryConfig: {
                       groupNumber: (newConfig as ExitNodeReEntryConfig).groupNumber || 1,
@@ -182,7 +181,7 @@ export const useNodeHandlers = ({
                   id: `e-${id}-${retryNodeId}`,
                   source: id,
                   target: retryNodeId,
-                  type: 'default',
+                  type: 'fixedEdge',
                   style: { 
                     stroke: '#9b59b6', 
                     strokeWidth: 2 
@@ -192,7 +191,7 @@ export const useNodeHandlers = ({
                   // Fixed length edge properties
                   data: {
                     fixedLength: true,
-                    length: 100
+                    length: 120
                   }
                 };
                 
@@ -207,12 +206,11 @@ export const useNodeHandlers = ({
                     id: `e-${retryNodeId}-${targetEntryNode.id}`,
                     source: retryNodeId,
                     target: targetEntryNode.id,
-                    type: 'dashEdge',  // New edge type for dashed animated edges
+                    type: 'dashEdge',
                     animated: true,
                     style: { 
                       stroke: '#9b59b6', 
-                      strokeWidth: 2,
-                      strokeDasharray: '5, 5' // Creates dashed line
+                      strokeWidth: 2
                     }
                   };
                 }
