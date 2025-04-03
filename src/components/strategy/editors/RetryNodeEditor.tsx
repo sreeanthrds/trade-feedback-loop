@@ -10,11 +10,19 @@ interface RetryNodeEditorProps {
   updateNodeData: (id: string, data: any) => void;
 }
 
+// Interface for the node data
+interface RetryNodeData {
+  actionType?: string;
+  label?: string;
+  [key: string]: any;
+}
+
 const RetryNodeEditor: React.FC<RetryNodeEditorProps> = ({ node, updateNodeData }) => {
   // Force actionType to be 'retry'
-  if (node.data?.actionType !== 'retry') {
+  const nodeData = node.data as RetryNodeData || {};
+  if (nodeData?.actionType !== 'retry') {
     updateNodeData(node.id, { 
-      ...node.data, 
+      ...nodeData, 
       actionType: 'retry',
       _lastUpdated: Date.now()
     });
@@ -34,7 +42,7 @@ const RetryNodeEditor: React.FC<RetryNodeEditorProps> = ({ node, updateNodeData 
     return "Retry nodes allow a strategy to re-enter a position after an exit, with configurable attempt limits.";
   };
 
-  // Ensure we always pass a string to nodeLabel by using explicit type check
+  // Ensure we always pass a string to nodeLabel
   const nodeLabel = typeof label === 'string' ? label : 'Retry';
 
   return (

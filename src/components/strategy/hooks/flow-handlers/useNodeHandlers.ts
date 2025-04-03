@@ -1,4 +1,3 @@
-
 import { useCallback, useRef, useEffect } from 'react';
 import { Node } from '@xyflow/react';
 import { toast } from "@/hooks/use-toast";
@@ -128,8 +127,12 @@ export const useNodeHandlers = ({
           const oldConfig = node?.data?.exitNodeData?.reEntryConfig;
           const newConfig = data.exitNodeData.reEntryConfig;
           
+          // Type assertion for checking enabled property
+          const oldEnabled = oldConfig ? (oldConfig as { enabled?: boolean })?.enabled : false;
+          const newEnabled = newConfig ? (newConfig as { enabled?: boolean })?.enabled : false;
+          
           // If re-entry was toggled on, create a retry node
-          if (oldConfig?.enabled === false && newConfig.enabled === true) {
+          if (oldEnabled === false && newEnabled === true) {
             console.log('Re-entry was enabled, creating retry node');
             
             // Get node position
@@ -150,8 +153,8 @@ export const useNodeHandlers = ({
                   label: 'Retry',
                   actionType: 'retry',
                   retryConfig: {
-                    groupNumber: newConfig.groupNumber || 1,
-                    maxReEntries: newConfig.maxReEntries || 1
+                    groupNumber: (newConfig as { groupNumber?: number })?.groupNumber || 1,
+                    maxReEntries: (newConfig as { maxReEntries?: number })?.maxReEntries || 1
                   }
                 }
               };

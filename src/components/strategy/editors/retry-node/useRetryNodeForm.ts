@@ -2,14 +2,26 @@
 import { useCallback, useState, useEffect } from 'react';
 import { Node } from '@xyflow/react';
 
+interface RetryConfig {
+  groupNumber: number;
+  maxReEntries: number;
+}
+
+interface RetryNodeData {
+  label?: string;
+  actionType?: string;
+  retryConfig?: RetryConfig;
+  [key: string]: any;
+}
+
 interface UseRetryNodeFormProps {
   node: Node;
   updateNodeData: (id: string, data: any) => void;
 }
 
 export const useRetryNodeForm = ({ node, updateNodeData }: UseRetryNodeFormProps) => {
-  // Get the node data
-  const nodeData = node.data || {};
+  // Get the node data with proper typing
+  const nodeData = node.data as RetryNodeData || {};
   const retryConfig = nodeData.retryConfig || { groupNumber: 1, maxReEntries: 1 };
   
   // State
@@ -19,10 +31,13 @@ export const useRetryNodeForm = ({ node, updateNodeData }: UseRetryNodeFormProps
   
   // Update state when node data changes
   useEffect(() => {
-    setLabel(nodeData.label || 'Retry');
-    setGroupNumber(retryConfig.groupNumber || 1);
-    setMaxReEntries(retryConfig.maxReEntries || 1);
-  }, [nodeData, retryConfig]);
+    const data = node.data as RetryNodeData;
+    setLabel(data?.label || 'Retry');
+    
+    const config = data?.retryConfig || { groupNumber: 1, maxReEntries: 1 };
+    setGroupNumber(config.groupNumber || 1);
+    setMaxReEntries(config.maxReEntries || 1);
+  }, [node.data]);
   
   // Handler for label change
   const handleLabelChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
