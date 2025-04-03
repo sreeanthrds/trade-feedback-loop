@@ -5,8 +5,8 @@ import BaseNodeTemplate from './BaseNodeTemplate';
 import ActionDetails from '../action-node/ActionDetails';
 import ActionLabel from '../action-node/ActionLabel';
 import ActionIcon from '../action-node/ActionIcon';
+import RetryIcon from '../action-node/RetryIcon';
 import { Position as PositionType } from '@/components/strategy/types/position-types';
-import { RefreshCcw } from 'lucide-react';
 
 interface ActionNodeTemplateProps {
   id: string;
@@ -69,26 +69,22 @@ const ActionNodeTemplate = ({
         style={{ visibility: isConnectable ? 'visible' : 'hidden' }}
       />
       
-      <div className={`px-3 py-2 rounded-md border border-border bg-card shadow-sm max-w-xs`}>
+      <div className={`px-3 py-2 rounded-md border border-border bg-card shadow-sm max-w-xs relative`}>
+        {/* Add RetryIcon for exit nodes with re-entry enabled */}
+        {data?.actionType === 'exit' && (
+          <RetryIcon 
+            enabled={Boolean(hasReEntry)} 
+            groupNumber={reEntryGroup} 
+            maxReEntries={maxReEntries} 
+          />
+        )}
+        
         <div className="flex flex-col">
-          {/* Add re-entry indicator next to the label */}
-          <div className="flex items-center justify-between">
-            <ActionLabel 
-              label={data?.label} 
-              description={data?.description} 
-              actionType={data?.actionType} 
-            />
-            
-            {hasReEntry && (
-              <div 
-                className="flex items-center text-xs text-primary/80 gap-1 ml-2"
-                title={`Re-Entry Group ${reEntryGroup}: Max ${maxReEntries} re-entries`}
-              >
-                <RefreshCcw size={12} />
-                <span>{reEntryGroup}/{maxReEntries}</span>
-              </div>
-            )}
-          </div>
+          <ActionLabel 
+            label={data?.label} 
+            description={data?.description} 
+            actionType={data?.actionType} 
+          />
           
           <ActionIcon 
             icon={data?.icon} 
