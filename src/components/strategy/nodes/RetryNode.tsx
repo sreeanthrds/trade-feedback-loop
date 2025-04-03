@@ -11,20 +11,23 @@ const RetryNode: React.FC<NodeProps> = ({ id, data, selected, isConnectable, typ
   // Create a safe version of nodeData with default values for required fields
   const nodeData = useMemo(() => {
     const rawData = data as Record<string, unknown>;
+    
+    // Get retry configuration with type handling
+    const retryConfig = typeof rawData.retryConfig === 'object' && rawData.retryConfig 
+      ? rawData.retryConfig as { groupNumber: number, maxReEntries: number }
+      : { groupNumber: 1, maxReEntries: 1 };
+    
     return {
       label: (rawData.label as string) || 'Re-entry', // Changed from 'Retry' to 'Re-entry'
-      actionType: 'retry' as const,
+      actionType: 'entry' as const,
+      _actionTypeInternal: 'retry', // Added to distinguish type for ActionNodeTemplate
       positions: Array.isArray(rawData.positions) ? rawData.positions : [],
       icon: getNodeIcon('retry'),
       description: 'Re-enter the trade',
       // Retry specific properties with proper type handling
       retryConfig: {
-        groupNumber: typeof rawData.retryConfig === 'object' && rawData.retryConfig 
-          ? (rawData.retryConfig as any).groupNumber || 1
-          : rawData.groupNumber as number || 1,
-        maxReEntries: typeof rawData.retryConfig === 'object' && rawData.retryConfig 
-          ? (rawData.retryConfig as any).maxReEntries || 1
-          : rawData.maxReEntries as number || 1
+        groupNumber: retryConfig.groupNumber || 1,
+        maxReEntries: retryConfig.maxReEntries || 1
       }
     };
   }, [data]);
@@ -32,13 +35,7 @@ const RetryNode: React.FC<NodeProps> = ({ id, data, selected, isConnectable, typ
   return (
     <ActionNodeTemplate
       id={id}
-      data={{
-        ...nodeData,
-        // Since ActionNodeTemplate expects a specific set of action types, 
-        // we'll set it as 'entry' which is compatible
-        actionType: 'entry',
-        _actionTypeInternal: 'retry'
-      }}
+      data={nodeData}
       selected={selected}
       isConnectable={isConnectable}
       type={type || 'retryNode'}

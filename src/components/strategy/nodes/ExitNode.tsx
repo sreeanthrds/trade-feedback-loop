@@ -22,13 +22,8 @@ const ExitNode: React.FC<NodeProps> = ({ id, data, selected, isConnectable, type
       description: 'Exit existing positions',
       exitOrderConfig: rawData.exitOrderConfig as Record<string, unknown> | undefined,
       // Process exit node data for re-entry
-      exitNodeData: rawData.exitNodeData as ExitNodeData | undefined,
-      // Extract re-entry info to top level for easier access in ActionNodeTemplate
-      reEntry: {
-        enabled: (rawData.exitNodeData as ExitNodeData | undefined)?.reEntryConfig?.enabled || false,
-        groupNumber: (rawData.exitNodeData as ExitNodeData | undefined)?.reEntryConfig?.groupNumber || 0,
-        maxReEntries: (rawData.exitNodeData as ExitNodeData | undefined)?.reEntryConfig?.maxReEntries || 0
-      }
+      exitNodeData: rawData.exitNodeData as ExitNodeData | undefined
+      // Remove reEntry top-level property as it's now only needed for retry nodes
     };
   }, [data]);
   

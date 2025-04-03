@@ -27,6 +27,8 @@ interface ActionNodeTemplateProps {
       groupNumber: number;
       maxReEntries: number;
     };
+    // Internal action type for special handling
+    _actionTypeInternal?: string;
     [key: string]: any;
   };
   selected: boolean;
@@ -55,10 +57,15 @@ const ActionNodeTemplate = ({
   positionAbsoluteX,
   positionAbsoluteY,
 }: ActionNodeTemplateProps) => {
-  // Check if re-entry is enabled
-  const hasReEntry = data?.reEntry?.enabled && data?.actionType === 'exit';
-  const reEntryGroup = hasReEntry ? data.reEntry.groupNumber : 0;
-  const maxReEntries = hasReEntry ? data.reEntry.maxReEntries : 0;
+  // Check if this is specifically a retry node by looking at the internal action type
+  const isRetryNode = data?._actionTypeInternal === 'retry';
+  
+  // Only show retry icon on retry nodes, not exit nodes
+  const showRetryIcon = isRetryNode;
+  
+  // Get retry-specific properties if available
+  const retryGroupNumber = data?.retryConfig?.groupNumber || 1;
+  const retryMaxEntries = data?.retryConfig?.maxReEntries || 1;
   
   return (
     <>
@@ -70,12 +77,12 @@ const ActionNodeTemplate = ({
       />
       
       <div className={`px-3 py-2 rounded-md border border-border bg-card shadow-sm max-w-xs relative`}>
-        {/* Add RetryIcon for exit nodes with re-entry enabled */}
-        {data?.actionType === 'exit' && (
+        {/* Only show the RetryIcon for retry nodes */}
+        {showRetryIcon && (
           <RetryIcon 
-            enabled={Boolean(hasReEntry)} 
-            groupNumber={reEntryGroup} 
-            maxReEntries={maxReEntries} 
+            enabled={true} 
+            groupNumber={retryGroupNumber} 
+            maxReEntries={retryMaxEntries} 
           />
         )}
         

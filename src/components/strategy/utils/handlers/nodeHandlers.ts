@@ -5,6 +5,9 @@ import { NodeFactory } from '../nodes/nodeFactory';
 import { createEdgeBetweenNodes } from '../edges';
 import { handleError } from '../errorHandling';
 
+type NodeMouseHandler = (event: React.MouseEvent, node: Node) => void;
+type ReactFlowInstance = any;
+
 export const createNodeClickHandler = (
   setSelectedNode: (node: Node | null) => void,
   setIsPanelOpen: (isOpen: boolean) => void
@@ -31,7 +34,12 @@ export const createAddNodeHandler = (
     }
     
     try {
-      const { node: newNode, parentNode } = addNode(type, reactFlowInstance, reactFlowWrapper, nodes, parentNodeId);
+      const newNode = createNewNode(type, reactFlowInstance, reactFlowWrapper);
+      let parentNode = undefined;
+      
+      if (parentNodeId) {
+        parentNode = nodes.find(node => node.id === parentNodeId);
+      }
       
       if (!newNode) {
         console.error('Failed to create new node');
@@ -84,6 +92,29 @@ export const createAddNodeHandler = (
       });
     }
   };
+};
+
+const createNewNode = (
+  type: string, 
+  reactFlowInstance: ReactFlowInstance, 
+  reactFlowWrapper: React.RefObject<HTMLDivElement>
+): Node | null => {
+  try {
+    const rect = reactFlowWrapper.current?.getBoundingClientRect();
+    const position = rect 
+      ? reactFlowInstance.screenToFlowPosition({
+          x: rect.width / 2,
+          y: rect.height / 2
+        })
+      : { x: 100, y: 100 };
+    
+    const id = `${type.replace('Node', '')}-${uuidv4().substring(0, 6)}`;
+    
+    return NodeFactory.createNode(id, type, position);
+  } catch (error) {
+    console.error('Error creating new node:', error);
+    return null;
+  }
 };
 
 export const createUpdateNodeDataHandler = (

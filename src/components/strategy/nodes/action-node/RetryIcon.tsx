@@ -4,14 +4,12 @@ import { RefreshCcw } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface RetryIconProps {
-  enabled: boolean;
-  groupNumber?: number;
-  maxReEntries?: number;
+  enabled?: boolean; // Keep for backward compatibility but we'll ignore it
+  groupNumber: number;
+  maxReEntries: number;
 }
 
-const RetryIcon: React.FC<RetryIconProps> = ({ enabled, groupNumber = 1, maxReEntries = 1 }) => {
-  if (!enabled) return null;
-
+const RetryIcon: React.FC<RetryIconProps> = ({ groupNumber = 1, maxReEntries = 1 }) => {
   return (
     <TooltipProvider>
       <Tooltip delayDuration={300}>
