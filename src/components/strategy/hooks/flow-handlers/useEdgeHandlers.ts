@@ -2,6 +2,8 @@
 import { useCallback, useRef, useEffect } from 'react';
 import { Edge, Node } from '@xyflow/react';
 import { toast } from '@/hooks/use-toast';
+import { createDeleteEdgeHandler } from '../../utils/handlers/edgeHandlers';
+import { handleError } from '../../utils/errorHandling';
 
 interface UseEdgeHandlersProps {
   edges: Edge[];
@@ -11,6 +13,9 @@ interface UseEdgeHandlersProps {
   updateHandlingRef: React.MutableRefObject<boolean>;
 }
 
+/**
+ * Hook for edge-related event handlers
+ */
 export const useEdgeHandlers = ({
   edges,
   nodes,
@@ -32,23 +37,29 @@ export const useEdgeHandlers = ({
   
   // Create stable handler for deleting edges
   const handleDeleteEdge = useCallback((id: string) => {
-    if (updateHandlingRef.current) return;
-    updateHandlingRef.current = true;
-    
     try {
-      // Filter out the edge with the given id
-      const newEdges = edgesRef.current.filter(edge => edge.id !== id);
-      setEdges(newEdges);
+      // Skip if update is already in progress
+      if (updateHandlingRef.current) {
+        console.log('Skipping edge deletion due to ongoing update');
+        return;
+      }
       
-      // Update store
-      storeRef.current.setEdges(newEdges);
-      storeRef.current.addHistoryItem(nodesRef.current, newEdges);
+      // Set the flag to prevent concurrent updates
+      updateHandlingRef.current = true;
       
-      toast({
-        title: "Edge deleted",
-        description: "Connection has been removed."
-      });
+      const deleteHandler = createDeleteEdgeHandler(
+        edgesRef.current, 
+        setEdges, 
+        storeRef.current, 
+        nodesRef.current
+      );
+      
+      // Execute the deletion
+      deleteHandler(id);
+    } catch (error) {
+      handleError(error, "Edge deletion handler");
     } finally {
+      // Reset the flag after a short delay
       setTimeout(() => {
         updateHandlingRef.current = false;
       }, 100);

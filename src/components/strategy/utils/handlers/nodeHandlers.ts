@@ -1,8 +1,9 @@
-
-import { NodeMouseHandler, Node, ReactFlowInstance, Edge } from '@xyflow/react';
+import { Node, Edge } from '@xyflow/react';
+import { v4 as uuidv4 } from 'uuid';
 import { toast } from "@/hooks/use-toast";
-import { addNode } from '../nodes/nodeOperations';
-import { createEdgeBetweenNodes } from '../edges/edgeOperations';
+import { NodeFactory } from '../nodes/nodeFactory';
+import { createEdgeBetweenNodes } from '../edges';
+import { handleError } from '../errorHandling';
 
 export const createNodeClickHandler = (
   setSelectedNode: (node: Node | null) => void,
@@ -30,7 +31,6 @@ export const createAddNodeHandler = (
     }
     
     try {
-      // Generate the new node at a non-overlapping position
       const { node: newNode, parentNode } = addNode(type, reactFlowInstance, reactFlowWrapper, nodes, parentNodeId);
       
       if (!newNode) {
@@ -40,7 +40,6 @@ export const createAddNodeHandler = (
       
       console.log('Before adding node:', nodes.length, 'existing nodes');
       
-      // Create new arrays for nodes and edges - don't modify the original arrays
       const updatedNodes = [...nodes, newNode];
       
       let updatedEdges = [...edges];
@@ -51,20 +50,15 @@ export const createAddNodeHandler = (
       
       console.log('After adding node:', updatedNodes.length, 'total nodes');
       
-      // Set local state first for immediate UI update
       setNodes(updatedNodes);
       setEdges(updatedEdges);
       
-      // For first node additions, we need to be extra careful to ensure it persists
       if (nodes.length <= 1) {
         console.log('First node addition - using immediate store update');
-        // Immediate store update for first nodes
         strategyStore.setNodes(updatedNodes);
         strategyStore.setEdges(updatedEdges);
         strategyStore.addHistoryItem(updatedNodes, updatedEdges);
       } else {
-        // For subsequent nodes, use the regular pattern
-        // CRITICAL: Use setTimeout to break the React cycle but use 0ms for immediate execution
         setTimeout(() => {
           try {
             strategyStore.setNodes(updatedNodes);
@@ -106,17 +100,14 @@ export const createUpdateNodeDataHandler = (
     try {
       const updatedNodes = nodes.map((node) => {
         if (node.id === id) {
-          // Handle specific merge cases for positions
           let mergedData;
           if (data.positions && node.data && node.data.positions) {
-            // For positions, we want to do a special merge
             mergedData = { 
               ...node.data, 
               ...data,
               _lastUpdated: Date.now() 
             };
           } else {
-            // For other data, do a regular merge
             mergedData = { 
               ...node.data, 
               ...data,
@@ -124,10 +115,7 @@ export const createUpdateNodeDataHandler = (
             };
           }
           
-          // If this is a start node and indicatorParameters were updated,
-          // ensure indicators array is updated to match
           if (node.type === 'startNode' && data.indicatorParameters) {
-            // Set indicators array to match keys in indicatorParameters
             mergedData.indicators = Object.keys(data.indicatorParameters);
           }
           
