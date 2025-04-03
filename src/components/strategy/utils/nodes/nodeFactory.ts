@@ -46,7 +46,7 @@ export class NodeFactory {
     // Create the node
     const newNode: Node = {
       id: nodeId,
-      type: type as any,
+      type: type,
       position,
       data: defaultData,
       style: { zIndex: newZIndex }

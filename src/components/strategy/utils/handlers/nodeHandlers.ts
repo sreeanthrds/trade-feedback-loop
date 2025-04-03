@@ -1,3 +1,4 @@
+
 import { Node, Edge } from '@xyflow/react';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from "@/hooks/use-toast";
@@ -34,12 +35,13 @@ export const createAddNodeHandler = (
     }
     
     try {
-      const newNode = createNewNode(type, reactFlowInstance, reactFlowWrapper);
-      let parentNode = undefined;
-      
-      if (parentNodeId) {
-        parentNode = nodes.find(node => node.id === parentNodeId);
-      }
+      // Create a new node using NodeFactory
+      const { node: newNode, parentNode } = NodeFactory.createNode(
+        type,
+        reactFlowInstance,
+        nodes,
+        parentNodeId
+      );
       
       if (!newNode) {
         console.error('Failed to create new node');
@@ -110,7 +112,12 @@ const createNewNode = (
     
     const id = `${type.replace('Node', '')}-${uuidv4().substring(0, 6)}`;
     
-    return NodeFactory.createNode(id, type, position);
+    return {
+      id,
+      type,
+      position,
+      data: { label: `${type} node` }
+    };
   } catch (error) {
     console.error('Error creating new node:', error);
     return null;
