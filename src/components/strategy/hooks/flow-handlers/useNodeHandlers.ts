@@ -23,6 +23,19 @@ interface UseNodeHandlersProps {
   updateHandlingRef: React.MutableRefObject<boolean>;
 }
 
+// Add interface for the exit node data with reEntryConfig
+interface ExitNodeReEntryConfig {
+  enabled?: boolean;
+  groupNumber?: number;
+  maxReEntries?: number;
+}
+
+interface ExitNodeData {
+  exitNodeData?: {
+    reEntryConfig?: ExitNodeReEntryConfig;
+  };
+}
+
 export const useNodeHandlers = ({
   nodes,
   edges,
@@ -125,108 +138,113 @@ export const useNodeHandlers = ({
           data.exitNodeData?.reEntryConfig
         ) {
           const node = nodesRef.current.find(n => n.id === id);
-          const oldConfig = node?.data?.exitNodeData?.reEntryConfig;
-          const newConfig = data.exitNodeData.reEntryConfig;
           
-          // Type assertion for checking enabled property
-          const oldEnabled = oldConfig ? (oldConfig as { enabled?: boolean })?.enabled : false;
-          const newEnabled = newConfig ? (newConfig as { enabled?: boolean })?.enabled : false;
-          
-          // If re-entry was toggled on, create a retry node
-          if (oldEnabled === false && newEnabled === true) {
-            console.log('Re-entry was enabled, creating retry node');
+          if (node) {
+            // Use type assertion to safely access exitNodeData
+            const nodeDataTyped = node.data as ExitNodeData;
+            const oldConfig = nodeDataTyped?.exitNodeData?.reEntryConfig;
+            const newConfig = data.exitNodeData.reEntryConfig as ExitNodeReEntryConfig;
             
-            // Get node position
-            const exitNode = nodesRef.current.find(n => n.id === id);
-            if (exitNode) {
-              const exitNodePosition = exitNode.position;
+            // Type-safe comparison of enabled property
+            const oldEnabled = oldConfig ? oldConfig.enabled : false;
+            const newEnabled = newConfig ? newConfig.enabled : false;
+            
+            // If re-entry was toggled on, create a retry node
+            if (oldEnabled === false && newEnabled === true) {
+              console.log('Re-entry was enabled, creating retry node');
               
-              // Create a retry node floating to the left of the exit node
-              const retryNodeId = `retry-${uuidv4().substring(0, 6)}`;
-              const retryNode: Node = {
-                id: retryNodeId,
-                type: 'retryNode',
-                position: {
-                  x: exitNodePosition.x - 150,  // Position to the left
-                  y: exitNodePosition.y + 20    // Slightly below
-                },
-                data: {
-                  label: 'Re-entry',  // Changed from 'Retry' to 'Re-entry'
-                  actionType: 'retry',
-                  retryConfig: {
-                    groupNumber: (newConfig as { groupNumber?: number })?.groupNumber || 1,
-                    maxReEntries: (newConfig as { maxReEntries?: number })?.maxReEntries || 1
-                  }
-                }
-              };
-              
-              // Create fixed-length edge from exit node to retry node
-              const fixedEdge = {
-                id: `e-${id}-${retryNodeId}`,
-                source: id,
-                target: retryNodeId,
-                type: 'default',
-                style: { 
-                  stroke: '#9b59b6', 
-                  strokeWidth: 2 
-                },
-                sourceHandle: null,
-                targetHandle: null,
-                // Fixed length edge properties
-                data: {
-                  fixedLength: true,
-                  length: 100
-                }
-              };
-              
-              // Find any entry node to connect with animated dashed edge
-              const entryNodes = nodesRef.current.filter(n => n.type === 'entryNode');
-              let dashEdge = null;
-              
-              if (entryNodes.length > 0) {
-                // Connect to the first entry node with a dashed animated edge
-                const targetEntryNode = entryNodes[0];
-                dashEdge = {
-                  id: `e-${retryNodeId}-${targetEntryNode.id}`,
-                  source: retryNodeId,
-                  target: targetEntryNode.id,
-                  type: 'dashEdge',  // New edge type for dashed animated edges
-                  animated: true,
-                  style: { 
-                    stroke: '#9b59b6', 
-                    strokeWidth: 2,
-                    strokeDasharray: '5, 5' // Creates dashed line
+              // Get node position
+              const exitNode = nodesRef.current.find(n => n.id === id);
+              if (exitNode) {
+                const exitNodePosition = exitNode.position;
+                
+                // Create a retry node floating to the left of the exit node
+                const retryNodeId = `retry-${uuidv4().substring(0, 6)}`;
+                const retryNode: Node = {
+                  id: retryNodeId,
+                  type: 'retryNode',
+                  position: {
+                    x: exitNodePosition.x - 150,  // Position to the left
+                    y: exitNodePosition.y + 20    // Slightly below
+                  },
+                  data: {
+                    label: 'Re-entry',  // Changed from 'Retry' to 'Re-entry'
+                    actionType: 'retry',
+                    retryConfig: {
+                      groupNumber: (newConfig as ExitNodeReEntryConfig).groupNumber || 1,
+                      maxReEntries: (newConfig as ExitNodeReEntryConfig).maxReEntries || 1
+                    }
                   }
                 };
-              }
-              
-              // Update node data first
-              handler(id, data);
-              
-              // Then add the retry node and edges
-              setNodes((prev: Node[]) => [...prev, retryNode]);
-              
-              // Add edges (both fixed and dashed if available)
-              if (dashEdge) {
-                setEdges((prev: any[]) => [...prev, fixedEdge, dashEdge]);
-              } else {
-                setEdges((prev: any[]) => [...prev, fixedEdge]);
-              }
-              
-              // Update store
-              setTimeout(() => {
-                const updatedNodes = [...nodesRef.current, retryNode];
-                let updatedEdges = [...edgesRef.current, fixedEdge];
-                if (dashEdge) {
-                  updatedEdges.push(dashEdge);
+                
+                // Create fixed-length edge from exit node to retry node
+                const fixedEdge = {
+                  id: `e-${id}-${retryNodeId}`,
+                  source: id,
+                  target: retryNodeId,
+                  type: 'default',
+                  style: { 
+                    stroke: '#9b59b6', 
+                    strokeWidth: 2 
+                  },
+                  sourceHandle: null,
+                  targetHandle: null,
+                  // Fixed length edge properties
+                  data: {
+                    fixedLength: true,
+                    length: 100
+                  }
+                };
+                
+                // Find any entry node to connect with animated dashed edge
+                const entryNodes = nodesRef.current.filter(n => n.type === 'entryNode');
+                let dashEdge = null;
+                
+                if (entryNodes.length > 0) {
+                  // Connect to the first entry node with a dashed animated edge
+                  const targetEntryNode = entryNodes[0];
+                  dashEdge = {
+                    id: `e-${retryNodeId}-${targetEntryNode.id}`,
+                    source: retryNodeId,
+                    target: targetEntryNode.id,
+                    type: 'dashEdge',  // New edge type for dashed animated edges
+                    animated: true,
+                    style: { 
+                      stroke: '#9b59b6', 
+                      strokeWidth: 2,
+                      strokeDasharray: '5, 5' // Creates dashed line
+                    }
+                  };
                 }
                 
-                storeRef.current.setNodes(updatedNodes);
-                storeRef.current.setEdges(updatedEdges);
-                storeRef.current.addHistoryItem(updatedNodes, updatedEdges);
-              }, 100);
-              
-              return;
+                // Update node data first
+                handler(id, data);
+                
+                // Then add the retry node and edges
+                setNodes((prev: Node[]) => [...prev, retryNode]);
+                
+                // Add edges (both fixed and dashed if available)
+                if (dashEdge) {
+                  setEdges((prev: any[]) => [...prev, fixedEdge, dashEdge]);
+                } else {
+                  setEdges((prev: any[]) => [...prev, fixedEdge]);
+                }
+                
+                // Update store
+                setTimeout(() => {
+                  const updatedNodes = [...nodesRef.current, retryNode];
+                  let updatedEdges = [...edgesRef.current, fixedEdge];
+                  if (dashEdge) {
+                    updatedEdges.push(dashEdge);
+                  }
+                  
+                  storeRef.current.setNodes(updatedNodes);
+                  storeRef.current.setEdges(updatedEdges);
+                  storeRef.current.addHistoryItem(updatedNodes, updatedEdges);
+                }, 100);
+                
+                return;
+              }
             }
           }
         }
