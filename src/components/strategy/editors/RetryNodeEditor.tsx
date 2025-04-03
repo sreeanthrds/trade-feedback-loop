@@ -12,7 +12,7 @@ interface RetryNodeEditorProps {
 
 const RetryNodeEditor: React.FC<RetryNodeEditorProps> = ({ node, updateNodeData }) => {
   // Force actionType to be 'retry'
-  if (node.data.actionType !== 'retry') {
+  if (node.data?.actionType !== 'retry') {
     updateNodeData(node.id, { 
       ...node.data, 
       actionType: 'retry',
@@ -36,7 +36,7 @@ const RetryNodeEditor: React.FC<RetryNodeEditorProps> = ({ node, updateNodeData 
 
   return (
     <NodeDetailsPanel
-      nodeLabel={label || ""}
+      nodeLabel={label || "Retry"}
       onLabelChange={handleLabelChange}
       infoTooltip={getActionInfoTooltip()}
       additionalContent={

@@ -56,15 +56,28 @@ export const validateConnection = (
     return false;
   }
   
-  // Rule: Order nodes (entry, exit) shouldn't directly link to each other
+  // Rule: Order nodes (entry, exit) shouldn't directly link to each other, except for retry nodes
   if ((sourceNode?.type === 'entryNode' || sourceNode?.type === 'exitNode') && 
-      (targetNode?.type === 'entryNode' || targetNode?.type === 'exitNode')) {
+      (targetNode?.type === 'entryNode' || targetNode?.type === 'exitNode') &&
+      targetNode?.type !== 'retryNode' && sourceNode?.type !== 'retryNode') {
     toast({
       title: "Invalid connection",
       description: "Order nodes cannot directly link to each other",
       variant: "destructive"
     });
     return false;
+  }
+  
+  // Special case: Allow exit nodes to connect to retry nodes
+  if (sourceNode?.type === 'exitNode' && targetNode?.type === 'retryNode') {
+    // This connection is allowed
+    return true;
+  }
+  
+  // Special case: Allow retry nodes to connect to entry nodes
+  if (sourceNode?.type === 'retryNode' && targetNode?.type === 'entryNode') {
+    // This connection is allowed
+    return true;
   }
   
   // Rule: Order nodes should be triggered by only one signal
@@ -122,11 +135,14 @@ export const validateConnection = (
   
   // ==== 3. Node Type-Specific Rules ====
   
-  // Rule: Entry nodes should only receive connections from Signal or Start nodes
-  if (targetNode.type === 'entryNode' && sourceNode.type !== 'signalNode' && sourceNode.type !== 'startNode') {
+  // Rule: Entry nodes should only receive connections from Signal, Start, or Retry nodes
+  if (targetNode.type === 'entryNode' && 
+      sourceNode.type !== 'signalNode' && 
+      sourceNode.type !== 'startNode' &&
+      sourceNode.type !== 'retryNode') {
     toast({
       title: "Invalid connection",
-      description: "Entry nodes can only receive connections from Signal or Start nodes",
+      description: "Entry nodes can only receive connections from Signal, Start, or Retry nodes",
       variant: "destructive"
     });
     return false;

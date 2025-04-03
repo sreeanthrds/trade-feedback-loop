@@ -1,13 +1,14 @@
 
 import { useCallback, useRef, useEffect } from 'react';
 import { Node } from '@xyflow/react';
-import { toast } from '@/hooks/use-toast';
+import { toast } from "@/hooks/use-toast";
 import { 
   createNodeClickHandler, 
   createAddNodeHandler,
   createUpdateNodeDataHandler,
   createDeleteNodeHandler
 } from '../../utils/handlers';
+import { v4 as uuidv4 } from 'uuid';
 
 interface UseNodeHandlersProps {
   nodes: Node[];
@@ -117,6 +118,76 @@ export const useNodeHandlers = ({
           setNodes,
           storeRef.current
         );
+        
+        // Special handling for exit nodes with re-entry toggle
+        if (
+          data?.exitNodeData?.reEntryConfig &&
+          typeof data.exitNodeData.reEntryConfig === 'object'
+        ) {
+          const node = nodesRef.current.find(n => n.id === id);
+          const oldConfig = node?.data?.exitNodeData?.reEntryConfig;
+          const newConfig = data.exitNodeData.reEntryConfig;
+          
+          // If re-entry was toggled on, create a retry node
+          if (!oldConfig?.enabled && newConfig.enabled) {
+            console.log('Re-entry was enabled, creating retry node');
+            
+            // Get node position
+            const exitNode = nodesRef.current.find(n => n.id === id);
+            if (exitNode) {
+              const exitNodePosition = exitNode.position;
+              
+              // Create a retry node floating to the left of the exit node
+              const retryNodeId = `retry-${uuidv4().substring(0, 6)}`;
+              const retryNode = {
+                id: retryNodeId,
+                type: 'retryNode',
+                position: {
+                  x: exitNodePosition.x - 150,  // Position to the left
+                  y: exitNodePosition.y + 20    // Slightly below
+                },
+                data: {
+                  label: 'Retry',
+                  actionType: 'retry',
+                  retryConfig: {
+                    groupNumber: newConfig.groupNumber,
+                    maxReEntries: newConfig.maxReEntries
+                  }
+                }
+              };
+              
+              // Create visual connection
+              const floatingEdge = {
+                id: `e-${id}-${retryNodeId}`,
+                source: id,
+                target: retryNodeId,
+                type: 'default',
+                animated: true,
+                style: { stroke: '#9b59b6', strokeWidth: 2 }
+              };
+              
+              // Update node data first
+              handler(id, data);
+              
+              // Then add the retry node and edge
+              setNodes(prev => [...prev, retryNode as any]);
+              setEdges(prev => [...prev, floatingEdge]);
+              
+              // Update store
+              setTimeout(() => {
+                const updatedNodes = [...nodesRef.current, retryNode as any];
+                const updatedEdges = [...edgesRef.current, floatingEdge];
+                storeRef.current.setNodes(updatedNodes);
+                storeRef.current.setEdges(updatedEdges);
+                storeRef.current.addHistoryItem(updatedNodes, updatedEdges);
+              }, 100);
+              
+              return;
+            }
+          }
+        }
+        
+        // Default update behavior
         handler(id, data);
       } finally {
         // Reset the flag after a short delay
@@ -125,7 +196,7 @@ export const useNodeHandlers = ({
         }, 100);
       }
     }, 0);
-  }, [setNodes, updateHandlingRef]);
+  }, [setNodes, setEdges, updateHandlingRef]);
   
   // Create stable handler for deleting nodes
   const handleDeleteNode = useCallback((id: string) => {

@@ -17,10 +17,14 @@ const RetryNode: React.FC<NodeProps> = ({ id, data, selected, isConnectable, typ
       positions: Array.isArray(rawData.positions) ? rawData.positions : [],
       icon: getNodeIcon('retry'),
       description: 'Re-enter the trade',
-      // Retry specific properties
-      retryConfig: rawData.retryConfig || {
-        groupNumber: rawData.groupNumber as number || 1,
-        maxReEntries: rawData.maxReEntries as number || 1
+      // Retry specific properties with proper type handling
+      retryConfig: {
+        groupNumber: typeof rawData.retryConfig === 'object' && rawData.retryConfig 
+          ? (rawData.retryConfig as any).groupNumber || 1
+          : rawData.groupNumber as number || 1,
+        maxReEntries: typeof rawData.retryConfig === 'object' && rawData.retryConfig 
+          ? (rawData.retryConfig as any).maxReEntries || 1
+          : rawData.maxReEntries as number || 1
       }
     };
   }, [data]);
@@ -28,7 +32,14 @@ const RetryNode: React.FC<NodeProps> = ({ id, data, selected, isConnectable, typ
   return (
     <ActionNodeTemplate
       id={id}
-      data={nodeData}
+      data={{
+        ...nodeData,
+        // Make actionType compatible with ActionNodeTemplate expectations 
+        // Since it only accepts certain action types, we're mapping retry to a compatible type
+        // but maintaining the icon and functionality of retry
+        actionType: 'action',
+        _actionTypeInternal: 'retry'
+      }}
       selected={selected}
       isConnectable={isConnectable}
       type={type || 'retryNode'}

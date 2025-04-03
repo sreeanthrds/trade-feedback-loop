@@ -32,7 +32,7 @@ const ReEntryForm: React.FC<ReEntryFormProps> = ({
         label="Enable Re-Entry"
         checked={reEntryEnabled}
         onCheckedChange={onReEntryToggle}
-        description="Allow positions to re-enter the market after this exit"
+        description="Create a retry node to re-enter the market after exit"
       />
       
       {reEntryEnabled && (

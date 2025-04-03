@@ -1,3 +1,4 @@
+
 /**
  * Get a prefix for node IDs based on the node type
  */
