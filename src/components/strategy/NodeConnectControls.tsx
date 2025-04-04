@@ -25,6 +25,8 @@ interface NodeConnectControlsProps {
 const nodeTypeIcons = {
   startNode: { icon: Play, label: 'Start Node', color: 'text-emerald-500' },
   signalNode: { icon: Activity, label: 'Signal Node', color: 'text-blue-600' },
+  entrySignalNode: { icon: Activity, label: 'Entry Signal Node', color: 'text-green-500' },
+  exitSignalNode: { icon: Activity, label: 'Exit Signal Node', color: 'text-amber-500' },
   actionNode: { icon: SlidersHorizontal, label: 'Action Node', color: 'text-amber-600' },
   entryNode: { icon: ShoppingCart, label: 'Entry Node', color: 'text-green-500' },
   exitNode: { icon: LogOut, label: 'Exit Node', color: 'text-amber-500' },
@@ -41,6 +43,8 @@ const NodeConnectControls = memo(({ showOn, onAddNode, parentNodeId }: NodeConne
     if (showOn === 'start') {
       return [
         { value: 'signalNode', label: 'Signal Node' },
+        { value: 'entrySignalNode', label: 'Entry Signal Node' },
+        { value: 'exitSignalNode', label: 'Exit Signal Node' },
         { value: 'entryNode', label: 'Entry Node' },
         { value: 'exitNode', label: 'Exit Node' },
         // Temporarily hiding the Modify Node option
@@ -52,6 +56,8 @@ const NodeConnectControls = memo(({ showOn, onAddNode, parentNodeId }: NodeConne
     } else {
       return [
         { value: 'signalNode', label: 'Signal Node' },
+        { value: 'entrySignalNode', label: 'Entry Signal Node' },
+        { value: 'exitSignalNode', label: 'Exit Signal Node' },
         { value: 'entryNode', label: 'Entry Node' },
         { value: 'exitNode', label: 'Exit Node' },
         // Temporarily hiding the Modify Node option
@@ -103,8 +109,8 @@ const NodeConnectControls = memo(({ showOn, onAddNode, parentNodeId }: NodeConne
         >
           <TooltipProvider delayDuration={200}>
             {nodeOptions.map((option) => {
-              const NodeIcon = nodeTypeIcons[option.value as keyof typeof nodeTypeIcons].icon;
-              const iconColor = nodeTypeIcons[option.value as keyof typeof nodeTypeIcons].color;
+              const NodeIcon = nodeTypeIcons[option.value as keyof typeof nodeTypeIcons]?.icon || Activity;
+              const iconColor = nodeTypeIcons[option.value as keyof typeof nodeTypeIcons]?.color || "text-primary";
               
               return (
                 <Tooltip key={option.value}>
