@@ -2,31 +2,26 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useVpsStore } from '@/hooks/useVpsStore';
-import { Layers } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { Database } from 'lucide-react';
 
-const FloatingVpsButton: React.FC = () => {
+const FloatingVpsButton = () => {
   const { toggle, positions } = useVpsStore();
   const positionCount = positions.length;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
-      <Button
-        onClick={toggle}
-        className="h-12 w-12 rounded-full shadow-lg"
-        size="icon"
-        variant="default"
-      >
-        <Layers className="h-5 w-5" />
-        {positionCount > 0 && (
-          <Badge 
-            className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center rounded-full"
-          >
-            {positionCount}
-          </Badge>
-        )}
-      </Button>
-    </div>
+    <Button
+      onClick={toggle}
+      className="fixed bottom-4 right-4 shadow-lg rounded-full p-3 h-auto"
+      variant="default"
+    >
+      <Database className="h-5 w-5 mr-2" />
+      <span>Positions</span>
+      {positionCount > 0 && (
+        <span className="ml-2 bg-primary-foreground text-primary rounded-full h-5 min-w-5 px-1 flex items-center justify-center text-xs font-medium">
+          {positionCount}
+        </span>
+      )}
+    </Button>
   );
 };
 

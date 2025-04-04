@@ -10,6 +10,7 @@ interface VpsStoreState {
   addPosition: (position: Position) => void;
   updatePosition: (position: Position) => void;
   removePosition: (positionId: string) => void;
+  clearPositions: () => void;
 }
 
 export const useVpsStore = create<VpsStoreState>((set) => ({
@@ -27,5 +28,6 @@ export const useVpsStore = create<VpsStoreState>((set) => ({
   })),
   removePosition: (positionId) => set((state) => ({
     positions: state.positions.filter((pos) => pos.id !== positionId)
-  }))
+  })),
+  clearPositions: () => set({ positions: [] })
 }));
