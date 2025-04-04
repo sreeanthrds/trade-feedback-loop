@@ -9,7 +9,7 @@ import { useExitNodeForm } from './useExitNodeForm';
 import ExitConditionForm from './ExitConditionForm';
 import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
 import ExitConditionsSection from './ExitConditionsSection';
-import { createEmptyGroupCondition } from '../../../utils/conditions';
+import { createEmptyGroupCondition, GroupCondition } from '../../../utils/conditions';
 
 interface ExitNodeFormProps {
   node: Node;
@@ -35,16 +35,22 @@ const ExitNodeForm: React.FC<ExitNodeFormProps> = React.memo(({ node, updateNode
   });
 
   // Get conditions from node data or create a default one
-  const [conditions, setConditions] = useState(() => {
-    const existingConditions = node.data?.exitConditions || [];
-    if (existingConditions.length === 0) {
+  const [conditions, setConditions] = useState<GroupCondition[]>(() => {
+    // Safely access the exitConditions array
+    const exitConditions = Array.isArray(node.data?.exitConditions) 
+      ? node.data.exitConditions 
+      : [];
+    
+    // If there are no conditions, create a default one
+    if (exitConditions.length === 0) {
       return [createEmptyGroupCondition()];
     }
-    return existingConditions;
+    
+    return exitConditions as GroupCondition[];
   });
 
   // Update conditions and save to node data
-  const updateConditions = (updatedConditions: any[]) => {
+  const updateConditions = (updatedConditions: GroupCondition[]) => {
     setConditions(updatedConditions);
     updateNodeData(node.id, {
       ...node.data,

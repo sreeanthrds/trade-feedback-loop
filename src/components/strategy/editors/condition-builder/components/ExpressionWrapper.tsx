@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Expression } from '../../../utils/conditionTypes';
+import { Expression } from '../../../utils/conditions';
 import { expressionEditorMap } from '../expression-editors';
 import { Label } from '@/components/ui/label';
 import ExpressionTypeSelector from './ExpressionTypeSelector';
@@ -24,6 +24,13 @@ const ExpressionWrapper: React.FC<ExpressionWrapperProps> = ({
 }) => {
   // Get the appropriate editor component for this expression type
   const EditorComponent = expression ? expressionEditorMap[expression.type] : null;
+
+  // Extract only the props that each editor component accepts
+  const commonEditorProps = {
+    expression,
+    updateExpression,
+    required
+  };
 
   return (
     <div className="space-y-2 overflow-visible w-full">
@@ -53,10 +60,7 @@ const ExpressionWrapper: React.FC<ExpressionWrapperProps> = ({
       
       {EditorComponent && (
         <EditorComponent
-          expression={expression}
-          updateExpression={updateExpression}
-          required={required}
-          conditionContext={conditionContext}
+          {...commonEditorProps}
         />
       )}
     </div>

@@ -8,12 +8,14 @@ interface IndicatorExpressionEditorProps {
   expression: Expression;
   updateExpression: (expr: Expression) => void;
   required?: boolean;
+  conditionContext?: 'entry' | 'exit';
 }
 
 const IndicatorExpressionEditor: React.FC<IndicatorExpressionEditorProps> = ({
   expression,
   updateExpression,
-  required = false
+  required = false,
+  conditionContext = 'entry'
 }) => {
   if (expression.type !== 'indicator') {
     return null;
@@ -35,6 +37,7 @@ const IndicatorExpressionEditor: React.FC<IndicatorExpressionEditorProps> = ({
         expression={expression}
         updateExpression={updateExpression}
         required={required}
+        conditionContext={conditionContext}
       />
       
       {/* Only show offset selector if an indicator is selected */}

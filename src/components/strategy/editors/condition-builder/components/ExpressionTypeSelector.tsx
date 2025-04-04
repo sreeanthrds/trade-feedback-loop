@@ -9,7 +9,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
-import { Expression, createEmptyExpression } from '../../../utils/conditions';
+import { Expression, createDefaultExpression } from '../../../utils/conditions';
 import ExpressionIcon from './ExpressionIcon';
 
 interface ExpressionTypeSelectorProps {
@@ -50,7 +50,7 @@ const ExpressionTypeSelector: React.FC<ExpressionTypeSelectorProps> = ({
 
   const handleTypeChange = (value: string) => {
     // Create a new expression of the selected type
-    const newExpression = createEmptyExpression(value as any);
+    const newExpression = createDefaultExpression(value as any);
     updateExpression(newExpression);
   };
 

@@ -11,7 +11,7 @@ import SelectField from '../../shared/SelectField';
 import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
 import SwitchField from '../../shared/SwitchField';
 import ExitConditionsSection from './ExitConditionsSection';
-import { createEmptyGroupCondition } from '../../../utils/conditions';
+import { createEmptyGroupCondition, GroupCondition } from '../../../utils/conditions';
 
 interface ExitOrderFormProps {
   node: Node;
@@ -36,16 +36,22 @@ const ExitOrderForm: React.FC<ExitOrderFormProps> = ({ node, updateNodeData }) =
   } = useExitOrderForm({ node, updateNodeData });
 
   // Get conditions from node data or create a default one
-  const [conditions, setConditions] = useState(() => {
-    const existingConditions = node.data?.exitConditions || [];
-    if (existingConditions.length === 0) {
+  const [conditions, setConditions] = useState<GroupCondition[]>(() => {
+    // Safely access the exitConditions array
+    const exitConditions = Array.isArray(node.data?.exitConditions) 
+      ? node.data.exitConditions 
+      : [];
+    
+    // If there are no conditions, create a default one
+    if (exitConditions.length === 0) {
       return [createEmptyGroupCondition()];
     }
-    return existingConditions;
+    
+    return exitConditions as GroupCondition[];
   });
 
   // Update conditions and save to node data
-  const updateConditions = (updatedConditions: any[]) => {
+  const updateConditions = (updatedConditions: GroupCondition[]) => {
     setConditions(updatedConditions);
     updateNodeData(node.id, {
       ...node.data,

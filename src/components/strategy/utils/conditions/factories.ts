@@ -41,6 +41,9 @@ export const createDefaultExpression = (type: ExpressionType): Expression => {
   }
 };
 
+// Alias for createDefaultExpression for backward compatibility
+export const createEmptyExpression = createDefaultExpression;
+
 // Create a new empty condition
 export const createEmptyCondition = (): Condition => {
   return {

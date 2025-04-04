@@ -11,12 +11,14 @@ interface IndicatorSelectorProps {
   expression: Expression;
   updateExpression: (expr: Expression) => void;
   required?: boolean;
+  conditionContext?: 'entry' | 'exit';
 }
 
 const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
   expression,
   updateExpression,
-  required = false
+  required = false,
+  conditionContext = 'entry'
 }) => {
   const {
     indicatorExpr,
