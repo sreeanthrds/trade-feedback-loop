@@ -68,6 +68,7 @@ const MarketDataSelector: React.FC<MarketDataSelectorProps> = ({
       <CandleOffsetSelector 
         offset={marketDataExpr.offset || 0}
         onOffsetChange={updateOffset}
+        label="Look back:"
       />
     </div>
   );
