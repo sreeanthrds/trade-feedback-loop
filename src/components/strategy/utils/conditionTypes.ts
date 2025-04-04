@@ -30,6 +30,7 @@ export interface MarketDataExpression extends BaseExpression {
   type: 'market_data';
   field: string;
   sub_indicator?: string;
+  offset?: number; // 0 = current candle, -1 = previous candle, -2 = 2 candles ago, etc.
 }
 
 // Constant value (number or string)
@@ -119,7 +120,7 @@ export const createDefaultExpression = (type: ExpressionType): Expression => {
     case 'indicator':
       return { id, type: 'indicator', name: '' };
     case 'market_data':
-      return { id, type: 'market_data', field: 'Close' };
+      return { id, type: 'market_data', field: 'Close', offset: 0 };
     case 'constant':
       return { id, type: 'constant', value: 0 };
     case 'time_function':
@@ -218,7 +219,16 @@ export const expressionToString = (expr: Expression, nodeData?: any): string => 
       return expr.parameter ? `${expr.name}[${expr.parameter}]` : expr.name;
     
     case 'market_data':
-      return expr.sub_indicator ? `${expr.field}.${expr.sub_indicator}` : expr.field;
+      let fieldDisplay = expr.sub_indicator ? `${expr.field}.${expr.sub_indicator}` : expr.field;
+      // Add offset display if present
+      if (expr.offset && expr.offset < 0) {
+        if (expr.offset === -1) {
+          fieldDisplay = `Previous ${fieldDisplay}`;
+        } else {
+          fieldDisplay = `${Math.abs(expr.offset)} candles ago ${fieldDisplay}`;
+        }
+      }
+      return fieldDisplay;
     
     case 'constant':
       return `${expr.value}`;

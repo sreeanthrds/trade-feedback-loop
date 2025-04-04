@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Expression, 
   MarketDataExpression
@@ -40,6 +40,14 @@ const MarketDataExpressionEditor: React.FC<MarketDataExpressionEditorProps> = ({
     });
   };
   
+  // Update the time offset (current, previous, etc.)
+  const updateOffset = (value: string) => {
+    updateExpression({
+      ...marketDataExpr,
+      offset: parseInt(value)
+    });
+  };
+  
   const marketDataFields = [
     { value: 'Open', label: 'Open', description: 'The price at which an asset opens for trading in a given period' },
     { value: 'High', label: 'High', description: 'The highest price reached by an asset during the trading period' },
@@ -72,6 +80,26 @@ const MarketDataExpressionEditor: React.FC<MarketDataExpressionEditorProps> = ({
           ))}
         </SelectContent>
       </Select>
+      
+      <div className="flex items-center gap-2">
+        <Label className="text-xs whitespace-nowrap">Candle Time:</Label>
+        <Select 
+          value={String(marketDataExpr.offset || 0)} 
+          onValueChange={updateOffset}
+        >
+          <SelectTrigger className="h-8">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="0">Current candle</SelectItem>
+            <SelectItem value="-1">Previous candle</SelectItem>
+            <SelectItem value="-2">2 candles ago</SelectItem>
+            <SelectItem value="-3">3 candles ago</SelectItem>
+            <SelectItem value="-4">4 candles ago</SelectItem>
+            <SelectItem value="-5">5 candles ago</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 };
