@@ -3,7 +3,7 @@ import React from 'react';
 import { 
   Expression, 
   MarketDataExpression
-} from '../../utils/conditionTypes';
+} from '../../utils/conditions';
 import { 
   Select,
   SelectContent,

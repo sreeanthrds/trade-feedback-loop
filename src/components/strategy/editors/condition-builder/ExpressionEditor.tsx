@@ -2,7 +2,7 @@
 import React from 'react';
 import { 
   Expression
-} from '../../utils/conditionTypes';
+} from '../../utils/conditions';
 import ExpressionTypeSelector from './components/ExpressionTypeSelector';
 import {
   IndicatorExpressionEditor,

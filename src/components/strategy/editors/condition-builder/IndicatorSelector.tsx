@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Expression } from '../../utils/conditionTypes';
+import { Expression } from '../../utils/conditions';
 import { useIndicatorSelector } from './hooks/useIndicatorSelector';
 import IndicatorMissingAlert from './components/IndicatorMissingAlert';
 import IndicatorNameSelector from './components/IndicatorNameSelector';

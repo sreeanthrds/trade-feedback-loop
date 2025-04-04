@@ -3,7 +3,7 @@ import React from 'react';
 import { 
   Expression, 
   TimeFunctionExpression
-} from '../../utils/conditionTypes';
+} from '../../utils/conditions';
 import { 
   Select,
   SelectContent,

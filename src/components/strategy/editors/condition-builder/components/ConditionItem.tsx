@@ -1,6 +1,6 @@
 
 import React, { memo } from 'react';
-import { Condition, GroupCondition } from '../../../utils/conditionTypes';
+import { Condition, GroupCondition } from '../../../utils/conditions';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 import SingleConditionEditor from '../SingleConditionEditor';

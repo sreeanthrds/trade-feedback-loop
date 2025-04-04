@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { GroupCondition, groupConditionToString } from '../../../utils/conditionTypes';
+import { GroupCondition, groupConditionToString } from '../../../utils/conditions';
 import { 
   Card, 
   CardContent, 

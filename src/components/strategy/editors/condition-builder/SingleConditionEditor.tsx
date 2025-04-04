@@ -2,7 +2,7 @@
 import React from 'react';
 import { 
   Condition, 
-} from '../../utils/conditionTypes';
+} from '../../utils/conditions';
 import OperatorSelector from './components/OperatorSelector';
 import ExpressionWrapper from './components/ExpressionWrapper';
 

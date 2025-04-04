@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Expression } from '../../../utils/conditionTypes';
+import { Expression } from '../../../utils/conditions';
 import ExpressionWrapper from './ExpressionWrapper';
 
 interface ExpressionPartsProps {

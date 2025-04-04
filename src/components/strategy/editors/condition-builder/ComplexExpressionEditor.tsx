@@ -3,7 +3,7 @@ import React from 'react';
 import { 
   Expression, 
   ComplexExpression
-} from '../../utils/conditionTypes';
+} from '../../utils/conditions';
 import OperationSelector from './components/OperationSelector';
 import ExpressionParts from './components/ExpressionParts';
 import { cn } from '@/lib/utils';

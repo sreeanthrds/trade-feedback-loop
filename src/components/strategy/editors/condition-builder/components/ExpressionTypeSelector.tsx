@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Expression, ExpressionType, createDefaultExpression } from '../../../utils/conditionTypes';
+import { Expression, ExpressionType, createDefaultExpression } from '../../../utils/conditions';
 import {
   Select,
   SelectContent,

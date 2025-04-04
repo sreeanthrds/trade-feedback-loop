@@ -3,7 +3,7 @@ import React from 'react';
 import { 
   Expression, 
   ConstantExpression
-} from '../../../utils/conditionTypes';
+} from '../../../utils/conditions';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 

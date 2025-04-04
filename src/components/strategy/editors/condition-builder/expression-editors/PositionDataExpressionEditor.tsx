@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Expression } from '../../../utils/conditionTypes';
+import { Expression } from '../../../utils/conditions';
 import { usePositionData } from './position-data/usePositionData';
 import PositionFieldSelector from './position-data/PositionFieldSelector';
 import FilterTypeSwitch from './position-data/FilterTypeSwitch';

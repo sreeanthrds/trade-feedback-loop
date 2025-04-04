@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Expression, StrategyMetricExpression } from '../../../utils/conditionTypes';
+import { Expression, StrategyMetricExpression } from '../../../utils/conditions';
 import { 
   Select,
   SelectContent,

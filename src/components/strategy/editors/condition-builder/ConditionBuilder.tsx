@@ -5,7 +5,7 @@ import {
   GroupCondition, 
   createEmptyCondition,
   createEmptyGroupCondition
-} from '../../utils/conditionTypes';
+} from '../../utils/conditions';
 import GroupConditionTitle from './components/GroupConditionTitle';
 import ConditionItem from './components/ConditionItem';
 import ConditionActions from './components/ConditionActions';

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Expression, IndicatorExpression } from '../../../utils/conditionTypes';
+import { Expression, IndicatorExpression } from '../../../utils/conditions';
 import IndicatorSelector from '../IndicatorSelector';
 import CandleOffsetSelector from '../components/CandleOffsetSelector';
 
