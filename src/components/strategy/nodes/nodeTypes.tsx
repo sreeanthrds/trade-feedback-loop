@@ -2,6 +2,8 @@ import React from 'react';
 import { NodeTypes, Position } from '@xyflow/react';
 import StartNode from './StartNode';
 import SignalNode from './SignalNode';
+import EntrySignalNode from './EntrySignalNode';
+import ExitSignalNode from './ExitSignalNode';
 import ActionNode from './ActionNode';
 import EntryNode from './EntryNode';
 import ExitNode from './ExitNode';
@@ -16,6 +18,8 @@ import NodeConnectControls from '../NodeConnectControls';
 // Define memoized base components
 const MemoizedStartNode = React.memo(StartNode);
 const MemoizedSignalNode = React.memo(SignalNode);
+const MemoizedEntrySignalNode = React.memo(EntrySignalNode);
+const MemoizedExitSignalNode = React.memo(ExitSignalNode);
 const MemoizedActionNode = React.memo(ActionNode);
 const MemoizedEntryNode = React.memo(EntryNode);
 const MemoizedExitNode = React.memo(ExitNode);
@@ -67,6 +71,28 @@ const SignalNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, ...rest }
   );
 });
 SignalNodeWrapper.displayName = 'SignalNodeWrapper';
+
+const EntrySignalNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, ...rest }: NodeWrapperProps) => {
+  return (
+    <div className={`group ${rest.dragging ? 'dragging' : ''} ${rest.selected ? 'selected' : ''}`}>
+      <MemoizedEntrySignalNode data={data} id={id} {...rest} />
+      <MemoizedNodeControls node={{ id, type: 'entrySignalNode', data }} onDelete={onDelete} />
+      <MemoizedNodeConnectControls showOn="signal" onAddNode={onAddNode} parentNodeId={id} />
+    </div>
+  );
+});
+EntrySignalNodeWrapper.displayName = 'EntrySignalNodeWrapper';
+
+const ExitSignalNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, ...rest }: NodeWrapperProps) => {
+  return (
+    <div className={`group ${rest.dragging ? 'dragging' : ''} ${rest.selected ? 'selected' : ''}`}>
+      <MemoizedExitSignalNode data={data} id={id} {...rest} />
+      <MemoizedNodeControls node={{ id, type: 'exitSignalNode', data }} onDelete={onDelete} />
+      <MemoizedNodeConnectControls showOn="signal" onAddNode={onAddNode} parentNodeId={id} />
+    </div>
+  );
+});
+ExitSignalNodeWrapper.displayName = 'ExitSignalNodeWrapper';
 
 const ActionNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNodeData, ...rest }: NodeWrapperProps & { updateNodeData?: (id: string, data: any) => void }) => {
   // Enhance data with updateNodeData function and ensure positions is always defined
@@ -208,6 +234,8 @@ const createNodeTypes = (
   return {
     startNode: (props) => <StartNodeWrapper {...props} draggable={true} onAddNode={onAddNode} />,
     signalNode: (props) => <SignalNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} onAddNode={onAddNode} />,
+    entrySignalNode: (props) => <EntrySignalNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} onAddNode={onAddNode} />,
+    exitSignalNode: (props) => <ExitSignalNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} onAddNode={onAddNode} />,
     actionNode: (props) => <ActionNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} onAddNode={onAddNode} updateNodeData={updateNodeData} />,
     entryNode: (props) => <EntryNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} onAddNode={onAddNode} updateNodeData={updateNodeData} />,
     exitNode: (props) => <ExitNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} onAddNode={onAddNode} updateNodeData={updateNodeData} />,

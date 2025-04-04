@@ -1,6 +1,6 @@
 
 import React, { useCallback, memo } from 'react';
-import { ShoppingCart, LogOut, StopCircle, AlertTriangle, Activity, Play, Edit } from 'lucide-react';
+import { ShoppingCart, LogOut, StopCircle, AlertTriangle, Activity, Play, Edit, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { 
   Tooltip,
   TooltipContent,
@@ -29,11 +29,18 @@ const nodeTypes: NodeTypeItem[] = [
     color: 'border-emerald-500 dark:border-emerald-400 bg-emerald-500/10 dark:bg-emerald-400/10'
   },
   {
-    type: 'signalNode',
-    label: 'Signal Node',
-    description: 'Detect market conditions',
-    icon: <Activity className="h-5 w-5 text-blue-600 dark:text-blue-400" />,
+    type: 'entrySignalNode',
+    label: 'Entry Signal',
+    description: 'Detect entry conditions',
+    icon: <ArrowUpRight className="h-5 w-5 text-blue-600 dark:text-blue-400" />,
     color: 'border-blue-600 dark:border-blue-400 bg-blue-600/10 dark:bg-blue-400/10'
+  },
+  {
+    type: 'exitSignalNode',
+    label: 'Exit Signal',
+    description: 'Detect exit conditions',
+    icon: <ArrowDownRight className="h-5 w-5 text-amber-600 dark:text-amber-400" />,
+    color: 'border-amber-600 dark:border-amber-400 bg-amber-600/10 dark:bg-amber-400/10'
   },
   {
     type: 'entryNode',

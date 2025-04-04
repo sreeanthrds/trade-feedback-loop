@@ -1,121 +1,137 @@
 
 import { v4 as uuidv4 } from 'uuid';
+import { MarketData } from '../../../types';
 
-export const createDefaultNodeData = (nodeType: string, nodeId: string) => {
-  const timestamp = Date.now();
-  const simpleId = nodeId.split('-')[1];
-
+/**
+ * Creates default data for a new node based on its type
+ */
+export const createDefaultNodeData = (nodeType: string, nodeId: string = '') => {
+  const uniqueId = uuidv4().substring(0, 8);
+  
   switch (nodeType) {
     case 'startNode':
       return {
-        label: `Start ${simpleId}`,
-        timeframe: '5MIN',
-        exchange: 'NSE',
-        tradingInstrument: {
-          type: 'stock',
-          underlyingType: 'index'
+        label: 'Start',
+        timeframe: '1h',
+        market: 'crypto',
+        exchange: 'binance',
+        symbol: 'BTCUSDT',
+        backtest: {
+          from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days ago
+          to: new Date().toISOString().split('T')[0], // today
+          initialCapital: 10000
         },
-        indicators: [],
-        symbol: 'NIFTY',
-        _lastUpdated: timestamp
+        indicatorParameters: {}
       };
-
+      
     case 'signalNode':
       return {
-        label: `Signal ${simpleId}`,
-        _lastUpdated: timestamp,
-        conditions: {
-          type: 'simple',
-          operator: 'and',
+        label: 'Signal',
+        conditions: [{
+          id: `signal-root-${uniqueId}`,
+          groupLogic: 'AND',
           conditions: []
-        }
+        }]
       };
-
-    case 'actionNode':
+      
+    case 'entrySignalNode':
       return {
-        label: `Action ${simpleId}`,
-        actionType: 'entry',
-        positions: [],
-        _lastUpdated: timestamp
+        label: 'Entry Signal',
+        conditions: [{
+          id: `entry-root-${uniqueId}`,
+          groupLogic: 'AND',
+          conditions: []
+        }]
       };
-
+      
+    case 'exitSignalNode':
+      return {
+        label: 'Exit Signal',
+        conditions: [{
+          id: `exit-root-${uniqueId}`,
+          groupLogic: 'AND',
+          conditions: []
+        }]
+      };
+      
     case 'entryNode':
       return {
-        label: `Entry ${simpleId}`,
+        label: 'Entry Order',
         actionType: 'entry',
-        positions: [
-          {
-            id: `pos-${uuidv4().slice(0, 6)}`,
-            vpi: `${nodeId}-pos1`,
-            vpt: '',
-            priority: 1,
-            positionType: 'buy',
-            orderType: 'market',
-            lots: 1,
-            productType: 'intraday',
-            optionDetails: {
-              expiry: 'W0',
-              strikeType: 'ATM',
-              optionType: 'CE'
-            },
-            _lastUpdated: timestamp
-          }
-        ],
-        _lastUpdated: timestamp
+        entryType: 'market',
+        side: 'long',
+        riskAmount: {
+          type: 'fixed',
+          value: 100
+        },
+        positions: [],
+        limitPrice: 0,
+        stopLoss: {
+          enabled: false,
+          value: 0,
+          type: 'percent'
+        },
+        takeProfit: {
+          enabled: false,
+          value: 0,
+          type: 'percent'
+        }
       };
-
+      
     case 'exitNode':
       return {
-        label: `Exit ${simpleId}`,
+        label: 'Exit Order',
         actionType: 'exit',
-        exitType: 'specific',
-        positions: [],
-        exitCondition: {
-          type: 'positionExit',
-          params: {}
-        },
-        _lastUpdated: timestamp
+        exitNodeData: {
+          exitOrderType: 'market',
+          exitConditionType: 'all',
+          limitPrice: 0
+        }
+      };
+      
+    case 'alertNode':
+      return {
+        label: 'Alert',
+        actionType: 'alert',
+        alertType: 'notification',
+        message: 'Strategy alert triggered',
+        channels: ['app']
       };
       
     case 'modifyNode':
       return {
-        label: `Modify ${simpleId}`,
+        label: 'Modify Position',
         actionType: 'modify',
-        targetPositionId: null,
-        targetNodeId: null,
-        modifications: {},
-        _lastUpdated: timestamp
+        modifyAction: 'move_sl',
+        targetPositions: 'all',
+        positions: []
       };
-
-    case 'alertNode':
-      return {
-        label: `Alert ${simpleId}`,
-        actionType: 'alert',
-        alertMessage: 'Strategy alert',
-        alertType: 'info',
-        sendEmail: false,
-        sendSms: false,
-        sendPush: true,
-        _lastUpdated: timestamp
-      };
-
+      
     case 'endNode':
       return {
-        label: `End ${simpleId}`,
-        _lastUpdated: timestamp
+        label: 'End Branch'
       };
-
+      
     case 'forceEndNode':
       return {
-        label: `Force End ${simpleId}`,
-        closePositions: true,
-        _lastUpdated: timestamp
+        label: 'End Strategy',
+        reason: 'manual',
+        customMessage: 'Strategy execution ended'
       };
-
+      
+    case 'retryNode':
+      return {
+        label: 'Re-entry',
+        actionType: 'retry',
+        retryConfig: {
+          groupNumber: 1,
+          maxReEntries: 1
+        }
+      };
+      
     default:
       return {
-        label: `Node ${simpleId}`,
-        _lastUpdated: timestamp
+        label: nodeType.replace('Node', '')
       };
   }
 };
