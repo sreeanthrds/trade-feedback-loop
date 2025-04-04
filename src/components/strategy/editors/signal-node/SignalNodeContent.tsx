@@ -36,13 +36,13 @@ const SignalNodeContent: React.FC<SignalNodeContentProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<string>(conditionContext || 'entry');
   
-  const handleUpdateConditions = (updatedConditions: GroupCondition[]) => {
-    updateConditions(updatedConditions);
+  const handleUpdateConditions = (updatedCondition: GroupCondition) => {
+    updateConditions([updatedCondition]);
   };
   
-  const handleUpdateExitConditions = (updatedConditions: GroupCondition[]) => {
+  const handleUpdateExitConditions = (updatedCondition: GroupCondition) => {
     if (updateExitConditions) {
-      updateExitConditions(updatedConditions);
+      updateExitConditions([updatedCondition]);
     }
   };
 
@@ -78,7 +78,7 @@ const SignalNodeContent: React.FC<SignalNodeContentProps> = ({
         </div>
         
         <ConditionBuilder
-          conditions={conditions}
+          rootCondition={conditions[0] || { id: 'root', groupLogic: 'AND', conditions: [] }}
           updateConditions={handleUpdateConditions}
           context={conditionContext}
         />
@@ -124,7 +124,7 @@ const SignalNodeContent: React.FC<SignalNodeContentProps> = ({
           When these conditions are met, this node will emit an entry signal.
         </p>
         <ConditionBuilder
-          conditions={conditions}
+          rootCondition={conditions[0] || { id: 'root', groupLogic: 'AND', conditions: [] }}
           updateConditions={handleUpdateConditions}
           context="entry"
         />
@@ -135,7 +135,7 @@ const SignalNodeContent: React.FC<SignalNodeContentProps> = ({
           When these conditions are met, this node will emit an exit signal.
         </p>
         <ConditionBuilder
-          conditions={exitConditions || []}
+          rootCondition={(exitConditions && exitConditions[0]) || { id: 'root', groupLogic: 'AND', conditions: [] }}
           updateConditions={handleUpdateExitConditions}
           context="exit"
         />

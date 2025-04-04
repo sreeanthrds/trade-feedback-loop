@@ -18,7 +18,7 @@ interface ConditionBuilderProps {
   parentUpdateFn?: (updated: GroupCondition | Condition) => void;
   allowRemove?: boolean;
   index?: number;
-  conditionContext?: 'entry' | 'exit';
+  context?: 'entry' | 'exit';
 }
 
 const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
@@ -28,7 +28,7 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
   parentUpdateFn,
   allowRemove = false,
   index = 0,
-  conditionContext = 'entry'
+  context = 'entry'
 }) => {
   // Use useCallback to prevent recreating functions on each render
   const addCondition = useCallback(() => {
@@ -88,7 +88,7 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
   }, [parentUpdateFn]);
 
   // Determine the CSS class based on the context
-  const contextClass = conditionContext === 'exit' ? 'exit-condition-builder' : 'entry-condition-builder';
+  const contextClass = context === 'exit' ? 'exit-condition-builder' : 'entry-condition-builder';
 
   return (
     <div className={`space-y-3 ${level > 0 ? 'condition-group' : ''} ${contextClass}`}>
@@ -109,7 +109,7 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
               level={level}
               updateCondition={(updated) => updateChildCondition(idx, updated)}
               removeCondition={() => removeCondition(idx)}
-              conditionContext={conditionContext}
+              conditionContext={context}
             />
           </div>
         ))}
@@ -123,7 +123,7 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
       {level === 0 && (
         <ConditionPreview 
           rootCondition={rootCondition} 
-          contextLabel={conditionContext === 'exit' ? 'Exit when:' : 'Enter when:'}
+          contextLabel={context === 'exit' ? 'Exit when:' : 'Enter when:'}
         />
       )}
     </div>
