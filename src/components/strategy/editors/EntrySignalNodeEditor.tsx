@@ -1,5 +1,5 @@
 
-import React, { memo } from 'react';
+import React, { memo, ChangeEvent } from 'react';
 import { Node } from '@xyflow/react';
 import { NodeDetailsPanel } from './shared';
 import { useEntrySignalNodeForm } from './signal-node/useEntrySignalNodeForm';
@@ -20,10 +20,15 @@ const EntrySignalNodeEditor = ({ node, updateNodeData }: EntrySignalNodeEditorPr
 
   const signalNodeInfo = "Entry signal nodes detect specific market conditions to trigger entry actions in your strategy. Connect them to Entry nodes to execute trades when these conditions are met.";
 
+  // Create a wrapped handler that extracts the value from the event
+  const onLabelChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
+    handleLabelChange(e.target.value);
+  };
+
   return (
     <NodeDetailsPanel
       nodeLabel={formData.label}
-      onLabelChange={handleLabelChange}
+      onLabelChange={onLabelChangeHandler}
       infoTooltip={signalNodeInfo}
       additionalContent={
         <EntrySignalNodeContent

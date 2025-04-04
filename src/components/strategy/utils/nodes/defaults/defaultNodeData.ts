@@ -1,6 +1,5 @@
 
 import { v4 as uuidv4 } from 'uuid';
-import { MarketData } from '../../../types';
 
 /**
  * Creates default data for a new node based on its type

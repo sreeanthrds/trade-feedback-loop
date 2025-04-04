@@ -16,11 +16,13 @@ export const useExitSignalNodeForm = ({ node, updateNodeData }: UseExitSignalNod
 
   // Ensure we have at least one condition group
   const [conditions, setConditions] = useState<GroupCondition[]>(
-    node.data?.conditions || [{
-      id: `exit-root-${uuidv4().substring(0, 8)}`,
-      groupLogic: 'AND' as const,
-      conditions: []
-    }]
+    node.data?.conditions && Array.isArray(node.data.conditions) 
+      ? node.data.conditions 
+      : [{
+          id: `exit-root-${uuidv4().substring(0, 8)}`,
+          groupLogic: 'AND' as const,
+          conditions: []
+        }]
   );
 
   // Update node data when form data changes

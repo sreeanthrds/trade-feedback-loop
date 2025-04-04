@@ -1,5 +1,5 @@
 
-import React, { memo } from 'react';
+import React, { memo, ChangeEvent } from 'react';
 import { Node } from '@xyflow/react';
 import { NodeDetailsPanel } from './shared';
 import { useExitSignalNodeForm } from './signal-node/useExitSignalNodeForm';
@@ -20,10 +20,15 @@ const ExitSignalNodeEditor = ({ node, updateNodeData }: ExitSignalNodeEditorProp
 
   const signalNodeInfo = "Exit signal nodes detect specific market conditions to trigger exit actions in your strategy. Connect them to Exit nodes to close positions when these conditions are met.";
 
+  // Create a wrapped handler that extracts the value from the event
+  const onLabelChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
+    handleLabelChange(e.target.value);
+  };
+
   return (
     <NodeDetailsPanel
       nodeLabel={formData.label}
-      onLabelChange={handleLabelChange}
+      onLabelChange={onLabelChangeHandler}
       infoTooltip={signalNodeInfo}
       additionalContent={
         <ExitSignalNodeContent
