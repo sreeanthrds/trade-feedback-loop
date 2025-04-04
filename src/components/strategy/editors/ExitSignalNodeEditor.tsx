@@ -27,7 +27,7 @@ const ExitSignalNodeEditor = ({ node, updateNodeData }: ExitSignalNodeEditorProp
 
   return (
     <NodeDetailsPanel
-      nodeLabel={formData.label}
+      nodeLabel={formData.label || 'Exit Signal'}
       onLabelChange={onLabelChangeHandler}
       infoTooltip={signalNodeInfo}
       additionalContent={

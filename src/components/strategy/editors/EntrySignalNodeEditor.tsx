@@ -27,7 +27,7 @@ const EntrySignalNodeEditor = ({ node, updateNodeData }: EntrySignalNodeEditorPr
 
   return (
     <NodeDetailsPanel
-      nodeLabel={formData.label}
+      nodeLabel={formData.label || 'Entry Signal'}
       onLabelChange={onLabelChangeHandler}
       infoTooltip={signalNodeInfo}
       additionalContent={

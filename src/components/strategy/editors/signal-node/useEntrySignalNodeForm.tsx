@@ -9,9 +9,13 @@ interface UseEntrySignalNodeFormProps {
   updateNodeData: (id: string, data: any) => void;
 }
 
+interface FormDataState {
+  label: string;
+}
+
 export const useEntrySignalNodeForm = ({ node, updateNodeData }: UseEntrySignalNodeFormProps) => {
-  const [formData, setFormData] = useState({
-    label: node.data?.label || 'Entry Signal'
+  const [formData, setFormData] = useState<FormDataState>({
+    label: (node.data?.label as string) || 'Entry Signal'
   });
 
   // Ensure we have at least one condition group
