@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import CandleOffsetSelector from './components/CandleOffsetSelector';
 
 interface MarketDataSelectorProps {
   expression: Expression;
@@ -36,10 +37,10 @@ const MarketDataSelector: React.FC<MarketDataSelectorProps> = ({
   };
   
   // Update the time offset (current, previous, etc.)
-  const updateOffset = (value: string) => {
+  const updateOffset = (value: number) => {
     updateExpression({
       ...marketDataExpr,
-      offset: parseInt(value)
+      offset: value
     });
   };
   
@@ -62,24 +63,12 @@ const MarketDataSelector: React.FC<MarketDataSelectorProps> = ({
             <SelectItem value="LTP">LTP</SelectItem>
           </SelectContent>
         </Select>
-        
-        <Select 
-          value={String(marketDataExpr.offset || 0)} 
-          onValueChange={updateOffset}
-        >
-          <SelectTrigger className="h-8 min-w-[140px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="0">Current candle</SelectItem>
-            <SelectItem value="-1">Previous candle</SelectItem>
-            <SelectItem value="-2">2 candles ago</SelectItem>
-            <SelectItem value="-3">3 candles ago</SelectItem>
-            <SelectItem value="-4">4 candles ago</SelectItem>
-            <SelectItem value="-5">5 candles ago</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
+      
+      <CandleOffsetSelector 
+        offset={marketDataExpr.offset || 0}
+        onOffsetChange={updateOffset}
+      />
     </div>
   );
 };

@@ -23,6 +23,7 @@ export interface IndicatorExpression extends BaseExpression {
   type: 'indicator';
   name: string;
   parameter?: string; // For indicators with multiple outputs
+  offset?: number; // 0 = current candle, -1 = previous candle, -2 = 2 candles ago, etc.
 }
 
 // Market data reference (Open, High, Low, Close)
@@ -118,7 +119,7 @@ export const createDefaultExpression = (type: ExpressionType): Expression => {
   
   switch (type) {
     case 'indicator':
-      return { id, type: 'indicator', name: '' };
+      return { id, type: 'indicator', name: '', offset: 0 };
     case 'market_data':
       return { id, type: 'market_data', field: 'Close', offset: 0 };
     case 'constant':
@@ -212,11 +213,22 @@ export const groupConditionToString = (group: GroupCondition, nodeData?: any): s
 export const expressionToString = (expr: Expression, nodeData?: any): string => {
   switch (expr.type) {
     case 'indicator':
+      let indicatorDisplay = '';
       if (nodeData) {
-        const displayName = getIndicatorDisplayName(expr.name, nodeData);
-        return expr.parameter ? `${displayName}[${expr.parameter}]` : displayName;
+        indicatorDisplay = getIndicatorDisplayName(expr.name, nodeData);
+      } else {
+        indicatorDisplay = expr.parameter ? `${expr.name}[${expr.parameter}]` : expr.name;
       }
-      return expr.parameter ? `${expr.name}[${expr.parameter}]` : expr.name;
+      
+      // Add offset display if present (using the same logic as market_data)
+      if (expr.offset && expr.offset < 0) {
+        if (expr.offset === -1) {
+          indicatorDisplay = `Previous ${indicatorDisplay}`;
+        } else {
+          indicatorDisplay = `${Math.abs(expr.offset)} candles ago ${indicatorDisplay}`;
+        }
+      }
+      return indicatorDisplay;
     
     case 'market_data':
       let fieldDisplay = expr.sub_indicator ? `${expr.field}.${expr.sub_indicator}` : expr.field;

@@ -14,6 +14,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 import FieldTooltip from '../../shared/FieldTooltip';
+import CandleOffsetSelector from '../components/CandleOffsetSelector';
 
 interface MarketDataExpressionEditorProps {
   expression: Expression;
@@ -41,10 +42,10 @@ const MarketDataExpressionEditor: React.FC<MarketDataExpressionEditorProps> = ({
   };
   
   // Update the time offset (current, previous, etc.)
-  const updateOffset = (value: string) => {
+  const updateOffset = (value: number) => {
     updateExpression({
       ...marketDataExpr,
-      offset: parseInt(value)
+      offset: value
     });
   };
   
@@ -81,25 +82,10 @@ const MarketDataExpressionEditor: React.FC<MarketDataExpressionEditorProps> = ({
         </SelectContent>
       </Select>
       
-      <div className="flex items-center gap-2">
-        <Label className="text-xs whitespace-nowrap">Candle Time:</Label>
-        <Select 
-          value={String(marketDataExpr.offset || 0)} 
-          onValueChange={updateOffset}
-        >
-          <SelectTrigger className="h-8">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="0">Current candle</SelectItem>
-            <SelectItem value="-1">Previous candle</SelectItem>
-            <SelectItem value="-2">2 candles ago</SelectItem>
-            <SelectItem value="-3">3 candles ago</SelectItem>
-            <SelectItem value="-4">4 candles ago</SelectItem>
-            <SelectItem value="-5">5 candles ago</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      <CandleOffsetSelector 
+        offset={marketDataExpr.offset || 0}
+        onOffsetChange={updateOffset}
+      />
     </div>
   );
 };
