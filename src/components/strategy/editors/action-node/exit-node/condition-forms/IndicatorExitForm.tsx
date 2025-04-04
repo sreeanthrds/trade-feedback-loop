@@ -3,6 +3,8 @@ import React from 'react';
 import SelectField from '../../../shared/SelectField';
 import InputField from '../../../shared/InputField';
 import { ExitByIndicator } from '../types';
+import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
+import { Label } from '@/components/ui/label';
 
 interface IndicatorExitFormProps {
   exitCondition: ExitByIndicator;
@@ -58,6 +60,22 @@ const IndicatorExitForm: React.FC<IndicatorExitFormProps> = ({
         }}
         description="Target indicator value"
       />
+      
+      <div className="space-y-1">
+        <Label htmlFor="offset" className="text-sm font-medium">Look back</Label>
+        <div className="w-full flex items-center gap-2">
+          <EnhancedNumberInput
+            id="offset"
+            value={exitCondition.offset !== undefined ? Math.abs(exitCondition.offset) : 0}
+            onChange={(value) => updateField('offset', value !== undefined ? -Math.abs(value) : 0)}
+            min={0}
+            max={20}
+            step={1}
+            placeholder="0"
+          />
+          <span className="text-sm text-muted-foreground">candles ago</span>
+        </div>
+      </div>
     </div>
   );
 };
