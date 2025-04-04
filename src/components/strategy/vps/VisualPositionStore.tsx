@@ -54,7 +54,7 @@ const VisualPositionStore: React.FC = () => {
                   ))
                 ) : (
                   <div className="flex flex-col h-32 items-center justify-center border rounded-md border-dashed text-muted-foreground p-4">
-                    <Alert variant="outline" className="bg-muted/50 border-none">
+                    <Alert variant="default" className="bg-muted/50 border-none">
                       <Info className="h-4 w-4 mr-2" />
                       <AlertDescription>
                         No positions have been created yet. Add entry positions from action nodes to see them here.
