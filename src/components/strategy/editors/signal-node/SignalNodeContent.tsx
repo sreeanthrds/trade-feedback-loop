@@ -32,13 +32,13 @@ const SignalNodeContent: React.FC<SignalNodeContentProps> = ({
   // For tabs management
   const [activeTab, setActiveTab] = useState('entry');
   
-  // Ensure we have at least one exit condition
-  const safeExitConditions = exitConditions.length > 0 
+  // Ensure we have at least one exit condition with proper typing
+  const safeExitConditions: GroupCondition[] = exitConditions.length > 0 
     ? exitConditions 
     : [
         {
           id: 'exit-root',
-          groupLogic: 'AND',
+          groupLogic: 'AND' as const, // Explicitly typing as "AND" | "OR"
           conditions: []
         }
       ];

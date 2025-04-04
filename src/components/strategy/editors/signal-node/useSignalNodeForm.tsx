@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Node } from '@xyflow/react';
 import { GroupCondition } from '../../utils/conditionTypes';
