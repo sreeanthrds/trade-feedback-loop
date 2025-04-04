@@ -1,63 +1,66 @@
 
-/* Entry condition styling */
-.entry-condition-builder .react-flow__node {
-  border-color: #4f46e5; /* Indigo color for entry conditions */
-}
-
-/* Exit condition styling */
-.exit-condition-builder .react-flow__node {
-  border-color: #ef4444; /* Red color for exit conditions */
-}
-
-/* Condition builder grid layout */
-.expression-grid {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: 0.5rem;
-  align-items: start;
-}
-
-/* Indentation for nested condition groups */
-.indent-level-1 {
+/* Condition Builder Styles */
+.condition-group {
+  border-left: 2px solid #e2e8f0;
   margin-left: 1rem;
   padding-left: 1rem;
-  border-left: 1px dashed var(--border);
+}
+
+.indent-level-1 {
+  margin-left: 1rem;
 }
 
 .indent-level-2 {
-  margin-left: 1rem;
-  padding-left: 1rem;
-  border-left: 1px dashed var(--border);
+  margin-left: 2rem;
 }
 
 .indent-level-3 {
-  margin-left: 1rem;
-  padding-left: 1rem;
-  border-left: 1px dashed var(--border);
+  margin-left: 3rem;
 }
 
-/* Condition group styling */
-.condition-group {
-  background-color: rgba(0, 0, 0, 0.02);
-  border-radius: 0.5rem;
-  padding: 0.75rem;
-  position: relative;
-}
-
-/* Entry vs Exit color indicators */
+/* Context-specific styles */
 .entry-condition-builder .condition-group {
-  border-left: 2px solid rgba(79, 70, 229, 0.3); /* Indigo for entry */
+  border-left-color: rgba(34, 197, 94, 0.4); /* Green for entry */
 }
 
 .exit-condition-builder .condition-group {
-  border-left: 2px solid rgba(239, 68, 68, 0.3); /* Red for exit */
+  border-left-color: rgba(249, 115, 22, 0.4); /* Orange for exit */
 }
 
-/* Condition preview styles */
-.condition-preview {
-  font-family: monospace;
-  font-size: 0.8rem;
-  line-height: 1.4;
-  white-space: pre-wrap;
-  word-break: break-word;
+/* Hover effects for condition items */
+.condition-item {
+  transition: background-color 0.2s, box-shadow 0.2s;
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+}
+
+.condition-item:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Hover effects for action buttons */
+.condition-action-btn {
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.condition-action-btn:hover {
+  background-color: hsl(var(--primary) / 0.1);
+  transform: scale(1.05);
+}
+
+/* Hover states for condition group titles */
+.group-condition-title {
+  transition: background-color 0.2s;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.group-condition-title:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Add highlight effects for dropdown elements */
+.condition-selector:hover {
+  border-color: hsl(var(--primary) / 0.5);
 }

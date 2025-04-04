@@ -1,58 +1,34 @@
 
-import React, { useState } from 'react';
-import { GroupCondition, groupConditionToString } from '../../../utils/conditionTypes';
-import { useStrategyStore } from '@/hooks/use-strategy-store';
-import { Code } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import React from 'react';
+import { GroupCondition } from '../../../utils/conditions';
+import { getConditionString } from '../../../utils/conditions/stringRepresentation';
+import FieldTooltip from '../../shared/FieldTooltip';
 
 interface ConditionPreviewProps {
   rootCondition: GroupCondition;
   contextLabel?: string;
 }
 
-const ConditionPreview: React.FC<ConditionPreviewProps> = ({ 
+const ConditionPreview: React.FC<ConditionPreviewProps> = ({
   rootCondition,
-  contextLabel = "When:"
+  contextLabel = 'When:'
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const strategyStore = useStrategyStore();
-
-  // Find start node to get indicator definitions
-  const startNode = strategyStore.nodes.find(node => node.type === 'startNode');
-
-  // Generate readable condition string
-  // We'll try to catch any errors in case the condition structure is invalid
-  let conditionString = "No conditions defined";
-  try {
-    if (rootCondition && rootCondition.conditions && rootCondition.conditions.length > 0) {
-      conditionString = groupConditionToString(rootCondition, startNode?.data);
-    }
-  } catch (error) {
-    console.error("Error in condition preview:", error);
-    conditionString = "Invalid condition structure";
-  }
+  const conditionString = getConditionString(rootCondition);
+  const hasConditions = rootCondition.conditions.length > 0;
 
   return (
-    <div className="mt-4 space-y-2">
-      <div className="flex items-center justify-between">
-        <div className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
-          <Code className="h-3.5 w-3.5" />
-          Condition Preview
-        </div>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="h-6 text-xs p-0 px-2"
-          onClick={() => setIsExpanded(!isExpanded)}
-        >
-          {isExpanded ? 'Collapse' : 'Expand'}
-        </Button>
+    <div className="mt-4 p-3 bg-muted/30 rounded-md border border-border">
+      <div className="flex items-center gap-1.5 mb-1">
+        <h4 className="text-xs font-medium">Condition Preview</h4>
+        <FieldTooltip 
+          content="This shows a human-readable representation of your condition" 
+          iconClassName="h-3 w-3 text-muted-foreground cursor-help"
+        />
       </div>
-      
-      <div className={`${isExpanded ? 'max-h-80' : 'max-h-32'} overflow-auto transition-all duration-300 bg-muted/40 rounded-md p-3`}>
-        <div className="text-sm font-mono break-words">
-          <span className="text-primary-foreground/70 font-semibold">{contextLabel} </span>
-          {conditionString}
+      <div className="text-xs bg-background p-2 rounded border transition-colors hover:border-primary/30">
+        <div className="flex gap-1.5">
+          <span className="text-muted-foreground">{contextLabel}</span>
+          <span>{hasConditions ? conditionString : 'No conditions defined'}</span>
         </div>
       </div>
     </div>
