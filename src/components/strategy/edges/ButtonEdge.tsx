@@ -33,6 +33,7 @@ const ButtonEdge = ({
   const { onDelete } = props;
   const [open, setOpen] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   
   useEffect(() => {
     // Set ready after a short delay to ensure all props are resolved
@@ -70,14 +71,18 @@ const ButtonEdge = ({
   console.log(`Edge ${id} - Button position: ${centerX}, ${centerY}`);
   
   return (
-    <>
+    <g 
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className="edge-wrapper"
+    >
       {/* Draw a bezier edge without animation */}
       <path
         id={id}
         className="react-flow__edge-path"
         d={edgePath}
         style={style}
-        strokeWidth={selected ? 3 : 2}
+        strokeWidth={selected || isHovered ? 3 : 2}
       />
       
       {/* Add a delete button with hover state */}
@@ -88,6 +93,10 @@ const ButtonEdge = ({
         y={centerY - 20}
         requiredExtensions="http://www.w3.org/1999/xhtml"
         className="edge-controls"
+        style={{ 
+          opacity: isHovered || selected ? 1 : 0,
+          transition: 'opacity 0.3s ease'
+        }}
         data-id={id}
       >
         {isReady && (
@@ -97,14 +106,14 @@ const ButtonEdge = ({
                 <Button
                   variant="destructive"
                   size="icon"
-                  className="edge-delete-button"
+                  className="edge-delete-button h-6 w-6 rounded-full shadow-md"
                   onClick={(event) => {
                     event.stopPropagation();
                     console.log('Delete button clicked for edge:', id);
                   }}
                   title="Delete connection"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-3 w-3" />
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
@@ -132,7 +141,7 @@ const ButtonEdge = ({
           </div>
         )}
       </foreignObject>
-    </>
+    </g>
   );
 };
 

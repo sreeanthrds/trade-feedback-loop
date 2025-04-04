@@ -61,7 +61,7 @@ const SignalNode = ({ data, id }: SignalNodeProps) => {
   const exitConditionCount = hasExitConditions ? countConditions(exitConditions[0]) : 0;
   
   return (
-    <div className="px-3 py-2 rounded-md shadow-sm bg-white dark:bg-gray-800 border border-border">
+    <div className="px-3 py-2 rounded-md shadow-sm bg-white dark:bg-gray-800 border border-border group hover:shadow-md transition-shadow duration-300">
       <Handle
         type="target"
         position={Position.Top}

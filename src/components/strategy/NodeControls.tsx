@@ -40,12 +40,16 @@ const NodeControls = ({ node, onDelete }: NodeControlsProps) => {
       case 'actionNode': return 'Action';
       case 'endNode': return 'End';
       case 'forceEndNode': return 'Force End';
+      case 'entryNode': return 'Entry';
+      case 'exitNode': return 'Exit';
+      case 'alertNode': return 'Alert';
+      case 'modifyNode': return 'Modify';
       default: return 'Node';
     }
   }, [node.type]);
 
   return (
-    <div className="absolute right-0 top-0 -mt-5 -mr-1.5 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+    <div className="absolute right-0 top-0 -mt-5 -mr-1.5 z-20 transition-opacity duration-300 opacity-0 group-hover:opacity-100">
       <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogTrigger asChild>
           <Button
@@ -79,6 +83,6 @@ const NodeControls = ({ node, onDelete }: NodeControlsProps) => {
       </AlertDialog>
     </div>
   );
-};
+});
 
 export default memo(NodeControls);

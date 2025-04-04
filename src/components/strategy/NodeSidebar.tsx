@@ -18,6 +18,7 @@ interface NodeTypeItem {
   description: string;
   icon: React.ReactNode;
   color: string;
+  hoverColor: string;
 }
 
 const nodeTypes: NodeTypeItem[] = [
@@ -26,49 +27,56 @@ const nodeTypes: NodeTypeItem[] = [
     label: 'Start Node',
     description: 'Entry point of the strategy',
     icon: <Play className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />,
-    color: 'border-emerald-500 dark:border-emerald-400 bg-emerald-500/10 dark:bg-emerald-400/10'
+    color: 'border-emerald-500 dark:border-emerald-400 bg-emerald-500/10 dark:bg-emerald-400/10',
+    hoverColor: 'hover:bg-emerald-500/20 dark:hover:bg-emerald-400/20'
   },
   {
     type: 'signalNode',
     label: 'Signal Node',
     description: 'Detect market conditions',
     icon: <Activity className="h-5 w-5 text-blue-600 dark:text-blue-400" />,
-    color: 'border-blue-600 dark:border-blue-400 bg-blue-600/10 dark:bg-blue-400/10'
+    color: 'border-blue-600 dark:border-blue-400 bg-blue-600/10 dark:bg-blue-400/10',
+    hoverColor: 'hover:bg-blue-600/20 dark:hover:bg-blue-400/20'
   },
   {
     type: 'entryNode',
     label: 'Entry Node',
     description: 'Execute buy/sell orders',
     icon: <ShoppingCart className="h-5 w-5 text-green-600 dark:text-green-400" />,
-    color: 'border-green-600 dark:border-green-400 bg-green-600/10 dark:bg-green-400/10'
+    color: 'border-green-600 dark:border-green-400 bg-green-600/10 dark:bg-green-400/10',
+    hoverColor: 'hover:bg-green-600/20 dark:hover:bg-green-400/20'
   },
   {
     type: 'modifyNode',
     label: 'Modify Node',
     description: 'Update existing positions',
     icon: <Edit className="h-5 w-5 text-orange-600 dark:text-orange-400" />,
-    color: 'border-orange-600 dark:border-orange-400 bg-orange-600/10 dark:bg-orange-400/10'
+    color: 'border-orange-600 dark:border-orange-400 bg-orange-600/10 dark:bg-orange-400/10',
+    hoverColor: 'hover:bg-orange-600/20 dark:hover:bg-orange-400/20'
   },
   {
     type: 'exitNode',
     label: 'Exit Node',
     description: 'Close positions',
     icon: <LogOut className="h-5 w-5 text-amber-600 dark:text-amber-400" />,
-    color: 'border-amber-600 dark:border-amber-400 bg-amber-600/10 dark:bg-amber-400/10'
+    color: 'border-amber-600 dark:border-amber-400 bg-amber-600/10 dark:bg-amber-400/10',
+    hoverColor: 'hover:bg-amber-600/20 dark:hover:bg-amber-400/20'
   },
   {
     type: 'alertNode',
     label: 'Alert Node',
     description: 'Send alerts',
     icon: <AlertTriangle className="h-5 w-5 text-purple-600 dark:text-purple-400" />,
-    color: 'border-purple-600 dark:border-purple-400 bg-purple-600/10 dark:bg-purple-400/10'
+    color: 'border-purple-600 dark:border-purple-400 bg-purple-600/10 dark:bg-purple-400/10',
+    hoverColor: 'hover:bg-purple-600/20 dark:hover:bg-purple-400/20'
   },
   {
     type: 'endNode',
     label: 'End Node',
     description: 'End a strategy branch',
     icon: <StopCircle className="h-5 w-5 text-rose-600 dark:text-rose-500" />,
-    color: 'border-rose-600 dark:border-rose-500 bg-rose-600/10 dark:bg-rose-500/10'
+    color: 'border-rose-600 dark:border-rose-500 bg-rose-600/10 dark:bg-rose-500/10',
+    hoverColor: 'hover:bg-rose-600/20 dark:hover:bg-rose-500/20'
   }
 ];
 
@@ -94,7 +102,7 @@ const NodeSidebar = memo(({ onAddNode }: NodeSidebarProps) => {
             <Tooltip key={nodeType.type}>
               <TooltipTrigger asChild>
                 <div
-                  className={`flex justify-center items-center w-10 h-10 rounded-full ${nodeType.color} cursor-grab transition-all hover:scale-105 hover:shadow-md`}
+                  className={`flex justify-center items-center w-10 h-10 rounded-full ${nodeType.color} ${nodeType.hoverColor} cursor-grab transition-all hover:scale-105 hover:shadow-md`}
                   draggable
                   onDragStart={(e) => handleDragStart(e, nodeType.type)}
                   onClick={(e) => handleNodeClick(nodeType.type, e)}

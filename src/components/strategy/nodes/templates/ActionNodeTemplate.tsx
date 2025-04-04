@@ -76,7 +76,7 @@ const ActionNodeTemplate = ({
         style={{ visibility: isConnectable ? 'visible' : 'hidden' }}
       />
       
-      <div className={`px-3 py-2 rounded-md border border-border bg-card shadow-sm max-w-xs relative`}>
+      <div className={`px-3 py-2 rounded-md border border-border bg-card shadow-sm max-w-xs relative group hover:shadow-md transition-shadow duration-300`}>
         {/* Only show the RetryIcon for retry nodes */}
         {showRetryIcon && (
           <RetryIcon 

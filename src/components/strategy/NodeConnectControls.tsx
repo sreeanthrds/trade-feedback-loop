@@ -81,13 +81,13 @@ const NodeConnectControls = memo(({ showOn, onAddNode, parentNodeId }: NodeConne
   }, []);
 
   return (
-    <div className="absolute right-0 top-1/2 -mr-4 -mt-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+    <div className="absolute right-0 top-1/2 -mr-4 -mt-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild onMouseEnter={() => setIsOpen(true)}>
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8 rounded-full shadow-md bg-background border-primary"
+            className="h-8 w-8 rounded-full shadow-md bg-background border-primary hover:bg-primary/10"
             title="Add connected node"
             type="button"
             onClick={(e) => e.stopPropagation()}
@@ -111,7 +111,7 @@ const NodeConnectControls = memo(({ showOn, onAddNode, parentNodeId }: NodeConne
                   <TooltipTrigger asChild>
                     <DropdownMenuItem 
                       onClick={(e) => handleAddNode(option.value, e)}
-                      className="cursor-pointer py-2 px-2 flex justify-center"
+                      className="cursor-pointer py-2 px-2 flex justify-center hover:bg-accent"
                     >
                       <NodeIcon className={`h-5 w-5 ${iconColor}`} />
                     </DropdownMenuItem>
