@@ -20,7 +20,7 @@ const EntrySignalNodeContent = ({ conditions, updateConditions }: EntrySignalNod
         <ConditionBuilder 
           rootCondition={conditions[0]}
           updateConditions={(updatedRoot) => updateConditions([updatedRoot])}
-          rootGroupId={conditions[0]?.id || 'entry-root'}
+          rootGroupId="entry-root"
           conditionContext="entry"
         />
       </div>

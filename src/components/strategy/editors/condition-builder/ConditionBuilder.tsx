@@ -38,7 +38,7 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
 }) => {
   // Handle legacy API using conditions array
   const effectiveRootCondition = rootCondition || 
-    (conditions && conditions.length > 0 ? conditions[0] : createEmptyGroupCondition(rootGroupId || 'root'));
+    (conditions && conditions.length > 0 ? conditions[0] : createEmptyGroupCondition());
   
   const effectiveUpdateFn = updateConditions || 
     (setConditions ? (updatedRoot: GroupCondition) => {
