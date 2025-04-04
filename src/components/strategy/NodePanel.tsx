@@ -7,8 +7,6 @@ import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import StartNodeEditor from './editors/StartNodeEditor';
 import SignalNodeEditor from './editors/SignalNodeEditor';
-import EntrySignalNodeEditor from './editors/EntrySignalNodeEditor';
-import ExitSignalNodeEditor from './editors/ExitSignalNodeEditor';
 import ActionNodeEditor from './editors/ActionNodeEditor';
 import EntryNodeEditor from './editors/EntryNodeEditor';
 import ExitNodeEditor from './editors/ExitNodeEditor';
@@ -27,8 +25,6 @@ interface NodePanelProps {
 // Create memoized editor components
 const MemoizedStartNodeEditor = memo(StartNodeEditor);
 const MemoizedSignalNodeEditor = memo(SignalNodeEditor);
-const MemoizedEntrySignalNodeEditor = memo(EntrySignalNodeEditor);
-const MemoizedExitSignalNodeEditor = memo(ExitSignalNodeEditor);
 const MemoizedActionNodeEditor = memo(ActionNodeEditor);
 const MemoizedEntryNodeEditor = memo(EntryNodeEditor);
 const MemoizedExitNodeEditor = memo(ExitNodeEditor);
@@ -57,10 +53,6 @@ const NodePanel = memo(({ node, updateNodeData, onClose }: NodePanelProps) => {
         return <MemoizedStartNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       case 'signalNode':
         return <MemoizedSignalNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
-      case 'entrySignalNode':
-        return <MemoizedEntrySignalNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
-      case 'exitSignalNode':
-        return <MemoizedExitSignalNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       case 'actionNode':
         return <MemoizedActionNodeEditor node={node} updateNodeData={stableUpdateNodeData} />;
       case 'entryNode':
@@ -87,8 +79,6 @@ const NodePanel = memo(({ node, updateNodeData, onClose }: NodePanelProps) => {
     switch (node.type) {
       case 'startNode': return 'Start Node';
       case 'signalNode': return 'Signal Node';
-      case 'entrySignalNode': return 'Entry Signal Node';
-      case 'exitSignalNode': return 'Exit Signal Node';
       case 'actionNode': return 'Action Node';
       case 'entryNode': return 'Entry Node';
       case 'exitNode': return 'Exit Node';
