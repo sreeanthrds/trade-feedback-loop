@@ -17,20 +17,24 @@ interface SignalNodeContentProps {
   updateConditions: (updatedConditions: GroupCondition[]) => void;
   exitConditions?: GroupCondition[];
   updateExitConditions?: (updatedConditions: GroupCondition[]) => void;
+  conditionContext?: 'entry' | 'exit';
+  showTabSelector?: boolean;
 }
 
 const SignalNodeContent: React.FC<SignalNodeContentProps> = ({
   conditions,
   updateConditions,
   exitConditions = [],
-  updateExitConditions
+  updateExitConditions,
+  conditionContext = 'entry',
+  showTabSelector = true
 }) => {
   // State for evaluation frequency
   const [evalFrequency, setEvalFrequency] = useState('tick');
   const [requireConfirmation, setRequireConfirmation] = useState(false);
   
   // For tabs management
-  const [activeTab, setActiveTab] = useState('entry');
+  const [activeTab, setActiveTab] = useState(conditionContext);
   
   // Ensure we have at least one exit condition with proper typing
   const safeExitConditions: GroupCondition[] = exitConditions.length > 0 
@@ -61,16 +65,6 @@ const SignalNodeContent: React.FC<SignalNodeContentProps> = ({
   const hasEntryConditions = totalEntryConditions > 0;
   const hasExitConditions = totalExitConditions > 0;
 
-  // Determine if tab switching should be disabled
-  useEffect(() => {
-    // If user has already built conditions in one tab, keep them in that tab
-    if (hasEntryConditions && activeTab !== 'entry') {
-      setActiveTab('entry');
-    } else if (hasExitConditions && activeTab !== 'exit') {
-      setActiveTab('exit');
-    }
-  }, [hasEntryConditions, hasExitConditions]);
-
   // Handle exit condition updates
   const handleExitConditionsUpdate = (updatedRoot: GroupCondition) => {
     if (updateExitConditions) {
@@ -78,6 +72,145 @@ const SignalNodeContent: React.FC<SignalNodeContentProps> = ({
     }
   };
 
+  // If showing a specific context without tabs, render just that content
+  if (!showTabSelector) {
+    return (
+      <div className="space-y-4 pt-2">
+        {conditionContext === 'entry' ? (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-2">
+              <h3 className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Entry Signal Conditions</h3>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p className="text-xs">
+                      Build entry conditions that evaluate market data, indicators, and more to determine when to enter a position.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            
+            <div className="space-y-4 border-l-2 border-emerald-200 dark:border-emerald-800/50 pl-3">
+              <ConditionBuilder 
+                rootCondition={conditions[0]} 
+                updateConditions={(updatedRoot) => {
+                  updateConditions([updatedRoot]);
+                }}
+                conditionContext="entry"
+              />
+
+              {totalEntryConditions > 0 && (
+                <div className="mt-4">
+                  <AdvancedFeatureToggle
+                    title="Entry Condition Settings"
+                    description="Configure additional settings for your entry conditions"
+                  >
+                    <div className="space-y-2 mt-2">
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium flex items-center">
+                          Evaluation Frequency
+                          <span className="ml-1 text-red-500">*</span>
+                        </label>
+                        <select 
+                          className="w-full h-8 text-xs px-2 py-1 border border-border rounded-md bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                          value={evalFrequency}
+                          onChange={(e) => setEvalFrequency(e.target.value)}
+                          required
+                        >
+                          <option value="tick">Every Tick</option>
+                          <option value="bar">Bar Close</option>
+                          <option value="minute">Every Minute</option>
+                          <option value="custom">Custom...</option>
+                        </select>
+                      </div>
+                      
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium">
+                          <input 
+                            type="checkbox" 
+                            className="mr-2"
+                            checked={requireConfirmation}
+                            onChange={(e) => setRequireConfirmation(e.target.checked)}
+                          />
+                          Require confirmation bar
+                        </label>
+                        <p className="text-[10px] text-muted-foreground">
+                          Wait for the next bar to confirm the condition before triggering
+                        </p>
+                      </div>
+                    </div>
+                  </AdvancedFeatureToggle>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-2">
+              <h3 className="text-sm font-medium text-amber-700 dark:text-amber-300">Exit Signal Conditions</h3>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p className="text-xs">
+                      Build exit conditions that determine when to close or reduce positions based on market conditions.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            
+            <div className="space-y-4 border-l-2 border-amber-200 dark:border-amber-800/50 pl-3">
+              <ConditionBuilder 
+                rootCondition={conditions[0]} 
+                updateConditions={(updatedRoot) => {
+                  updateConditions([updatedRoot]);
+                }}
+                conditionContext="exit"
+              />
+
+              {totalEntryConditions > 0 && (
+                <div className="mt-4">
+                  <AdvancedFeatureToggle
+                    title="Exit Condition Settings"
+                    description="Configure additional settings for your exit conditions"
+                  >
+                    <div className="space-y-2 mt-2">
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium flex items-center">
+                          Evaluation Frequency
+                          <span className="ml-1 text-red-500">*</span>
+                        </label>
+                        <select 
+                          className="w-full h-8 text-xs px-2 py-1 border border-border rounded-md bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                          value={evalFrequency}
+                          onChange={(e) => setEvalFrequency(e.target.value)}
+                          required
+                        >
+                          <option value="tick">Every Tick</option>
+                          <option value="bar">Bar Close</option>
+                          <option value="minute">Every Minute</option>
+                          <option value="custom">Custom...</option>
+                        </select>
+                      </div>
+                    </div>
+                  </AdvancedFeatureToggle>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Otherwise render the tabbed interface
   return (
     <div className="space-y-4 pt-2">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -132,62 +265,62 @@ const SignalNodeContent: React.FC<SignalNodeContentProps> = ({
                     Build entry conditions that evaluate market data, indicators, and more to determine when to enter a position.
                   </p>
                 </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-          
-          <div className="space-y-4 border-l-2 border-emerald-200 dark:border-emerald-800/50 pl-3">
-            <ConditionBuilder 
-              rootCondition={conditions[0]} 
-              updateConditions={(updatedRoot) => {
-                updateConditions([updatedRoot]);
-              }}
-              conditionContext="entry"
-            />
+              </TooltipProvider>
+            </div>
+            
+            <div className="space-y-4 border-l-2 border-emerald-200 dark:border-emerald-800/50 pl-3">
+              <ConditionBuilder 
+                rootCondition={conditions[0]} 
+                updateConditions={(updatedRoot) => {
+                  updateConditions([updatedRoot]);
+                }}
+                conditionContext="entry"
+              />
 
-            {totalEntryConditions > 0 && (
-              <div className="mt-4">
-                <AdvancedFeatureToggle
-                  title="Entry Condition Settings"
-                  description="Configure additional settings for your entry conditions"
-                >
-                  <div className="space-y-2 mt-2">
-                    <div className="space-y-1">
-                      <label className="text-xs font-medium flex items-center">
-                        Evaluation Frequency
-                        <span className="ml-1 text-red-500">*</span>
-                      </label>
-                      <select 
-                        className="w-full h-8 text-xs px-2 py-1 border border-border rounded-md bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                        value={evalFrequency}
-                        onChange={(e) => setEvalFrequency(e.target.value)}
-                        required
-                      >
-                        <option value="tick">Every Tick</option>
-                        <option value="bar">Bar Close</option>
-                        <option value="minute">Every Minute</option>
-                        <option value="custom">Custom...</option>
-                      </select>
+              {totalEntryConditions > 0 && (
+                <div className="mt-4">
+                  <AdvancedFeatureToggle
+                    title="Entry Condition Settings"
+                    description="Configure additional settings for your entry conditions"
+                  >
+                    <div className="space-y-2 mt-2">
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium flex items-center">
+                          Evaluation Frequency
+                          <span className="ml-1 text-red-500">*</span>
+                        </label>
+                        <select 
+                          className="w-full h-8 text-xs px-2 py-1 border border-border rounded-md bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                          value={evalFrequency}
+                          onChange={(e) => setEvalFrequency(e.target.value)}
+                          required
+                        >
+                          <option value="tick">Every Tick</option>
+                          <option value="bar">Bar Close</option>
+                          <option value="minute">Every Minute</option>
+                          <option value="custom">Custom...</option>
+                        </select>
+                      </div>
+                      
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium">
+                          <input 
+                            type="checkbox" 
+                            className="mr-2"
+                            checked={requireConfirmation}
+                            onChange={(e) => setRequireConfirmation(e.target.checked)}
+                          />
+                          Require confirmation bar
+                        </label>
+                        <p className="text-[10px] text-muted-foreground">
+                          Wait for the next bar to confirm the condition before triggering
+                        </p>
+                      </div>
                     </div>
-                    
-                    <div className="space-y-1">
-                      <label className="text-xs font-medium">
-                        <input 
-                          type="checkbox" 
-                          className="mr-2"
-                          checked={requireConfirmation}
-                          onChange={(e) => setRequireConfirmation(e.target.checked)}
-                        />
-                        Require confirmation bar
-                      </label>
-                      <p className="text-[10px] text-muted-foreground">
-                        Wait for the next bar to confirm the condition before triggering
-                      </p>
-                    </div>
-                  </div>
-                </AdvancedFeatureToggle>
-              </div>
-            )}
+                  </AdvancedFeatureToggle>
+                </div>
+              )}
+            </div>
           </div>
         </TabsContent>
         
@@ -204,45 +337,45 @@ const SignalNodeContent: React.FC<SignalNodeContentProps> = ({
                     Build exit conditions that determine when to close or reduce positions based on market conditions.
                   </p>
                 </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-          
-          <div className="space-y-4 border-l-2 border-amber-200 dark:border-amber-800/50 pl-3">
-            <ConditionBuilder 
-              rootCondition={safeExitConditions[0]} 
-              updateConditions={handleExitConditionsUpdate}
-              conditionContext="exit"
-            />
+              </TooltipProvider>
+            </div>
+            
+            <div className="space-y-4 border-l-2 border-amber-200 dark:border-amber-800/50 pl-3">
+              <ConditionBuilder 
+                rootCondition={safeExitConditions[0]} 
+                updateConditions={handleExitConditionsUpdate}
+                conditionContext="exit"
+              />
 
-            {totalExitConditions > 0 && (
-              <div className="mt-4">
-                <AdvancedFeatureToggle
-                  title="Exit Condition Settings"
-                  description="Configure additional settings for your exit conditions"
-                >
-                  <div className="space-y-2 mt-2">
-                    <div className="space-y-1">
-                      <label className="text-xs font-medium flex items-center">
-                        Evaluation Frequency
-                        <span className="ml-1 text-red-500">*</span>
-                      </label>
-                      <select 
-                        className="w-full h-8 text-xs px-2 py-1 border border-border rounded-md bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                        value={evalFrequency}
-                        onChange={(e) => setEvalFrequency(e.target.value)}
-                        required
-                      >
-                        <option value="tick">Every Tick</option>
-                        <option value="bar">Bar Close</option>
-                        <option value="minute">Every Minute</option>
-                        <option value="custom">Custom...</option>
-                      </select>
+              {totalExitConditions > 0 && (
+                <div className="mt-4">
+                  <AdvancedFeatureToggle
+                    title="Exit Condition Settings"
+                    description="Configure additional settings for your exit conditions"
+                  >
+                    <div className="space-y-2 mt-2">
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium flex items-center">
+                          Evaluation Frequency
+                          <span className="ml-1 text-red-500">*</span>
+                        </label>
+                        <select 
+                          className="w-full h-8 text-xs px-2 py-1 border border-border rounded-md bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                          value={evalFrequency}
+                          onChange={(e) => setEvalFrequency(e.target.value)}
+                          required
+                        >
+                          <option value="tick">Every Tick</option>
+                          <option value="bar">Bar Close</option>
+                          <option value="minute">Every Minute</option>
+                          <option value="custom">Custom...</option>
+                        </select>
+                      </div>
                     </div>
-                  </div>
-                </AdvancedFeatureToggle>
-              </div>
-            )}
+                  </AdvancedFeatureToggle>
+                </div>
+              )}
+            </div>
           </div>
         </TabsContent>
       </Tabs>

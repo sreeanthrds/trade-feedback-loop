@@ -37,6 +37,8 @@ const NodeControls = ({ node, onDelete }: NodeControlsProps) => {
   const getNodeTypeName = useCallback(() => {
     switch (node.type) {
       case 'signalNode': return 'Signal';
+      case 'entrySignalNode': return 'Entry Signal';
+      case 'exitSignalNode': return 'Exit Signal';
       case 'actionNode': return 'Action';
       case 'endNode': return 'End';
       case 'forceEndNode': return 'Force End';

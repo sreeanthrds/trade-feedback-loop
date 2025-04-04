@@ -2,6 +2,8 @@ import React from 'react';
 import { NodeTypes, Position } from '@xyflow/react';
 import StartNode from './StartNode';
 import SignalNode from './SignalNode';
+import EntrySignalNode from './EntrySignalNode';
+import ExitSignalNode from './ExitSignalNode';
 import ActionNode from './ActionNode';
 import EntryNode from './EntryNode';
 import ExitNode from './ExitNode';
@@ -16,6 +18,8 @@ import NodeConnectControls from '../NodeConnectControls';
 // Define memoized base components
 const MemoizedStartNode = React.memo(StartNode);
 const MemoizedSignalNode = React.memo(SignalNode);
+const MemoizedEntrySignalNode = React.memo(EntrySignalNode);
+const MemoizedExitSignalNode = React.memo(ExitSignalNode);
 const MemoizedActionNode = React.memo(ActionNode);
 const MemoizedEntryNode = React.memo(EntryNode);
 const MemoizedExitNode = React.memo(ExitNode);
@@ -68,12 +72,33 @@ const SignalNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, ...rest }
 });
 SignalNodeWrapper.displayName = 'SignalNodeWrapper';
 
+const EntrySignalNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, ...rest }: NodeWrapperProps) => {
+  return (
+    <div className={`group ${rest.dragging ? 'dragging' : ''} ${rest.selected ? 'selected' : ''}`}>
+      <MemoizedEntrySignalNode data={data} id={id} {...rest} />
+      <MemoizedNodeControls node={{ id, type: 'entrySignalNode', data }} onDelete={onDelete} />
+      <MemoizedNodeConnectControls showOn="signal" onAddNode={onAddNode} parentNodeId={id} />
+    </div>
+  );
+});
+EntrySignalNodeWrapper.displayName = 'EntrySignalNodeWrapper';
+
+const ExitSignalNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, ...rest }: NodeWrapperProps) => {
+  return (
+    <div className={`group ${rest.dragging ? 'dragging' : ''} ${rest.selected ? 'selected' : ''}`}>
+      <MemoizedExitSignalNode data={data} id={id} {...rest} />
+      <MemoizedNodeControls node={{ id, type: 'exitSignalNode', data }} onDelete={onDelete} />
+      <MemoizedNodeConnectControls showOn="signal" onAddNode={onAddNode} parentNodeId={id} />
+    </div>
+  );
+});
+ExitSignalNodeWrapper.displayName = 'ExitSignalNodeWrapper';
+
 const ActionNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNodeData, ...rest }: NodeWrapperProps & { updateNodeData?: (id: string, data: any) => void }) => {
-  // Enhance data with updateNodeData function and ensure positions is always defined
   const enhancedData = React.useMemo(() => ({
     ...data,
     updateNodeData,
-    positions: Array.isArray(data.positions) ? data.positions : [] // Ensure positions is always defined as an array
+    positions: Array.isArray(data.positions) ? data.positions : []
   }), [data, updateNodeData]);
   
   return (
@@ -87,12 +112,11 @@ const ActionNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNod
 ActionNodeWrapper.displayName = 'ActionNodeWrapper';
 
 const EntryNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNodeData, ...rest }: NodeWrapperProps & { updateNodeData?: (id: string, data: any) => void }) => {
-  // Enhance data with updateNodeData function and ensure positions is always defined
   const enhancedData = React.useMemo(() => ({
     ...data,
     updateNodeData,
-    positions: Array.isArray(data.positions) ? data.positions : [], // Ensure positions is always defined as an array
-    actionType: 'entry' // Force action type to be 'entry'
+    positions: Array.isArray(data.positions) ? data.positions : [],
+    actionType: 'entry'
   }), [data, updateNodeData]);
   
   return (
@@ -106,12 +130,11 @@ const EntryNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNode
 EntryNodeWrapper.displayName = 'EntryNodeWrapper';
 
 const ExitNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNodeData, ...rest }: NodeWrapperProps & { updateNodeData?: (id: string, data: any) => void }) => {
-  // Enhance data with updateNodeData function and ensure positions is always defined
   const enhancedData = React.useMemo(() => ({
     ...data,
     updateNodeData,
-    positions: Array.isArray(data.positions) ? data.positions : [], // Ensure positions is always defined as an array
-    actionType: 'exit' // Force action type to be 'exit'
+    positions: Array.isArray(data.positions) ? data.positions : [],
+    actionType: 'exit'
   }), [data, updateNodeData]);
   
   return (
@@ -125,11 +148,10 @@ const ExitNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNodeD
 ExitNodeWrapper.displayName = 'ExitNodeWrapper';
 
 const ModifyNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNodeData, ...rest }: NodeWrapperProps & { updateNodeData?: (id: string, data: any) => void }) => {
-  // Enhance data with updateNodeData function
   const enhancedData = React.useMemo(() => ({
     ...data,
     updateNodeData,
-    actionType: 'modify' // Force action type to be 'modify'
+    actionType: 'modify'
   }), [data, updateNodeData]);
   
   return (
@@ -143,12 +165,11 @@ const ModifyNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNod
 ModifyNodeWrapper.displayName = 'ModifyNodeWrapper';
 
 const AlertNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNodeData, ...rest }: NodeWrapperProps & { updateNodeData?: (id: string, data: any) => void }) => {
-  // Enhance data with updateNodeData function and ensure positions is always defined
   const enhancedData = React.useMemo(() => ({
     ...data,
     updateNodeData,
-    positions: Array.isArray(data.positions) ? data.positions : [], // Ensure positions is always defined as an array
-    actionType: 'alert' // Force action type to be 'alert'
+    positions: Array.isArray(data.positions) ? data.positions : [],
+    actionType: 'alert'
   }), [data, updateNodeData]);
   
   return (
@@ -182,11 +203,10 @@ const ForceEndNodeWrapper = React.memo(({ data, id, onDelete, ...rest }: NodeWra
 ForceEndNodeWrapper.displayName = 'ForceEndNodeWrapper';
 
 const RetryNodeWrapper = React.memo(({ data, id, onDelete, onAddNode, updateNodeData, ...rest }: NodeWrapperProps & { updateNodeData?: (id: string, data: any) => void }) => {
-  // Enhance data with updateNodeData function
   const enhancedData = React.useMemo(() => ({
     ...data,
     updateNodeData,
-    actionType: 'retry' // Force action type to be 'retry'
+    actionType: 'retry'
   }), [data, updateNodeData]);
   
   return (
@@ -208,6 +228,8 @@ const createNodeTypes = (
   return {
     startNode: (props) => <StartNodeWrapper {...props} draggable={true} onAddNode={onAddNode} />,
     signalNode: (props) => <SignalNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} onAddNode={onAddNode} />,
+    entrySignalNode: (props) => <EntrySignalNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} onAddNode={onAddNode} />,
+    exitSignalNode: (props) => <ExitSignalNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} onAddNode={onAddNode} />,
     actionNode: (props) => <ActionNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} onAddNode={onAddNode} updateNodeData={updateNodeData} />,
     entryNode: (props) => <EntryNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} onAddNode={onAddNode} updateNodeData={updateNodeData} />,
     exitNode: (props) => <ExitNodeWrapper {...props} draggable={true} onDelete={onDeleteNode} onAddNode={onAddNode} updateNodeData={updateNodeData} />,

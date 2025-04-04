@@ -30,6 +30,28 @@ export const createDefaultNodeData = (nodeType: string, nodeId: string) => {
           conditions: []
         }
       };
+      
+    case 'entrySignalNode':
+      return {
+        label: `Entry Signal ${simpleId}`,
+        _lastUpdated: timestamp,
+        conditions: [{
+          id: 'root',
+          groupLogic: 'AND',
+          conditions: []
+        }]
+      };
+      
+    case 'exitSignalNode':
+      return {
+        label: `Exit Signal ${simpleId}`,
+        _lastUpdated: timestamp,
+        conditions: [{
+          id: 'root',
+          groupLogic: 'AND',
+          conditions: []
+        }]
+      };
 
     case 'actionNode':
       return {

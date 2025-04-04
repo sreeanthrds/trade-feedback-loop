@@ -1,6 +1,6 @@
 
 import React, { useCallback, memo } from 'react';
-import { ShoppingCart, LogOut, StopCircle, AlertTriangle, Activity, Play, Edit } from 'lucide-react';
+import { ShoppingCart, LogOut, StopCircle, AlertTriangle, Activity, Play, Edit, TrendingUp, TrendingDown } from 'lucide-react';
 import { 
   Tooltip,
   TooltipContent,
@@ -31,12 +31,20 @@ const nodeTypes: NodeTypeItem[] = [
     hoverColor: 'hover:bg-emerald-500/20 dark:hover:bg-emerald-400/20'
   },
   {
-    type: 'signalNode',
-    label: 'Signal Node',
-    description: 'Detect market conditions',
-    icon: <Activity className="h-5 w-5 text-blue-600 dark:text-blue-400" />,
-    color: 'border-blue-600 dark:border-blue-400 bg-blue-600/10 dark:bg-blue-400/10',
-    hoverColor: 'hover:bg-blue-600/20 dark:hover:bg-blue-400/20'
+    type: 'entrySignalNode',
+    label: 'Entry Signal',
+    description: 'Detect entry conditions',
+    icon: <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />,
+    color: 'border-emerald-600 dark:border-emerald-400 bg-emerald-600/10 dark:bg-emerald-400/10',
+    hoverColor: 'hover:bg-emerald-600/20 dark:hover:bg-emerald-400/20'
+  },
+  {
+    type: 'exitSignalNode',
+    label: 'Exit Signal',
+    description: 'Detect exit conditions',
+    icon: <TrendingDown className="h-5 w-5 text-amber-600 dark:text-amber-400" />,
+    color: 'border-amber-600 dark:border-amber-400 bg-amber-600/10 dark:bg-amber-400/10',
+    hoverColor: 'hover:bg-amber-600/20 dark:hover:bg-amber-400/20'
   },
   {
     type: 'entryNode',
