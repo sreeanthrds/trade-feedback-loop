@@ -1,6 +1,6 @@
 
 import React, { useState, useCallback, memo } from 'react';
-import { Play, Activity, SlidersHorizontal, StopCircle, AlertTriangle, Plus, ShoppingCart, LogOut, Bell } from 'lucide-react';
+import { Play, Activity, SlidersHorizontal, StopCircle, AlertTriangle, Plus, ShoppingCart, LogOut, Bell, TrendingUp, TrendingDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -24,9 +24,8 @@ interface NodeConnectControlsProps {
 // Define node types with icons and labels
 const nodeTypeIcons = {
   startNode: { icon: Play, label: 'Start Node', color: 'text-emerald-500' },
-  signalNode: { icon: Activity, label: 'Signal Node', color: 'text-blue-600' },
-  entrySignalNode: { icon: Activity, label: 'Entry Signal Node', color: 'text-green-500' },
-  exitSignalNode: { icon: Activity, label: 'Exit Signal Node', color: 'text-amber-500' },
+  entrySignalNode: { icon: TrendingUp, label: 'Entry Signal Node', color: 'text-emerald-500' },
+  exitSignalNode: { icon: TrendingDown, label: 'Exit Signal Node', color: 'text-amber-500' },
   actionNode: { icon: SlidersHorizontal, label: 'Action Node', color: 'text-amber-600' },
   entryNode: { icon: ShoppingCart, label: 'Entry Node', color: 'text-green-500' },
   exitNode: { icon: LogOut, label: 'Exit Node', color: 'text-amber-500' },
@@ -42,7 +41,6 @@ const NodeConnectControls = memo(({ showOn, onAddNode, parentNodeId }: NodeConne
   const nodeOptions = React.useMemo(() => {
     if (showOn === 'start') {
       return [
-        { value: 'signalNode', label: 'Signal Node' },
         { value: 'entrySignalNode', label: 'Entry Signal Node' },
         { value: 'exitSignalNode', label: 'Exit Signal Node' },
         { value: 'entryNode', label: 'Entry Node' },
@@ -55,7 +53,6 @@ const NodeConnectControls = memo(({ showOn, onAddNode, parentNodeId }: NodeConne
       ];
     } else {
       return [
-        { value: 'signalNode', label: 'Signal Node' },
         { value: 'entrySignalNode', label: 'Entry Signal Node' },
         { value: 'exitSignalNode', label: 'Exit Signal Node' },
         { value: 'entryNode', label: 'Entry Node' },
