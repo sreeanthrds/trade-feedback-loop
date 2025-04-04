@@ -1,4 +1,3 @@
-
 import { v4 as uuidv4 } from 'uuid';
 
 export const createDefaultNodeData = (nodeType: string, nodeId: string) => {
@@ -33,7 +32,7 @@ export const createDefaultNodeData = (nodeType: string, nodeId: string) => {
       
     case 'entrySignalNode':
       return {
-        label: `Entry Signal ${simpleId}`,
+        label: `Entry ${simpleId}`,
         _lastUpdated: timestamp,
         conditions: [{
           id: 'root',
@@ -44,7 +43,7 @@ export const createDefaultNodeData = (nodeType: string, nodeId: string) => {
       
     case 'exitSignalNode':
       return {
-        label: `Exit Signal ${simpleId}`,
+        label: `Exit ${simpleId}`,
         _lastUpdated: timestamp,
         conditions: [{
           id: 'root',

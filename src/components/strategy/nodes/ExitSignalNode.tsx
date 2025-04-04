@@ -1,7 +1,7 @@
 
 import React, { memo, useMemo } from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { Activity } from 'lucide-react';
+import { TrendingDown } from 'lucide-react';
 import { GroupCondition, groupConditionToString } from '../utils/conditionTypes';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
 
@@ -62,8 +62,8 @@ const ExitSignalNode = ({ data, id }: ExitSignalNodeProps) => {
       />
       
       <div className="flex items-center mb-1.5">
-        <Activity className="h-4 w-4 text-amber-500 dark:text-amber-400 mr-1.5" />
-        <div className="font-medium text-xs text-amber-700 dark:text-amber-300">{data.label || "Exit Signal"}</div>
+        <TrendingDown className="h-4 w-4 text-amber-500 dark:text-amber-400 mr-1.5" />
+        <div className="font-medium text-xs text-amber-700 dark:text-amber-300">{data.label || "Exit"}</div>
       </div>
       
       {hasExitConditions && exitConditionDisplay ? (

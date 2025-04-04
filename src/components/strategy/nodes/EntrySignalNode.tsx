@@ -1,7 +1,7 @@
 
 import React, { memo, useMemo } from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { Activity } from 'lucide-react';
+import { Activity, TrendingUp } from 'lucide-react';
 import { GroupCondition, groupConditionToString } from '../utils/conditionTypes';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
 
@@ -62,8 +62,8 @@ const EntrySignalNode = ({ data, id }: EntrySignalNodeProps) => {
       />
       
       <div className="flex items-center mb-1.5">
-        <Activity className="h-4 w-4 text-emerald-500 dark:text-emerald-400 mr-1.5" />
-        <div className="font-medium text-xs text-emerald-700 dark:text-emerald-300">{data.label || "Entry Signal"}</div>
+        <TrendingUp className="h-4 w-4 text-emerald-500 dark:text-emerald-400 mr-1.5" />
+        <div className="font-medium text-xs text-emerald-700 dark:text-emerald-300">{data.label || "Entry"}</div>
       </div>
       
       {hasEntryConditions && entryConditionDisplay ? (
