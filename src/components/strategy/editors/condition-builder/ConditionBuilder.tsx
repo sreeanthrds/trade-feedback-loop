@@ -12,73 +12,93 @@ import ConditionActions from './components/ConditionActions';
 import ConditionPreview from './components/ConditionPreview';
 
 interface ConditionBuilderProps {
-  rootCondition: GroupCondition;
-  updateConditions: (updatedCondition: GroupCondition) => void;
+  rootCondition?: GroupCondition;
+  conditions?: GroupCondition[];
+  setConditions?: (conditions: GroupCondition[]) => void;
+  updateConditions?: (updatedCondition: GroupCondition) => void;
   level?: number;
   parentUpdateFn?: (updated: GroupCondition | Condition) => void;
   allowRemove?: boolean;
   index?: number;
   conditionContext?: 'entry' | 'exit';
+  rootGroupId?: string;
 }
 
 const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
   rootCondition,
+  conditions,
+  setConditions,
   updateConditions,
   level = 0,
   parentUpdateFn,
   allowRemove = false,
   index = 0,
-  conditionContext = 'entry'
+  conditionContext = 'entry',
+  rootGroupId
 }) => {
+  // Handle legacy API using conditions array
+  const effectiveRootCondition = rootCondition || 
+    (conditions && conditions.length > 0 ? conditions[0] : createEmptyGroupCondition(rootGroupId || 'root'));
+  
+  const effectiveUpdateFn = updateConditions || 
+    (setConditions ? (updatedRoot: GroupCondition) => {
+      // If using the legacy array API, replace the first condition
+      if (setConditions && conditions) {
+        const newConditions = [...conditions];
+        newConditions[0] = updatedRoot;
+        setConditions(newConditions);
+      }
+    } : () => {});
+
   // Use useCallback to prevent recreating functions on each render
   const addCondition = useCallback(() => {
     const newCondition = createEmptyCondition();
     const updatedRoot = { 
-      ...rootCondition,
-      conditions: [...rootCondition.conditions, newCondition]
+      ...effectiveRootCondition,
+      conditions: [...effectiveRootCondition.conditions, newCondition]
     };
-    updateConditions(updatedRoot);
-  }, [rootCondition, updateConditions]);
+    effectiveUpdateFn(updatedRoot);
+  }, [effectiveRootCondition, effectiveUpdateFn]);
 
   // Use useCallback for addGroup
   const addGroup = useCallback(() => {
     const newGroup = createEmptyGroupCondition();
     const updatedRoot = { 
-      ...rootCondition,
-      conditions: [...rootCondition.conditions, newGroup]
+      ...effectiveRootCondition,
+      conditions: [...effectiveRootCondition.conditions, newGroup]
     };
-    updateConditions(updatedRoot);
-  }, [rootCondition, updateConditions]);
+    effectiveUpdateFn(updatedRoot);
+  }, [effectiveRootCondition, effectiveUpdateFn]);
 
   // Use useCallback for updateGroupLogic
   const updateGroupLogic = useCallback((value: string) => {
     const updatedRoot = { 
-      ...rootCondition,
+      ...effectiveRootCondition,
       groupLogic: value as 'AND' | 'OR' 
     };
-    updateConditions(updatedRoot);
-  }, [rootCondition, updateConditions]);
+    effectiveUpdateFn(updatedRoot);
+  }, [effectiveRootCondition, effectiveUpdateFn]);
 
   // Use useCallback for updateChildCondition
   const updateChildCondition = useCallback((index: number, updated: Condition | GroupCondition) => {
-    const newConditions = [...rootCondition.conditions];
+    const newConditions = [...effectiveRootCondition.conditions];
     newConditions[index] = updated;
-    const updatedRoot = { ...rootCondition, conditions: newConditions };
-    updateConditions(updatedRoot);
-  }, [rootCondition, updateConditions]);
+    const updatedRoot = { ...effectiveRootCondition, conditions: newConditions };
+    effectiveUpdateFn(updatedRoot);
+  }, [effectiveRootCondition, effectiveUpdateFn]);
 
   // Use useCallback for removeCondition
   const removeCondition = useCallback((index: number) => {
     // Don't remove the last condition
-    if (rootCondition.conditions.length <= 1) {
+    if (effectiveRootCondition.conditions.length <= 1) {
       return;
     }
     
-    const newConditions = [...rootCondition.conditions];
+    const newConditions = [...effectiveRootCondition.conditions];
     newConditions.splice(index, 1);
-    const updatedRoot = { ...rootCondition, conditions: newConditions };
-    updateConditions(updatedRoot);
-  }, [rootCondition, updateConditions]);
+    const updatedRoot = { ...effectiveRootCondition, conditions: newConditions };
+    effectiveUpdateFn(updatedRoot);
+  }, [effectiveRootCondition, effectiveUpdateFn]);
 
   // Use useCallback for removeGroup
   const removeGroup = useCallback(() => {
@@ -93,7 +113,7 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
   return (
     <div className={`space-y-3 ${level > 0 ? 'condition-group' : ''} ${contextClass}`}>
       <GroupConditionTitle 
-        rootCondition={rootCondition}
+        rootCondition={effectiveRootCondition}
         level={level}
         allowRemove={allowRemove}
         updateGroupLogic={updateGroupLogic}
@@ -101,7 +121,7 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
       />
 
       <div className={`space-y-3 ${level > 0 ? 'indent-level-' + level : ''}`}>
-        {rootCondition.conditions.map((condition, idx) => (
+        {effectiveRootCondition.conditions.map((condition, idx) => (
           <div key={condition.id} className="relative">
             <ConditionItem 
               condition={condition}
@@ -122,7 +142,7 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
 
       {level === 0 && (
         <ConditionPreview 
-          rootCondition={rootCondition} 
+          rootCondition={effectiveRootCondition} 
           contextLabel={conditionContext === 'exit' ? 'Exit when:' : 'Enter when:'}
         />
       )}

@@ -17,7 +17,7 @@ export type NodeType =
 /**
  * Get the prefix for a node type (used in ID generation)
  */
-export const getNodeTypePrefix = (nodeType: string): string => {
+export const getNodeTypePrefix = (nodeType: NodeType | string): string => {
   switch (nodeType) {
     case 'startNode': return 'start';
     case 'signalNode': return 'signal';

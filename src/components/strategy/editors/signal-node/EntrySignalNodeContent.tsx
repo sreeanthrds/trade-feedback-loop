@@ -21,6 +21,7 @@ const EntrySignalNodeContent = ({ conditions, updateConditions }: EntrySignalNod
           conditions={conditions} 
           setConditions={updateConditions}
           rootGroupId={conditions[0]?.id || 'entry-root'}
+          conditionContext="entry"
         />
       </div>
     </div>

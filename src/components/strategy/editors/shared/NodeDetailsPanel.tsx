@@ -16,7 +16,7 @@ interface NodeDetailsPanelProps {
   nodeLabel: string;
   onLabelChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   infoTooltip?: string;
-  additionalContent: React.ReactNode;
+  additionalContent?: React.ReactNode;
 }
 
 const NodeDetailsPanel = ({ 

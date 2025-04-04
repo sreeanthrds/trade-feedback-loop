@@ -21,6 +21,7 @@ const ExitSignalNodeContent = ({ conditions, updateConditions }: ExitSignalNodeC
           conditions={conditions} 
           setConditions={updateConditions}
           rootGroupId={conditions[0]?.id || 'exit-root'}
+          conditionContext="exit"
         />
       </div>
     </div>
