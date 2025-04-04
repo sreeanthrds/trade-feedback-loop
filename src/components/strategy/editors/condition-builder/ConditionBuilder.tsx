@@ -43,7 +43,7 @@ const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
   const effectiveUpdateFn = updateConditions || 
     (setConditions ? (updatedRoot: GroupCondition) => {
       // If using the legacy array API, replace the first condition
-      if (setConditions && conditions) {
+      if (setConditions) {
         const newConditions = [...conditions];
         newConditions[0] = updatedRoot;
         setConditions(newConditions);
