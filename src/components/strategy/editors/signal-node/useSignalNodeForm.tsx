@@ -11,11 +11,13 @@ interface UseSignalNodeFormProps {
 interface SignalNodeFormData {
   label: string;
   conditions: GroupCondition[];
+  exitConditions: GroupCondition[];
 }
 
 interface SignalNodeData {
   label?: string;
   conditions?: GroupCondition[];
+  exitConditions?: GroupCondition[];
 }
 
 export const useSignalNodeForm = ({ node, updateNodeData }: UseSignalNodeFormProps) => {
@@ -33,13 +35,26 @@ export const useSignalNodeForm = ({ node, updateNodeData }: UseSignalNodeFormPro
         }
       ];
   
+  // Initialize exit conditions data structure if it doesn't exist
+  const initialExitConditions: GroupCondition[] = Array.isArray(nodeData.exitConditions) 
+    ? nodeData.exitConditions
+    : [
+        {
+          id: 'exit-root',
+          groupLogic: 'AND',
+          conditions: []
+        }
+      ];
+  
   const [conditions, setConditions] = useState<GroupCondition[]>(initialConditions);
+  const [exitConditions, setExitConditions] = useState<GroupCondition[]>(initialExitConditions);
   const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isUpdatingRef = useRef(false);
 
   const [formData, setFormData] = useState<SignalNodeFormData>({
     label: nodeData.label || 'Signal',
-    conditions: conditions
+    conditions: conditions,
+    exitConditions: exitConditions
   });
 
   const handleLabelChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,7 +87,8 @@ export const useSignalNodeForm = ({ node, updateNodeData }: UseSignalNodeFormPro
       
       updateNodeData(node.id, { 
         ...nodeData,
-        conditions: conditions
+        conditions: conditions,
+        exitConditions: exitConditions
       });
       
       // Reset update flag after a short delay
@@ -88,7 +104,7 @@ export const useSignalNodeForm = ({ node, updateNodeData }: UseSignalNodeFormPro
         clearTimeout(updateTimeoutRef.current);
       }
     };
-  }, [conditions, node.id, nodeData, updateNodeData]);
+  }, [conditions, exitConditions, node.id, nodeData, updateNodeData]);
 
   // Update local state if node data changes externally
   useEffect(() => {
@@ -98,11 +114,16 @@ export const useSignalNodeForm = ({ node, updateNodeData }: UseSignalNodeFormPro
     if (!isUpdatingRef.current) {
       setFormData({
         label: safeNodeData.label || 'Signal',
-        conditions: conditions
+        conditions: conditions,
+        exitConditions: exitConditions
       });
       
       if (Array.isArray(safeNodeData.conditions)) {
         setConditions(safeNodeData.conditions);
+      }
+      
+      if (Array.isArray(safeNodeData.exitConditions)) {
+        setExitConditions(safeNodeData.exitConditions);
       }
     }
   }, [node.data?.label]);
@@ -110,6 +131,11 @@ export const useSignalNodeForm = ({ node, updateNodeData }: UseSignalNodeFormPro
   const updateConditions = useCallback((newConditions: GroupCondition[]) => {
     setConditions(newConditions);
     setFormData(prev => ({ ...prev, conditions: newConditions }));
+  }, []);
+
+  const updateExitConditions = useCallback((newConditions: GroupCondition[]) => {
+    setExitConditions(newConditions);
+    setFormData(prev => ({ ...prev, exitConditions: newConditions }));
   }, []);
 
   // Clean up timeouts on unmount
@@ -124,7 +150,9 @@ export const useSignalNodeForm = ({ node, updateNodeData }: UseSignalNodeFormPro
   return {
     formData,
     conditions,
+    exitConditions,
     handleLabelChange,
-    updateConditions
+    updateConditions,
+    updateExitConditions
   };
 };

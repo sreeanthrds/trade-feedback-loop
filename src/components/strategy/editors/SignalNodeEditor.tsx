@@ -13,9 +13,11 @@ interface SignalNodeEditorProps {
 const SignalNodeEditor = ({ node, updateNodeData }: SignalNodeEditorProps) => {
   const { 
     formData, 
-    conditions, 
+    conditions,
+    exitConditions,
     handleLabelChange, 
-    updateConditions 
+    updateConditions,
+    updateExitConditions
   } = useSignalNodeForm({ node, updateNodeData });
 
   const signalNodeInfo = "Signal nodes detect specific market conditions to trigger actions in your strategy. Connect them to action nodes like Entry or Exit to execute trades when these conditions are met.";
@@ -29,6 +31,8 @@ const SignalNodeEditor = ({ node, updateNodeData }: SignalNodeEditorProps) => {
         <SignalNodeContent
           conditions={conditions}
           updateConditions={updateConditions}
+          exitConditions={exitConditions}
+          updateExitConditions={updateExitConditions}
         />
       }
     />
