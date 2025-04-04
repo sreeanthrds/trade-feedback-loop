@@ -72,6 +72,7 @@ export interface ExitByIndicator extends ExitCondition {
   indicator?: string;
   condition?: 'crossover' | 'crossunder' | 'above' | 'below';
   value?: number;
+  offset?: number; // Add the offset property for lookback functionality
 }
 
 export interface ExitByTime extends ExitCondition {
