@@ -83,6 +83,6 @@ const NodeControls = ({ node, onDelete }: NodeControlsProps) => {
       </AlertDialog>
     </div>
   );
-});
+};
 
 export default memo(NodeControls);
