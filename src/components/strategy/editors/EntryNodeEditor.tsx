@@ -94,59 +94,33 @@ const EntryNodeEditor = ({ node, updateNodeData }: EntryNodeEditorProps) => {
         nodeLabel={nodeData?.label || ''}
         onLabelChange={handleLabelChange}
         infoTooltip="Entry nodes open new positions when the strategy detects a signal."
-        additionalContent={
-          <>
-            <Separator className="my-1" />
-            
-            <InstrumentDisplay startNodeSymbol={startNodeSymbol} />
-            
-            <div className="bg-accent/5 rounded-md p-2">
-              {position ? (
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-1">
-                      <span className="text-xs font-medium">Position Details</span>
-                      <span className="text-xs bg-primary/10 px-1 rounded" title={position.vpi}>
-                        VPI: {position.vpi}
-                      </span>
-                    </div>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-7 w-7" 
-                      onClick={handleEditPosition}
-                    >
-                      <Edit2 className="h-3 w-3" />
-                    </Button>
-                  </div>
-                  <PositionEditor
-                    position={position}
-                    hasOptionTrading={hasOptionTrading}
-                    isEntryNode={true}
-                    onPositionChange={handlePositionUpdate}
-                    onPositionTypeChange={handlePositionTypeChange}
-                    onOrderTypeChange={handleOrderTypeChange}
-                    onLimitPriceChange={handleLimitPriceChange}
-                    onLotsChange={handleLotsChange}
-                    onProductTypeChange={handleProductTypeChange}
-                    onExpiryChange={handleExpiryChange}
-                    onStrikeTypeChange={handleStrikeTypeChange}
-                    onStrikeValueChange={handleStrikeValueChange}
-                    onOptionTypeChange={handleOptionTypeChange}
-                  />
-                </div>
-              ) : (
-                <div className="text-center p-1">
-                  <p className="text-xs text-muted-foreground">Loading position...</p>
-                </div>
-              )}
+      />
+      
+      <Separator className="my-1" />
+      
+      <InstrumentDisplay startNodeSymbol={startNodeSymbol} />
+      
+      <div className="bg-accent/5 rounded-md p-2">
+        {position ? (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-1">
+                <span className="text-xs font-medium">Position Details</span>
+                <span className="text-xs bg-primary/10 px-1 rounded" title={position.vpi}>
+                  VPI: {position.vpi}
+                </span>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-7 w-7" 
+                onClick={handleEditPosition}
+              >
+                <Edit2 className="h-3 w-3" />
+              </Button>
             </div>
-            
-            {/* Position Dialog for editing */}
-            <PositionDialog
+            <PositionEditor
               position={position}
-              isOpen={isPositionDialogOpen}
-              onClose={handleClosePositionDialog}
               hasOptionTrading={hasOptionTrading}
               isEntryNode={true}
               onPositionChange={handlePositionUpdate}
@@ -160,8 +134,31 @@ const EntryNodeEditor = ({ node, updateNodeData }: EntryNodeEditorProps) => {
               onStrikeValueChange={handleStrikeValueChange}
               onOptionTypeChange={handleOptionTypeChange}
             />
-          </>
-        }
+          </div>
+        ) : (
+          <div className="text-center p-1">
+            <p className="text-xs text-muted-foreground">Loading position...</p>
+          </div>
+        )}
+      </div>
+      
+      {/* Position Dialog for editing */}
+      <PositionDialog
+        position={position}
+        isOpen={isPositionDialogOpen}
+        onClose={handleClosePositionDialog}
+        hasOptionTrading={hasOptionTrading}
+        isEntryNode={true}
+        onPositionChange={handlePositionUpdate}
+        onPositionTypeChange={handlePositionTypeChange}
+        onOrderTypeChange={handleOrderTypeChange}
+        onLimitPriceChange={handleLimitPriceChange}
+        onLotsChange={handleLotsChange}
+        onProductTypeChange={handleProductTypeChange}
+        onExpiryChange={handleExpiryChange}
+        onStrikeTypeChange={handleStrikeTypeChange}
+        onStrikeValueChange={handleStrikeValueChange}
+        onOptionTypeChange={handleOptionTypeChange}
       />
     </div>
   );

@@ -3,9 +3,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { createDefaultNodeData } from './defaults/defaultNodeData';
 import { Node, ReactFlowInstance } from '@xyflow/react';
 import { findEmptyPosition } from './positioning/findEmptyPosition';
-import { getNodeTypePrefix } from '../types/nodeTypes';
+import { getNodeTypePrefix } from './types/nodeTypes';
 import { getHighestZIndex } from './styling/nodeZIndex';
-import { NodeType } from '../types/nodeTypes';
 
 /**
  * Node factory for creating new nodes with consistent structure
@@ -38,7 +37,7 @@ export class NodeFactory {
     const nodeId = `${typePrefix}-${nodeCount}`;
     
     // Get default data for the node type
-    const defaultData = createDefaultNodeData(type as NodeType, nodeId);
+    const defaultData = createDefaultNodeData(type, nodeId);
     
     // Set z-index
     const highestZIndex = getHighestZIndex(existingNodes);

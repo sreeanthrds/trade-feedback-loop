@@ -3,10 +3,9 @@ import { Node, ReactFlowInstance } from '@xyflow/react';
 import { toast } from "@/hooks/use-toast";
 import { findEmptyPosition } from './positioning/findEmptyPosition';
 import { getHighestZIndex } from './styling/nodeZIndex';
-import { getNodeTypePrefix } from '../types/nodeTypes';
+import { getNodeTypePrefix } from './types/nodeTypes';
 import { createDefaultNodeData } from './defaults/defaultNodeData';
 import { initialNodes } from './initialNodes';
-import { NodeType } from '../types/nodeTypes';
 
 /**
  * Adds a new node to the canvas
@@ -50,7 +49,7 @@ export const addNode = (
   const nodeId = `${typePrefix}-${nodeCount}`;
   
   // Get the default data for this node type
-  const defaultData = createDefaultNodeData(type as NodeType, nodeId);
+  const defaultData = createDefaultNodeData(type, nodeId);
   
   // Get the highest z-index and increase it by 1
   const highestZIndex = getHighestZIndex(nodes);

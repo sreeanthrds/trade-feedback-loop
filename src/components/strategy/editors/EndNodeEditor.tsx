@@ -19,7 +19,6 @@ const EndNodeEditor = ({ node, updateNodeData }: EndNodeEditorProps) => {
       nodeLabel={formData.label}
       onLabelChange={handleLabelChange}
       infoTooltip={endNodeInfo}
-      additionalContent={null}
     />
   );
 };
