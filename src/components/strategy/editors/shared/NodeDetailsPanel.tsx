@@ -1,63 +1,63 @@
 
-import React, { memo } from 'react';
-import { Separator } from '@/components/ui/separator';
-import InputField from './InputField';
-import { Info } from 'lucide-react';
-import {
+import React from 'react';
+import { 
+  Info, 
+  XCircle,
+} from 'lucide-react';
+import { 
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
+  TooltipTrigger 
 } from '@/components/ui/tooltip';
+import { Input } from '@/components/ui/input';
 
 interface NodeDetailsPanelProps {
   nodeLabel: string;
   onLabelChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  additionalContent?: React.ReactNode;
   infoTooltip?: string;
+  additionalContent: React.ReactNode;
 }
 
-const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
-  nodeLabel,
-  onLabelChange,
-  additionalContent,
-  infoTooltip,
-}) => {
+const NodeDetailsPanel = ({ 
+  nodeLabel, 
+  onLabelChange, 
+  infoTooltip, 
+  additionalContent 
+}: NodeDetailsPanelProps) => {
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2">
-        <InputField
-          label="Node Label"
-          id="node-label"
-          value={nodeLabel || ''}
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <label htmlFor="nodeLabel" className="text-sm font-medium flex items-center">
+            Node Label
+            {infoTooltip && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="ml-1 text-muted-foreground hover:text-foreground">
+                      <Info className="h-3.5 w-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs text-xs">{infoTooltip}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </label>
+        </div>
+        <Input
+          id="nodeLabel"
+          value={nodeLabel}
           onChange={onLabelChange}
-          placeholder="Enter node label"
+          className="h-8"
         />
-        
-        {infoTooltip && (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="cursor-help mt-6">
-                  <Info className="h-4 w-4 text-muted-foreground" />
-                </div>
-              </TooltipTrigger>
-              <TooltipContent className="max-w-xs text-xs">
-                <p>{infoTooltip}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
       </div>
       
-      {additionalContent && (
-        <>
-          <Separator className="my-1" />
-          {additionalContent}
-        </>
-      )}
+      {additionalContent}
     </div>
   );
 };
 
-export default memo(NodeDetailsPanel);
+export default NodeDetailsPanel;
