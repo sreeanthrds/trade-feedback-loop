@@ -18,8 +18,8 @@ const ExitSignalNodeContent = ({ conditions, updateConditions }: ExitSignalNodeC
         </p>
         
         <ConditionBuilder 
-          conditions={conditions} 
-          setConditions={updateConditions}
+          rootCondition={conditions[0]}
+          updateConditions={(updatedRoot) => updateConditions([updatedRoot])}
           rootGroupId={conditions[0]?.id || 'exit-root'}
           conditionContext="exit"
         />

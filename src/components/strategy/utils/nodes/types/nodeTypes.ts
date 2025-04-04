@@ -1,8 +1,10 @@
 
+import { NodeType } from '../../types/nodeTypes';
+
 /**
  * Get a prefix for node IDs based on the node type
  */
-export const getNodeTypePrefix = (type: string) => {
+export const getNodeTypePrefix = (type: string): string => {
   switch (type) {
     case 'startNode':
       return 'start';
