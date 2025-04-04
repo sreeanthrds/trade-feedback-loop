@@ -1,141 +1,111 @@
 
-import React from 'react';
-import { Expression, ExpressionType, createDefaultExpression } from '../../../utils/conditions';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
+import React, { useMemo } from 'react';
+import { 
+  Select, 
+  SelectContent, 
+  SelectGroup, 
+  SelectItem, 
+  SelectLabel, 
+  SelectTrigger, 
+  SelectValue 
 } from '@/components/ui/select';
-import {
-  Activity,
-  BarChart4,
-  Clock,
-  DollarSign,
-  FileText,
-  LineChart,
-  Radio,
-  Tag
-} from 'lucide-react';
+import { Expression, createEmptyExpression } from '../../../utils/conditions';
+import ExpressionIcon from './ExpressionIcon';
 
 interface ExpressionTypeSelectorProps {
   expression: Expression;
   updateExpression: (expr: Expression) => void;
+  conditionContext?: 'entry' | 'exit';
 }
-
-interface ExpressionTypeOption {
-  value: ExpressionType;
-  label: string;
-  icon: React.ReactNode;
-  group: string;
-}
-
-const expressionTypeOptions: ExpressionTypeOption[] = [
-  {
-    value: 'market_data',
-    label: 'Market Data',
-    icon: <BarChart4 className="h-4 w-4 mr-2" />,
-    group: 'Market'
-  },
-  {
-    value: 'indicator',
-    label: 'Indicator',
-    icon: <LineChart className="h-4 w-4 mr-2" />,
-    group: 'Market'
-  },
-  {
-    value: 'constant',
-    label: 'Constant',
-    icon: <Radio className="h-4 w-4 mr-2" />,
-    group: 'Basic'
-  },
-  {
-    value: 'time_function',
-    label: 'Time',
-    icon: <Clock className="h-4 w-4 mr-2" />,
-    group: 'Basic'
-  },
-  {
-    value: 'position_data',
-    label: 'Position Data',
-    icon: <Tag className="h-4 w-4 mr-2" />,
-    group: 'Position'
-  },
-  {
-    value: 'strategy_metric',
-    label: 'Strategy Metric',
-    icon: <DollarSign className="h-4 w-4 mr-2" />,
-    group: 'Position'
-  },
-  {
-    value: 'execution_data',
-    label: 'Execution Data',
-    icon: <FileText className="h-4 w-4 mr-2" />,
-    group: 'Advanced'
-  },
-  {
-    value: 'external_trigger',
-    label: 'External Trigger',
-    icon: <Radio className="h-4 w-4 mr-2" />,
-    group: 'Advanced'
-  },
-  {
-    value: 'expression',
-    label: 'Math Expression',
-    icon: <Activity className="h-4 w-4 mr-2" />,
-    group: 'Advanced'
-  }
-];
 
 const ExpressionTypeSelector: React.FC<ExpressionTypeSelectorProps> = ({
   expression,
-  updateExpression
+  updateExpression,
+  conditionContext = 'entry'
 }) => {
-  // Group options by category
-  const groups = expressionTypeOptions.reduce((acc, option) => {
-    if (!acc[option.group]) {
-      acc[option.group] = [];
-    }
-    acc[option.group].push(option);
-    return acc;
-  }, {} as Record<string, ExpressionTypeOption[]>);
+  // Filter expression types based on condition context
+  const expressionTypes = useMemo(() => {
+    const types = [
+      { value: 'market_data', label: 'Market Data', group: 'Basic' },
+      { value: 'indicator', label: 'Indicator', group: 'Basic' },
+      { value: 'constant', label: 'Constant Value', group: 'Basic' },
+      { value: 'time_function', label: 'Time', group: 'Basic' },
+      { value: 'expression', label: 'Formula/Expression', group: 'Advanced' },
+    ];
 
-  const groupOrder = ['Market', 'Basic', 'Position', 'Advanced'];
-
-  // Change expression type (indicator, market_data, constant, etc.)
-  const onTypeChange = (type: ExpressionType) => {
-    if (expression.type !== type) {
-      const newExpr = createDefaultExpression(type);
-      newExpr.id = expression.id; // Keep the same ID
-      updateExpression(newExpr);
+    // Position-related expressions - only show for exit conditions or shared
+    if (conditionContext === 'exit') {
+      types.push(
+        { value: 'position_data', label: 'Position Data', group: 'Position' },
+        { value: 'strategy_metric', label: 'Strategy Metric', group: 'Position' },
+        { value: 'execution_data', label: 'Execution Data', group: 'Position' }
+      );
     }
+
+    // External triggers - available for both entry and exit
+    types.push({ value: 'external_trigger', label: 'External Trigger', group: 'Advanced' });
+
+    return types;
+  }, [conditionContext]);
+
+  const handleTypeChange = (value: string) => {
+    // Create a new expression of the selected type
+    const newExpression = createEmptyExpression(value as any);
+    updateExpression(newExpression);
   };
 
   return (
     <Select
       value={expression.type}
-      onValueChange={(value) => onTypeChange(value as ExpressionType)}
+      onValueChange={handleTypeChange}
     >
-      <SelectTrigger className="h-8">
-        <SelectValue placeholder="Select expression type" />
+      <SelectTrigger className="h-7 text-xs w-auto min-w-32">
+        <SelectValue placeholder="Expression type" />
       </SelectTrigger>
       <SelectContent>
-        {groupOrder.map(groupName => (
-          <SelectGroup key={groupName}>
-            <SelectLabel>{groupName}</SelectLabel>
-            {groups[groupName]?.map(option => (
-              <SelectItem key={option.value} value={option.value}>
-                <div className="flex items-center">
-                  {option.icon}
-                  {option.label}
+        <SelectGroup>
+          <SelectLabel>Basic Types</SelectLabel>
+          {expressionTypes
+            .filter(type => type.group === 'Basic')
+            .map(type => (
+              <SelectItem key={type.value} value={type.value}>
+                <div className="flex items-center gap-2">
+                  <ExpressionIcon type={type.value as any} />
+                  <span>{type.label}</span>
                 </div>
               </SelectItem>
             ))}
+        </SelectGroup>
+        
+        {conditionContext === 'exit' && (
+          <SelectGroup>
+            <SelectLabel>Position Types</SelectLabel>
+            {expressionTypes
+              .filter(type => type.group === 'Position')
+              .map(type => (
+                <SelectItem key={type.value} value={type.value}>
+                  <div className="flex items-center gap-2">
+                    <ExpressionIcon type={type.value as any} />
+                    <span>{type.label}</span>
+                  </div>
+                </SelectItem>
+              ))}
           </SelectGroup>
-        ))}
+        )}
+        
+        <SelectGroup>
+          <SelectLabel>Advanced Types</SelectLabel>
+          {expressionTypes
+            .filter(type => type.group === 'Advanced')
+            .map(type => (
+              <SelectItem key={type.value} value={type.value}>
+                <div className="flex items-center gap-2">
+                  <ExpressionIcon type={type.value as any} />
+                  <span>{type.label}</span>
+                </div>
+              </SelectItem>
+            ))}
+        </SelectGroup>
       </SelectContent>
     </Select>
   );

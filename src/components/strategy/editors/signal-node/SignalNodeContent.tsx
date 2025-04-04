@@ -40,7 +40,7 @@ const SignalNodeContent: React.FC<SignalNodeContentProps> = ({
   return (
     <div className="space-y-4 pt-2">
       <div className="flex items-center gap-2 mb-2">
-        <h3 className="text-sm font-medium">Signal Conditions</h3>
+        <h3 className="text-sm font-medium">Entry Signal Conditions</h3>
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -48,7 +48,7 @@ const SignalNodeContent: React.FC<SignalNodeContentProps> = ({
             </TooltipTrigger>
             <TooltipContent className="max-w-xs">
               <p className="text-xs">
-                Build conditions that evaluate market data, indicators, positions, and more to trigger when specific criteria are met.
+                Build entry conditions that evaluate market data, indicators, and more to determine when to enter a position.
               </p>
             </TooltipContent>
           </Tooltip>
@@ -61,13 +61,14 @@ const SignalNodeContent: React.FC<SignalNodeContentProps> = ({
           updateConditions={(updatedRoot) => {
             updateConditions([updatedRoot]);
           }}
+          conditionContext="entry"
         />
 
         {totalConditions > 0 && (
           <div className="mt-4">
             <AdvancedFeatureToggle
-              title="Condition Settings"
-              description="Configure additional settings for your conditions"
+              title="Entry Condition Settings"
+              description="Configure additional settings for your entry conditions"
             >
               <div className="space-y-2 mt-2">
                 <div className="space-y-1">

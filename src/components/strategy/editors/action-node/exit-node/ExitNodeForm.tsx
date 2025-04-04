@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Node } from '@xyflow/react';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -8,6 +8,8 @@ import SwitchField from '../../shared/SwitchField';
 import { useExitNodeForm } from './useExitNodeForm';
 import ExitConditionForm from './ExitConditionForm';
 import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
+import ExitConditionsSection from './ExitConditionsSection';
+import { createEmptyGroupCondition } from '../../../utils/conditions';
 
 interface ExitNodeFormProps {
   node: Node;
@@ -32,15 +34,47 @@ const ExitNodeForm: React.FC<ExitNodeFormProps> = React.memo(({ node, updateNode
     updateNodeData 
   });
 
+  // Get conditions from node data or create a default one
+  const [conditions, setConditions] = useState(() => {
+    const existingConditions = node.data?.exitConditions || [];
+    if (existingConditions.length === 0) {
+      return [createEmptyGroupCondition()];
+    }
+    return existingConditions;
+  });
+
+  // Update conditions and save to node data
+  const updateConditions = (updatedConditions: any[]) => {
+    setConditions(updatedConditions);
+    updateNodeData(node.id, {
+      ...node.data,
+      exitConditions: updatedConditions
+    });
+  };
+
+  const [activeTab, setActiveTab] = useState('advanced_conditions');
+
   return (
     <div className="space-y-4">
-      <Tabs defaultValue="exit_condition" className="w-full">
-        <TabsList className="grid grid-cols-2">
-          <TabsTrigger value="exit_condition">Exit Condition</TabsTrigger>
+      <Tabs 
+        defaultValue={activeTab} 
+        className="w-full"
+        onValueChange={setActiveTab}
+      >
+        <TabsList className="grid grid-cols-3">
+          <TabsTrigger value="advanced_conditions">Conditions</TabsTrigger>
+          <TabsTrigger value="simple_condition">Simple Exit</TabsTrigger>
           <TabsTrigger value="order_settings">Order Settings</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="exit_condition" className="space-y-4 pt-4">
+        <TabsContent value="advanced_conditions" className="space-y-4 pt-4">
+          <ExitConditionsSection 
+            conditions={conditions}
+            updateConditions={updateConditions}
+          />
+        </TabsContent>
+
+        <TabsContent value="simple_condition" className="space-y-4 pt-4">
           <SelectField
             label="Exit Condition Type"
             id="exit-condition-type"

@@ -13,6 +13,7 @@ interface ConditionItemProps {
   level: number;
   updateCondition: (updated: Condition | GroupCondition) => void;
   removeCondition: () => void;
+  conditionContext?: 'entry' | 'exit';
 }
 
 const ConditionItem: React.FC<ConditionItemProps> = ({
@@ -21,6 +22,7 @@ const ConditionItem: React.FC<ConditionItemProps> = ({
   level,
   updateCondition,
   removeCondition,
+  conditionContext = 'entry'
 }) => {
   if ('groupLogic' in condition) {
     // Render nested group condition
@@ -32,6 +34,7 @@ const ConditionItem: React.FC<ConditionItemProps> = ({
         parentUpdateFn={(updated) => updateCondition(updated)}
         allowRemove={true}
         index={index}
+        conditionContext={conditionContext}
       />
     );
   } else {
@@ -43,6 +46,7 @@ const ConditionItem: React.FC<ConditionItemProps> = ({
             <SingleConditionEditor
               condition={condition as Condition}
               updateCondition={(updated) => updateCondition(updated)}
+              conditionContext={conditionContext}
             />
           </div>
           <Button 

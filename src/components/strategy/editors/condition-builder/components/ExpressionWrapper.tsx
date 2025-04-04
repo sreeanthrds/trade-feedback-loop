@@ -11,6 +11,7 @@ interface ExpressionWrapperProps {
   updateExpression: (expr: Expression) => void;
   required?: boolean;
   showLabels?: boolean;
+  conditionContext?: 'entry' | 'exit';
 }
 
 const ExpressionWrapper: React.FC<ExpressionWrapperProps> = ({
@@ -18,7 +19,8 @@ const ExpressionWrapper: React.FC<ExpressionWrapperProps> = ({
   expression,
   updateExpression,
   required = false,
-  showLabels = true
+  showLabels = true,
+  conditionContext = 'entry'
 }) => {
   // Get the appropriate editor component for this expression type
   const EditorComponent = expression ? expressionEditorMap[expression.type] : null;
@@ -33,7 +35,8 @@ const ExpressionWrapper: React.FC<ExpressionWrapperProps> = ({
           </Label>
           <ExpressionTypeSelector 
             expression={expression} 
-            updateExpression={updateExpression} 
+            updateExpression={updateExpression}
+            conditionContext={conditionContext}
           />
         </div>
       )}
@@ -42,7 +45,8 @@ const ExpressionWrapper: React.FC<ExpressionWrapperProps> = ({
         <div className="flex justify-end">
           <ExpressionTypeSelector 
             expression={expression} 
-            updateExpression={updateExpression} 
+            updateExpression={updateExpression}
+            conditionContext={conditionContext}
           />
         </div>
       )}
@@ -52,6 +56,7 @@ const ExpressionWrapper: React.FC<ExpressionWrapperProps> = ({
           expression={expression}
           updateExpression={updateExpression}
           required={required}
+          conditionContext={conditionContext}
         />
       )}
     </div>
