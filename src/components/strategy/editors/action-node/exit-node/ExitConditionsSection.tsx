@@ -56,7 +56,7 @@ const ExitConditionsSection: React.FC<ExitConditionsSectionProps> = ({
           updateConditions={(updatedRoot) => {
             updateConditions([updatedRoot]);
           }}
-          conditionContext="exit"
+          context="exit"
         />
       </div>
     </div>

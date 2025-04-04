@@ -34,7 +34,7 @@ const ConditionItem: React.FC<ConditionItemProps> = ({
         parentUpdateFn={(updated) => updateCondition(updated)}
         allowRemove={true}
         index={index}
-        conditionContext={conditionContext}
+        context={conditionContext}
       />
     );
   } else {
