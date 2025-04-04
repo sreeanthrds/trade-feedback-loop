@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { GroupCondition } from '../../../utils/conditions';
-import { getConditionString } from '../../../utils/conditions/stringRepresentation';
+import { groupConditionToString } from '../../../utils/conditions/stringRepresentation';
 import FieldTooltip from '../../shared/FieldTooltip';
 
 interface ConditionPreviewProps {
@@ -13,7 +13,7 @@ const ConditionPreview: React.FC<ConditionPreviewProps> = ({
   rootCondition,
   contextLabel = 'When:'
 }) => {
-  const conditionString = getConditionString(rootCondition);
+  const conditionString = groupConditionToString(rootCondition);
   const hasConditions = rootCondition.conditions.length > 0;
 
   return (
