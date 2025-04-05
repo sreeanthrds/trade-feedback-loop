@@ -29,13 +29,13 @@ export const useUpdateNodeHandler = ({
         // Special handling for exit nodes with re-entry toggle
         if (
           data?.exitNodeData &&
-          data.exitNodeData?.reEntryConfig
+          data.exitNodeData?.reEntryConfig !== undefined
         ) {
           const node = nodesRef.current.find(n => n.id === id);
           
           if (node) {
             // Use type assertion to safely access exitNodeData
-            const nodeDataTyped = node.data as ExitNodeData;
+            const nodeDataTyped = node.data as { exitNodeData?: ExitNodeData };
             const oldConfig = nodeDataTyped?.exitNodeData?.reEntryConfig;
             const newConfig = data.exitNodeData.reEntryConfig;
             
@@ -71,7 +71,7 @@ export const useUpdateNodeHandler = ({
                   }
                 };
                 
-                // Create regular edge from exit node to retry node (remove fixed-length)
+                // Create regular edge from exit node to retry node
                 const connectingEdge = {
                   id: `e-${id}-${retryNodeId}`,
                   source: id,
@@ -117,6 +117,20 @@ export const useUpdateNodeHandler = ({
                   setEdges((prev: any[]) => [...prev, connectingEdge]);
                 }
                 
+                // Store exit node's connection to retry node
+                setNodes((prev: Node[]) => prev.map(node => {
+                  if (node.id === id) {
+                    return {
+                      ...node,
+                      data: {
+                        ...node.data,
+                        linkedRetryNodeId: retryNodeId
+                      }
+                    };
+                  }
+                  return node;
+                }));
+                
                 // Update store
                 setTimeout(() => {
                   const updatedNodes = [...nodesRef.current, retryNode];
@@ -124,6 +138,47 @@ export const useUpdateNodeHandler = ({
                   if (dashEdge) {
                     updatedEdges.push(dashEdge);
                   }
+                  
+                  strategyStore.current.setNodes(updatedNodes);
+                  strategyStore.current.setEdges(updatedEdges);
+                  strategyStore.current.addHistoryItem(updatedNodes, updatedEdges);
+                }, 100);
+                
+                return;
+              }
+            }
+            // If re-entry was toggled off, remove the retry node
+            else if (oldEnabled === true && newEnabled === false) {
+              console.log('Re-entry was disabled, removing retry node');
+              
+              // Find the retry node connected to this exit node
+              const linkedRetryNodeId = node.data.linkedRetryNodeId;
+              
+              if (linkedRetryNodeId) {
+                // Find all edges connected to the retry node
+                const edgesToRemove = strategyStore.current.edges.filter(edge => 
+                  edge.source === linkedRetryNodeId || edge.target === linkedRetryNodeId
+                );
+                
+                // Get edge IDs to remove
+                const edgeIdsToRemove = edgesToRemove.map(edge => edge.id);
+                
+                // First update the node data
+                handler(id, {
+                  ...data,
+                  linkedRetryNodeId: undefined  // Clear the reference to retry node
+                });
+                
+                // Remove the retry node
+                setNodes((prev: Node[]) => prev.filter(n => n.id !== linkedRetryNodeId));
+                
+                // Remove related edges
+                setEdges((prev: any[]) => prev.filter(e => !edgeIdsToRemove.includes(e.id)));
+                
+                // Update store
+                setTimeout(() => {
+                  const updatedNodes = nodesRef.current.filter(n => n.id !== linkedRetryNodeId);
+                  const updatedEdges = strategyStore.current.edges.filter(e => !edgeIdsToRemove.includes(e.id));
                   
                   strategyStore.current.setNodes(updatedNodes);
                   strategyStore.current.setEdges(updatedEdges);

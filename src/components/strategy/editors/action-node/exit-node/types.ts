@@ -24,6 +24,8 @@ export interface ExitNodeData {
   orders?: ExitOrderConfig[];
   // Re-entry configuration
   reEntryConfig?: ReEntryConfig;
+  // Reference to linked retry node
+  linkedRetryNodeId?: string;
   // Adding these for backward compatibility
   exitCondition?: ExitCondition;
   orderConfig?: {

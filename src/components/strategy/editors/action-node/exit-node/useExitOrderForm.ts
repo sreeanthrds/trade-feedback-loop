@@ -13,8 +13,8 @@ import {
   useOrderSettings,
   useMultipleOrders,
   useExitConditionField,
-  useReEntrySettings
 } from './hooks';
+import { useReEntrySettings } from './hooks/useReEntrySettings';
 
 interface UseExitOrderFormProps {
   node: Node;
@@ -83,7 +83,7 @@ export const useExitOrderForm = ({ node, updateNodeData }: UseExitOrderFormProps
     defaultExitNodeData
   });
   
-  // Use re-entry toggle hook
+  // Use re-entry settings
   const { reEntryEnabled, handleReEntryToggle } = useReEntrySettings({
     node,
     updateNodeData,
@@ -102,7 +102,7 @@ export const useExitOrderForm = ({ node, updateNodeData }: UseExitOrderFormProps
     handleLimitPriceChange,
     handleMultipleOrdersToggle,
     updateExitConditionField,
-    // Re-entry related
+    // Add re-entry props
     reEntryEnabled,
     handleReEntryToggle
   };
