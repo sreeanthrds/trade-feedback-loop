@@ -1,11 +1,14 @@
 
 import React from 'react';
 import { Node } from '@xyflow/react';
-import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
 import EnhancedSwitch from '@/components/ui/form/enhanced/EnhancedSwitch';
 import { Separator } from '@/components/ui/separator';
 import { useExitNodeDefaults } from './hooks/useExitNodeDefaults';
 import { usePostExecutionSettings } from './hooks/usePostExecutionSettings';
+import StopLossSection from '../post-execution/StopLossSection';
+import TrailingStopSection from '../post-execution/TrailingStopSection';
+import TakeProfitSection from '../post-execution/TakeProfitSection';
+import { createReEntryUpdateHandler } from '../post-execution/ReEntryHelpers';
 
 interface PostExecutionTabProps {
   node: Node;
@@ -56,6 +59,28 @@ const PostExecutionTab: React.FC<PostExecutionTabProps> = ({
     handleTrailingStopToggle(enabled);
   };
 
+  // Helper for re-entry updates
+  function handleReEntryUpdate(
+    feature: 'stopLoss' | 'trailingStop' | 'takeProfit',
+    updates: Partial<{ groupNumber: number, maxReEntries: number }>
+  ) {
+    const handlers = {
+      'stopLoss': handleStopLossParamChange,
+      'trailingStop': handleTrailingStopParamChange,
+      'takeProfit': handleTakeProfitParamChange
+    };
+    
+    const currentConfig = {
+      'stopLoss': stopLoss,
+      'trailingStop': trailingStop,
+      'takeProfit': takeProfit
+    }[feature];
+    
+    const handler = handlers[feature];
+    
+    createReEntryUpdateHandler(feature, currentConfig, handler)(updates);
+  }
+
   return (
     <div className="space-y-4">
       <div className="space-y-4 bg-accent/5 rounded-md p-3">
@@ -68,49 +93,12 @@ const PostExecutionTab: React.FC<PostExecutionTabProps> = ({
         />
         
         {stopLoss.enabled && (
-          <div className="pl-4 space-y-3 pt-1">
-            <EnhancedNumberInput
-              label="Stop Percentage"
-              value={stopLoss.stopPercentage}
-              onChange={(value) => handleStopLossParamChange({ stopPercentage: value })}
-              min={0.1}
-              max={100}
-              step={0.1}
-              tooltip="Percentage below entry price for stop loss"
-            />
-            
-            <div className="pt-1">
-              <EnhancedSwitch
-                id="stop-loss-reentry-toggle"
-                label="Re-entry After Stop Loss"
-                checked={stopLoss.reEntry?.enabled || false}
-                onCheckedChange={handleStopLossReEntryToggle}
-                tooltip="Re-enter the position after stop loss is triggered"
-              />
-              
-              {stopLoss.reEntry?.enabled && (
-                <div className="pl-4 space-y-3 pt-2">
-                  <EnhancedNumberInput
-                    label="Group Number"
-                    value={stopLoss.reEntry?.groupNumber}
-                    onChange={(value) => handleReEntryUpdate('stopLoss', { groupNumber: value })}
-                    min={1}
-                    step={1}
-                    tooltip="Group number for re-entry coordination"
-                  />
-                  
-                  <EnhancedNumberInput
-                    label="Max Re-entries"
-                    value={stopLoss.reEntry?.maxReEntries}
-                    onChange={(value) => handleReEntryUpdate('stopLoss', { maxReEntries: value })}
-                    min={1}
-                    step={1}
-                    tooltip="Maximum number of re-entries after stop loss"
-                  />
-                </div>
-              )}
-            </div>
-          </div>
+          <StopLossSection
+            stopLoss={stopLoss}
+            handleStopLossParamChange={handleStopLossParamChange}
+            handleStopLossReEntryToggle={handleStopLossReEntryToggle}
+            handleReEntryUpdate={handleReEntryUpdate}
+          />
         )}
       </div>
       
@@ -126,59 +114,12 @@ const PostExecutionTab: React.FC<PostExecutionTabProps> = ({
         />
         
         {trailingStop.enabled && (
-          <div className="pl-4 space-y-3 pt-1">
-            <EnhancedNumberInput
-              label="Initial Distance (%)"
-              value={trailingStop.initialDistance}
-              onChange={(value) => handleTrailingStopParamChange({ initialDistance: value })}
-              min={0.1}
-              max={100}
-              step={0.1}
-              tooltip="Initial distance for trailing stop in percentage"
-            />
-            
-            <EnhancedNumberInput
-              label="Step Size (%)"
-              value={trailingStop.stepSize}
-              onChange={(value) => handleTrailingStopParamChange({ stepSize: value })}
-              min={0.1}
-              max={10}
-              step={0.1}
-              tooltip="Step size for trailing stop adjustment"
-            />
-            
-            <div className="pt-1">
-              <EnhancedSwitch
-                id="trailing-stop-reentry-toggle"
-                label="Re-entry After Trailing Stop"
-                checked={trailingStop.reEntry?.enabled || false}
-                onCheckedChange={handleTrailingStopReEntryToggle}
-                tooltip="Re-enter the position after trailing stop is triggered"
-              />
-              
-              {trailingStop.reEntry?.enabled && (
-                <div className="pl-4 space-y-3 pt-2">
-                  <EnhancedNumberInput
-                    label="Group Number"
-                    value={trailingStop.reEntry?.groupNumber}
-                    onChange={(value) => handleReEntryUpdate('trailingStop', { groupNumber: value })}
-                    min={1}
-                    step={1}
-                    tooltip="Group number for re-entry coordination"
-                  />
-                  
-                  <EnhancedNumberInput
-                    label="Max Re-entries"
-                    value={trailingStop.reEntry?.maxReEntries}
-                    onChange={(value) => handleReEntryUpdate('trailingStop', { maxReEntries: value })}
-                    min={1}
-                    step={1}
-                    tooltip="Maximum number of re-entries after trailing stop"
-                  />
-                </div>
-              )}
-            </div>
-          </div>
+          <TrailingStopSection
+            trailingStop={trailingStop}
+            handleTrailingStopParamChange={handleTrailingStopParamChange}
+            handleTrailingStopReEntryToggle={handleTrailingStopReEntryToggle}
+            handleReEntryUpdate={handleReEntryUpdate}
+          />
         )}
       </div>
       
@@ -194,79 +135,16 @@ const PostExecutionTab: React.FC<PostExecutionTabProps> = ({
         />
         
         {takeProfit.enabled && (
-          <div className="pl-4 space-y-3 pt-1">
-            <EnhancedNumberInput
-              label="Target Percentage"
-              value={takeProfit.targetPercentage}
-              onChange={(value) => handleTakeProfitParamChange({ targetPercentage: value })}
-              min={0.1}
-              max={1000}
-              step={0.1}
-              tooltip="Percentage above entry price for take profit"
-            />
-            
-            <div className="pt-1">
-              <EnhancedSwitch
-                id="take-profit-reentry-toggle"
-                label="Re-entry After Take Profit"
-                checked={takeProfit.reEntry?.enabled || false}
-                onCheckedChange={handleTakeProfitReEntryToggle}
-                tooltip="Re-enter the position after take profit is triggered"
-              />
-              
-              {takeProfit.reEntry?.enabled && (
-                <div className="pl-4 space-y-3 pt-2">
-                  <EnhancedNumberInput
-                    label="Group Number"
-                    value={takeProfit.reEntry?.groupNumber}
-                    onChange={(value) => handleReEntryUpdate('takeProfit', { groupNumber: value })}
-                    min={1}
-                    step={1}
-                    tooltip="Group number for re-entry coordination"
-                  />
-                  
-                  <EnhancedNumberInput
-                    label="Max Re-entries"
-                    value={takeProfit.reEntry?.maxReEntries}
-                    onChange={(value) => handleReEntryUpdate('takeProfit', { maxReEntries: value })}
-                    min={1}
-                    step={1}
-                    tooltip="Maximum number of re-entries after take profit"
-                  />
-                </div>
-              )}
-            </div>
-          </div>
+          <TakeProfitSection
+            takeProfit={takeProfit}
+            handleTakeProfitParamChange={handleTakeProfitParamChange}
+            handleTakeProfitReEntryToggle={handleTakeProfitReEntryToggle}
+            handleReEntryUpdate={handleReEntryUpdate}
+          />
         )}
       </div>
     </div>
   );
-  
-  // Helper for re-entry updates
-  function handleReEntryUpdate(
-    feature: 'stopLoss' | 'trailingStop' | 'takeProfit',
-    updates: Partial<{ groupNumber: number, maxReEntries: number }>
-  ) {
-    const handlers = {
-      'stopLoss': handleStopLossParamChange,
-      'trailingStop': handleTrailingStopParamChange,
-      'takeProfit': handleTakeProfitParamChange
-    };
-    
-    const handler = handlers[feature];
-    const currentConfig = {
-      'stopLoss': stopLoss,
-      'trailingStop': trailingStop,
-      'takeProfit': takeProfit
-    }[feature];
-    
-    handler({
-      reEntry: {
-        ...currentConfig.reEntry,
-        ...updates
-      }
-    });
-  }
 };
 
 export default PostExecutionTab;
