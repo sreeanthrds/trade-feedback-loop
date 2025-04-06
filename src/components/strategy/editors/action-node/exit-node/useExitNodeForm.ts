@@ -4,8 +4,7 @@ import { ExitOrderType, ExitNodeData } from './types';
 import {
   useExitNodeBase,
   useExitNodeInitialization,
-  useOrderSettings,
-  useMultipleOrders
+  useOrderSettings
 } from './hooks';
 
 interface UseExitNodeFormProps {
@@ -22,9 +21,7 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
     orderType,
     setOrderType,
     limitPrice,
-    setLimitPrice,
-    multipleOrders,
-    setMultipleOrders
+    setLimitPrice
   } = useExitNodeBase({ node, updateNodeData });
   
   // Use initialization hook
@@ -44,21 +41,10 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
     defaultExitNodeData
   });
   
-  // Use multiple orders hook
-  const { handleMultipleOrdersToggle } = useMultipleOrders({
-    node,
-    updateNodeData,
-    multipleOrders,
-    setMultipleOrders,
-    defaultExitNodeData
-  });
-  
   return {
     orderType,
     limitPrice,
-    multipleOrders,
     handleOrderTypeChange,
-    handleLimitPriceChange,
-    handleMultipleOrdersToggle
+    handleLimitPriceChange
   };
 };

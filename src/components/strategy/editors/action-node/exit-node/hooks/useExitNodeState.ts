@@ -28,17 +28,13 @@ export const useExitNodeState = ({ nodeData }: UseExitNodeStateProps) => {
     rawExitNodeData.orderConfig?.limitPrice
   );
   
-  const [multipleOrders, setMultipleOrders] = useState<boolean>(
-    rawExitNodeData.multipleOrders || false
-  );
+  // Remove multipleOrders state since it's no longer used
 
   return {
     initializedRef,
     orderType,
     setOrderType,
     limitPrice,
-    setLimitPrice,
-    multipleOrders,
-    setMultipleOrders
+    setLimitPrice
   };
 };

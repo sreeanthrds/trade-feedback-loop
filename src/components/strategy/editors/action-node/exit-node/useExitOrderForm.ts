@@ -2,7 +2,8 @@
 import { Node } from '@xyflow/react';
 import { 
   ExitOrderType, 
-  ExitNodeData
+  ExitNodeData,
+  ExitOrderConfig
 } from './types';
 import {
   useExitNodeBase,
@@ -114,8 +115,11 @@ export const useExitOrderForm = ({ node, updateNodeData }: UseExitOrderFormProps
     });
   }, [node, updateNodeData, defaultExitNodeData]);
 
-  // Get current values from node data
-  const currentExitOrderConfig = nodeData?.exitOrderConfig || defaultExitNodeData.exitOrderConfig;
+  // Get current values from node data with proper type checking
+  const currentExitNodeData = nodeData?.exitNodeData as ExitNodeData | undefined;
+  const currentExitOrderConfig = currentExitNodeData?.exitOrderConfig || defaultExitNodeData.exitOrderConfig;
+  
+  // Now safely extract properties from the typed object
   const targetPositionId = currentExitOrderConfig.targetPositionId;
   const quantity = currentExitOrderConfig.quantity || 'all';
   const partialQuantityPercentage = currentExitOrderConfig.partialQuantityPercentage || 50;
