@@ -1,7 +1,6 @@
 
 // Export components
 export { ExitOrderForm } from './ExitOrderForm';
-export { default as ExitOrderForm } from './ExitOrderForm';
 
 // Export hooks
 export { useExitOrderForm } from './useExitOrderForm';
