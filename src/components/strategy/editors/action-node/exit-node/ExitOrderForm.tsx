@@ -1,21 +1,36 @@
 
-import React from 'react';
-import { useExitOrderForm } from './useExitOrderForm';
+import React, { useEffect, useState } from 'react';
 import { Node } from '@xyflow/react';
-import { RefreshCcw, CircleDollarSign } from 'lucide-react';
-import SelectField from '../../shared/SelectField';
-import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
-import SwitchField from '../../shared/SwitchField';
-import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { NodeDetailsPanel } from '../../shared';
+import { useActionNodeForm } from '../useActionNodeForm';
+import { useExitOrderForm } from '../exit-node/useExitOrderForm';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
-import { RadioGroupField } from '../../shared';
+import { ExitOrderConfig, QuantityType } from './types';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import { FormItem } from '@/components/ui/form';
+import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ReEntryToggle } from './ReEntryToggle';
+import { InfoCircle } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import PostExecutionTab from './PostExecutionTab';
 
 interface ExitOrderFormProps {
   node: Node;
   updateNodeData: (id: string, data: any) => void;
 }
 
-const ExitOrderForm: React.FC<ExitOrderFormProps> = ({ node, updateNodeData }) => {
+export const ExitOrderForm: React.FC<ExitOrderFormProps> = ({ node, updateNodeData }) => {
+  const { nodeData } = useActionNodeForm({ node, updateNodeData });
+  const [activeTab, setActiveTab] = useState<string>("exit-order");
+  
+  // Get all positions from all nodes for position selector
+  const nodes = useStrategyStore(state => state.nodes);
+  const allPositions = nodes.flatMap(n => n.data?.positions || []).filter(Boolean);
+  
+  // Get handlers from hook
   const {
     orderType,
     limitPrice,
@@ -29,154 +44,185 @@ const ExitOrderForm: React.FC<ExitOrderFormProps> = ({ node, updateNodeData }) =
     handleQuantityTypeChange,
     handlePartialQuantityChange,
     handleSpecificQuantityChange,
-    // Re-entry related
     reEntryEnabled,
     handleReEntryToggle
   } = useExitOrderForm({ node, updateNodeData });
   
-  // Get all available positions from entry nodes
-  const nodes = useStrategyStore(state => state.nodes);
-  const positions = React.useMemo(() => {
-    const allPositions: any[] = [];
-    
-    nodes.forEach(n => {
-      if (n.type === 'entryNode' && Array.isArray(n.data.positions)) {
-        n.data.positions.forEach((position: any) => {
-          if (position.id && position.vpi) {
-            allPositions.push({
-              id: position.id,
-              vpi: position.vpi,
-              positionType: position.positionType,
-              nodeId: n.id
-            });
-          }
-        });
-      }
-    });
-    
-    return allPositions;
-  }, [nodes]);
-  
-  // Format positions for the select field
-  const positionOptions = React.useMemo(() => {
-    return [
-      { value: '_any', label: 'Any position (first found)' },
-      ...positions.map(pos => ({
-        value: pos.id,
-        label: `${pos.vpi} (${pos.positionType === 'buy' ? 'Buy' : 'Sell'})`
-      }))
-    ];
-  }, [positions]);
-
   return (
     <div className="space-y-4">
-      <div className="bg-muted/30 border rounded-md p-3">
-        <h3 className="text-sm font-medium mb-2 flex items-center gap-1">
-          <CircleDollarSign size={16} className="text-primary" />
-          Exit Order Settings
-        </h3>
-        
-        <SelectField
-          label="Position to Exit"
-          id="target-position"
-          value={targetPositionId || '_any'}
-          onChange={handleTargetPositionChange}
-          options={positionOptions}
-          description="Select which position to exit"
-        />
-        
-        <div className="mt-3">
-          <RadioGroupField
-            label="Quantity"
-            value={quantity || 'all'}
-            onChange={handleQuantityTypeChange}
-            options={[
-              { value: 'all', label: 'Exit all' },
-              { value: 'percentage', label: 'Exit percentage' },
-              { value: 'specific', label: 'Exit specific quantity' }
-            ]}
-            layout="horizontal"
-          />
-        </div>
-        
-        {quantity === 'percentage' && (
-          <EnhancedNumberInput
-            label="Percentage to Exit"
-            id="partial-percentage"
-            value={typeof partialQuantityPercentage === 'number' ? partialQuantityPercentage : 50}
-            onChange={(value) => handlePartialQuantityChange(value || 50)}
-            min={1}
-            max={99}
-            step={1}
-            description="Percentage of the position to exit"
-            suffix="%"
-          />
-        )}
-        
-        {quantity === 'specific' && (
-          <EnhancedNumberInput
-            label="Quantity to Exit"
-            id="specific-quantity"
-            value={typeof specificQuantity === 'number' ? specificQuantity : 1}
-            onChange={(value) => handleSpecificQuantityChange(value || 1)}
-            min={1}
-            step={1}
-            description="Specific quantity to exit (lots/shares)"
-          />
-        )}
-        
-        <div className="mt-3">
-          <SelectField
-            label="Order Type"
-            id="order-type"
-            value={orderType}
-            onChange={handleOrderTypeChange}
-            options={[
-              { value: 'market', label: 'Market Order' },
-              { value: 'limit', label: 'Limit Order' }
-            ]}
-            description="Select the type of order to use for the exit"
-          />
-        </div>
-        
-        {orderType === 'limit' && (
-          <EnhancedNumberInput
-            label="Limit Price"
-            id="limit-price"
-            value={typeof limitPrice === 'string' ? parseFloat(limitPrice) : limitPrice}
-            onChange={(value) => handleLimitPriceChange({ 
-              target: { value: value?.toString() || '' } 
-            } as React.ChangeEvent<HTMLInputElement>)}
-            min={0}
-            step={0.05}
-            description="Price at which the limit order will be placed"
-          />
-        )}
-      </div>
-
-      <Separator className="my-4" />
-      
-      <div className="flex items-center space-x-2 mb-2">
-        <RefreshCcw size={16} className={reEntryEnabled ? "text-primary" : "text-muted-foreground"} />
-        <h3 className="text-sm font-medium">Re-Entry Settings</h3>
-      </div>
-      
-      <SwitchField
-        label="Enable Re-Entry"
-        checked={reEntryEnabled}
-        onCheckedChange={handleReEntryToggle}
-        description="Create a retry node to re-enter the market after exit"
+      <NodeDetailsPanel 
+        nodeLabel={nodeData?.label || ''}
+        onLabelChange={(label) => updateNodeData(node.id, { ...nodeData, label })}
+        infoTooltip="Exit nodes close existing positions based on conditions from connected signal nodes."
       />
       
-      {reEntryEnabled && (
-        <div className="rounded-md bg-muted p-3 text-sm">
-          <p className="text-muted-foreground">
-            A Retry Node has been created and linked to this Exit Node. Configure the retry settings in the Retry Node's panel.
-          </p>
-        </div>
-      )}
+      <Tabs 
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="w-full mt-4"
+      >
+        <TabsList className="w-full">
+          <TabsTrigger className="flex-1" value="exit-order">Exit Order</TabsTrigger>
+          <TabsTrigger className="flex-1" value="post-execution">Post-Execution</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="exit-order" className="mt-4 space-y-4">
+          <div className="space-y-4 bg-accent/5 rounded-md p-3">
+            <FormItem className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">Position to Exit</Label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <InfoCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs text-xs">Select which position this exit node should affect.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              
+              <Select
+                value={targetPositionId || '_any'}
+                onValueChange={handleTargetPositionChange}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select position" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="_any">Any Position (default)</SelectItem>
+                  {allPositions.map(position => (
+                    <SelectItem key={position.id} value={position.id}>
+                      {position.vpi} {position.vpt ? `(${position.vpt})` : ''}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormItem>
+            
+            <FormItem className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">Exit Quantity</Label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <InfoCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs text-xs">Choose how much of the position to exit.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              
+              <RadioGroup
+                value={quantity}
+                onValueChange={handleQuantityTypeChange}
+                className="flex flex-col space-y-1"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="all" id="all" />
+                  <Label htmlFor="all" className="cursor-pointer text-xs">Exit All</Label>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="percentage" id="percentage" />
+                  <Label htmlFor="percentage" className="cursor-pointer text-xs">Exit Percentage</Label>
+                  
+                  {quantity === 'percentage' && (
+                    <div className="ml-2 flex-grow">
+                      <EnhancedNumberInput
+                        label=""
+                        hideLabel
+                        value={partialQuantityPercentage}
+                        onChange={handlePartialQuantityChange}
+                        min={1}
+                        max={100}
+                        step={1}
+                      />
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="specific" id="specific" />
+                  <Label htmlFor="specific" className="cursor-pointer text-xs">Specific Quantity</Label>
+                  
+                  {quantity === 'specific' && (
+                    <div className="ml-2 flex-grow">
+                      <EnhancedNumberInput
+                        label=""
+                        hideLabel
+                        value={specificQuantity}
+                        onChange={handleSpecificQuantityChange}
+                        min={0.01}
+                        step={0.01}
+                      />
+                    </div>
+                  )}
+                </div>
+              </RadioGroup>
+            </FormItem>
+            
+            <FormItem className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">Order Type</Label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <InfoCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs text-xs">Choose the order type for exiting the position.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              
+              <RadioGroup
+                value={orderType}
+                onValueChange={handleOrderTypeChange}
+                className="flex space-x-4"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="market" id="market" />
+                  <Label htmlFor="market" className="cursor-pointer text-xs">Market Order</Label>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="limit" id="limit" />
+                  <Label htmlFor="limit" className="cursor-pointer text-xs">Limit Order</Label>
+                </div>
+              </RadioGroup>
+              
+              {orderType === 'limit' && (
+                <div className="mt-2">
+                  <EnhancedNumberInput
+                    label="Limit Price"
+                    value={limitPrice}
+                    onChange={handleLimitPriceChange}
+                    min={0.01}
+                    step={0.01}
+                    tooltip="Target price for limit order"
+                  />
+                </div>
+              )}
+            </FormItem>
+          </div>
+          
+          <div className="bg-accent/5 rounded-md p-3">
+            <ReEntryToggle
+              enabled={reEntryEnabled}
+              onToggle={handleReEntryToggle}
+            />
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="post-execution" className="mt-4">
+          <PostExecutionTab node={node} updateNodeData={updateNodeData} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
-
-export default ExitOrderForm;

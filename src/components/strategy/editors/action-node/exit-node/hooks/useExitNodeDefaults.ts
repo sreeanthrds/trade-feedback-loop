@@ -3,7 +3,11 @@ import { useMemo } from 'react';
 import { 
   ExitOrderType, 
   ExitNodeData,
-  ReEntryConfig
+  ReEntryConfig,
+  StopLossConfig,
+  TrailingStopConfig,
+  TakeProfitConfig,
+  PostExecutionConfig
 } from '../types';
 
 /**
@@ -24,6 +28,39 @@ export const useExitNodeDefaults = () => {
       enabled: false,
       groupNumber: 1,
       maxReEntries: 1
+    },
+    // Default post-execution config
+    postExecutionConfig: {
+      stopLoss: {
+        enabled: false,
+        stopPrice: undefined,
+        stopPercentage: 5,
+        reEntry: {
+          enabled: false,
+          groupNumber: 1,
+          maxReEntries: 1
+        }
+      },
+      trailingStop: {
+        enabled: false,
+        initialDistance: 5,
+        stepSize: 1,
+        reEntry: {
+          enabled: false,
+          groupNumber: 1,
+          maxReEntries: 1
+        }
+      },
+      takeProfit: {
+        enabled: false,
+        targetPrice: undefined,
+        targetPercentage: 10,
+        reEntry: {
+          enabled: false,
+          groupNumber: 1,
+          maxReEntries: 1
+        }
+      }
     },
     // Include these for backward compatibility
     orderConfig: {
