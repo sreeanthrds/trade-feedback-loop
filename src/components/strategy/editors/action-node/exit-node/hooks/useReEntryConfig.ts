@@ -1,7 +1,7 @@
 
 import { useCallback } from 'react';
 import { Node } from '@xyflow/react';
-import { ExitNodeData, ReEntryConfig } from '../types';
+import { ExitNodeData, ReEntryConfig, PostExecutionConfig } from '../types';
 
 interface UseReEntryConfigProps {
   node: Node;
@@ -24,7 +24,7 @@ export const useReEntryConfig = ({
   // Handle updates to re-entry settings for a specific feature
   const handleReEntryUpdates = useCallback((updates: Partial<ReEntryConfig>) => {
     const currentExitNodeData = getCurrentExitNodeData();
-    const postExecutionConfig = currentExitNodeData.postExecutionConfig || defaultExitNodeData.postExecutionConfig;
+    const postExecutionConfig = currentExitNodeData.postExecutionConfig || defaultExitNodeData.postExecutionConfig || {};
     const featureConfig = postExecutionConfig?.[feature] || { enabled: false };
     
     // Initialize reEntry if it doesn't exist

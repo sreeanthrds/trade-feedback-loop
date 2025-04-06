@@ -6,7 +6,8 @@ import {
   StopLossConfig, 
   TrailingStopConfig, 
   TakeProfitConfig,
-  ReEntryConfig
+  ReEntryConfig,
+  PostExecutionConfig
 } from '../types';
 
 interface UsePostExecutionSettingsProps {
@@ -28,7 +29,7 @@ export const usePostExecutionSettings = ({
   // Generic toggle handler for any post-execution feature
   const handleToggle = useCallback((feature: 'stopLoss' | 'trailingStop' | 'takeProfit', enabled: boolean) => {
     const currentExitNodeData = getCurrentExitNodeData();
-    const postExecutionConfig = currentExitNodeData.postExecutionConfig || defaultExitNodeData.postExecutionConfig;
+    const postExecutionConfig = currentExitNodeData.postExecutionConfig || defaultExitNodeData.postExecutionConfig || {};
     
     // Create updated config
     const updatedPostExecutionConfig = {
@@ -148,7 +149,7 @@ export const usePostExecutionSettings = ({
 
   // Get current values
   const currentExitNodeData = getCurrentExitNodeData();
-  const postExecutionConfig = currentExitNodeData.postExecutionConfig || defaultExitNodeData.postExecutionConfig;
+  const postExecutionConfig = currentExitNodeData.postExecutionConfig || defaultExitNodeData.postExecutionConfig || {};
   
   const stopLoss = postExecutionConfig.stopLoss || { enabled: false };
   const trailingStop = postExecutionConfig.trailingStop || { enabled: false };

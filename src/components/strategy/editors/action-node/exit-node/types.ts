@@ -19,9 +19,48 @@ export interface ReEntryConfig {
   maxReEntries: number;
 }
 
+// Add the missing config interfaces
+export interface StopLossConfig {
+  enabled: boolean;
+  triggerType?: TriggerType;
+  stopPercentage?: number;
+  stopPoints?: number;
+  stopPnl?: number;
+  reEntry?: ReEntryConfig;
+}
+
+export interface TrailingStopConfig {
+  enabled: boolean;
+  triggerType?: TriggerType;
+  initialDistance?: number;
+  initialPoints?: number;
+  initialPnl?: number;
+  stepSize?: number;
+  pointsStepSize?: number;
+  pnlStepSize?: number;
+  reEntry?: ReEntryConfig;
+}
+
+export interface TakeProfitConfig {
+  enabled: boolean;
+  triggerType?: TriggerType;
+  targetPercentage?: number;
+  targetPoints?: number;
+  targetPnl?: number;
+  reEntry?: ReEntryConfig;
+}
+
+// Add the postExecutionConfig property to ExitNodeData
+export interface PostExecutionConfig {
+  stopLoss?: StopLossConfig;
+  trailingStop?: TrailingStopConfig;
+  takeProfit?: TakeProfitConfig;
+}
+
 export interface ExitNodeData {
   orderConfig: ExitOrderConfig;
   reEntryConfig?: ReEntryConfig;
   exitOrderConfig?: ExitOrderConfig; // Add this for compatibility with existing code
+  postExecutionConfig?: PostExecutionConfig; // Add the missing property
   _initialized?: boolean;
 }

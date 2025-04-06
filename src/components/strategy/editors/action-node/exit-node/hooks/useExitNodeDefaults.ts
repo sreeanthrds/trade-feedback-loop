@@ -4,7 +4,11 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   ExitNodeData,
   ExitOrderConfig,
-  ReEntryConfig
+  ReEntryConfig,
+  PostExecutionConfig,
+  StopLossConfig,
+  TrailingStopConfig,
+  TakeProfitConfig
 } from '../types';
 
 export const useExitNodeDefaults = () => {
@@ -22,15 +26,68 @@ export const useExitNodeDefaults = () => {
     maxReEntries: 1
   }), []);
 
+  const defaultStopLossConfig: StopLossConfig = useMemo(() => ({
+    enabled: false,
+    triggerType: 'percentage',
+    stopPercentage: 5,
+    stopPoints: 10,
+    stopPnl: 100,
+    reEntry: {
+      enabled: false,
+      groupNumber: 1,
+      maxReEntries: 1
+    }
+  }), []);
+
+  const defaultTrailingStopConfig: TrailingStopConfig = useMemo(() => ({
+    enabled: false,
+    triggerType: 'percentage',
+    initialDistance: 5,
+    initialPoints: 10,
+    initialPnl: 100,
+    stepSize: 1,
+    pointsStepSize: 2,
+    pnlStepSize: 20,
+    reEntry: {
+      enabled: false,
+      groupNumber: 1,
+      maxReEntries: 1
+    }
+  }), []);
+
+  const defaultTakeProfitConfig: TakeProfitConfig = useMemo(() => ({
+    enabled: false,
+    triggerType: 'percentage',
+    targetPercentage: 10,
+    targetPoints: 20,
+    targetPnl: 200,
+    reEntry: {
+      enabled: false,
+      groupNumber: 1,
+      maxReEntries: 1
+    }
+  }), []);
+
+  const defaultPostExecutionConfig: PostExecutionConfig = useMemo(() => ({
+    stopLoss: defaultStopLossConfig,
+    trailingStop: defaultTrailingStopConfig,
+    takeProfit: defaultTakeProfitConfig
+  }), [defaultStopLossConfig, defaultTrailingStopConfig, defaultTakeProfitConfig]);
+
   const defaultExitNodeData: ExitNodeData = useMemo(() => ({
     orderConfig: defaultOrderConfig,
     reEntryConfig: defaultReEntryConfig,
+    postExecutionConfig: defaultPostExecutionConfig,
     _initialized: true
-  }), [defaultOrderConfig, defaultReEntryConfig]);
+  }), [defaultOrderConfig, defaultReEntryConfig, defaultPostExecutionConfig]);
 
   return {
     defaultExitNodeData,
     defaultOrderConfig,
-    defaultReEntryConfig
+    defaultReEntryConfig,
+    defaultPostExecutionConfig,
+    defaultStopLossConfig,
+    defaultTrailingStopConfig,
+    defaultTakeProfitConfig
   };
 };
