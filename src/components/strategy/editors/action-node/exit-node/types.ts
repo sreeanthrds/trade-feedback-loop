@@ -2,12 +2,16 @@
 // Exit order types
 export type ExitOrderType = 'market' | 'limit';
 
+// Exit quantity options
+export type QuantityType = 'all' | 'percentage' | 'specific';
+
 // Exit order configuration
 export interface ExitOrderConfig {
   orderType: ExitOrderType;
   limitPrice?: number;
-  quantity?: 'all' | 'partial';
+  quantity?: QuantityType;
   partialQuantityPercentage?: number;
+  specificQuantity?: number;
   // Position to exit
   targetPositionId?: string;
 }
@@ -22,9 +26,6 @@ export interface ReEntryConfig {
 // Overall exit node data
 export interface ExitNodeData {
   exitOrderConfig: ExitOrderConfig;
-  // Remove multipleOrders flag
-  // multipleOrders?: boolean;
-  // orders?: ExitOrderConfig[];
   // Re-entry configuration
   reEntryConfig?: ReEntryConfig;
   // Reference to linked retry node

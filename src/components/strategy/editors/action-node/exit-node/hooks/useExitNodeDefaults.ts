@@ -14,7 +14,10 @@ export const useExitNodeDefaults = () => {
   const defaultExitNodeData = useMemo<ExitNodeData>(() => ({
     exitOrderConfig: {
       orderType: 'market' as ExitOrderType,
-      limitPrice: undefined
+      limitPrice: undefined,
+      quantity: 'all',
+      partialQuantityPercentage: 50,
+      specificQuantity: 1
     },
     // Default re-entry config (disabled)
     reEntryConfig: {

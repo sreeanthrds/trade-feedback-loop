@@ -22,11 +22,13 @@ const ExitOrderForm: React.FC<ExitOrderFormProps> = ({ node, updateNodeData }) =
     targetPositionId,
     quantity,
     partialQuantityPercentage,
+    specificQuantity,
     handleOrderTypeChange,
     handleLimitPriceChange,
     handleTargetPositionChange,
     handleQuantityTypeChange,
     handlePartialQuantityChange,
+    handleSpecificQuantityChange,
     // Re-entry related
     reEntryEnabled,
     handleReEntryToggle
@@ -90,13 +92,14 @@ const ExitOrderForm: React.FC<ExitOrderFormProps> = ({ node, updateNodeData }) =
             onChange={handleQuantityTypeChange}
             options={[
               { value: 'all', label: 'Exit all' },
-              { value: 'partial', label: 'Partial exit' }
+              { value: 'percentage', label: 'Exit percentage' },
+              { value: 'specific', label: 'Exit specific quantity' }
             ]}
             layout="horizontal"
           />
         </div>
         
-        {quantity === 'partial' && (
+        {quantity === 'percentage' && (
           <EnhancedNumberInput
             label="Percentage to Exit"
             id="partial-percentage"
@@ -107,6 +110,18 @@ const ExitOrderForm: React.FC<ExitOrderFormProps> = ({ node, updateNodeData }) =
             step={1}
             description="Percentage of the position to exit"
             suffix="%"
+          />
+        )}
+        
+        {quantity === 'specific' && (
+          <EnhancedNumberInput
+            label="Quantity to Exit"
+            id="specific-quantity"
+            value={typeof specificQuantity === 'number' ? specificQuantity : 1}
+            onChange={(value) => handleSpecificQuantityChange(value || 1)}
+            min={1}
+            step={1}
+            description="Specific quantity to exit (lots/shares)"
           />
         )}
         

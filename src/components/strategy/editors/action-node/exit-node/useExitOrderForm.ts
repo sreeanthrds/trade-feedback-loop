@@ -3,7 +3,8 @@ import { Node } from '@xyflow/react';
 import { 
   ExitOrderType, 
   ExitNodeData,
-  ExitOrderConfig
+  ExitOrderConfig,
+  QuantityType
 } from './types';
 import {
   useExitNodeBase,
@@ -82,7 +83,7 @@ export const useExitOrderForm = ({ node, updateNodeData }: UseExitOrderFormProps
     // Update exit order config with quantity type
     const updatedOrderConfig = {
       ...currentExitNodeData.exitOrderConfig,
-      quantity: quantityType as 'all' | 'partial'
+      quantity: quantityType as QuantityType
     };
     
     // Update node data
@@ -115,6 +116,26 @@ export const useExitOrderForm = ({ node, updateNodeData }: UseExitOrderFormProps
     });
   }, [node, updateNodeData, defaultExitNodeData]);
 
+  // Handle specific quantity change
+  const handleSpecificQuantityChange = useCallback((quantity: number) => {
+    const currentExitNodeData = (node.data?.exitNodeData as ExitNodeData) || defaultExitNodeData;
+    
+    // Update exit order config with specific quantity
+    const updatedOrderConfig = {
+      ...currentExitNodeData.exitOrderConfig,
+      specificQuantity: quantity
+    };
+    
+    // Update node data
+    updateNodeData(node.id, {
+      ...node.data,
+      exitNodeData: {
+        ...currentExitNodeData,
+        exitOrderConfig: updatedOrderConfig
+      }
+    });
+  }, [node, updateNodeData, defaultExitNodeData]);
+
   // Get current values from node data with proper type checking
   const currentExitNodeData = nodeData?.exitNodeData as ExitNodeData | undefined;
   const currentExitOrderConfig = currentExitNodeData?.exitOrderConfig || defaultExitNodeData.exitOrderConfig;
@@ -123,6 +144,7 @@ export const useExitOrderForm = ({ node, updateNodeData }: UseExitOrderFormProps
   const targetPositionId = currentExitOrderConfig.targetPositionId;
   const quantity = currentExitOrderConfig.quantity || 'all';
   const partialQuantityPercentage = currentExitOrderConfig.partialQuantityPercentage || 50;
+  const specificQuantity = currentExitOrderConfig.specificQuantity || 1;
   
   return {
     orderType,
@@ -130,11 +152,13 @@ export const useExitOrderForm = ({ node, updateNodeData }: UseExitOrderFormProps
     targetPositionId,
     quantity,
     partialQuantityPercentage,
+    specificQuantity,
     handleOrderTypeChange,
     handleLimitPriceChange,
     handleTargetPositionChange,
     handleQuantityTypeChange,
     handlePartialQuantityChange,
+    handleSpecificQuantityChange,
     // Re-entry props
     reEntryEnabled,
     handleReEntryToggle
