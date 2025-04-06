@@ -39,7 +39,7 @@ export const useExitNodeInitialization = ({
       
       initializedRef.current = true;
     } else {
-      // Ensure re-entry config exists
+      // Ensure reEntry config exists
       const exitNodeData = nodeData.exitNodeData as ExitNodeData;
       
       if (!exitNodeData.reEntryConfig) {
@@ -47,7 +47,11 @@ export const useExitNodeInitialization = ({
           ...nodeData,
           exitNodeData: {
             ...exitNodeData,
-            reEntryConfig: defaultExitNodeData.reEntryConfig
+            reEntryConfig: defaultExitNodeData.reEntryConfig || {
+              enabled: false,
+              groupNumber: 1,
+              maxReEntries: 1
+            }
           },
           _lastUpdated: Date.now()
         });

@@ -1,9 +1,14 @@
 
 export type ExitOrderType = 'market' | 'limit';
+export type QuantityType = 'all' | 'percentage' | 'specific';
 
 export interface ExitOrderConfig {
   orderType: ExitOrderType;
   limitPrice?: number;
+  quantity?: QuantityType;
+  partialQuantityPercentage?: number;
+  specificQuantity?: number;
+  targetPositionId?: string;
   _lastUpdated?: number;
 }
 
@@ -41,4 +46,7 @@ export interface PostExecutionConfig {
 export interface ExitNodeData {
   orderConfig: ExitOrderConfig;
   postExecutionConfig: PostExecutionConfig;
+  reEntryConfig?: ReEntryConfig;
+  exitOrderConfig?: ExitOrderConfig; // Add this for compatibility with existing code
+  _initialized?: boolean;
 }

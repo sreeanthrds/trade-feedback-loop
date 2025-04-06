@@ -30,21 +30,16 @@ export const useOrderSettings = ({
     // Get current exit node data safely
     const currentExitNodeData = (nodeData.exitNodeData as ExitNodeData) || defaultExitNodeData;
     
-    // Create updated exit order config
+    // Create updated order config
     const updatedOrderConfig: ExitOrderConfig = {
-      ...currentExitNodeData.exitOrderConfig,
+      ...currentExitNodeData.orderConfig,
       orderType: type as ExitOrderType
     };
     
-    // Create updated exit node data, maintaining both orderConfig and exitOrderConfig
+    // Create updated exit node data, maintaining both orderConfig
     const updatedExitNodeData: ExitNodeData = {
       ...currentExitNodeData,
-      exitOrderConfig: updatedOrderConfig,
-      // Update orderConfig for backward compatibility
-      orderConfig: {
-        ...currentExitNodeData.orderConfig,
-        orderType: type as ExitOrderType
-      }
+      orderConfig: updatedOrderConfig
     };
     
     // Update node data
@@ -55,31 +50,23 @@ export const useOrderSettings = ({
   }, [node.id, node.data, updateNodeData, defaultExitNodeData, setOrderType]);
   
   // Update limit price
-  const handleLimitPriceChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    const limitPrice = value === '' ? undefined : parseFloat(value);
-    
-    setLimitPrice(limitPrice);
+  const handleLimitPriceChange = useCallback((price: number) => {
+    setLimitPrice(price);
     
     const nodeData = node.data || {};
     // Get current exit node data safely
     const currentExitNodeData = (nodeData.exitNodeData as ExitNodeData) || defaultExitNodeData;
     
-    // Create updated exit order config
+    // Create updated order config
     const updatedOrderConfig: ExitOrderConfig = {
-      ...currentExitNodeData.exitOrderConfig,
-      limitPrice
+      ...currentExitNodeData.orderConfig,
+      limitPrice: price
     };
     
     // Create updated exit node data
     const updatedExitNodeData: ExitNodeData = {
       ...currentExitNodeData,
-      exitOrderConfig: updatedOrderConfig,
-      // Update orderConfig for backward compatibility
-      orderConfig: {
-        ...currentExitNodeData.orderConfig,
-        limitPrice
-      }
+      orderConfig: updatedOrderConfig
     };
     
     // Update node data

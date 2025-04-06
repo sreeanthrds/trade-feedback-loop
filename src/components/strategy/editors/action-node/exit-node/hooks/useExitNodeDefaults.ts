@@ -16,7 +16,7 @@ import {
 export const useExitNodeDefaults = () => {
   // Default exit node data - memoized to avoid recreation on each render
   const defaultExitNodeData = useMemo<ExitNodeData>(() => ({
-    exitOrderConfig: {
+    orderConfig: {
       orderType: 'market' as ExitOrderType,
       limitPrice: undefined,
       quantity: 'all',
@@ -61,11 +61,6 @@ export const useExitNodeDefaults = () => {
           maxReEntries: 1
         }
       }
-    },
-    // Include these for backward compatibility
-    orderConfig: {
-      orderType: 'market' as ExitOrderType,
-      limitPrice: undefined
     }
   }), []);
 

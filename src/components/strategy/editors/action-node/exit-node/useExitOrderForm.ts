@@ -60,9 +60,9 @@ export const useExitOrderForm = ({ node, updateNodeData }: UseExitOrderFormProps
   const handleTargetPositionChange = useCallback((positionId: string) => {
     const currentExitNodeData = (node.data?.exitNodeData as ExitNodeData) || defaultExitNodeData;
     
-    // Update exit order config with target position
+    // Update order config with target position
     const updatedOrderConfig = {
-      ...currentExitNodeData.exitOrderConfig,
+      ...currentExitNodeData.orderConfig,
       targetPositionId: positionId === '_any' ? undefined : positionId
     };
     
@@ -71,7 +71,7 @@ export const useExitOrderForm = ({ node, updateNodeData }: UseExitOrderFormProps
       ...node.data,
       exitNodeData: {
         ...currentExitNodeData,
-        exitOrderConfig: updatedOrderConfig
+        orderConfig: updatedOrderConfig
       }
     });
   }, [node, updateNodeData, defaultExitNodeData]);
@@ -80,9 +80,9 @@ export const useExitOrderForm = ({ node, updateNodeData }: UseExitOrderFormProps
   const handleQuantityTypeChange = useCallback((quantityType: string) => {
     const currentExitNodeData = (node.data?.exitNodeData as ExitNodeData) || defaultExitNodeData;
     
-    // Update exit order config with quantity type
+    // Update order config with quantity type
     const updatedOrderConfig = {
-      ...currentExitNodeData.exitOrderConfig,
+      ...currentExitNodeData.orderConfig,
       quantity: quantityType as QuantityType
     };
     
@@ -91,7 +91,7 @@ export const useExitOrderForm = ({ node, updateNodeData }: UseExitOrderFormProps
       ...node.data,
       exitNodeData: {
         ...currentExitNodeData,
-        exitOrderConfig: updatedOrderConfig
+        orderConfig: updatedOrderConfig
       }
     });
   }, [node, updateNodeData, defaultExitNodeData]);
@@ -100,9 +100,9 @@ export const useExitOrderForm = ({ node, updateNodeData }: UseExitOrderFormProps
   const handlePartialQuantityChange = useCallback((percentage: number) => {
     const currentExitNodeData = (node.data?.exitNodeData as ExitNodeData) || defaultExitNodeData;
     
-    // Update exit order config with partial quantity percentage
+    // Update order config with partial quantity percentage
     const updatedOrderConfig = {
-      ...currentExitNodeData.exitOrderConfig,
+      ...currentExitNodeData.orderConfig,
       partialQuantityPercentage: percentage
     };
     
@@ -111,7 +111,7 @@ export const useExitOrderForm = ({ node, updateNodeData }: UseExitOrderFormProps
       ...node.data,
       exitNodeData: {
         ...currentExitNodeData,
-        exitOrderConfig: updatedOrderConfig
+        orderConfig: updatedOrderConfig
       }
     });
   }, [node, updateNodeData, defaultExitNodeData]);
@@ -120,9 +120,9 @@ export const useExitOrderForm = ({ node, updateNodeData }: UseExitOrderFormProps
   const handleSpecificQuantityChange = useCallback((quantity: number) => {
     const currentExitNodeData = (node.data?.exitNodeData as ExitNodeData) || defaultExitNodeData;
     
-    // Update exit order config with specific quantity
+    // Update order config with specific quantity
     const updatedOrderConfig = {
-      ...currentExitNodeData.exitOrderConfig,
+      ...currentExitNodeData.orderConfig,
       specificQuantity: quantity
     };
     
@@ -131,20 +131,20 @@ export const useExitOrderForm = ({ node, updateNodeData }: UseExitOrderFormProps
       ...node.data,
       exitNodeData: {
         ...currentExitNodeData,
-        exitOrderConfig: updatedOrderConfig
+        orderConfig: updatedOrderConfig
       }
     });
   }, [node, updateNodeData, defaultExitNodeData]);
 
   // Get current values from node data with proper type checking
   const currentExitNodeData = nodeData?.exitNodeData as ExitNodeData | undefined;
-  const currentExitOrderConfig = currentExitNodeData?.exitOrderConfig || defaultExitNodeData.exitOrderConfig;
+  const currentOrderConfig = currentExitNodeData?.orderConfig || defaultExitNodeData.orderConfig;
   
   // Now safely extract properties from the typed object
-  const targetPositionId = currentExitOrderConfig.targetPositionId;
-  const quantity = currentExitOrderConfig.quantity || 'all';
-  const partialQuantityPercentage = currentExitOrderConfig.partialQuantityPercentage || 50;
-  const specificQuantity = currentExitOrderConfig.specificQuantity || 1;
+  const targetPositionId = currentOrderConfig.targetPositionId;
+  const quantity = currentOrderConfig.quantity || 'all';
+  const partialQuantityPercentage = currentOrderConfig.partialQuantityPercentage || 50;
+  const specificQuantity = currentOrderConfig.specificQuantity || 1;
   
   return {
     orderType,
