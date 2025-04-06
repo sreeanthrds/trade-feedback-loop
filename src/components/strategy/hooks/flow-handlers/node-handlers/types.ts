@@ -61,4 +61,5 @@ export interface ExitNodeData {
     reEntryConfig?: ExitNodeReEntryConfig;
   };
   linkedRetryNodeId?: string;
+  reEntryConfig?: ExitNodeReEntryConfig; // Add this property directly to ensure compatibility
 }

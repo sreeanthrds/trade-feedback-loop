@@ -35,7 +35,7 @@ export const useUpdateNodeHandler = ({
           
           if (node) {
             // Use type assertion to safely access exitNodeData
-            const nodeDataTyped = node.data as { exitNodeData?: ExitNodeData };
+            const nodeDataTyped = node.data as { exitNodeData?: { reEntryConfig?: { enabled?: boolean } } };
             const oldConfig = nodeDataTyped?.exitNodeData?.reEntryConfig;
             const newConfig = data.exitNodeData.reEntryConfig;
             

@@ -3,7 +3,8 @@ import { useMemo } from 'react';
 import { 
   ExitConditionType, 
   ExitOrderType, 
-  ExitNodeData
+  ExitNodeData,
+  ReEntryConfig
 } from '../types';
 
 /**
@@ -19,8 +20,8 @@ export const useExitNodeDefaults = () => {
     // Default re-entry config (disabled)
     reEntryConfig: {
       enabled: false,
-      groupNumber: 0,
-      maxReEntries: 0
+      groupNumber: 1,
+      maxReEntries: 1
     },
     // Include these for backward compatibility
     exitCondition: {
