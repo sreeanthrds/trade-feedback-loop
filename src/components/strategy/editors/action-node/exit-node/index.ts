@@ -9,8 +9,5 @@ export { useExitOrderForm } from './useExitOrderForm';
 export type { 
   ExitOrderType,
   ExitOrderConfig,
-  ExitNodeData,
-  // Export condition types for compatibility
-  ExitCondition,
-  ExitConditionType
+  ExitNodeData
 } from './types';

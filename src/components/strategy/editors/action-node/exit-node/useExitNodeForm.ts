@@ -1,18 +1,11 @@
 
 import { Node } from '@xyflow/react';
-import { 
-  ExitConditionType, 
-  ExitOrderType, 
-  ExitCondition, 
-  ExitNodeData
-} from './types';
+import { ExitOrderType, ExitNodeData } from './types';
 import {
   useExitNodeBase,
   useExitNodeInitialization,
-  useExitConditionType,
   useOrderSettings,
-  useMultipleOrders,
-  useExitConditionField
+  useMultipleOrders
 } from './hooks';
 
 interface UseExitNodeFormProps {
@@ -26,16 +19,12 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
     nodeData,
     defaultExitNodeData,
     initializedRef,
-    exitConditionType,
-    setExitConditionType,
     orderType,
     setOrderType,
     limitPrice,
     setLimitPrice,
     multipleOrders,
-    setMultipleOrders,
-    exitCondition,
-    setExitCondition
+    setMultipleOrders
   } = useExitNodeBase({ node, updateNodeData });
   
   // Use initialization hook
@@ -43,15 +32,6 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
     node,
     updateNodeData,
     initializedRef,
-    defaultExitNodeData
-  });
-  
-  // Use condition type hook
-  const { handleExitConditionTypeChange } = useExitConditionType({
-    node,
-    updateNodeData,
-    setExitConditionType,
-    setExitCondition,
     defaultExitNodeData
   });
   
@@ -73,25 +53,12 @@ export const useExitNodeForm = ({ node, updateNodeData }: UseExitNodeFormProps) 
     defaultExitNodeData
   });
   
-  // Use exit condition field hook
-  const { updateExitConditionField } = useExitConditionField({
-    node,
-    updateNodeData,
-    exitCondition,
-    setExitCondition,
-    defaultExitNodeData
-  });
-  
   return {
-    exitConditionType,
     orderType,
     limitPrice,
     multipleOrders,
-    exitCondition,
-    handleExitConditionTypeChange,
     handleOrderTypeChange,
     handleLimitPriceChange,
-    handleMultipleOrdersToggle,
-    updateExitConditionField
+    handleMultipleOrdersToggle
   };
 };
