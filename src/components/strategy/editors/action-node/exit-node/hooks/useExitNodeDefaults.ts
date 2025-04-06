@@ -1,68 +1,84 @@
 
 import { useMemo } from 'react';
-import { 
-  ExitOrderType, 
+import { v4 as uuidv4 } from 'uuid';
+import {
   ExitNodeData,
-  ReEntryConfig,
+  ExitOrderConfig,
   StopLossConfig,
   TrailingStopConfig,
   TakeProfitConfig,
   PostExecutionConfig
 } from '../types';
 
-/**
- * Hook to create default exit node data structure
- */
 export const useExitNodeDefaults = () => {
-  // Default exit node data - memoized to avoid recreation on each render
-  const defaultExitNodeData = useMemo<ExitNodeData>(() => ({
-    orderConfig: {
-      orderType: 'market' as ExitOrderType,
-      limitPrice: undefined,
-      quantity: 'all',
-      partialQuantityPercentage: 50,
-      specificQuantity: 1
-    },
-    // Default re-entry config (disabled)
-    reEntryConfig: {
+  const defaultOrderConfig: ExitOrderConfig = useMemo(() => ({
+    orderType: 'market',
+    quantity: 'all',
+    partialQuantityPercentage: 50,
+    specificQuantity: 1,
+    _lastUpdated: Date.now()
+  }), []);
+
+  const defaultStopLossConfig: StopLossConfig = useMemo(() => ({
+    enabled: false,
+    triggerType: 'percentage',
+    stopPercentage: 5,
+    stopPoints: 10,
+    stopPnl: 1000,
+    reEntry: {
       enabled: false,
       groupNumber: 1,
       maxReEntries: 1
-    },
-    // Default post-execution config
-    postExecutionConfig: {
-      stopLoss: {
-        enabled: false,
-        stopPrice: undefined,
-        stopPercentage: 5,
-        reEntry: {
-          enabled: false,
-          groupNumber: 1,
-          maxReEntries: 1
-        }
-      },
-      trailingStop: {
-        enabled: false,
-        initialDistance: 5,
-        stepSize: 1,
-        reEntry: {
-          enabled: false,
-          groupNumber: 1,
-          maxReEntries: 1
-        }
-      },
-      takeProfit: {
-        enabled: false,
-        targetPrice: undefined,
-        targetPercentage: 10,
-        reEntry: {
-          enabled: false,
-          groupNumber: 1,
-          maxReEntries: 1
-        }
-      }
     }
   }), []);
 
-  return { defaultExitNodeData };
+  const defaultTrailingStopConfig: TrailingStopConfig = useMemo(() => ({
+    enabled: false,
+    triggerType: 'percentage',
+    initialDistance: 5,
+    initialPoints: 10,
+    initialPnl: 1000,
+    stepSize: 1,
+    pointsStepSize: 1,
+    pnlStepSize: 100,
+    reEntry: {
+      enabled: false,
+      groupNumber: 1,
+      maxReEntries: 1
+    }
+  }), []);
+
+  const defaultTakeProfitConfig: TakeProfitConfig = useMemo(() => ({
+    enabled: false,
+    triggerType: 'percentage',
+    targetPercentage: 10,
+    targetPoints: 20,
+    targetPnl: 2000,
+    reEntry: {
+      enabled: false,
+      groupNumber: 1,
+      maxReEntries: 1
+    }
+  }), []);
+
+  const defaultPostExecutionConfig: PostExecutionConfig = useMemo(() => ({
+    stopLoss: defaultStopLossConfig,
+    trailingStop: defaultTrailingStopConfig,
+    takeProfit: defaultTakeProfitConfig
+  }), [defaultStopLossConfig, defaultTrailingStopConfig, defaultTakeProfitConfig]);
+
+  const defaultExitNodeData: ExitNodeData = useMemo(() => ({
+    orderConfig: defaultOrderConfig,
+    postExecutionConfig: defaultPostExecutionConfig,
+    _initialized: true
+  }), [defaultOrderConfig, defaultPostExecutionConfig]);
+
+  return {
+    defaultExitNodeData,
+    defaultOrderConfig,
+    defaultStopLossConfig,
+    defaultTrailingStopConfig,
+    defaultTakeProfitConfig,
+    defaultPostExecutionConfig
+  };
 };
