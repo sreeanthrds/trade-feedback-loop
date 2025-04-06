@@ -1,9 +1,8 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Node } from '@xyflow/react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SelectField from '../../shared/SelectField';
-import SwitchField from '../../shared/SwitchField';
 import { useExitNodeForm } from './useExitNodeForm';
 import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
 
@@ -17,10 +16,8 @@ const ExitNodeForm: React.FC<ExitNodeFormProps> = React.memo(({ node, updateNode
   const {
     orderType,
     limitPrice,
-    multipleOrders,
     handleOrderTypeChange,
-    handleLimitPriceChange,
-    handleMultipleOrdersToggle
+    handleLimitPriceChange
   } = useExitNodeForm({ 
     node, 
     updateNodeData 
@@ -28,13 +25,6 @@ const ExitNodeForm: React.FC<ExitNodeFormProps> = React.memo(({ node, updateNode
 
   return (
     <div className="space-y-4">
-      <SwitchField
-        label="Multiple Exit Orders"
-        checked={multipleOrders}
-        onCheckedChange={handleMultipleOrdersToggle}
-        description="Enable to create multiple exit orders with different conditions"
-      />
-      
       <SelectField
         label="Order Type"
         id="order-type"
