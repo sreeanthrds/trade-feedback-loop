@@ -13,9 +13,10 @@ import { FormItem } from '@/components/ui/form';
 import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ReEntryToggle } from './ReEntryToggle';
-import { InfoCircle } from 'lucide-react';
+import { Info } from 'lucide-react'; // Changed from InfoCircle to Info
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import PostExecutionTab from './PostExecutionTab';
+import { Position } from '@/components/strategy/types/position-types'; // Import Position type
 
 interface ExitOrderFormProps {
   node: Node;
@@ -28,7 +29,10 @@ export const ExitOrderForm: React.FC<ExitOrderFormProps> = ({ node, updateNodeDa
   
   // Get all positions from all nodes for position selector
   const nodes = useStrategyStore(state => state.nodes);
-  const allPositions = nodes.flatMap(n => n.data?.positions || []).filter(Boolean);
+  const allPositions = nodes.flatMap(n => {
+    const positions = n.data?.positions || [];
+    return positions as Position[]; // Cast to Position[] to fix type issues
+  });
   
   // Get handlers from hook
   const {
@@ -39,11 +43,11 @@ export const ExitOrderForm: React.FC<ExitOrderFormProps> = ({ node, updateNodeDa
     partialQuantityPercentage,
     specificQuantity,
     handleOrderTypeChange,
-    handleLimitPriceChange,
     handleTargetPositionChange,
     handleQuantityTypeChange,
     handlePartialQuantityChange,
     handleSpecificQuantityChange,
+    handleLimitPriceChange,
     reEntryEnabled,
     handleReEntryToggle
   } = useExitOrderForm({ node, updateNodeData });
@@ -74,7 +78,7 @@ export const ExitOrderForm: React.FC<ExitOrderFormProps> = ({ node, updateNodeDa
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <InfoCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                     </TooltipTrigger>
                     <TooltipContent>
                       <p className="max-w-xs text-xs">Select which position this exit node should affect.</p>
@@ -92,7 +96,7 @@ export const ExitOrderForm: React.FC<ExitOrderFormProps> = ({ node, updateNodeDa
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="_any">Any Position (default)</SelectItem>
-                  {allPositions.map(position => (
+                  {allPositions.map((position: Position) => (
                     <SelectItem key={position.id} value={position.id}>
                       {position.vpi} {position.vpt ? `(${position.vpt})` : ''}
                     </SelectItem>
@@ -107,7 +111,7 @@ export const ExitOrderForm: React.FC<ExitOrderFormProps> = ({ node, updateNodeDa
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <InfoCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                     </TooltipTrigger>
                     <TooltipContent>
                       <p className="max-w-xs text-xs">Choose how much of the position to exit.</p>
@@ -171,7 +175,7 @@ export const ExitOrderForm: React.FC<ExitOrderFormProps> = ({ node, updateNodeDa
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <InfoCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                     </TooltipTrigger>
                     <TooltipContent>
                       <p className="max-w-xs text-xs">Choose the order type for exiting the position.</p>
@@ -226,3 +230,6 @@ export const ExitOrderForm: React.FC<ExitOrderFormProps> = ({ node, updateNodeDa
     </div>
   );
 };
+
+// Export as default as well to fix the import issue
+export default ExitOrderForm;

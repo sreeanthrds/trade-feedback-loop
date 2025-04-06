@@ -98,13 +98,16 @@ export const usePostExecutionSettings = ({
   ) => {
     const currentExitNodeData = getCurrentExitNodeData();
     const postExecutionConfig = currentExitNodeData.postExecutionConfig || defaultExitNodeData.postExecutionConfig;
-    const featureConfig = postExecutionConfig?.[feature] || {};
+    const featureConfig = postExecutionConfig?.[feature] || { enabled: false };
+    
+    // Initialize reEntry if it doesn't exist
+    const currentReEntry = featureConfig.reEntry || { enabled: false, groupNumber: 1, maxReEntries: 1 };
     
     // Update the re-entry config
     const updatedFeatureConfig = {
       ...featureConfig,
       reEntry: {
-        ...(featureConfig.reEntry || {}),
+        ...currentReEntry,
         ...updates
       }
     };
@@ -144,7 +147,7 @@ export const usePostExecutionSettings = ({
   }, [handleUpdateFeature]);
 
   // Get current values
-  const currentExitNodeData = node.data?.exitNodeData as ExitNodeData || defaultExitNodeData;
+  const currentExitNodeData = getCurrentExitNodeData();
   const postExecutionConfig = currentExitNodeData.postExecutionConfig || defaultExitNodeData.postExecutionConfig;
   
   const stopLoss = postExecutionConfig.stopLoss || { enabled: false };
