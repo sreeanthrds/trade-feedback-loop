@@ -1,56 +1,61 @@
 
+import { useCallback } from 'react';
 import { Node } from '@xyflow/react';
-import { ReEntryConfig, ExitNodeData } from '../types';
+import { ExitNodeData, ReEntryConfig } from '../types';
 
 interface UseReEntryConfigProps {
   node: Node;
   updateNodeData: (id: string, data: any) => void;
-  nodeData: any;
-  defaultExitNodeData?: ExitNodeData;
+  defaultExitNodeData: ExitNodeData;
+  feature: 'stopLoss' | 'trailingStop' | 'takeProfit';
 }
 
 export const useReEntryConfig = ({
   node,
   updateNodeData,
-  nodeData,
-  defaultExitNodeData
+  defaultExitNodeData,
+  feature
 }: UseReEntryConfigProps) => {
-  // Update the re-entry config in the node data
-  const updateReEntryConfig = (config: ReEntryConfig, fallbackDefaultData?: ExitNodeData) => {
-    // Get the latest exit node data or use default
-    const defaultData = fallbackDefaultData || defaultExitNodeData;
-    const currentExitNodeData = nodeData.exitNodeData || defaultData;
+  // Get current exit node data or use default
+  const getCurrentExitNodeData = useCallback(() => {
+    return (node.data?.exitNodeData as ExitNodeData) || defaultExitNodeData;
+  }, [node.data, defaultExitNodeData]);
+
+  // Handle updates to re-entry settings for a specific feature
+  const handleReEntryUpdates = useCallback((updates: Partial<ReEntryConfig>) => {
+    const currentExitNodeData = getCurrentExitNodeData();
+    const postExecutionConfig = currentExitNodeData.postExecutionConfig || defaultExitNodeData.postExecutionConfig;
+    const featureConfig = postExecutionConfig?.[feature] || { enabled: false };
     
-    // Create updated exit node data with new re-entry config
-    const updatedExitNodeData = {
-      ...currentExitNodeData,
-      reEntryConfig: config
+    // Initialize reEntry if it doesn't exist
+    const currentReEntry = featureConfig.reEntry || { enabled: false, groupNumber: 1, maxReEntries: 1 };
+    
+    // Update the re-entry config
+    const updatedFeatureConfig = {
+      ...featureConfig,
+      reEntry: {
+        ...currentReEntry,
+        ...updates
+      }
     };
     
-    // Update the node data
+    // Create updated config
+    const updatedPostExecutionConfig = {
+      ...postExecutionConfig,
+      [feature]: updatedFeatureConfig
+    };
+    
+    // Update node data
     updateNodeData(node.id, {
-      ...nodeData,
-      exitNodeData: updatedExitNodeData,
-      _lastUpdated: Date.now()
+      ...node.data,
+      exitNodeData: {
+        ...currentExitNodeData,
+        postExecutionConfig: updatedPostExecutionConfig
+      }
     });
-  };
-  
-  // Validate group number (must be at least 1 when re-entry is enabled)
-  const validateGroupNumber = (value: number | undefined, enabled: boolean): boolean => {
-    if (enabled && (!value || value < 1)) {
-      return false;
-    }
-    return true;
-  };
-  
-  // Validate max re-entries (must be a non-negative number)
-  const validateMaxReEntries = (value: number | undefined): boolean => {
-    return value !== undefined && value >= 0;
-  };
-  
+  }, [node, updateNodeData, getCurrentExitNodeData, defaultExitNodeData, feature]);
+
   return {
-    updateReEntryConfig,
-    validateGroupNumber,
-    validateMaxReEntries
+    handleReEntryUpdates,
   };
 };

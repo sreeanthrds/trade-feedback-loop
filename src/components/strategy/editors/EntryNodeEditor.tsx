@@ -10,6 +10,8 @@ import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Edit2 } from 'lucide-react';
 import PositionDialog from './action-node/components/PositionDialog';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import PostExecutionTab from './action-node/entry-node/PostExecutionTab';
 
 interface EntryNodeEditorProps {
   node: Node;
@@ -27,6 +29,7 @@ const EntryNodeEditor = ({ node, updateNodeData }: EntryNodeEditorProps) => {
   }
   
   const [isPositionDialogOpen, setIsPositionDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("position");
   
   const { 
     nodeData,
@@ -100,47 +103,60 @@ const EntryNodeEditor = ({ node, updateNodeData }: EntryNodeEditorProps) => {
       
       <InstrumentDisplay startNodeSymbol={startNodeSymbol} />
       
-      <div className="bg-accent/5 rounded-md p-2">
-        {position ? (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between mb-1">
-              <div className="flex items-center gap-1">
-                <span className="text-xs font-medium">Position Details</span>
-                <span className="text-xs bg-primary/10 px-1 rounded" title={position.vpi}>
-                  VPI: {position.vpi}
-                </span>
+      <Tabs defaultValue="position" value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid grid-cols-2 mb-2">
+          <TabsTrigger value="position">Position</TabsTrigger>
+          <TabsTrigger value="post-execution">Post-Execution</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="position" className="mt-0">
+          <div className="bg-accent/5 rounded-md p-2">
+            {position ? (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs font-medium">Position Details</span>
+                    <span className="text-xs bg-primary/10 px-1 rounded" title={position.vpi}>
+                      VPI: {position.vpi}
+                    </span>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-7 w-7" 
+                    onClick={handleEditPosition}
+                  >
+                    <Edit2 className="h-3 w-3" />
+                  </Button>
+                </div>
+                <PositionEditor
+                  position={position}
+                  hasOptionTrading={hasOptionTrading}
+                  isEntryNode={true}
+                  onPositionChange={handlePositionUpdate}
+                  onPositionTypeChange={handlePositionTypeChange}
+                  onOrderTypeChange={handleOrderTypeChange}
+                  onLimitPriceChange={handleLimitPriceChange}
+                  onLotsChange={handleLotsChange}
+                  onProductTypeChange={handleProductTypeChange}
+                  onExpiryChange={handleExpiryChange}
+                  onStrikeTypeChange={handleStrikeTypeChange}
+                  onStrikeValueChange={handleStrikeValueChange}
+                  onOptionTypeChange={handleOptionTypeChange}
+                />
               </div>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-7 w-7" 
-                onClick={handleEditPosition}
-              >
-                <Edit2 className="h-3 w-3" />
-              </Button>
-            </div>
-            <PositionEditor
-              position={position}
-              hasOptionTrading={hasOptionTrading}
-              isEntryNode={true}
-              onPositionChange={handlePositionUpdate}
-              onPositionTypeChange={handlePositionTypeChange}
-              onOrderTypeChange={handleOrderTypeChange}
-              onLimitPriceChange={handleLimitPriceChange}
-              onLotsChange={handleLotsChange}
-              onProductTypeChange={handleProductTypeChange}
-              onExpiryChange={handleExpiryChange}
-              onStrikeTypeChange={handleStrikeTypeChange}
-              onStrikeValueChange={handleStrikeValueChange}
-              onOptionTypeChange={handleOptionTypeChange}
-            />
+            ) : (
+              <div className="text-center p-1">
+                <p className="text-xs text-muted-foreground">Loading position...</p>
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="text-center p-1">
-            <p className="text-xs text-muted-foreground">Loading position...</p>
-          </div>
-        )}
-      </div>
+        </TabsContent>
+        
+        <TabsContent value="post-execution" className="mt-0">
+          <PostExecutionTab node={node} updateNodeData={updateNodeData} />
+        </TabsContent>
+      </Tabs>
       
       {/* Position Dialog for editing */}
       <PositionDialog
