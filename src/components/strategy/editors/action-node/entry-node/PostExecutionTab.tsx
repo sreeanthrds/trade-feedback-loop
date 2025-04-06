@@ -37,6 +37,25 @@ const PostExecutionTab: React.FC<PostExecutionTabProps> = ({
     defaultExitNodeData
   });
 
+  // Enhanced toggle handlers for SL/TSL mutual exclusivity
+  const handleSLToggle = (enabled: boolean) => {
+    if (enabled && trailingStop.enabled) {
+      // If enabling SL, disable TSL
+      handleTrailingStopToggle(false);
+    }
+    // Toggle SL
+    handleStopLossToggle(enabled);
+  };
+
+  const handleTSLToggle = (enabled: boolean) => {
+    if (enabled && stopLoss.enabled) {
+      // If enabling TSL, disable SL
+      handleStopLossToggle(false);
+    }
+    // Toggle TSL
+    handleTrailingStopToggle(enabled);
+  };
+
   return (
     <div className="space-y-4">
       <div className="space-y-4 bg-accent/5 rounded-md p-3">
@@ -44,8 +63,8 @@ const PostExecutionTab: React.FC<PostExecutionTabProps> = ({
           id="stop-loss-toggle"
           label="Stop Loss"
           checked={stopLoss.enabled}
-          onCheckedChange={handleStopLossToggle}
-          tooltip="Set a stop loss to automatically exit when price falls below a certain level"
+          onCheckedChange={handleSLToggle}
+          tooltip="Set a stop loss to automatically exit when price falls below a certain level. Cannot be used with Trailing Stop."
         />
         
         {stopLoss.enabled && (
@@ -102,8 +121,8 @@ const PostExecutionTab: React.FC<PostExecutionTabProps> = ({
           id="trailing-stop-toggle"
           label="Trailing Stop"
           checked={trailingStop.enabled}
-          onCheckedChange={handleTrailingStopToggle}
-          tooltip="Set a trailing stop that follows the price movement"
+          onCheckedChange={handleTSLToggle}
+          tooltip="Set a trailing stop that follows the price movement. Cannot be used with regular Stop Loss."
         />
         
         {trailingStop.enabled && (
