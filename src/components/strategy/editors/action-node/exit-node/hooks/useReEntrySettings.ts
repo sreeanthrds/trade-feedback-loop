@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Node } from '@xyflow/react';
-import { ExitNodeData } from '../types';
+import { ExitNodeData, ReEntryConfig } from '../types';
 
 interface UseReEntrySettingsProps {
   node: Node;
