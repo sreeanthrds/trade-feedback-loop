@@ -49,9 +49,12 @@ export const useOrderSettings = ({
     });
   }, [node.id, node.data, updateNodeData, defaultExitNodeData, setOrderType]);
   
-  // Update limit price
-  const handleLimitPriceChange = useCallback((price: number) => {
+  // Update limit price - now accepts a number directly
+  const handleLimitPriceChange = useCallback((price: number | undefined) => {
     setLimitPrice(price);
+    
+    // Skip updating if price is undefined
+    if (price === undefined) return;
     
     const nodeData = node.data || {};
     // Get current exit node data safely

@@ -42,9 +42,7 @@ const ExitNodeForm: React.FC<ExitNodeFormProps> = React.memo(({ node, updateNode
           label="Limit Price"
           id="limit-price"
           value={typeof limitPrice === 'string' ? parseFloat(limitPrice) : limitPrice}
-          onChange={(value) => handleLimitPriceChange({ 
-            target: { value: value?.toString() || '' } 
-          } as React.ChangeEvent<HTMLInputElement>)}
+          onChange={(value) => handleLimitPriceChange(value)}
           min={0}
           step={0.05}
           description="Price at which the limit order will be placed"
@@ -58,3 +56,4 @@ const ExitNodeForm: React.FC<ExitNodeFormProps> = React.memo(({ node, updateNode
 ExitNodeForm.displayName = 'ExitNodeForm';
 
 export default ExitNodeForm;
+
