@@ -1,16 +1,18 @@
 
 import { useCallback } from 'react';
 import { Node } from '@xyflow/react';
-import { ExitNodeData, ExitOrderConfig } from '../types';
+import { ExitNodeData } from '../types';
 
 interface UseMultipleOrdersProps {
   node: Node;
   updateNodeData: (id: string, data: any) => void;
   multipleOrders: boolean;
-  setMultipleOrders: (value: boolean) => void;
+  setMultipleOrders: (enabled: boolean) => void;
   defaultExitNodeData: ExitNodeData;
 }
 
+// This hook is maintained for backward compatibility
+// but its functionality is disabled
 export const useMultipleOrders = ({
   node,
   updateNodeData,
@@ -18,34 +20,11 @@ export const useMultipleOrders = ({
   setMultipleOrders,
   defaultExitNodeData
 }: UseMultipleOrdersProps) => {
-  // Toggle multiple orders
-  const handleMultipleOrdersToggle = useCallback(() => {
-    const newValue = !multipleOrders;
-    setMultipleOrders(newValue);
-    
-    const nodeData = node.data || {};
-    // Get current exit node data safely
-    const currentExitNodeData = (nodeData.exitNodeData as ExitNodeData) || defaultExitNodeData;
-    
-    // Determine orders array based on exitOrderConfig to ensure we have it
-    const ordersArray = newValue && !currentExitNodeData.orders 
-      ? [currentExitNodeData.exitOrderConfig] 
-      : currentExitNodeData.orders;
-    
-    // Create updated exit node data
-    const updatedExitNodeData: ExitNodeData = {
-      ...currentExitNodeData,
-      multipleOrders: newValue,
-      // Include orders array only if multiple orders is enabled
-      ...(newValue ? { orders: ordersArray } : {})
-    };
-    
-    // Update node data
-    updateNodeData(node.id, {
-      ...nodeData,
-      exitNodeData: updatedExitNodeData
-    });
-  }, [multipleOrders, node.id, node.data, updateNodeData, defaultExitNodeData, setMultipleOrders]);
+  // Multiple orders is now disabled by default
+  const handleMultipleOrdersToggle = useCallback((enabled: boolean) => {
+    // No-op - multiple orders functionality is removed
+    console.log("Multiple orders functionality has been removed");
+  }, []);
   
   return {
     handleMultipleOrdersToggle

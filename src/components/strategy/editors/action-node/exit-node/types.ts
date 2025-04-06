@@ -8,6 +8,8 @@ export interface ExitOrderConfig {
   limitPrice?: number;
   quantity?: 'all' | 'partial';
   partialQuantityPercentage?: number;
+  // Position to exit
+  targetPositionId?: string;
 }
 
 // Re-entry configuration
@@ -20,8 +22,9 @@ export interface ReEntryConfig {
 // Overall exit node data
 export interface ExitNodeData {
   exitOrderConfig: ExitOrderConfig;
-  multipleOrders?: boolean;
-  orders?: ExitOrderConfig[];
+  // Remove multipleOrders flag
+  // multipleOrders?: boolean;
+  // orders?: ExitOrderConfig[];
   // Re-entry configuration
   reEntryConfig?: ReEntryConfig;
   // Reference to linked retry node

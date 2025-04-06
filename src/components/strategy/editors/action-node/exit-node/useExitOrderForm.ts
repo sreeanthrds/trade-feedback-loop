@@ -8,9 +8,9 @@ import {
   useExitNodeBase,
   useExitNodeInitialization,
   useOrderSettings,
-  useMultipleOrders,
+  useReEntrySettings,
 } from './hooks';
-import { useReEntrySettings } from './hooks/useReEntrySettings';
+import { useCallback } from 'react';
 
 interface UseExitOrderFormProps {
   node: Node;
@@ -27,8 +27,6 @@ export const useExitOrderForm = ({ node, updateNodeData }: UseExitOrderFormProps
     setOrderType,
     limitPrice,
     setLimitPrice,
-    multipleOrders,
-    setMultipleOrders,
   } = useExitNodeBase({ node, updateNodeData });
   
   // Use initialization hook
@@ -48,15 +46,6 @@ export const useExitOrderForm = ({ node, updateNodeData }: UseExitOrderFormProps
     defaultExitNodeData
   });
   
-  // Use multiple orders hook
-  const { handleMultipleOrdersToggle } = useMultipleOrders({
-    node,
-    updateNodeData,
-    multipleOrders,
-    setMultipleOrders,
-    defaultExitNodeData
-  });
-  
   // Use re-entry settings
   const { reEntryEnabled, handleReEntryToggle } = useReEntrySettings({
     node,
@@ -65,14 +54,84 @@ export const useExitOrderForm = ({ node, updateNodeData }: UseExitOrderFormProps
     defaultExitNodeData
   });
   
+  // Handle target position selection
+  const handleTargetPositionChange = useCallback((positionId: string) => {
+    const currentExitNodeData = (node.data?.exitNodeData as ExitNodeData) || defaultExitNodeData;
+    
+    // Update exit order config with target position
+    const updatedOrderConfig = {
+      ...currentExitNodeData.exitOrderConfig,
+      targetPositionId: positionId === '_any' ? undefined : positionId
+    };
+    
+    // Update node data
+    updateNodeData(node.id, {
+      ...node.data,
+      exitNodeData: {
+        ...currentExitNodeData,
+        exitOrderConfig: updatedOrderConfig
+      }
+    });
+  }, [node, updateNodeData, defaultExitNodeData]);
+  
+  // Handle quantity type selection
+  const handleQuantityTypeChange = useCallback((quantityType: string) => {
+    const currentExitNodeData = (node.data?.exitNodeData as ExitNodeData) || defaultExitNodeData;
+    
+    // Update exit order config with quantity type
+    const updatedOrderConfig = {
+      ...currentExitNodeData.exitOrderConfig,
+      quantity: quantityType as 'all' | 'partial'
+    };
+    
+    // Update node data
+    updateNodeData(node.id, {
+      ...node.data,
+      exitNodeData: {
+        ...currentExitNodeData,
+        exitOrderConfig: updatedOrderConfig
+      }
+    });
+  }, [node, updateNodeData, defaultExitNodeData]);
+  
+  // Handle partial quantity percentage change
+  const handlePartialQuantityChange = useCallback((percentage: number) => {
+    const currentExitNodeData = (node.data?.exitNodeData as ExitNodeData) || defaultExitNodeData;
+    
+    // Update exit order config with partial quantity percentage
+    const updatedOrderConfig = {
+      ...currentExitNodeData.exitOrderConfig,
+      partialQuantityPercentage: percentage
+    };
+    
+    // Update node data
+    updateNodeData(node.id, {
+      ...node.data,
+      exitNodeData: {
+        ...currentExitNodeData,
+        exitOrderConfig: updatedOrderConfig
+      }
+    });
+  }, [node, updateNodeData, defaultExitNodeData]);
+
+  // Get current values from node data
+  const currentExitOrderConfig = nodeData?.exitOrderConfig || defaultExitNodeData.exitOrderConfig;
+  const targetPositionId = currentExitOrderConfig.targetPositionId;
+  const quantity = currentExitOrderConfig.quantity || 'all';
+  const partialQuantityPercentage = currentExitOrderConfig.partialQuantityPercentage || 50;
+  
   return {
     orderType,
     limitPrice,
-    multipleOrders,
+    targetPositionId,
+    quantity,
+    partialQuantityPercentage,
     handleOrderTypeChange,
     handleLimitPriceChange,
-    handleMultipleOrdersToggle,
-    // Add re-entry props
+    handleTargetPositionChange,
+    handleQuantityTypeChange,
+    handlePartialQuantityChange,
+    // Re-entry props
     reEntryEnabled,
     handleReEntryToggle
   };
