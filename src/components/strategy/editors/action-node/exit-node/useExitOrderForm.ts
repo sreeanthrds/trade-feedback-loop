@@ -1,18 +1,14 @@
 
 import { Node } from '@xyflow/react';
 import { 
-  ExitConditionType, 
   ExitOrderType, 
-  ExitCondition, 
   ExitNodeData
 } from './types';
 import {
   useExitNodeBase,
   useExitNodeInitialization,
-  useExitConditionType,
   useOrderSettings,
   useMultipleOrders,
-  useExitConditionField,
 } from './hooks';
 import { useReEntrySettings } from './hooks/useReEntrySettings';
 
@@ -27,16 +23,12 @@ export const useExitOrderForm = ({ node, updateNodeData }: UseExitOrderFormProps
     nodeData,
     defaultExitNodeData,
     initializedRef,
-    exitConditionType,
-    setExitConditionType,
     orderType,
     setOrderType,
     limitPrice,
     setLimitPrice,
     multipleOrders,
     setMultipleOrders,
-    exitCondition,
-    setExitCondition
   } = useExitNodeBase({ node, updateNodeData });
   
   // Use initialization hook
@@ -44,15 +36,6 @@ export const useExitOrderForm = ({ node, updateNodeData }: UseExitOrderFormProps
     node,
     updateNodeData,
     initializedRef,
-    defaultExitNodeData
-  });
-  
-  // Use condition type hook
-  const { handleExitConditionTypeChange } = useExitConditionType({
-    node,
-    updateNodeData,
-    setExitConditionType,
-    setExitCondition,
     defaultExitNodeData
   });
   
@@ -74,15 +57,6 @@ export const useExitOrderForm = ({ node, updateNodeData }: UseExitOrderFormProps
     defaultExitNodeData
   });
   
-  // Use exit condition field hook
-  const { updateExitConditionField } = useExitConditionField({
-    node,
-    updateNodeData,
-    exitCondition,
-    setExitCondition,
-    defaultExitNodeData
-  });
-  
   // Use re-entry settings
   const { reEntryEnabled, handleReEntryToggle } = useReEntrySettings({
     node,
@@ -92,16 +66,12 @@ export const useExitOrderForm = ({ node, updateNodeData }: UseExitOrderFormProps
   });
   
   return {
-    exitConditionType,
     orderType,
     limitPrice,
     multipleOrders,
-    exitCondition,
-    handleExitConditionTypeChange,
     handleOrderTypeChange,
     handleLimitPriceChange,
     handleMultipleOrdersToggle,
-    updateExitConditionField,
     // Add re-entry props
     reEntryEnabled,
     handleReEntryToggle

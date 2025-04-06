@@ -1,7 +1,6 @@
 
 import { useMemo } from 'react';
 import { 
-  ExitConditionType, 
   ExitOrderType, 
   ExitNodeData,
   ReEntryConfig
@@ -24,9 +23,6 @@ export const useExitNodeDefaults = () => {
       maxReEntries: 1
     },
     // Include these for backward compatibility
-    exitCondition: {
-      type: 'all_positions' as ExitConditionType
-    },
     orderConfig: {
       orderType: 'market' as ExitOrderType,
       limitPrice: undefined

@@ -23,7 +23,6 @@ const ExitNode: React.FC<NodeProps> = ({ id, data, selected, isConnectable, type
       exitOrderConfig: rawData.exitOrderConfig as Record<string, unknown> | undefined,
       // Process exit node data for re-entry
       exitNodeData: rawData.exitNodeData as ExitNodeData | undefined
-      // Remove reEntry top-level property as it's now only needed for retry nodes
     };
   }, [data]);
   
