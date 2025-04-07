@@ -9,6 +9,7 @@ interface FlowLayoutProps {
   selectedNode: any;
   onClosePanel: () => void;
   nodePanelComponent: React.ReactNode;
+  toolbarComponent?: React.ReactNode; // Add this new prop
 }
 
 const FlowLayout: React.FC<FlowLayoutProps> = ({
@@ -16,10 +17,18 @@ const FlowLayout: React.FC<FlowLayoutProps> = ({
   isPanelOpen,
   selectedNode,
   onClosePanel,
-  nodePanelComponent
+  nodePanelComponent,
+  toolbarComponent
 }) => {
   return (
     <div className={`w-full h-full overflow-hidden strategy-flow-layout ${isPanelOpen ? 'panel-open' : ''}`}>
+      {/* Top toolbar if provided */}
+      {toolbarComponent && (
+        <div className="absolute top-2 right-16 z-10">
+          {toolbarComponent}
+        </div>
+      )}
+      
       {isPanelOpen ? (
         <ResizablePanelGroup direction="horizontal" className="h-full">
           <ResizablePanel defaultSize={75} minSize={50} id="flow-panel" order={1}>

@@ -7,6 +7,8 @@ import ReactFlowCanvas from './canvas/ReactFlowCanvas';
 import { createNodeTypes } from './nodes/nodeTypes';
 import { createEdgeTypes } from './edges/edgeTypes';
 import NodePanel from './NodePanel';
+import BacktestConfigPanel from './backtesting/BacktestConfigPanel';
+import BacktestingToggle from './backtesting/BacktestingToggle';
 import '@xyflow/react/dist/style.css';
 import './styles/menus.css';
 
@@ -28,6 +30,7 @@ const edgeTypesFactory = (handleDeleteEdge) =>
 
 const StrategyFlowContent = () => {
   const { theme } = useTheme();
+  const [isBacktestOpen, setIsBacktestOpen] = useState(false);
   
   const {
     nodes,
@@ -79,6 +82,10 @@ const StrategyFlowContent = () => {
     return null;
   }, [isPanelOpen, selectedNode, updateNodeData, closePanel]);
 
+  const toggleBacktest = useCallback(() => {
+    setIsBacktestOpen(prev => !prev);
+  }, []);
+
   // Memoize flow canvas props to prevent recreation on every render
   const flowCanvasProps = useMemo(() => ({
     flowRef: reactFlowWrapper,
@@ -120,8 +127,10 @@ const StrategyFlowContent = () => {
       selectedNode={selectedNode}
       onClosePanel={closePanel}
       nodePanelComponent={nodePanelComponent}
+      toolbarComponent={<BacktestingToggle onToggle={toggleBacktest} isOpen={isBacktestOpen} />}
     >
       <ReactFlowCanvas {...flowCanvasProps} />
+      {isBacktestOpen && <BacktestConfigPanel />}
     </FlowLayout>
   );
 };
