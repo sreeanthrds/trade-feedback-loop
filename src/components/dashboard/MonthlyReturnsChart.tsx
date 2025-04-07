@@ -12,7 +12,6 @@ import {
 } from 'recharts';
 
 interface MonthlyReturnsChartProps {
-  // We're making the component able to accept actual data or use mock data
   monthlyReturns?: Array<{ month: string; return: number }>;
 }
 
