@@ -31,7 +31,8 @@ const CustomBar = (props: any) => {
   const { fill, x, y, width, height, value } = props;
   const barColor = value >= 0 ? "#4ade80" : "#f87171";
   
-  return <rect x={x} y={y} width={width} height={height} fill={barColor} radius={[4, 4, 0, 0]} />;
+  // Fix: Using rx and ry attributes instead of radius array
+  return <rect x={x} y={y} width={width} height={height} fill={barColor} rx={4} ry={4} />;
 };
 
 const Dashboard = () => {
@@ -183,7 +184,6 @@ const Dashboard = () => {
                       <Bar 
                         dataKey="return" 
                         shape={<CustomBar />}
-                        radius={[4, 4, 0, 0]}
                       />
                     </BarChart>
                   </ResponsiveContainer>
