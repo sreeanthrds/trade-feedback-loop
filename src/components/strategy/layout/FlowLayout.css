@@ -1,3 +1,4 @@
+
 /* Flow Layout Styles */
 .strategy-flow-container {
   height: 100%;
@@ -48,6 +49,7 @@
   max-height: 50vh;
   overflow-y: auto;
   z-index: 50;
+  display: block; /* Ensure it's visible */
 }
 
 /* Strategy Flow Layout */

@@ -24,7 +24,7 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
   toggleBacktest 
 }) => {
   const { nodes, edges, setNodes, setEdges, addHistoryItem, resetHistory } = useStrategyStore();
-  const { startBacktest, isRunning, config } = useBacktestingStore();
+  const { isRunning } = useBacktestingStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,16 +61,11 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
   const handleBacktestClick = useCallback(() => {
     console.log("Backtest button clicked, toggleBacktest exists:", !!toggleBacktest);
     
-    // First toggle the backtest panel
+    // Only toggle the backtest panel, don't start the backtest
     if (toggleBacktest) {
       toggleBacktest();
     }
-    
-    // If the backtest is already configured, start it
-    if (config.enabled) {
-      startBacktest();
-    }
-  }, [toggleBacktest, config.enabled, startBacktest]);
+  }, [toggleBacktest]);
 
   return (
     <Panel position="bottom-center">
