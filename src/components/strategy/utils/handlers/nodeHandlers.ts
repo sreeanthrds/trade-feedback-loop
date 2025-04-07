@@ -1,10 +1,10 @@
-
 import { Node, Edge } from '@xyflow/react';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from "@/hooks/use-toast";
 import { NodeFactory } from '../nodes/nodeFactory';
 import { createEdgeBetweenNodes } from '../edges';
 import { handleError } from '../errorHandling';
+import { getNodeTypePrefix } from '../nodes/types/nodeTypes';
 
 type NodeMouseHandler = (event: React.MouseEvent, node: Node) => void;
 type ReactFlowInstance = any;
@@ -28,20 +28,56 @@ export const createAddNodeHandler = (
   setEdges: (edges: Edge[]) => void,
   strategyStore: any
 ) => {
-  return (type: string, parentNodeId?: string) => {
+  return (type: string, positionOrParentId: { x: number, y: number } | string) => {
     if (!reactFlowInstance || !reactFlowWrapper.current) {
       console.error('React Flow instance or wrapper not available');
       return;
     }
     
     try {
-      // Create a new node using NodeFactory
-      const { node: newNode, parentNode } = NodeFactory.createNode(
-        type,
-        reactFlowInstance,
-        nodes,
-        parentNodeId
-      );
+      let newNode;
+      let parentNode;
+      let position;
+      
+      // Check if positionOrParentId is a position object or a parent node ID
+      if (typeof positionOrParentId === 'object' && 'x' in positionOrParentId && 'y' in positionOrParentId) {
+        // It's a position object
+        position = positionOrParentId;
+        
+        // Convert screen coordinates to flow coordinates
+        const flowPosition = reactFlowInstance.screenToFlowPosition(position);
+        
+        // Create a node ID with the correct prefix
+        const prefix = getNodeTypePrefix(type);
+        const id = `${prefix}-${uuidv4().substring(0, 6)}`;
+        
+        // Create the node
+        newNode = {
+          id,
+          type,
+          position: flowPosition,
+          data: { label: `${type.replace('Node', '')}` }
+        };
+      } else {
+        // It's a parent node ID
+        const parentNodeId = positionOrParentId as string;
+        
+        // Create a new node using NodeFactory
+        const result = NodeFactory.createNode(
+          type,
+          reactFlowInstance,
+          nodes,
+          parentNodeId
+        );
+        
+        if (!result || !result.node) {
+          console.error('Failed to create new node');
+          return;
+        }
+        
+        newNode = result.node;
+        parentNode = result.parentNode;
+      }
       
       if (!newNode) {
         console.error('Failed to create new node');

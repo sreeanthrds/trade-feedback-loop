@@ -32,7 +32,19 @@ export function useViewportUtils() {
     }, 850);
   }, [reactFlowInstance]);
 
+  // Simple wrapper for ReactFlow's fitView
+  const fitView = useCallback(() => {
+    if (!reactFlowInstance) return;
+    
+    reactFlowInstance.fitView({
+      padding: 0.2,
+      includeHiddenNodes: false,
+      duration: 800
+    });
+  }, [reactFlowInstance]);
+
   return {
-    fitViewWithCustomZoom
+    fitViewWithCustomZoom,
+    fitView
   };
 }

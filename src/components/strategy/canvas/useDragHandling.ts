@@ -2,7 +2,7 @@
 import { useCallback, useRef, useMemo, useEffect } from 'react';
 import { Node, NodeChange } from '@xyflow/react';
 
-export function useDragHandling() {
+export function useDragHandling(onAddNode?: (type: string, position: { x: number, y: number }) => void) {
   const isNodeDraggingRef = useRef(false);
   const dragStartTimeRef = useRef(0);
   const dragNodesRef = useRef<Set<string>>(new Set());
@@ -87,9 +87,36 @@ export function useDragHandling() {
     }
   }, [handleBeforeDrag, handleDragStop]);
 
+  // Handle drag over event
+  const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }, []);
+
+  // Handle drop event
+  const onDrop = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+
+    if (!onAddNode) return;
+
+    const reactFlowBounds = event.currentTarget.getBoundingClientRect();
+    const nodeType = event.dataTransfer.getData('application/reactflow/type');
+    
+    if (!nodeType) return;
+    
+    const position = {
+      x: event.clientX - reactFlowBounds.left,
+      y: event.clientY - reactFlowBounds.top
+    };
+    
+    onAddNode(nodeType, position);
+  }, [onAddNode]);
+
   return useMemo(() => ({
     isNodeDraggingRef,
     handleNodesChange,
-    dragNodesRef
-  }), [handleNodesChange]);
+    dragNodesRef,
+    onDragOver,
+    onDrop
+  }), [handleNodesChange, onDragOver, onDrop]);
 }

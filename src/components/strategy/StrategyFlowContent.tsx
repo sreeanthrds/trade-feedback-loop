@@ -86,6 +86,14 @@ const StrategyFlowContent = () => {
     setIsBacktestOpen(prev => !prev);
   }, []);
 
+  // Create an adapter for handleAddNode to match the ReactFlowCanvas prop signature
+  const adaptedHandleAddNode = useCallback(
+    (type: string, position: { x: number, y: number }) => {
+      handleAddNode(type, position);
+    },
+    [handleAddNode]
+  );
+
   // Memoize flow canvas props to prevent recreation on every render
   const flowCanvasProps = useMemo(() => ({
     flowRef: reactFlowWrapper,
@@ -99,7 +107,7 @@ const StrategyFlowContent = () => {
     onImportSuccess: handleImportSuccess,
     onDeleteNode: handleDeleteNode,
     onDeleteEdge: handleDeleteEdge,
-    onAddNode: handleAddNode,
+    onAddNode: adaptedHandleAddNode,
     updateNodeData,
     nodeTypes,
     edgeTypes,
@@ -116,7 +124,7 @@ const StrategyFlowContent = () => {
     handleImportSuccess,
     handleDeleteNode,
     handleDeleteEdge,
-    handleAddNode,
+    adaptedHandleAddNode,
     updateNodeData,
     nodeTypes,
     edgeTypes,

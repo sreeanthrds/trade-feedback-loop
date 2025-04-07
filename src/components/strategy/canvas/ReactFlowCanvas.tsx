@@ -48,12 +48,18 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
 }) => {
   const {
     onDragOver,
-    onDrop
+    onDrop,
+    handleNodesChange
   } = useDragHandling(onAddNode);
 
   const {
     fitView
   } = useViewportUtils();
+
+  // Wrap onNodesChange to use our enhanced node change handler
+  const handleNodesChange = useCallback((changes: any) => {
+    handleNodesChange(changes, onNodesChange);
+  }, [handleNodesChange, onNodesChange]);
 
   return (
     <div 
