@@ -29,6 +29,8 @@ interface ActionNodeTemplateProps {
     };
     // Internal action type for special handling
     _actionTypeInternal?: string;
+    // Add exit node data for checking post-execution settings
+    exitNodeData?: any;
     [key: string]: any;
   };
   selected: boolean;
@@ -60,12 +62,46 @@ const ActionNodeTemplate = ({
   // Check if this is specifically a retry node by looking at the internal action type
   const isRetryNode = data?._actionTypeInternal === 'retry';
   
-  // Only show retry icon on retry nodes, not exit nodes
-  const showRetryIcon = isRetryNode;
+  // Check if the node has re-entry settings through post-execution configs
+  const hasPostExecutionReEntry = (() => {
+    if (!data?.exitNodeData?.postExecutionConfig) return false;
+    
+    const postExec = data.exitNodeData.postExecutionConfig;
+    
+    // Check if any of the post-execution features have re-entry enabled
+    return (
+      (postExec.stopLoss?.reEntry?.enabled) ||
+      (postExec.trailingStop?.reEntry?.enabled) ||
+      (postExec.takeProfit?.reEntry?.enabled)
+    );
+  })();
   
-  // Get retry-specific properties if available
-  const retryGroupNumber = data?.retryConfig?.groupNumber || 1;
-  const retryMaxEntries = data?.retryConfig?.maxReEntries || 1;
+  // Only show retry icon on retry nodes or if post-execution re-entry is enabled
+  const showRetryIcon = isRetryNode || hasPostExecutionReEntry;
+  
+  // Get retry-specific properties
+  let retryGroupNumber = 1;
+  let retryMaxEntries = 1;
+  
+  if (isRetryNode) {
+    // For dedicated retry nodes
+    retryGroupNumber = data?.retryConfig?.groupNumber || 1;
+    retryMaxEntries = data?.retryConfig?.maxReEntries || 1;
+  } else if (hasPostExecutionReEntry) {
+    // For post-execution re-entry, find the first enabled re-entry config
+    const postExec = data.exitNodeData.postExecutionConfig;
+    
+    if (postExec.stopLoss?.reEntry?.enabled) {
+      retryGroupNumber = postExec.stopLoss.reEntry.groupNumber || 1;
+      retryMaxEntries = postExec.stopLoss.reEntry.maxReEntries || 1;
+    } else if (postExec.trailingStop?.reEntry?.enabled) {
+      retryGroupNumber = postExec.trailingStop.reEntry.groupNumber || 1;
+      retryMaxEntries = postExec.trailingStop.reEntry.maxReEntries || 1;
+    } else if (postExec.takeProfit?.reEntry?.enabled) {
+      retryGroupNumber = postExec.takeProfit.reEntry.groupNumber || 1;
+      retryMaxEntries = postExec.takeProfit.reEntry.maxReEntries || 1;
+    }
+  }
   
   return (
     <>
@@ -77,7 +113,7 @@ const ActionNodeTemplate = ({
       />
       
       <div className={`px-3 py-2 rounded-md border border-border bg-card shadow-sm max-w-xs relative group hover:shadow-md transition-shadow duration-300`}>
-        {/* Only show the RetryIcon for retry nodes */}
+        {/* Show the RetryIcon for retry nodes or nodes with post-execution re-entry */}
         {showRetryIcon && (
           <RetryIcon 
             enabled={true} 
