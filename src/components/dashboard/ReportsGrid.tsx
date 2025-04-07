@@ -12,7 +12,7 @@ const ReportsGrid = ({ results }: ReportsGridProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <PerformanceMetrics results={results} />
-      <MonthlyReturnsChart />
+      <MonthlyReturnsChart returns={results.monthlyReturns} />
     </div>
   );
 };
