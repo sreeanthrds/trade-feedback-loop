@@ -102,7 +102,8 @@ const StrategyFlowContent = () => {
     onAddNode: handleAddNode,
     updateNodeData,
     nodeTypes,
-    edgeTypes
+    edgeTypes,
+    toggleBacktest
   }), [
     reactFlowWrapper,
     nodes,
@@ -118,7 +119,8 @@ const StrategyFlowContent = () => {
     handleAddNode,
     updateNodeData,
     nodeTypes,
-    edgeTypes
+    edgeTypes,
+    toggleBacktest
   ]);
 
   return (

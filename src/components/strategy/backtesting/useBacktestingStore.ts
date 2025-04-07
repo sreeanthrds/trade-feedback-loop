@@ -13,7 +13,7 @@ interface BacktestingStore {
 }
 
 const defaultConfig: BacktestingConfig = {
-  enabled: false,
+  enabled: true, // Changed from false to true to enable by default
   startDate: new Date(new Date().setMonth(new Date().getMonth() - 6)),
   endDate: new Date(),
   initialCapital: 10000,

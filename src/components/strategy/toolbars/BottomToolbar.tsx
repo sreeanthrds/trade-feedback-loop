@@ -9,14 +9,21 @@ import {
   importStrategyFromEvent
 } from '../utils/flowUtils';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
+import { useBacktestingStore } from '../backtesting/useBacktestingStore';
 
 interface BottomToolbarProps {
   resetStrategy: () => void;
   onImportSuccess?: () => void;
+  toggleBacktest?: () => void;
 }
 
-const BottomToolbar: React.FC<BottomToolbarProps> = ({ resetStrategy, onImportSuccess }) => {
+const BottomToolbar: React.FC<BottomToolbarProps> = ({ 
+  resetStrategy, 
+  onImportSuccess,
+  toggleBacktest 
+}) => {
   const { nodes, edges, setNodes, setEdges, addHistoryItem, resetHistory } = useStrategyStore();
+  const { startBacktest, isRunning, config } = useBacktestingStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,6 +53,18 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({ resetStrategy, onImportSu
     }
   };
 
+  const handleBacktestClick = () => {
+    // First toggle the backtest panel
+    if (toggleBacktest) {
+      toggleBacktest();
+    }
+    
+    // If the backtest is already configured, start it
+    if (config.enabled) {
+      startBacktest();
+    }
+  };
+
   return (
     <Panel position="bottom-center">
       <div className="flex gap-2 bg-background/90 p-2 rounded-md shadow-md">
@@ -72,9 +91,9 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({ resetStrategy, onImportSu
           <RotateCcw className="mr-1 h-4 w-4" />
           Reset
         </Button>
-        <Button>
+        <Button onClick={handleBacktestClick} disabled={isRunning}>
           <Play className="mr-1 h-4 w-4" />
-          Backtest
+          {isRunning ? 'Running...' : 'Backtest'}
         </Button>
       </div>
     </Panel>
