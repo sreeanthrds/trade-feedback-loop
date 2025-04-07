@@ -9,7 +9,8 @@ interface FlowLayoutProps {
   selectedNode: any;
   onClosePanel: () => void;
   nodePanelComponent: React.ReactNode;
-  toolbarComponent?: React.ReactNode; // Add this new prop
+  toolbarComponent?: React.ReactNode;
+  isBacktestOpen?: boolean;
 }
 
 const FlowLayout: React.FC<FlowLayoutProps> = ({
@@ -18,10 +19,11 @@ const FlowLayout: React.FC<FlowLayoutProps> = ({
   selectedNode,
   onClosePanel,
   nodePanelComponent,
-  toolbarComponent
+  toolbarComponent,
+  isBacktestOpen = false
 }) => {
   return (
-    <div className={`w-full h-full overflow-hidden strategy-flow-layout ${isPanelOpen ? 'panel-open' : ''}`}>
+    <div className={`w-full h-full overflow-hidden strategy-flow-layout ${isPanelOpen ? 'panel-open' : ''} ${isBacktestOpen ? 'backtest-open' : ''}`}>
       {/* Top toolbar if provided */}
       {toolbarComponent && (
         <div className="absolute top-2 right-16 z-10">

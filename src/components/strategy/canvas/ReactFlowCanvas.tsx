@@ -1,3 +1,4 @@
+
 import React, { useCallback, useRef } from 'react';
 import { ReactFlow, Controls, Background, BackgroundVariant, Node, Edge } from '@xyflow/react';
 import BottomToolbar from '../toolbars/BottomToolbar';
@@ -61,12 +62,12 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   }, [internalHandleNodesChange, onNodesChange]);
 
   // Important: Add logging to help troubleshoot the backtest panel toggle
-  const handleToggleBacktest = () => {
+  const handleToggleBacktest = useCallback(() => {
     console.log("Toggle backtest called from ReactFlowCanvas");
     if (toggleBacktest) {
       toggleBacktest();
     }
-  };
+  }, [toggleBacktest]);
 
   return (
     <div 

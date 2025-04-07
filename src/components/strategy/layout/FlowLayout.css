@@ -46,10 +46,12 @@
   right: 0;
   background-color: var(--background);
   border-top: 1px solid var(--border);
-  max-height: 50vh;
+  max-height: 70vh; /* Increased from 50vh to 70vh for better visibility */
   overflow-y: auto;
   z-index: 50;
-  display: block; /* Ensure it's visible */
+  display: block;
+  padding-bottom: 20px; /* Add some padding at the bottom */
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1); /* Add shadow for better visibility */
 }
 
 /* Strategy Flow Layout */
@@ -62,6 +64,11 @@
 /* When panel is open, adjust main content area */
 .strategy-flow-layout.panel-open .react-flow-wrapper {
   width: 75%;
+}
+
+/* When backtest panel is open, adjust main content area */
+.strategy-flow-layout.backtest-open .react-flow-wrapper {
+  height: calc(100% - 300px);
 }
 
 /* Media queries for responsive design */

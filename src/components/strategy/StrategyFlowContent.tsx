@@ -83,8 +83,8 @@ const StrategyFlowContent = () => {
   }, [isPanelOpen, selectedNode, updateNodeData, closePanel]);
 
   const toggleBacktest = useCallback(() => {
+    console.log("Toggling backtest panel, current state:", isBacktestOpen, "new state:", !isBacktestOpen);
     setIsBacktestOpen(prev => !prev);
-    console.log("Toggling backtest panel, new state:", !isBacktestOpen);
   }, [isBacktestOpen]);
 
   // Create an adapter for handleAddNode to match the ReactFlowCanvas prop signature
@@ -139,9 +139,14 @@ const StrategyFlowContent = () => {
       onClosePanel={closePanel}
       nodePanelComponent={nodePanelComponent}
       toolbarComponent={<BacktestingToggle onToggle={toggleBacktest} isOpen={isBacktestOpen} />}
+      isBacktestOpen={isBacktestOpen}
     >
       <ReactFlowCanvas {...flowCanvasProps} />
-      {isBacktestOpen && <BacktestConfigPanel />}
+      {isBacktestOpen && (
+        <div className="backtest-panel">
+          <BacktestConfigPanel />
+        </div>
+      )}
     </FlowLayout>
   );
 };
