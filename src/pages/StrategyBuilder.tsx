@@ -31,10 +31,10 @@ const StrategyBuilder = () => {
     <div className="h-[calc(100vh-4px)] w-full relative">
       {/* Back button */}
       <div className="absolute top-1 left-16 z-10">
-        <Link to="/">
+        <Link to="/app">
           <Button variant="ghost" size="sm" className="flex items-center gap-1.5 text-xs">
             <ArrowLeft className="h-3.5 w-3.5" />
-            Back to Website
+            Back to Strategies
           </Button>
         </Link>
       </div>

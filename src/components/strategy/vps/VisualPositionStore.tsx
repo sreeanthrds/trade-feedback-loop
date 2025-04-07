@@ -26,7 +26,7 @@ const VisualPositionStore: React.FC = () => {
           const position = { ...pos, sourceNodeId: node.id };
           
           // Check if the node has re-entry configuration in the post-execution settings
-          if (node.data.exitNodeData?.postExecutionConfig) {
+          if (node.data.exitNodeData && node.data.exitNodeData.postExecutionConfig) {
             const postExec = node.data.exitNodeData.postExecutionConfig;
             
             // Check each post-execution feature for re-entry

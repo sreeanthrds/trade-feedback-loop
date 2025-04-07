@@ -2,8 +2,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
-import { BarChart, Calendar, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { BarChart, Calendar, Clock, Trash } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useStrategyStore } from '@/hooks/use-strategy-store';
 
 interface StrategyCardProps {
   id: string;
@@ -12,9 +14,33 @@ interface StrategyCardProps {
   lastModified: string;
   created: string;
   returns?: number;
+  onDelete: (id: string) => void;
 }
 
-const StrategyCard = ({ id, name, description, lastModified, created, returns }: StrategyCardProps) => {
+const StrategyCard = ({ 
+  id, 
+  name, 
+  description, 
+  lastModified, 
+  created, 
+  returns,
+  onDelete
+}: StrategyCardProps) => {
+  const { toast } = useToast();
+  
+  const handleDelete = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (confirm(`Are you sure you want to delete strategy "${name}"?`)) {
+      onDelete(id);
+      toast({
+        title: "Strategy deleted",
+        description: `"${name}" has been removed.`,
+      });
+    }
+  };
+
   return (
     <Card className="h-full flex flex-col hover:shadow-md transition-shadow duration-200">
       <CardHeader className="pb-2">
@@ -47,6 +73,14 @@ const StrategyCard = ({ id, name, description, lastModified, created, returns }:
         </Button>
         <Button asChild variant="outline" className="flex-1">
           <Link to={`/app/backtesting/${id}`}>Test</Link>
+        </Button>
+        <Button 
+          variant="outline" 
+          size="icon" 
+          className="text-destructive hover:bg-destructive/10"
+          onClick={handleDelete}
+        >
+          <Trash className="h-4 w-4" />
         </Button>
       </CardFooter>
     </Card>
