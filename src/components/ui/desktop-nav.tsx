@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Workflow } from 'lucide-react';
+import { Workflow, BarChart, LineChart } from 'lucide-react';
 
 const DesktopNav: React.FC = () => {
   const location = useLocation();
@@ -51,6 +51,24 @@ const DesktopNav: React.FC = () => {
       >
         <Workflow className="h-4 w-4" />
         Strategy Builder
+      </Link>
+      <Link 
+        to="/backtesting" 
+        className={`smooth-transition flex items-center gap-1 ${isActive('/backtesting') 
+          ? 'text-primary font-medium' 
+          : 'text-foreground/80 hover:text-foreground'}`}
+      >
+        <BarChart className="h-4 w-4" />
+        Backtesting
+      </Link>
+      <Link 
+        to="/dashboard" 
+        className={`smooth-transition flex items-center gap-1 ${isActive('/dashboard') 
+          ? 'text-primary font-medium' 
+          : 'text-foreground/80 hover:text-foreground'}`}
+      >
+        <LineChart className="h-4 w-4" />
+        Dashboard
       </Link>
       <div className="flex items-center space-x-3">
         <Link 

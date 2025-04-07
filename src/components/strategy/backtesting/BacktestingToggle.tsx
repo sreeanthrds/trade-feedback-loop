@@ -1,22 +1,49 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { BarChart } from 'lucide-react';
+import { BarChart, LineChart } from 'lucide-react';
 import { useBacktestingStore } from './useBacktestingStore';
+import { Link } from 'react-router-dom';
 
 interface BacktestingToggleProps {
-  onToggle: () => void;
-  isOpen: boolean;
+  onToggle?: () => void;
+  isOpen?: boolean;
+  mode?: 'toggle' | 'link';
 }
 
-const BacktestingToggle = ({ onToggle, isOpen }: BacktestingToggleProps) => {
+const BacktestingToggle = ({ 
+  onToggle, 
+  isOpen = false, 
+  mode = 'toggle' 
+}: BacktestingToggleProps) => {
   const { results } = useBacktestingStore();
   
   const handleToggle = () => {
-    console.log("Backtest toggle clicked, current isOpen:", isOpen);
-    onToggle();
+    if (onToggle) {
+      console.log("Backtest toggle clicked, current isOpen:", isOpen);
+      onToggle();
+    }
   };
   
+  // If in link mode, show a button to navigate to the dashboard
+  if (mode === 'link' && results) {
+    return (
+      <Link to="/dashboard">
+        <Button
+          variant="default"
+          size="sm"
+          className="flex items-center gap-2 border-green-500"
+        >
+          <LineChart className="h-4 w-4" />
+          <span className="hidden sm:inline">
+            View Results
+          </span>
+        </Button>
+      </Link>
+    );
+  }
+  
+  // Default toggle behavior
   return (
     <Button
       variant={results ? "default" : "outline"}

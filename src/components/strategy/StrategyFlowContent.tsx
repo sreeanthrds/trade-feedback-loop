@@ -7,8 +7,10 @@ import ReactFlowCanvas from './canvas/ReactFlowCanvas';
 import { createNodeTypes } from './nodes/nodeTypes';
 import { createEdgeTypes } from './edges/edgeTypes';
 import NodePanel from './NodePanel';
-import BacktestConfigPanel from './backtesting/BacktestConfigPanel';
 import BacktestingToggle from './backtesting/BacktestingToggle';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { BarChart } from 'lucide-react';
 import '@xyflow/react/dist/style.css';
 import './styles/menus.css';
 
@@ -30,7 +32,6 @@ const edgeTypesFactory = (handleDeleteEdge) =>
 
 const StrategyFlowContent = () => {
   const { theme } = useTheme();
-  const [isBacktestOpen, setIsBacktestOpen] = useState(false);
   
   const {
     nodes,
@@ -82,11 +83,6 @@ const StrategyFlowContent = () => {
     return null;
   }, [isPanelOpen, selectedNode, updateNodeData, closePanel]);
 
-  const toggleBacktest = useCallback(() => {
-    console.log("Toggling backtest panel, current state:", isBacktestOpen, "new state:", !isBacktestOpen);
-    setIsBacktestOpen(prev => !prev);
-  }, [isBacktestOpen]);
-
   // Create an adapter for handleAddNode to match the ReactFlowCanvas prop signature
   const adaptedHandleAddNode = useCallback(
     (type: string, position: { x: number; y: number }) => {
@@ -111,8 +107,7 @@ const StrategyFlowContent = () => {
     onAddNode: adaptedHandleAddNode,
     updateNodeData,
     nodeTypes,
-    edgeTypes,
-    toggleBacktest
+    edgeTypes
   }), [
     reactFlowWrapper,
     nodes,
@@ -128,9 +123,18 @@ const StrategyFlowContent = () => {
     adaptedHandleAddNode,
     updateNodeData,
     nodeTypes,
-    edgeTypes,
-    toggleBacktest
+    edgeTypes
   ]);
+
+  // Add a backtest button component to link to the backtest page
+  const BacktestButton = () => (
+    <Link to="/backtesting">
+      <Button variant="outline" size="sm" className="flex items-center gap-2">
+        <BarChart className="h-4 w-4" />
+        <span className="hidden sm:inline">Backtest</span>
+      </Button>
+    </Link>
+  );
 
   return (
     <FlowLayout
@@ -138,15 +142,9 @@ const StrategyFlowContent = () => {
       selectedNode={selectedNode}
       onClosePanel={closePanel}
       nodePanelComponent={nodePanelComponent}
-      toolbarComponent={<BacktestingToggle onToggle={toggleBacktest} isOpen={isBacktestOpen} />}
-      isBacktestOpen={isBacktestOpen}
+      toolbarComponent={<BacktestButton />}
     >
       <ReactFlowCanvas {...flowCanvasProps} />
-      {isBacktestOpen && (
-        <div className="backtest-panel">
-          <BacktestConfigPanel />
-        </div>
-      )}
     </FlowLayout>
   );
 };
