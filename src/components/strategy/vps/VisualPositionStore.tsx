@@ -8,6 +8,17 @@ import { useStrategyStore } from '@/hooks/strategy-store/use-strategy-store';
 import { Position } from '@/components/strategy/types/position-types';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Info } from 'lucide-react';
+import { ExitNodeData } from '@/components/strategy/editors/action-node/exit-node/types';
+
+// Define types for node data to avoid "unknown" type errors
+interface NodeData {
+  positions?: Position[];
+  exitNodeData?: ExitNodeData;
+  retryConfig?: {
+    groupNumber: number;
+    maxReEntries: number;
+  };
+}
 
 const VisualPositionStore: React.FC = () => {
   const { isOpen, toggle, positions, setPositions } = useVpsStore();
@@ -20,14 +31,17 @@ const VisualPositionStore: React.FC = () => {
     
     // Only extract positions from nodes that exist in the flow
     const allPositions = nodes.reduce<Position[]>((acc, node) => {
-      if (node.data?.positions && Array.isArray(node.data.positions) && node.data.positions.length > 0) {
+      // Add proper type assertion for node.data
+      const nodeData = node.data as NodeData;
+      
+      if (nodeData?.positions && Array.isArray(nodeData.positions) && nodeData.positions.length > 0) {
         // Process positions to include re-entry information
-        const processedPositions = node.data.positions.map(pos => {
+        const processedPositions = nodeData.positions.map(pos => {
           const position = { ...pos, sourceNodeId: node.id };
           
           // Check if the node has re-entry configuration in the post-execution settings
-          if (node.data.exitNodeData && node.data.exitNodeData.postExecutionConfig) {
-            const postExec = node.data.exitNodeData.postExecutionConfig;
+          if (nodeData.exitNodeData && nodeData.exitNodeData.postExecutionConfig) {
+            const postExec = nodeData.exitNodeData.postExecutionConfig;
             
             // Check each post-execution feature for re-entry
             if (postExec.stopLoss?.reEntry?.enabled) {
@@ -57,11 +71,11 @@ const VisualPositionStore: React.FC = () => {
           }
           
           // Check for dedicated retry nodes (handle nodes of type 'retryNode')
-          if (node.type === 'retryNode' && node.data.retryConfig) {
+          if (node.type === 'retryNode' && nodeData.retryConfig) {
             position.reEntry = {
               enabled: true,
-              groupNumber: node.data.retryConfig.groupNumber || 1,
-              maxReEntries: node.data.retryConfig.maxReEntries || 1,
+              groupNumber: nodeData.retryConfig.groupNumber || 1,
+              maxReEntries: nodeData.retryConfig.maxReEntries || 1,
               currentReEntryCount: 0
             };
           }
