@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import * as LabelPrimitive from "@radix-ui/react-label"
 import { Slot } from "@radix-ui/react-slot"
@@ -42,15 +43,20 @@ const FormField = <
 const useFormField = () => {
   const fieldContext = React.useContext(FormFieldContext)
   const itemContext = React.useContext(FormItemContext)
-  const { getFieldState, formState } = useFormContext()
-
-  const fieldState = getFieldState(fieldContext.name, formState)
-
+  
+  // Add a check to prevent errors when used outside form context
+  const formContext = useFormContext();
+  
   if (!fieldContext) {
     throw new Error("useFormField should be used within <FormField>")
   }
+  
+  // Only attempt to get field state if we're in a form context
+  const fieldState = formContext ? 
+    formContext.getFieldState(fieldContext.name, formContext.formState) : 
+    { invalid: false, isDirty: false, isTouched: false, error: undefined };
 
-  const { id } = itemContext
+  const { id } = itemContext || { id: "" }
 
   return {
     id,
@@ -88,7 +94,18 @@ const FormLabel = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
 >(({ className, ...props }, ref) => {
-  const { error, formItemId } = useFormField()
+  // Wrap in try/catch to avoid errors when used outside form context
+  let error;
+  let formItemId;
+  
+  try {
+    const formField = useFormField();
+    error = formField.error;
+    formItemId = formField.formItemId;
+  } catch (e) {
+    error = undefined;
+    formItemId = undefined;
+  }
 
   return (
     <Label
@@ -105,7 +122,21 @@ const FormControl = React.forwardRef<
   React.ElementRef<typeof Slot>,
   React.ComponentPropsWithoutRef<typeof Slot>
 >(({ ...props }, ref) => {
-  const { error, formItemId, formDescriptionId, formMessageId } = useFormField()
+  // Wrap in try/catch to avoid errors when used outside form context
+  let error, formItemId, formDescriptionId, formMessageId;
+  
+  try {
+    const formField = useFormField();
+    error = formField.error;
+    formItemId = formField.formItemId;
+    formDescriptionId = formField.formDescriptionId;
+    formMessageId = formField.formMessageId;
+  } catch (e) {
+    error = undefined;
+    formItemId = undefined;
+    formDescriptionId = undefined;
+    formMessageId = undefined;
+  }
 
   return (
     <Slot
@@ -127,7 +158,15 @@ const FormDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => {
-  const { formDescriptionId } = useFormField()
+  // Wrap in try/catch to avoid errors when used outside form context
+  let formDescriptionId;
+  
+  try {
+    const { formDescriptionId: id } = useFormField();
+    formDescriptionId = id;
+  } catch (e) {
+    formDescriptionId = undefined;
+  }
 
   return (
     <p
@@ -144,7 +183,18 @@ const FormMessage = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, children, ...props }, ref) => {
-  const { error, formMessageId } = useFormField()
+  // Wrap in try/catch to avoid errors when used outside form context
+  let error, formMessageId;
+  
+  try {
+    const { error: fieldError, formMessageId: id } = useFormField();
+    error = fieldError;
+    formMessageId = id;
+  } catch (e) {
+    error = undefined;
+    formMessageId = undefined;
+  }
+  
   const body = error ? String(error?.message) : children
 
   if (!body) {
