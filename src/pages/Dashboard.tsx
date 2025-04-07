@@ -6,8 +6,33 @@ import { useBacktestingStore } from '@/components/strategy/backtesting/useBackte
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { BarChart, LineChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { 
+  BarChart, 
+  LineChart, 
+  Line, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend, 
+  ResponsiveContainer, 
+  TooltipProps 
+} from 'recharts';
 import { useNavigate } from 'react-router-dom';
+
+// Define a custom tooltip formatter for numeric values
+const numericFormatter = (value: any) => {
+  return typeof value === 'number' ? [`${value.toFixed(2)}%`, 'Return'] : [value, 'Return'];
+};
+
+// Create a custom bar component to apply conditional colors
+const CustomBar = (props: any) => {
+  const { fill, x, y, width, height, value } = props;
+  const barColor = value >= 0 ? "#4ade80" : "#f87171";
+  
+  return <rect x={x} y={y} width={width} height={height} fill={barColor} radius={[4, 4, 0, 0]} />;
+};
 
 const Dashboard = () => {
   const { results, resetResults } = useBacktestingStore();
@@ -92,7 +117,9 @@ const Dashboard = () => {
                       />
                       <YAxis />
                       <Tooltip 
-                        formatter={(value) => [`$${value.toFixed(2)}`, 'Equity']}
+                        formatter={(value: any) => {
+                          return typeof value === 'number' ? [`$${value.toFixed(2)}`, 'Equity'] : [value, 'Equity'];
+                        }}
                         labelFormatter={(label) => new Date(label).toLocaleDateString()}
                       />
                       <Legend />
@@ -148,10 +175,14 @@ const Dashboard = () => {
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="month" />
                       <YAxis tickFormatter={(value) => `${value}%`} />
-                      <Tooltip formatter={(value) => [`${value.toFixed(2)}%`, 'Return']} />
+                      <Tooltip 
+                        formatter={(value: any) => {
+                          return typeof value === 'number' ? [`${value.toFixed(2)}%`, 'Return'] : [value, 'Return'];
+                        }} 
+                      />
                       <Bar 
                         dataKey="return" 
-                        fill={(data) => data.return >= 0 ? "#4ade80" : "#f87171"}
+                        shape={<CustomBar />}
                         radius={[4, 4, 0, 0]}
                       />
                     </BarChart>
