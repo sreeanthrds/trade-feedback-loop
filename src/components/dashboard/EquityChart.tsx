@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { BacktestResults } from '@/components/strategy/backtesting/types';
+import { BacktestResult } from '@/components/strategy/backtesting/types';
 import { 
   LineChart, 
   Line, 
@@ -14,7 +14,7 @@ import {
 } from 'recharts';
 
 interface EquityChartProps {
-  equityCurve: BacktestResults['equityCurve'];
+  equityCurve: BacktestResult['equityCurve'];
 }
 
 const EquityChart = ({ equityCurve }: EquityChartProps) => {

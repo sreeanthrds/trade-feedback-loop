@@ -2,10 +2,10 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
-import { BacktestResults } from '@/components/strategy/backtesting/types';
+import { BacktestResult } from '@/components/strategy/backtesting/types';
 
 interface PerformanceMetricsProps {
-  results: BacktestResults;
+  results: BacktestResult;
 }
 
 const PerformanceMetrics = ({ results }: PerformanceMetricsProps) => {

@@ -1,10 +1,10 @@
 
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { BacktestResults } from '@/components/strategy/backtesting/types';
+import { BacktestResult } from '@/components/strategy/backtesting/types';
 
 interface MetricsCardsProps {
-  results: BacktestResults;
+  results: BacktestResult;
 }
 
 const MetricsCards = ({ results }: MetricsCardsProps) => {

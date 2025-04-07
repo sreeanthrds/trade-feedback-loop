@@ -1,11 +1,11 @@
 
 import React from 'react';
-import { BacktestResults } from '@/components/strategy/backtesting/types';
+import { BacktestResult } from '@/components/strategy/backtesting/types';
 import PerformanceMetrics from './PerformanceMetrics';
 import MonthlyReturnsChart from './MonthlyReturnsChart';
 
 interface ReportsGridProps {
-  results: BacktestResults;
+  results: BacktestResult;
 }
 
 const ReportsGrid = ({ results }: ReportsGridProps) => {
