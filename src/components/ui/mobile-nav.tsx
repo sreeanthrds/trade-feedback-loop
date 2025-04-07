@@ -68,16 +68,6 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, toggleMenu }) => {
             >
               Blog
             </Link>
-            <Link 
-              to="/strategy-builder" 
-              className={`py-2 flex items-center gap-1 ${isActive('/strategy-builder') 
-                ? 'text-primary font-medium' 
-                : 'text-foreground/80'}`}
-              onClick={toggleMenu}
-            >
-              <Workflow className="h-4 w-4" />
-              Strategy Builder
-            </Link>
             <div className="flex flex-col space-y-3 pt-2">
               <Link 
                 to="/login" 
@@ -87,11 +77,11 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, toggleMenu }) => {
                 Login
               </Link>
               <Link 
-                to="/signup" 
+                to="/app/strategy-builder" 
                 className="btn-primary text-center"
                 onClick={toggleMenu}
               >
-                Sign Up
+                Start Free Trial
               </Link>
             </div>
           </nav>

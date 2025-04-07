@@ -28,7 +28,7 @@ const BacktestingToggle = ({
   // If in link mode, show a button to navigate to the dashboard
   if (mode === 'link' && results) {
     return (
-      <Link to="/dashboard">
+      <Link to="/app/dashboard">
         <Button
           variant="default"
           size="sm"
@@ -53,7 +53,7 @@ const BacktestingToggle = ({
     >
       <BarChart className="h-4 w-4" />
       <span className="hidden sm:inline">
-        {results ? `Results: +${results.totalReturn.toFixed(1)}%` : 'Backtest'}
+        {results ? `Results: +${typeof results.totalReturn === 'number' ? results.totalReturn.toFixed(1) : '0'}%` : 'Backtest'}
       </span>
       {isOpen ? (
         <svg width="6" height="4" viewBox="0 0 6 4" fill="none" xmlns="http://www.w3.org/2000/svg" className="ml-1">

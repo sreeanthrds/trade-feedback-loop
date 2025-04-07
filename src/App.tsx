@@ -2,18 +2,25 @@
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import { ThemeProvider } from "@/hooks/use-theme";
 
+// Layouts
+import WebsiteLayout from "./layouts/WebsiteLayout";
+import AppLayout from "./layouts/AppLayout";
+
+// Website Pages
 import Index from "./pages/Index";
 import Features from "./pages/Features";
 import Pricing from "./pages/Pricing";
 import Blog from "./pages/Blog";
+import NotFound from "./pages/NotFound";
+
+// App Pages
 import StrategyBuilder from "./pages/StrategyBuilder";
 import Backtesting from "./pages/Backtesting";
 import Dashboard from "./pages/Dashboard";
-import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
@@ -34,15 +41,25 @@ const App = () => (
         <BrowserRouter>
           <AppObserver />
           <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/features" element={<Features />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/strategy-builder" element={<StrategyBuilder />} />
-            <Route path="/backtesting" element={<Backtesting />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
+            {/* Website Routes */}
+            <Route path="/" element={<WebsiteLayout><Index /></WebsiteLayout>} />
+            <Route path="/features" element={<WebsiteLayout><Features /></WebsiteLayout>} />
+            <Route path="/pricing" element={<WebsiteLayout><Pricing /></WebsiteLayout>} />
+            <Route path="/blog" element={<WebsiteLayout><Blog /></WebsiteLayout>} />
+            
+            {/* App Routes */}
+            <Route path="/app" element={<Navigate to="/app/strategy-builder" replace />} />
+            <Route path="/app/strategy-builder" element={<AppLayout><StrategyBuilder /></AppLayout>} />
+            <Route path="/app/backtesting" element={<AppLayout><Backtesting /></AppLayout>} />
+            <Route path="/app/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
+            
+            {/* Legacy routes - redirect to app routes */}
+            <Route path="/strategy-builder" element={<Navigate to="/app/strategy-builder" replace />} />
+            <Route path="/backtesting" element={<Navigate to="/app/backtesting" replace />} />
+            <Route path="/dashboard" element={<Navigate to="/app/dashboard" replace />} />
+            
+            {/* Catch-all */}
+            <Route path="*" element={<WebsiteLayout><NotFound /></WebsiteLayout>} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>

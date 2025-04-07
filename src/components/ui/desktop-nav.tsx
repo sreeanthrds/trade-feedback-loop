@@ -43,33 +43,6 @@ const DesktopNav: React.FC = () => {
       >
         Blog
       </Link>
-      <Link 
-        to="/strategy-builder" 
-        className={`smooth-transition flex items-center gap-1 ${isActive('/strategy-builder') 
-          ? 'text-primary font-medium' 
-          : 'text-foreground/80 hover:text-foreground'}`}
-      >
-        <Workflow className="h-4 w-4" />
-        Strategy Builder
-      </Link>
-      <Link 
-        to="/backtesting" 
-        className={`smooth-transition flex items-center gap-1 ${isActive('/backtesting') 
-          ? 'text-primary font-medium' 
-          : 'text-foreground/80 hover:text-foreground'}`}
-      >
-        <BarChart className="h-4 w-4" />
-        Backtesting
-      </Link>
-      <Link 
-        to="/dashboard" 
-        className={`smooth-transition flex items-center gap-1 ${isActive('/dashboard') 
-          ? 'text-primary font-medium' 
-          : 'text-foreground/80 hover:text-foreground'}`}
-      >
-        <LineChart className="h-4 w-4" />
-        Dashboard
-      </Link>
       <div className="flex items-center space-x-3">
         <Link 
           to="/login" 
@@ -78,10 +51,10 @@ const DesktopNav: React.FC = () => {
           Login
         </Link>
         <Link 
-          to="/signup" 
+          to="/app/strategy-builder" 
           className="btn-primary"
         >
-          Sign Up
+          Start Free Trial
         </Link>
       </div>
     </nav>
