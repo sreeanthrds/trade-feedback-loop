@@ -49,7 +49,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   const {
     onDragOver,
     onDrop,
-    handleNodesChange
+    handleNodesChange: internalHandleNodesChange
   } = useDragHandling(onAddNode);
 
   const {
@@ -57,9 +57,9 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   } = useViewportUtils();
 
   // Wrap onNodesChange to use our enhanced node change handler
-  const handleNodesChange = useCallback((changes: any) => {
-    handleNodesChange(changes, onNodesChange);
-  }, [handleNodesChange, onNodesChange]);
+  const wrappedNodesChange = useCallback((changes: any) => {
+    internalHandleNodesChange(changes, onNodesChange);
+  }, [internalHandleNodesChange, onNodesChange]);
 
   return (
     <div 
@@ -71,7 +71,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
       <ReactFlow
         nodes={nodes}
         edges={edges}
-        onNodesChange={onNodesChange}
+        onNodesChange={wrappedNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         nodeTypes={nodeTypes}

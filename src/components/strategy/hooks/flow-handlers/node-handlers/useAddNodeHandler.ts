@@ -15,8 +15,8 @@ export const useAddNodeHandler = ({
   strategyStore,
   updateHandlingRef
 }: UseAddNodeHandlerProps) => {
-  // Create stable handler for adding nodes
-  return useCallback((type: string, parentNodeId?: string) => {
+  // Create stable handler for adding nodes that supports both position objects and parent node IDs
+  return useCallback((type: string, positionOrParentId?: { x: number, y: number } | string) => {
     // Skip if update is already in progress, but don't cancel first-time additions
     if (updateHandlingRef.current && nodes.length > 1) {
       console.log('Skipping add node due to ongoing update');
@@ -44,8 +44,8 @@ export const useAddNodeHandler = ({
         strategyStore.current
       );
       
-      // Add the node 
-      addNodeHandler(type, parentNodeId);
+      // Add the node - support both position objects and parent node IDs
+      addNodeHandler(type, positionOrParentId);
       
       // Force immediate update to store without delay - CRITICAL FOR FIRST NODE ADDITION
       console.log('Forcing immediate update after adding node');
