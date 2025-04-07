@@ -21,6 +21,13 @@ export interface Position {
   sourceNodeId?: string;
   status?: 'active' | 'cancelled' | 'filled' | 'partial';
   isRolledOut?: boolean;
+  // Add re-entry tracking information
+  reEntry?: {
+    enabled: boolean;
+    groupNumber: number;
+    maxReEntries: number;
+    currentReEntryCount?: number;
+  };
   _lastUpdated?: number;
 }
 
@@ -69,6 +76,12 @@ export function adaptPosition<T>(position: Position | null): T | null {
     productType: position.productType || 'intraday',
     status: position.status || 'active',
     isRolledOut: position.isRolledOut || false,
+    reEntry: position.reEntry ? {
+      enabled: position.reEntry.enabled,
+      groupNumber: position.reEntry.groupNumber,
+      maxReEntries: position.reEntry.maxReEntries,
+      currentReEntryCount: position.reEntry.currentReEntryCount || 0
+    } : undefined,
     optionDetails: position.optionDetails ? {
       expiry: position.optionDetails.expiry || 'W0',
       strikeType: position.optionDetails.strikeType || 'ATM',

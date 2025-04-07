@@ -21,12 +21,55 @@ const VisualPositionStore: React.FC = () => {
     // Only extract positions from nodes that exist in the flow
     const allPositions = nodes.reduce<Position[]>((acc, node) => {
       if (node.data?.positions && Array.isArray(node.data.positions) && node.data.positions.length > 0) {
-        // Add the node ID to each position for traceability
-        const positionsWithSource = node.data.positions.map(pos => ({
-          ...pos,
-          sourceNodeId: node.id
-        }));
-        return [...acc, ...positionsWithSource];
+        // Process positions to include re-entry information
+        const processedPositions = node.data.positions.map(pos => {
+          const position = { ...pos, sourceNodeId: node.id };
+          
+          // Check if the node has re-entry configuration in the post-execution settings
+          if (node.data.exitNodeData?.postExecutionConfig) {
+            const postExec = node.data.exitNodeData.postExecutionConfig;
+            
+            // Check each post-execution feature for re-entry
+            if (postExec.stopLoss?.reEntry?.enabled) {
+              position.reEntry = {
+                enabled: true,
+                groupNumber: postExec.stopLoss.reEntry.groupNumber || 1,
+                maxReEntries: postExec.stopLoss.reEntry.maxReEntries || 1,
+                currentReEntryCount: 0
+              };
+            } 
+            else if (postExec.trailingStop?.reEntry?.enabled) {
+              position.reEntry = {
+                enabled: true,
+                groupNumber: postExec.trailingStop.reEntry.groupNumber || 1,
+                maxReEntries: postExec.trailingStop.reEntry.maxReEntries || 1,
+                currentReEntryCount: 0
+              };
+            }
+            else if (postExec.takeProfit?.reEntry?.enabled) {
+              position.reEntry = {
+                enabled: true,
+                groupNumber: postExec.takeProfit.reEntry.groupNumber || 1,
+                maxReEntries: postExec.takeProfit.reEntry.maxReEntries || 1,
+                currentReEntryCount: 0
+              };
+            }
+          }
+          
+          // Check for dedicated retry nodes (handle nodes of type 'retryNode')
+          if (node.type === 'retryNode' && node.data.retryConfig) {
+            position.reEntry = {
+              enabled: true,
+              groupNumber: node.data.retryConfig.groupNumber || 1,
+              maxReEntries: node.data.retryConfig.maxReEntries || 1,
+              currentReEntryCount: 0
+            };
+          }
+          
+          return position;
+        });
+        
+        return [...acc, ...processedPositions];
       }
       return acc;
     }, []);
@@ -35,7 +78,7 @@ const VisualPositionStore: React.FC = () => {
     setPositions(allPositions);
     
     // Log for debugging
-    console.log('VPS: Updated positions from nodes', allPositions.length);
+    console.log('VPS: Updated positions from nodes with re-entry info', allPositions);
   }, [nodes, setPositions]);
 
   return (

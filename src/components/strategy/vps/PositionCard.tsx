@@ -1,98 +1,129 @@
 
 import React from 'react';
-import { Position } from '@/components/strategy/types/position-types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Position } from '../types/position-types';
 import { Badge } from '@/components/ui/badge';
-import { ArrowUpCircle, ArrowDownCircle, Clock, AlertCircle } from 'lucide-react';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { ArrowUpRight, ArrowDownRight, RefreshCcw } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+
+// Fixed set of colors for consistent group coloring (duplicated from RetryIcon.tsx)
+const GROUP_COLORS = [
+  'bg-purple-500 text-white',     // Group 1
+  'bg-blue-500 text-white',       // Group 2
+  'bg-green-500 text-white',      // Group 3
+  'bg-amber-500 text-white',      // Group 4
+  'bg-red-500 text-white',        // Group 5
+  'bg-pink-500 text-white',       // Group 6
+  'bg-indigo-500 text-white',     // Group 7
+  'bg-cyan-500 text-white',       // Group 8
+  'bg-emerald-500 text-white',    // Group 9
+  'bg-orange-500 text-white',     // Group 10
+];
 
 interface PositionCardProps {
   position: Position;
 }
 
 const PositionCard: React.FC<PositionCardProps> = ({ position }) => {
-  const isBuy = position.positionType === 'buy';
-  const status = position.status || 'active';
+  const { vpi, vpt, positionType, orderType, limitPrice, lots, productType, optionDetails, reEntry } = position;
   
-  // Status color mapping
-  const statusColors = {
-    active: "bg-green-500/10 text-green-500 border-green-500/20",
-    cancelled: "bg-amber-500/10 text-amber-500 border-amber-500/20",
-    filled: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-    partial: "bg-purple-500/10 text-purple-500 border-purple-500/20"
+  // Get text color for direction
+  const directionColor = positionType === 'buy' ? 'text-green-500' : 'text-red-500';
+  
+  // Get the badge color for re-entry group if applicable
+  const getReEntryGroupColor = () => {
+    if (!reEntry?.enabled) return '';
+    
+    const colorIndex = ((reEntry.groupNumber - 1) % GROUP_COLORS.length);
+    const groupColorClass = GROUP_COLORS[colorIndex].split(' ')[0];
+    return groupColorClass.replace('bg-', '');
   };
   
+  const reEntryGroupColor = getReEntryGroupColor();
+
   return (
-    <Card className="overflow-hidden">
-      <CardHeader className="py-3 px-4 bg-muted/40 flex flex-row items-center justify-between space-y-0">
-        <div className="flex items-center gap-2">
-          <div className={`p-1 rounded-full ${isBuy ? 'bg-green-100' : 'bg-red-100'}`}>
-            {isBuy ? 
-              <ArrowUpCircle className="h-4 w-4 text-green-600" /> : 
-              <ArrowDownCircle className="h-4 w-4 text-red-600" />
-            }
-          </div>
-          <CardTitle className="text-sm font-medium">
-            {position.vpi || position.id}
-          </CardTitle>
+    <Card className="hover:shadow-md transition-shadow duration-200">
+      <CardHeader className="pb-2 flex flex-row items-center justify-between">
+        <div className="flex items-center">
+          {positionType === 'buy' ? (
+            <ArrowUpRight className="h-4 w-4 text-green-500 mr-1.5" />
+          ) : (
+            <ArrowDownRight className="h-4 w-4 text-red-500 mr-1.5" />
+          )}
+          <span className="font-medium text-sm">{vpi}</span>
+          {vpt && <span className="ml-1.5 text-muted-foreground text-xs">({vpt})</span>}
         </div>
-        <Badge 
-          variant="outline" 
-          className={statusColors[status as keyof typeof statusColors] || "bg-gray-500/10 text-gray-500"}
-        >
-          {status}
-        </Badge>
+        
+        {/* Add re-entry badge if applicable */}
+        {reEntry?.enabled && (
+          <TooltipProvider>
+            <Tooltip delayDuration={300}>
+              <TooltipTrigger asChild>
+                <Badge className={`${reEntryGroupColor} flex items-center gap-1`} variant="outline">
+                  <RefreshCcw className="h-3 w-3" />
+                  <span>{reEntry.currentReEntryCount || 0}/{reEntry.maxReEntries}</span>
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                <div className="text-xs">
+                  <p>Re-Entry Position</p>
+                  <p className="text-muted-foreground">Group: {reEntry.groupNumber} • Max: {reEntry.maxReEntries}</p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
       </CardHeader>
-      <CardContent className="p-4 text-sm">
-        <div className="grid grid-cols-2 gap-2">
-          <div className="text-muted-foreground">Order Type:</div>
-          <div className="font-medium">{position.orderType || 'market'}</div>
-          
-          <div className="text-muted-foreground">Lots:</div>
-          <div className="font-medium">{position.lots || 1}</div>
-          
-          <div className="text-muted-foreground">Product:</div>
-          <div className="font-medium">{position.productType || 'intraday'}</div>
-          
-          {position.limitPrice && (
-            <>
-              <div className="text-muted-foreground">Limit Price:</div>
-              <div className="font-medium">{position.limitPrice}</div>
-            </>
-          )}
-          
-          {position.optionDetails && (
-            <>
-              <div className="text-muted-foreground">Option:</div>
-              <div className="font-medium">
-                {position.optionDetails.strikeType}{' '}
-                {position.optionDetails.strikeValue || ''}{' '}
-                {position.optionDetails.optionType} - {position.optionDetails.expiry}
-              </div>
-            </>
-          )}
-          
-          {position.vpt && (
-            <>
-              <div className="text-muted-foreground">Tag:</div>
-              <div className="font-medium">{position.vpt}</div>
-            </>
-          )}
-          
-          {position.isRolledOut && (
-            <div className="col-span-2 flex items-center mt-1 gap-1 text-amber-600">
-              <Clock className="h-3.5 w-3.5" />
-              <span className="text-xs">Position rolled out</span>
-            </div>
-          )}
-          
-          {status === 'cancelled' && (
-            <div className="col-span-2 flex items-center mt-1 gap-1 text-rose-600">
-              <AlertCircle className="h-3.5 w-3.5" />
-              <span className="text-xs">Order cancelled</span>
+      
+      <CardContent className="py-2">
+        <div className="grid grid-cols-2 gap-1 text-xs">
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Type:</span>
+            <span className={directionColor + " font-medium"}>{positionType}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Order:</span>
+            <span>{orderType}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Lots:</span>
+            <span>{lots}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Product:</span>
+            <span>{productType}</span>
+          </div>
+          {limitPrice && orderType === 'limit' && (
+            <div className="flex justify-between col-span-2">
+              <span className="text-muted-foreground">Limit Price:</span>
+              <span>{limitPrice}</span>
             </div>
           )}
         </div>
       </CardContent>
+      
+      {optionDetails && (
+        <CardFooter className="pt-0 pb-3">
+          <div className="w-full rounded-md bg-muted/50 p-1.5 text-xs">
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-muted-foreground">Option:</span>
+              <Badge variant="outline" className="h-5 px-1.5">
+                {optionDetails.optionType}
+              </Badge>
+            </div>
+            <div className="grid grid-cols-2 gap-x-2 gap-y-1">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Expiry:</span>
+                <span>{optionDetails.expiry}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Strike:</span>
+                <span>{optionDetails.strikeType || optionDetails.strikeValue}</span>
+              </div>
+            </div>
+          </div>
+        </CardFooter>
+      )}
     </Card>
   );
 };
