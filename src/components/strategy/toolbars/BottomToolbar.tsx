@@ -1,5 +1,5 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useCallback } from 'react';
 import { Panel } from '@xyflow/react';
 import { Save, Download, Upload, RotateCcw, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import {
 } from '../utils/flowUtils';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
 import { useBacktestingStore } from '../backtesting/useBacktestingStore';
+import { toast } from "@/hooks/use-toast";
 
 interface BottomToolbarProps {
   resetStrategy: () => void;
@@ -41,6 +42,10 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
 
   const handleSave = () => {
     saveStrategyToLocalStorage(nodes, edges);
+    toast({
+      title: "Strategy saved",
+      description: "Your strategy has been saved locally"
+    });
   };
 
   const handleExport = () => {
@@ -53,7 +58,9 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
     }
   };
 
-  const handleBacktestClick = () => {
+  const handleBacktestClick = useCallback(() => {
+    console.log("Backtest button clicked, toggleBacktest exists:", !!toggleBacktest);
+    
     // First toggle the backtest panel
     if (toggleBacktest) {
       toggleBacktest();
@@ -63,7 +70,7 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
     if (config.enabled) {
       startBacktest();
     }
-  };
+  }, [toggleBacktest, config.enabled, startBacktest]);
 
   return (
     <Panel position="bottom-center">

@@ -1,4 +1,3 @@
-
 /* Flow Layout Styles */
 .strategy-flow-container {
   height: 100%;
@@ -38,7 +37,32 @@
   z-index: 10;
 }
 
-/* Mobile styles */
+/* Backtesting Panel */
+.backtest-panel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--background);
+  border-top: 1px solid var(--border);
+  max-height: 50vh;
+  overflow-y: auto;
+  z-index: 50;
+}
+
+/* Strategy Flow Layout */
+.strategy-flow-layout {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* When panel is open, adjust main content area */
+.strategy-flow-layout.panel-open .react-flow-wrapper {
+  width: 75%;
+}
+
+/* Media queries for responsive design */
 @media (max-width: 768px) {
   .strategy-flow-container [data-panel-resize-handle-id] {
     width: 10px !important;
@@ -47,5 +71,13 @@
   .strategy-flow-container [data-panel-resize-handle-id] div {
     width: 10px !important;
     height: 40px;
+  }
+
+  .strategy-flow-layout.panel-open .react-flow-wrapper {
+    width: 100%;
+  }
+  
+  .backtest-panel {
+    max-height: 80vh;
   }
 }

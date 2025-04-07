@@ -84,11 +84,12 @@ const StrategyFlowContent = () => {
 
   const toggleBacktest = useCallback(() => {
     setIsBacktestOpen(prev => !prev);
-  }, []);
+    console.log("Toggling backtest panel, new state:", !isBacktestOpen);
+  }, [isBacktestOpen]);
 
   // Create an adapter for handleAddNode to match the ReactFlowCanvas prop signature
   const adaptedHandleAddNode = useCallback(
-    (type: string, position: { x: number, y: number }) => {
+    (type: string, position: { x: number; y: number }) => {
       handleAddNode(type, position);
     },
     [handleAddNode]

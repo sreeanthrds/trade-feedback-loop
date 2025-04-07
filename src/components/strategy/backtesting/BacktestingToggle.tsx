@@ -12,12 +12,17 @@ interface BacktestingToggleProps {
 const BacktestingToggle = ({ onToggle, isOpen }: BacktestingToggleProps) => {
   const { results } = useBacktestingStore();
   
+  const handleToggle = () => {
+    console.log("Backtest toggle clicked, current isOpen:", isOpen);
+    onToggle();
+  };
+  
   return (
     <Button
       variant={results ? "default" : "outline"}
       size="sm"
       className={`flex items-center gap-2 ${isOpen ? 'bg-muted' : ''} ${results ? 'border-green-500' : ''}`}
-      onClick={onToggle}
+      onClick={handleToggle}
     >
       <BarChart className="h-4 w-4" />
       <span className="hidden sm:inline">
