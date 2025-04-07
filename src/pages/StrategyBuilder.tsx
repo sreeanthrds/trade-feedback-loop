@@ -25,7 +25,7 @@ const StrategyBuilder = () => {
   }, []);
 
   return (
-    <div className="h-[calc(100vh-40px)]">
+    <div className="h-[calc(100vh-4px)] w-full">
       <div className="w-full h-full flex-1 flex flex-col p-0">
         <div className="h-full w-full overflow-hidden rounded-none border-none">
           {isLoaded ? <StrategyFlow /> : <LoadingPlaceholder />}

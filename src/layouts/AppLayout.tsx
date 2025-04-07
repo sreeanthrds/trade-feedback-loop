@@ -23,15 +23,15 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   // Compact header for strategy builder
   if (isStrategyBuilder) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <header className="border-b border-border bg-background z-10 h-10">
+      <div className="min-h-screen max-h-screen flex flex-col overflow-hidden">
+        <header className="border-b border-border bg-background z-10 h-4 flex-shrink-0">
           <div className="container mx-auto px-2 h-full">
             <div className="flex items-center justify-between h-full">
               <div className="flex items-center space-x-4">
                 <Link to="/app" className="text-primary hover:opacity-80 transition-opacity">
-                  <Home className="h-4 w-4" />
+                  <Home className="h-3 w-3" />
                 </Link>
-                <span className="text-sm font-medium">Strategy Builder</span>
+                <span className="text-xs font-medium">Strategy Builder</span>
               </div>
               
               <div className="flex items-center space-x-2">
@@ -41,18 +41,18 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           </div>
         </header>
 
-        <main className="flex-grow">
+        <main className="flex-grow overflow-hidden">
           {children}
         </main>
       </div>
     );
   }
 
-  // Regular header for other pages
+  // Regular header for other pages with reduced height
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="border-b border-border bg-background z-10">
-        <div className="container mx-auto px-4 h-14">
+    <div className="min-h-screen max-h-screen flex flex-col overflow-hidden">
+      <header className="border-b border-border bg-background z-10 flex-shrink-0">
+        <div className="container mx-auto px-4 h-12">
           <div className="flex items-center justify-between h-full">
             <div className="flex items-center space-x-4">
               <Link to="/app" className="text-xl font-bold text-primary hover:opacity-80 transition-opacity">
@@ -91,7 +91,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         </div>
       </header>
 
-      <main className="flex-grow">
+      <main className="flex-grow overflow-auto">
         {children}
       </main>
     </div>
