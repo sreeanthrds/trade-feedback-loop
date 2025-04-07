@@ -2,6 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import StrategyFlow from '@/components/strategy/StrategyFlow';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const LoadingPlaceholder = () => (
   <div className="h-full w-full flex items-center justify-center bg-muted/20">
@@ -25,7 +28,17 @@ const StrategyBuilder = () => {
   }, []);
 
   return (
-    <div className="h-[calc(100vh-4px)] w-full">
+    <div className="h-[calc(100vh-4px)] w-full relative">
+      {/* Back button */}
+      <div className="absolute top-1 left-16 z-10">
+        <Link to="/">
+          <Button variant="ghost" size="sm" className="flex items-center gap-1.5 text-xs">
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back to Website
+          </Button>
+        </Link>
+      </div>
+      
       <div className="w-full h-full flex-1 flex flex-col p-0">
         <div className="h-full w-full overflow-hidden rounded-none border-none">
           {isLoaded ? <StrategyFlow /> : <LoadingPlaceholder />}
