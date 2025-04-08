@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import StrategyFlow from '@/components/strategy/StrategyFlow';
@@ -41,7 +42,7 @@ const StrategyBuilder = () => {
     
     toast({
       title: "Strategy saved successfully",
-      description: `"${strategyName}" has been saved to your strategies."
+      description: `"${strategyName}" has been saved to your strategies.`
     });
     
     window.dispatchEvent(new StorageEvent('storage', {
