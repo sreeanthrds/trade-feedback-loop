@@ -80,10 +80,10 @@ const DocumentationLayout: React.FC = () => {
       
       <Separator className="md:hidden mb-4" />
       
-      {/* Main Content */}
-      <main className="relative py-0 lg:gap-10 lg:py-8">
-        <ScrollArea className="max-h-[calc(100vh-8rem)]">
-          <div className="prose prose-slate dark:prose-invert max-w-none">
+      {/* Main Content - Fixed the scrolling issue by setting the correct max-height and overflow properties */}
+      <main className="relative py-0 lg:gap-10 lg:py-8 w-full">
+        <ScrollArea className="h-[calc(100vh-8rem)] max-h-[calc(100vh-8rem)] overflow-y-auto">
+          <div className="prose prose-slate dark:prose-invert max-w-none pb-10">
             {renderContent()}
           </div>
         </ScrollArea>
