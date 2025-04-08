@@ -46,7 +46,7 @@ export const strategyService = {
     
     // If no user is logged in, return null
     if (!userData.user) {
-      console.warn('No user logged in, cannot save strategy');
+      console.error('No user logged in, cannot save strategy');
       return null;
     }
     
@@ -60,6 +60,7 @@ export const strategyService = {
         edges: strategy.edges,
         created_at: strategy.created || new Date().toISOString(),
         updated_at: new Date().toISOString(),
+        user_id: userData.user.id // Add user_id to associate with the current user
       })
       .select()
       .single();

@@ -54,6 +54,10 @@ export const saveStrategy = async (
     } else {
       // Not authenticated, save to local storage
       saveStrategyToLocalStorage(nodes, edges, strategyId, strategyName);
+      toast({
+        title: "Strategy saved locally",
+        description: `"${strategyName}" has been saved to your device.`
+      });
       return true;
     }
   } catch (error) {

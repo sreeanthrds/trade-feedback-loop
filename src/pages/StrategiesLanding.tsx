@@ -6,14 +6,13 @@ import { useStrategies } from '@/hooks/useStrategies';
 import StrategiesHeader from '@/components/strategies/StrategiesHeader';
 import StrategiesList from '@/components/strategies/StrategiesList';
 import CreateStrategyDialog from '@/components/strategies/CreateStrategyDialog';
-
-// Mock user state - in a real app, this would come from authentication
-const mockUserLoggedIn = true; // Toggle this to test both states
+import { useAuth } from '@/contexts/AuthContext';
 
 const StrategiesLanding = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { strategies, isLoading, refreshStrategies, deleteStrategy } = useStrategies();
+  const { isAuthenticated } = useAuth();
   
   const [showNameDialog, setShowNameDialog] = useState(false);
   
@@ -77,18 +76,12 @@ const StrategiesLanding = () => {
         onCreateStrategy={handleCreateStrategy} 
       />
       
-      {mockUserLoggedIn ? (
-        <StrategiesList 
-          strategies={strategies} 
-          isLoading={isLoading} 
-          onDeleteStrategy={handleDeleteStrategy}
-          onCreateStrategy={handleCreateStrategy}
-        />
-      ) : (
-        <div className="text-center py-12">
-          <p>Please log in to view your strategies</p>
-        </div>
-      )}
+      <StrategiesList 
+        strategies={strategies} 
+        isLoading={isLoading} 
+        onDeleteStrategy={handleDeleteStrategy}
+        onCreateStrategy={handleCreateStrategy}
+      />
 
       <CreateStrategyDialog 
         open={showNameDialog}
