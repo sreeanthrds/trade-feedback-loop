@@ -3,8 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import StrategyFlow from '@/components/strategy/StrategyFlow';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { ArrowLeft, Save } from 'lucide-react';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
+import { saveStrategyToLocalStorage } from '@/components/strategy/utils/storage/localStorageUtils';
+import { useStrategyStore } from '@/hooks/use-strategy-store';
 
 const LoadingPlaceholder = () => (
   <div className="h-full w-full flex items-center justify-center bg-muted/20">
@@ -19,6 +22,9 @@ const StrategyBuilder = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [searchParams] = useSearchParams();
   const strategyName = searchParams.get('name') || 'Untitled Strategy';
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { nodes, edges } = useStrategyStore();
   
   // Mark as loaded after a short delay to improve perceived performance
   useEffect(() => {
@@ -31,6 +37,22 @@ const StrategyBuilder = () => {
     
     return () => clearTimeout(timer);
   }, [strategyName]);
+
+  const handleSaveAndExit = () => {
+    // Generate a unique ID if this is a new strategy
+    const strategyId = searchParams.get('id') || `strategy-${Date.now()}`;
+    
+    // Save to localStorage with ID and name
+    saveStrategyToLocalStorage(nodes, edges, strategyId, strategyName);
+    
+    toast({
+      title: "Strategy saved successfully",
+      description: `"${strategyName}" has been saved to your strategies.`
+    });
+    
+    // Navigate back to strategies list
+    navigate('/app');
+  };
 
   return (
     <div className="h-[calc(100vh-4px)] w-full relative">
@@ -49,6 +71,19 @@ const StrategyBuilder = () => {
         <div className="text-sm font-medium">
           {strategyName}
         </div>
+      </div>
+      
+      {/* Save & Exit button */}
+      <div className="absolute top-1 right-16 z-10">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={handleSaveAndExit}
+          className="flex items-center gap-1.5 text-xs"
+        >
+          <Save className="h-3.5 w-3.5" />
+          Save & Exit
+        </Button>
       </div>
       
       <div className="w-full h-full flex-1 flex flex-col p-0">

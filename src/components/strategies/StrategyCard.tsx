@@ -5,7 +5,6 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from '@/components/ui/button';
 import { BarChart, Calendar, Clock, Trash } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useStrategyStore } from '@/hooks/use-strategy-store';
 
 interface StrategyCardProps {
   id: string;
@@ -69,7 +68,7 @@ const StrategyCard = ({
       </CardContent>
       <CardFooter className="pt-2 flex gap-2">
         <Button asChild variant="outline" className="flex-1">
-          <Link to={`/app/strategy-builder/${id}`}>Edit</Link>
+          <Link to={`/app/strategy-builder?id=${id}&name=${encodeURIComponent(name)}`}>Edit</Link>
         </Button>
         <Button asChild variant="outline" className="flex-1">
           <Link to={`/app/backtesting/${id}`}>Test</Link>

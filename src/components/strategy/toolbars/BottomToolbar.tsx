@@ -1,5 +1,6 @@
 
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Panel } from '@xyflow/react';
 import { Save, Download, Upload, RotateCcw, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -26,6 +27,9 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
   const { nodes, edges, setNodes, setEdges, addHistoryItem, resetHistory } = useStrategyStore();
   const { isRunning } = useBacktestingStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [searchParams] = useSearchParams();
+  const strategyId = searchParams.get('id');
+  const strategyName = searchParams.get('name') || 'Untitled Strategy';
 
   const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
     const success = importStrategyFromEvent(event, setNodes, setEdges, addHistoryItem, resetHistory);
@@ -41,7 +45,7 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
   };
 
   const handleSave = () => {
-    saveStrategyToLocalStorage(nodes, edges);
+    saveStrategyToLocalStorage(nodes, edges, strategyId || undefined, strategyName);
     toast({
       title: "Strategy saved",
       description: "Your strategy has been saved locally"

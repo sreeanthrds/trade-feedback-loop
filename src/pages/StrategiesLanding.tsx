@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import StrategyCard from '@/components/strategies/StrategyCard';
@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { getStrategiesList, deleteStrategy } from '@/components/strategy/utils/storage/localStorageUtils';
 
 interface Strategy {
   id: string;
@@ -27,51 +28,51 @@ const StrategiesLanding = () => {
   const [strategies, setStrategies] = useState<Strategy[]>([]);
   const [showNameDialog, setShowNameDialog] = useState(false);
   const [strategyName, setStrategyName] = useState("My New Strategy");
+  const navigate = useNavigate();
   
-  // In a real app, we'd fetch strategies from a backend
-  // For now, we'll use sample data
+  // Load strategies from localStorage
   useEffect(() => {
-    // Simulating fetching strategies
-    const sampleStrategies = [
-      {
-        id: "strategy1",
-        name: "Moving Average Crossover",
-        description: "A trend-following strategy that uses the crossing of two moving averages to generate buy and sell signals.",
-        lastModified: format(new Date(2023, 3, 15), 'MMM d, yyyy'),
-        created: format(new Date(2023, 2, 10), 'MMM d, yyyy'),
-        returns: 12.5
-      },
-      {
-        id: "strategy2",
-        name: "RSI Oscillator",
-        description: "Uses the Relative Strength Index to identify overbought and oversold conditions in the market.",
-        lastModified: format(new Date(2023, 3, 10), 'MMM d, yyyy'),
-        created: format(new Date(2023, 1, 20), 'MMM d, yyyy'),
-        returns: -3.2
-      },
-      {
-        id: "strategy3",
-        name: "MACD Divergence",
-        description: "Identifies divergences between price action and the MACD indicator to spot potential trend reversals.",
-        lastModified: format(new Date(2023, 2, 28), 'MMM d, yyyy'),
-        created: format(new Date(2023, 0, 15), 'MMM d, yyyy'),
-        returns: 8.7
-      },
-      {
-        id: "strategy4",
-        name: "Bollinger Bands Squeeze",
-        description: "Detects low volatility periods using Bollinger Bands compression, preparing for breakout trades.",
-        lastModified: format(new Date(2023, 3, 5), 'MMM d, yyyy'),
-        created: format(new Date(2023, 2, 1), 'MMM d, yyyy')
+    const loadStrategies = () => {
+      if (mockUserLoggedIn) {
+        const savedStrategies = getStrategiesList();
+        
+        // Format dates for display
+        const formattedStrategies = savedStrategies.map((strategy: any) => ({
+          ...strategy,
+          lastModified: strategy.lastModified 
+            ? format(new Date(strategy.lastModified), 'MMM d, yyyy')
+            : format(new Date(), 'MMM d, yyyy'),
+          created: strategy.created
+            ? format(new Date(strategy.created), 'MMM d, yyyy')
+            : format(new Date(), 'MMM d, yyyy')
+        }));
+        
+        setStrategies(formattedStrategies);
+      } else {
+        setStrategies([]);
       }
-    ];
+    };
     
-    // Only show strategies if the user is logged in
-    setStrategies(mockUserLoggedIn ? sampleStrategies : []);
+    loadStrategies();
+    
+    // Set up an event listener to reload strategies when localStorage changes
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'strategies') {
+        loadStrategies();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   const handleDeleteStrategy = (id: string) => {
-    setStrategies(prevStrategies => prevStrategies.filter(strategy => strategy.id !== id));
+    const success = deleteStrategy(id);
+    if (success) {
+      setStrategies(prevStrategies => prevStrategies.filter(strategy => strategy.id !== id));
+    }
   };
 
   const handleCreateStrategy = () => {
@@ -89,18 +90,18 @@ const StrategiesLanding = () => {
       return;
     }
 
-    // Redirect to strategy builder with the name
-    // In a real app, you'd create the strategy first and then redirect
+    // Create unique ID for the new strategy
+    const strategyId = `strategy-${Date.now()}`;
+    
+    setShowNameDialog(false);
+    
     toast({
       title: "Strategy created",
       description: `Created strategy: ${strategyName}`
     });
     
-    setShowNameDialog(false);
-    
-    // In a real app, you'd redirect to the strategy builder here
-    // For now, we'll just close the dialog
-    window.location.href = `/app/strategy-builder/new?name=${encodeURIComponent(strategyName)}`;
+    // Navigate to strategy builder with ID and name
+    navigate(`/app/strategy-builder?id=${strategyId}&name=${encodeURIComponent(strategyName)}`);
   };
 
   return (
