@@ -39,7 +39,6 @@ const Navbar = () => {
 
   // Check if we're on the strategy builder page to hide the logo
   const isStrategyBuilderPage = location.pathname === '/strategy-builder';
-  const isDocumentationPage = location.pathname === '/documentation';
 
   return (
     <header 
@@ -61,15 +60,13 @@ const Navbar = () => {
             <DesktopNav />
           </div>
           
-          {/* Documentation Link */}
-          {!isDocumentationPage && (
-            <Link to="/documentation" className="hidden md:flex items-center mr-4">
-              <Button variant="ghost" size="sm" className="flex items-center gap-1">
-                <FileText className="h-4 w-4" />
-                <span>Documentation</span>
-              </Button>
-            </Link>
-          )}
+          {/* Documentation Link - Now always visible */}
+          <Link to="/documentation" className="hidden md:flex items-center mr-4">
+            <Button variant="ghost" size="sm" className="flex items-center gap-1">
+              <FileText className="h-4 w-4" />
+              <span>Documentation</span>
+            </Button>
+          </Link>
           
           {/* Theme Toggle & Mobile Menu Button */}
           <div className="flex items-center space-x-4 ml-auto">

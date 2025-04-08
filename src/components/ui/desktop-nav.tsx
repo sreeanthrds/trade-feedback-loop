@@ -60,7 +60,7 @@ const DesktopNav: React.FC = () => {
           Login
         </Link>
         <Link 
-          to="/app/strategy-builder" 
+          to="/app" 
           className="btn-primary"
         >
           Start Free Trial

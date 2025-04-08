@@ -1,12 +1,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useStrategyStore } from '@/hooks/use-strategy-store';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import StrategyCard from '@/components/strategies/StrategyCard';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface Strategy {
   id: string;
@@ -17,9 +19,14 @@ interface Strategy {
   returns?: number;
 }
 
+// Mock user state - in a real app, this would come from authentication
+const mockUserLoggedIn = true; // Toggle this to test both states
+
 const StrategiesLanding = () => {
   const { toast } = useToast();
   const [strategies, setStrategies] = useState<Strategy[]>([]);
+  const [showNameDialog, setShowNameDialog] = useState(false);
+  const [strategyName, setStrategyName] = useState("My New Strategy");
   
   // In a real app, we'd fetch strategies from a backend
   // For now, we'll use sample data
@@ -59,11 +66,41 @@ const StrategiesLanding = () => {
       }
     ];
     
-    setStrategies(sampleStrategies);
+    // Only show strategies if the user is logged in
+    setStrategies(mockUserLoggedIn ? sampleStrategies : []);
   }, []);
 
   const handleDeleteStrategy = (id: string) => {
     setStrategies(prevStrategies => prevStrategies.filter(strategy => strategy.id !== id));
+  };
+
+  const handleCreateStrategy = () => {
+    setShowNameDialog(true);
+  };
+
+  const handleSubmitStrategyName = () => {
+    // Validate that strategy name is not empty
+    if (!strategyName.trim()) {
+      toast({
+        title: "Strategy name required",
+        description: "Please enter a name for your strategy",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Redirect to strategy builder with the name
+    // In a real app, you'd create the strategy first and then redirect
+    toast({
+      title: "Strategy created",
+      description: `Created strategy: ${strategyName}`
+    });
+    
+    setShowNameDialog(false);
+    
+    // In a real app, you'd redirect to the strategy builder here
+    // For now, we'll just close the dialog
+    window.location.href = `/app/strategy-builder/new?name=${encodeURIComponent(strategyName)}`;
   };
 
   return (
@@ -75,11 +112,9 @@ const StrategiesLanding = () => {
             Create, manage and backtest your trading strategies
           </p>
         </div>
-        <Button asChild className="flex items-center gap-2">
-          <Link to="/app/strategy-builder/new">
-            <Plus className="h-4 w-4" />
-            <span>New Strategy</span>
-          </Link>
+        <Button onClick={handleCreateStrategy} className="flex items-center gap-2">
+          <Plus className="h-4 w-4" />
+          <span>New Strategy</span>
         </Button>
       </div>
       
@@ -95,12 +130,45 @@ const StrategiesLanding = () => {
         ) : (
           <div className="col-span-full text-center py-12 border border-dashed rounded-lg bg-muted/20">
             <p className="text-muted-foreground mb-4">You haven't created any strategies yet</p>
-            <Button asChild>
-              <Link to="/app/strategy-builder/new">Create Your First Strategy</Link>
+            <Button onClick={handleCreateStrategy}>
+              Create Your First Strategy
             </Button>
           </div>
         )}
       </div>
+
+      {/* Strategy Name Dialog */}
+      <Dialog open={showNameDialog} onOpenChange={setShowNameDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Name Your Strategy</DialogTitle>
+            <DialogDescription>
+              Give your strategy a unique, descriptive name.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Strategy Name</Label>
+                <Input
+                  id="name"
+                  value={strategyName}
+                  onChange={(e) => setStrategyName(e.target.value)}
+                  placeholder="Enter strategy name"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowNameDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSubmitStrategyName}>
+              Create Strategy
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

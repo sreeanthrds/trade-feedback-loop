@@ -87,7 +87,7 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, toggleMenu }) => {
                 Login
               </Link>
               <Link 
-                to="/app/strategy-builder" 
+                to="/app" 
                 className="btn-primary text-center"
                 onClick={toggleMenu}
               >

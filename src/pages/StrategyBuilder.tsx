@@ -4,7 +4,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import StrategyFlow from '@/components/strategy/StrategyFlow';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 const LoadingPlaceholder = () => (
   <div className="h-full w-full flex items-center justify-center bg-muted/20">
@@ -17,6 +17,8 @@ const LoadingPlaceholder = () => (
 
 const StrategyBuilder = () => {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [searchParams] = useSearchParams();
+  const strategyName = searchParams.get('name') || 'Untitled Strategy';
   
   // Mark as loaded after a short delay to improve perceived performance
   useEffect(() => {
@@ -24,8 +26,11 @@ const StrategyBuilder = () => {
       setIsLoaded(true);
     }, 100);
     
+    // Initialize strategy with name
+    console.log(`Strategy initialized with name: ${strategyName}`);
+    
     return () => clearTimeout(timer);
-  }, []);
+  }, [strategyName]);
 
   return (
     <div className="h-[calc(100vh-4px)] w-full relative">
@@ -37,6 +42,13 @@ const StrategyBuilder = () => {
             Back to Strategies
           </Button>
         </Link>
+      </div>
+      
+      {/* Strategy name indicator */}
+      <div className="absolute top-1 left-1/2 transform -translate-x-1/2 z-10">
+        <div className="text-sm font-medium">
+          {strategyName}
+        </div>
       </div>
       
       <div className="w-full h-full flex-1 flex flex-col p-0">
