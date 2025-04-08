@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Workflow } from 'lucide-react';
+import { Menu, X, FileText } from 'lucide-react';
 
 interface MobileNavProps {
   isOpen: boolean;
@@ -67,6 +67,16 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, toggleMenu }) => {
               onClick={toggleMenu}
             >
               Blog
+            </Link>
+            <Link 
+              to="/documentation" 
+              className={`py-2 flex items-center space-x-2 ${isActive('/documentation') 
+                ? 'text-primary font-medium' 
+                : 'text-foreground/80'}`}
+              onClick={toggleMenu}
+            >
+              <FileText className="h-4 w-4" />
+              <span>Documentation</span>
             </Link>
             <div className="flex flex-col space-y-3 pt-2">
               <Link 

@@ -63,10 +63,10 @@ const Navbar = () => {
           
           {/* Documentation Link */}
           {!isDocumentationPage && (
-            <Link to="/documentation" className="mr-4">
+            <Link to="/documentation" className="hidden md:flex items-center mr-4">
               <Button variant="ghost" size="sm" className="flex items-center gap-1">
                 <FileText className="h-4 w-4" />
-                <span className="hidden md:inline">Documentation</span>
+                <span>Documentation</span>
               </Button>
             </Link>
           )}

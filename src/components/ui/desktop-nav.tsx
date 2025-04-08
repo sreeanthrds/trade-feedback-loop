@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Workflow, BarChart, LineChart } from 'lucide-react';
+import { FileText } from 'lucide-react';
 
 const DesktopNav: React.FC = () => {
   const location = useLocation();
@@ -42,6 +42,15 @@ const DesktopNav: React.FC = () => {
           : 'text-foreground/80 hover:text-foreground'}`}
       >
         Blog
+      </Link>
+      <Link 
+        to="/documentation" 
+        className={`smooth-transition flex items-center ${isActive('/documentation') 
+          ? 'text-primary font-medium' 
+          : 'text-foreground/80 hover:text-foreground'}`}
+      >
+        <FileText className="h-4 w-4 mr-1" />
+        Documentation
       </Link>
       <div className="flex items-center space-x-3">
         <Link 
