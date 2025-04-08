@@ -100,7 +100,7 @@ const ActionNodesDoc: React.FC = () => {
           </ul>
         </div>
         
-        <h2 className="text-2xl font-bold tracking-tight">Entry Order Configuration</h2>
+        <h2 className="text-2xl font-bold tracking-tight">Entry Node Configuration in Detail</h2>
         
         <h3 className="text-xl font-bold tracking-tight">Basic Order Settings</h3>
         <ul className="list-disc pl-6 space-y-2">
@@ -119,6 +119,20 @@ const ActionNodesDoc: React.FC = () => {
             </ul>
           </li>
           <li><strong>Priority:</strong> Determines the execution order when multiple entry signals are triggered simultaneously</li>
+          <li><strong>Virtual Position ID (VPI):</strong> 
+            <ul className="list-disc pl-6 space-y-1">
+              <li>Automatically generated unique identifier for each position</li>
+              <li>Used by other nodes (Exit, Modify) to reference this specific position</li>
+              <li>Format: Usually based on node ID and creation timestamp</li>
+            </ul>
+          </li>
+          <li><strong>Virtual Position Tag (VPT):</strong> 
+            <ul className="list-disc pl-6 space-y-1">
+              <li>User-defined label to categorize positions</li>
+              <li>Allows grouping similar positions (e.g., "Day Trade", "Swing", "RSI Oversold")</li>
+              <li>Used to target groups of positions in Exit and Modify nodes</li>
+            </ul>
+          </li>
         </ul>
         
         <h3 className="text-xl font-bold tracking-tight">Post-Execution Settings</h3>
@@ -128,6 +142,8 @@ const ActionNodesDoc: React.FC = () => {
               <li><strong>Fixed Price:</strong> Absolute price level for stop-loss</li>
               <li><strong>Percentage:</strong> Percentage away from entry price</li>
               <li><strong>ATR Multiple:</strong> Distance based on Average True Range</li>
+              <li><strong>Activation:</strong> Immediate or after a condition is met</li>
+              <li><strong>Order Type:</strong> Market or Limit order for the stop-loss execution</li>
             </ul>
           </li>
           <li><strong>Take Profit:</strong>
@@ -136,6 +152,8 @@ const ActionNodesDoc: React.FC = () => {
               <li><strong>Percentage:</strong> Percentage away from entry price</li>
               <li><strong>Risk/Reward Ratio:</strong> Multiple of stop-loss distance</li>
               <li><strong>Multiple Targets:</strong> Define several take-profit levels with partial exits</li>
+              <li><strong>Target Allocation:</strong> Percentage of position to exit at each target</li>
+              <li><strong>Order Type:</strong> Market or Limit order for each take-profit level</li>
             </ul>
           </li>
           <li><strong>Trailing Stop:</strong>
@@ -143,6 +161,15 @@ const ActionNodesDoc: React.FC = () => {
               <li><strong>Initial Distance:</strong> Starting distance from entry price</li>
               <li><strong>Step Size:</strong> How much the stop moves when price moves in your favor</li>
               <li><strong>Activation:</strong> Price level or percentage where trailing begins</li>
+              <li><strong>Lock-in Profit:</strong> Option to never move the stop below breakeven after reaching profit</li>
+              <li><strong>Order Type:</strong> Market or Limit order for the trailing stop execution</li>
+            </ul>
+          </li>
+          <li><strong>Position Expiry:</strong>
+            <ul className="list-disc pl-6 space-y-1">
+              <li><strong>Time-Based:</strong> Close position after a specific duration</li>
+              <li><strong>Session-Based:</strong> Close at the end of a trading session</li>
+              <li><strong>Bar-Based:</strong> Close after a certain number of price bars</li>
             </ul>
           </li>
         </ul>
@@ -160,8 +187,53 @@ const ActionNodesDoc: React.FC = () => {
               <li><strong>ITM (In-the-money):</strong> Strikes favorable to the option type</li>
               <li><strong>OTM (Out-of-the-money):</strong> Strikes unfavorable to the option type</li>
               <li><strong>Specific Strike:</strong> Exact strike price value</li>
+              <li><strong>Premium-Based:</strong> Strike with premium closest to target value</li>
             </ul>
           </li>
+          <li><strong>ITM/OTM Distance:</strong> For ITM or OTM options, how many strikes away from ATM</li>
+          <li><strong>Option Chain Settings:</strong> 
+            <ul className="list-disc pl-6 space-y-1">
+              <li><strong>Weekly Options:</strong> Current week (W0), next week (W1), etc.</li>
+              <li><strong>Monthly Options:</strong> Current month (M0), next month (M1), etc.</li>
+              <li><strong>Quarterly Options:</strong> Current quarter (Q0), next quarter (Q1), etc.</li>
+            </ul>
+          </li>
+        </ul>
+        
+        <h2 className="text-2xl font-bold tracking-tight">Exit Node Configuration in Detail</h2>
+        <p>
+          Exit nodes have specialized settings for closing positions:
+        </p>
+        <ul className="list-disc pl-6 space-y-2">
+          <li><strong>Target Position Selection:</strong>
+            <ul className="list-disc pl-6 space-y-1">
+              <li><strong>Any Position:</strong> Close any open position when triggered</li>
+              <li><strong>Specific VPI:</strong> Close only the position with the specified Virtual Position ID</li>
+              <li><strong>By VPT:</strong> Close all positions with a specific Virtual Position Tag</li>
+              <li><strong>By Position Type:</strong> Close all long or all short positions</li>
+            </ul>
+          </li>
+          <li><strong>Exit Quantity Options:</strong>
+            <ul className="list-disc pl-6 space-y-1">
+              <li><strong>All:</strong> Close the entire position</li>
+              <li><strong>Percentage:</strong> Close a percentage of the position (e.g., 50%)</li>
+              <li><strong>Specific Quantity:</strong> Close an exact number of lots/shares/contracts</li>
+            </ul>
+          </li>
+          <li><strong>Order Type Settings:</strong>
+            <ul className="list-disc pl-6 space-y-1">
+              <li><strong>Market Order:</strong> Immediate execution at current price</li>
+              <li><strong>Limit Order:</strong> Exit only at specified price or better</li>
+              <li><strong>Limit Price:</strong> For limit orders, the target exit price</li>
+            </ul>
+          </li>
+          <li><strong>Re-Entry Configuration:</strong>
+            <ul className="list-disc pl-6 space-y-1">
+              <li><strong>Re-Entry Enable:</strong> Toggle option to re-enter after exit</li>
+              <li><strong>Re-Entry Node:</strong> Connection to a Retry Node for implementation</li>
+            </ul>
+          </li>
+          <li><strong>Exit Reason Tagging:</strong> Label the exit with a reason (take profit, stop loss, etc.)</li>
         </ul>
         
         <h2 className="text-2xl font-bold tracking-tight">Position Management</h2>
@@ -174,6 +246,43 @@ const ActionNodesDoc: React.FC = () => {
           <li><strong>Position Filtering:</strong> Exit and Modify nodes can target specific positions by ID or tag</li>
           <li><strong>Position Visualization:</strong> The Visual Position Store displays all active positions</li>
           <li><strong>Re-Entry Logic:</strong> Configure automatic re-entry after position exits</li>
+          <li><strong>Position Lifecycle:</strong>
+            <ul className="list-disc pl-6 space-y-1">
+              <li><strong>Created:</strong> When an Entry Node is triggered</li>
+              <li><strong>Modified:</strong> When a Modify Node updates its parameters</li>
+              <li><strong>Partially Closed:</strong> When an Exit Node closes part of the position</li>
+              <li><strong>Fully Closed:</strong> When an Exit Node closes the entire position</li>
+              <li><strong>Re-Entered:</strong> When a closed position is re-opened via a Retry Node</li>
+            </ul>
+          </li>
+        </ul>
+        
+        <h2 className="text-2xl font-bold tracking-tight">Action Node Connections</h2>
+        <p>
+          Understanding the proper connections for Action Nodes:
+        </p>
+        <ul className="list-disc pl-6 space-y-2">
+          <li><strong>Input Connections:</strong> 
+            <ul className="list-disc pl-6 space-y-1">
+              <li>Action Nodes typically receive connections from Signal Nodes</li>
+              <li>They can also receive connections directly from other Action Nodes in sequence</li>
+              <li>Multiple signals can connect to a single Action Node</li>
+            </ul>
+          </li>
+          <li><strong>Output Connections:</strong> 
+            <ul className="list-disc pl-6 space-y-1">
+              <li>Action Nodes can connect to other Action Nodes (chaining actions)</li>
+              <li>They can connect to End Nodes to terminate a strategy branch</li>
+              <li>They can connect to Retry Nodes for re-entry logic</li>
+            </ul>
+          </li>
+          <li><strong>Connection Execution:</strong> 
+            <ul className="list-disc pl-6 space-y-1">
+              <li>Connections represent the flow of execution when signals trigger</li>
+              <li>When a Signal Node condition is met, all connected Action Nodes execute</li>
+              <li>Priority settings determine order of execution for multiple Action Nodes</li>
+            </ul>
+          </li>
         </ul>
         
         <h2 className="text-2xl font-bold tracking-tight">Best Practices</h2>
@@ -184,6 +293,16 @@ const ActionNodesDoc: React.FC = () => {
           <li><strong>Position Tracking:</strong> Use consistent VPI/VPT naming conventions for easier management</li>
           <li><strong>Exit Strategy:</strong> Plan multiple exit scenarios, including partial exits</li>
           <li><strong>Backtesting:</strong> Test how different order types affect performance in historical testing</li>
+          <li><strong>Logging:</strong> Use Alert Nodes to keep track of important strategy events</li>
+          <li><strong>Node Organization:</strong> Keep related Entry and Exit nodes visually grouped together on the canvas</li>
+          <li><strong>Automation vs. Discretion:</strong> 
+            <ul className="list-disc pl-6 space-y-1">
+              <li>Use Alert Nodes for discretionary trade notification if you don't want fully automated execution</li>
+              <li>Start with automated entry but manual exit if you're not comfortable with fully automated trading</li>
+              <li>Progress to fully automated strategies as confidence increases</li>
+            </ul>
+          </li>
+          <li><strong>Strategy Verification:</strong> Use the Visual Position Store to verify that entry and exit logic works as expected</li>
         </ul>
       </div>
     </div>

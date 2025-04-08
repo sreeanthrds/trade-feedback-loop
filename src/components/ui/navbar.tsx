@@ -1,11 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import Logo from './logo';
 import DesktopNav from './desktop-nav';
 import MobileNav from './mobile-nav';
 import ThemeToggle from './theme-toggle';
 import { useTheme } from '@/hooks/use-theme';
+import { Button } from './button';
+import { FileText } from 'lucide-react';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -37,6 +39,7 @@ const Navbar = () => {
 
   // Check if we're on the strategy builder page to hide the logo
   const isStrategyBuilderPage = location.pathname === '/strategy-builder';
+  const isDocumentationPage = location.pathname === '/documentation';
 
   return (
     <header 
@@ -57,6 +60,16 @@ const Navbar = () => {
           <div className={`${isStrategyBuilderPage ? 'ml-0' : 'ml-auto mr-auto'}`}>
             <DesktopNav />
           </div>
+          
+          {/* Documentation Link */}
+          {!isDocumentationPage && (
+            <Link to="/documentation" className="mr-4">
+              <Button variant="ghost" size="sm" className="flex items-center gap-1">
+                <FileText className="h-4 w-4" />
+                <span className="hidden md:inline">Documentation</span>
+              </Button>
+            </Link>
+          )}
           
           {/* Theme Toggle & Mobile Menu Button */}
           <div className="flex items-center space-x-4 ml-auto">
