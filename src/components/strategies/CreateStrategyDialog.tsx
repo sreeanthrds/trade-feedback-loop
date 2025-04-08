@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -20,9 +20,15 @@ const CreateStrategyDialog = ({
 }: CreateStrategyDialogProps) => {
   const [strategyName, setStrategyName] = useState(defaultName);
 
+  // Reset the strategy name when the dialog is opened
+  useEffect(() => {
+    if (open) {
+      setStrategyName(defaultName);
+    }
+  }, [open, defaultName]);
+
   const handleSubmit = () => {
     onSubmit(strategyName);
-    setStrategyName(defaultName);
   };
 
   return (
@@ -43,6 +49,7 @@ const CreateStrategyDialog = ({
                 value={strategyName}
                 onChange={(e) => setStrategyName(e.target.value)}
                 placeholder="Enter strategy name"
+                autoFocus
               />
             </div>
           </div>

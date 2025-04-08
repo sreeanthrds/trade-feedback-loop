@@ -27,6 +27,18 @@ const StrategyBuilder = () => {
   const { toast } = useToast();
   const { nodes, edges } = useStrategyStore();
   
+  // Auto-save changes when nodes or edges change
+  useEffect(() => {
+    if (isLoaded && nodes.length > 0) {
+      const autoSaveTimer = setTimeout(() => {
+        saveStrategyToLocalStorage(nodes, edges, strategyId, strategyName);
+        console.log('Auto-saved strategy changes');
+      }, 2000); // Auto-save after 2 seconds of inactivity
+      
+      return () => clearTimeout(autoSaveTimer);
+    }
+  }, [nodes, edges, isLoaded, strategyId, strategyName]);
+  
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoaded(true);
@@ -54,6 +66,11 @@ const StrategyBuilder = () => {
 
   const handleSave = () => {
     saveStrategyToLocalStorage(nodes, edges, strategyId, strategyName);
+    
+    toast({
+      title: "Strategy saved",
+      description: `"${strategyName}" has been saved`
+    });
     
     window.dispatchEvent(new StorageEvent('storage', {
       key: 'strategies'

@@ -42,6 +42,20 @@ const StrategiesLanding = () => {
       return;
     }
 
+    // Check for duplicate strategy names
+    const isDuplicate = strategies.some(
+      strategy => strategy.name.toLowerCase() === strategyName.trim().toLowerCase()
+    );
+
+    if (isDuplicate) {
+      toast({
+        title: "Duplicate name",
+        description: "A strategy with this name already exists. Please use a different name.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     // Create unique ID for the new strategy
     const strategyId = `strategy-${Date.now()}`;
     
