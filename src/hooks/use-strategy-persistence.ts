@@ -32,15 +32,24 @@ export function useStrategyPersistence() {
       let strategiesList: Strategy[] = [];
       
       if (authenticated) {
-        // If authenticated, load from Supabase
-        const cloudStrategies = await strategyService.getStrategies();
-        strategiesList = cloudStrategies.map((s: any) => ({
-          id: s.id,
-          name: s.name,
-          lastModified: s.updated_at,
-          created: s.created_at,
-          description: s.description
-        }));
+        try {
+          // If authenticated, load from Supabase
+          const cloudStrategies = await strategyService.getStrategies();
+          strategiesList = cloudStrategies.map((s: any) => ({
+            id: s.id,
+            name: s.name,
+            lastModified: s.updated_at,
+            created: s.created_at,
+            description: s.description
+          }));
+        } catch (error) {
+          console.error('Error loading strategies from Supabase:', error);
+          toast({
+            title: "Error loading cloud strategies",
+            description: "We couldn't load your cloud strategies. Check your connection.",
+            variant: "destructive"
+          });
+        }
       }
       
       // Also load from local storage
