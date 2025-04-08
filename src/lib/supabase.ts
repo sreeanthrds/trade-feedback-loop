@@ -1,10 +1,23 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-// Initialize the Supabase client
+// Get environment variables
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+// Validate environment variables
+if (!supabaseUrl) {
+  console.error('Missing VITE_SUPABASE_URL environment variable');
+}
+
+if (!supabaseAnonKey) {
+  console.error('Missing VITE_SUPABASE_ANON_KEY environment variable');
+}
+
+// Initialize the Supabase client with better error handling
 export const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL || '',
-  import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+  supabaseUrl || '',
+  supabaseAnonKey || ''
 );
 
 // Strategy-related database operations

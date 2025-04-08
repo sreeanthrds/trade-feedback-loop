@@ -3,6 +3,17 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 
+// Check for required environment variables
+if (!import.meta.env.VITE_SUPABASE_URL) {
+  console.error('ERROR: Missing VITE_SUPABASE_URL environment variable');
+  // You might want to display a more user-friendly error in the UI
+}
+
+if (!import.meta.env.VITE_SUPABASE_ANON_KEY) {
+  console.error('ERROR: Missing VITE_SUPABASE_ANON_KEY environment variable');
+  // You might want to display a more user-friendly error in the UI
+}
+
 // Make sure we have a valid root element
 const rootElement = document.getElementById("root");
 
