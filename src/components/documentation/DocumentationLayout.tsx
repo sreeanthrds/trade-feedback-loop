@@ -81,7 +81,7 @@ const DocumentationLayout: React.FC = () => {
       <Separator className="md:hidden mb-4" />
       
       {/* Main Content - Fixed the height and scrolling issues */}
-      <main className="relative py-0 lg:gap-10 lg:py-8 w-full overflow-y-auto">
+      <main className="relative py-0 lg:gap-10 lg:py-8 w-full max-h-[calc(100vh-3.5rem)] overflow-y-auto">
         <div className="prose prose-slate dark:prose-invert max-w-none pb-10">
           {renderContent()}
         </div>
