@@ -87,7 +87,7 @@ const App = () => (
               <Route path="/backtesting" element={<Navigate to="/app/backtesting" replace />} />
               <Route path="/dashboard" element={<Navigate to="/app/dashboard" replace />} />
               
-              {/* Documentation route */}
+              {/* Documentation route - accessible without auth */}
               <Route path="/documentation" element={<Documentation />} />
               
               {/* Catch-all */}

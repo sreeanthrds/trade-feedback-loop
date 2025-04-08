@@ -15,6 +15,7 @@ type AuthContextType = {
   signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signUp: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signOut: () => Promise<void>;
+  signInWithProvider: (provider: 'google' | 'facebook') => Promise<{ success: boolean; error?: string }>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -186,6 +187,63 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Sign in with social provider
+  const signInWithProvider = async (provider: 'google' | 'facebook') => {
+    setIsLoading(true);
+    
+    try {
+      if (process.env.NODE_ENV === 'development' || !supabase.auth.signInWithOAuth) {
+        // Mock social auth for development
+        const mockId = `mock-${provider}-${Date.now()}`;
+        const mockEmail = `${provider}-user-${Date.now()}@example.com`;
+        
+        localStorage.setItem('mock_current_user', JSON.stringify({
+          id: mockId,
+          email: mockEmail,
+          provider
+        }));
+        
+        setUser({
+          id: mockId,
+          email: mockEmail
+        });
+        
+        toast({
+          title: `Mock ${provider} login successful`,
+          description: `You are now logged in with ${mockEmail}`,
+        });
+        
+        return { success: true };
+      }
+      
+      // Real implementation for production
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: window.location.origin + '/auth/callback'
+        }
+      });
+      
+      if (error) {
+        toast({
+          title: `${provider} login failed`,
+          description: error.message,
+          variant: "destructive"
+        });
+        return { success: false, error: error.message };
+      }
+      
+      // This won't complete immediately as it redirects to the provider
+      return { success: true };
+      
+    } catch (error: any) {
+      console.error(`Sign in with ${provider} error:`, error);
+      return { success: false, error: error.message || `Login with ${provider} failed` };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Sign out function
   const signOut = async () => {
     setIsLoading(true);
@@ -218,7 +276,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isAuthenticated: !!user,
     signIn,
     signUp,
-    signOut
+    signOut,
+    signInWithProvider
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

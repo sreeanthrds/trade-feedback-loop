@@ -1,7 +1,8 @@
 
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, FileText } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X, FileText, LogIn } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface MobileNavProps {
   isOpen: boolean;
@@ -10,9 +11,16 @@ interface MobileNavProps {
 
 const MobileNav: React.FC<MobileNavProps> = ({ isOpen, toggleMenu }) => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   
   // Check if current route is active
   const isActive = (path: string) => location.pathname === path;
+  
+  const handleStartFreeTrial = () => {
+    toggleMenu();
+    navigate('/auth');
+  };
   
   return (
     <>
@@ -79,20 +87,32 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, toggleMenu }) => {
               <span>Documentation</span>
             </Link>
             <div className="flex flex-col space-y-3 pt-2">
-              <Link 
-                to="/login" 
-                className="py-2 text-foreground/80"
-                onClick={toggleMenu}
-              >
-                Login
-              </Link>
-              <Link 
-                to="/app" 
-                className="btn-primary text-center"
-                onClick={toggleMenu}
-              >
-                Start Free Trial
-              </Link>
+              {isAuthenticated ? (
+                <Link 
+                  to="/app" 
+                  className="py-2 text-foreground/80"
+                  onClick={toggleMenu}
+                >
+                  Dashboard
+                </Link>
+              ) : (
+                <>
+                  <Link 
+                    to="/auth" 
+                    className="py-2 flex items-center text-foreground/80"
+                    onClick={toggleMenu}
+                  >
+                    <LogIn className="h-4 w-4 mr-2" />
+                    Login
+                  </Link>
+                  <button 
+                    onClick={handleStartFreeTrial}
+                    className="btn-primary text-center"
+                  >
+                    Start Free Trial
+                  </button>
+                </>
+              )}
             </div>
           </nav>
         </div>
