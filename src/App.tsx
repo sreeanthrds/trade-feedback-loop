@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 // Layouts
 import WebsiteLayout from "./layouts/WebsiteLayout";
@@ -17,6 +18,7 @@ import Features from "./pages/Features";
 import Pricing from "./pages/Pricing";
 import Blog from "./pages/Blog";
 import NotFound from "./pages/NotFound";
+import AuthPage from "./pages/AuthPage";
 
 // App Pages
 import StrategiesLanding from "./pages/StrategiesLanding";
@@ -63,19 +65,22 @@ const App = () => (
           <BrowserRouter>
             <AppObserver />
             <Routes>
-              {/* Website Routes */}
-              <Route path="/" element={<WebsiteLayout><Index /></WebsiteLayout>} />
-              <Route path="/features" element={<WebsiteLayout><Features /></WebsiteLayout>} />
-              <Route path="/pricing" element={<WebsiteLayout><Pricing /></WebsiteLayout>} />
-              <Route path="/blog" element={<WebsiteLayout><Blog /></WebsiteLayout>} />
+              {/* Direct auth route */}
+              <Route path="/auth" element={<AuthPage />} />
               
-              {/* App Routes */}
-              <Route path="/app" element={<AppLayout><StrategiesLanding /></AppLayout>} />
-              <Route path="/app/strategy-builder" element={<AppLayout><StrategyBuilder /></AppLayout>} />
-              <Route path="/app/backtesting" element={<AppLayout><Backtesting /></AppLayout>} />
-              <Route path="/app/backtesting/:id" element={<AppLayout><Backtesting /></AppLayout>} />
-              <Route path="/app/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
-              <Route path="/app/account" element={<AppLayout><Account /></AppLayout>} />
+              {/* Protected Website Routes */}
+              <Route path="/" element={<ProtectedRoute><WebsiteLayout><Index /></WebsiteLayout></ProtectedRoute>} />
+              <Route path="/features" element={<ProtectedRoute><WebsiteLayout><Features /></WebsiteLayout></ProtectedRoute>} />
+              <Route path="/pricing" element={<ProtectedRoute><WebsiteLayout><Pricing /></WebsiteLayout></ProtectedRoute>} />
+              <Route path="/blog" element={<ProtectedRoute><WebsiteLayout><Blog /></WebsiteLayout></ProtectedRoute>} />
+              
+              {/* Protected App Routes */}
+              <Route path="/app" element={<ProtectedRoute><AppLayout><StrategiesLanding /></AppLayout></ProtectedRoute>} />
+              <Route path="/app/strategy-builder" element={<ProtectedRoute><AppLayout><StrategyBuilder /></AppLayout></ProtectedRoute>} />
+              <Route path="/app/backtesting" element={<ProtectedRoute><AppLayout><Backtesting /></AppLayout></ProtectedRoute>} />
+              <Route path="/app/backtesting/:id" element={<ProtectedRoute><AppLayout><Backtesting /></AppLayout></ProtectedRoute>} />
+              <Route path="/app/dashboard" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
+              <Route path="/app/account" element={<ProtectedRoute><AppLayout><Account /></AppLayout></ProtectedRoute>} />
               
               {/* Legacy routes - redirect to app routes */}
               <Route path="/strategy-builder" element={<Navigate to="/app/strategy-builder" replace />} />

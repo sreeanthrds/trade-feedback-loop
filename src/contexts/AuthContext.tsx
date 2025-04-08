@@ -30,6 +30,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(true);
       
       try {
+        // First, check localStorage for mock auth in development
+        const mockUser = localStorage.getItem('mock_current_user');
+        if (mockUser) {
+          try {
+            const parsedUser = JSON.parse(mockUser);
+            setUser({
+              id: parsedUser.id,
+              email: parsedUser.email || ''
+            });
+            setIsLoading(false);
+            return; // Exit early if we found a mock user
+          } catch (e) {
+            console.error('Error parsing mock user:', e);
+            // Continue with regular auth check
+          }
+        }
+        
+        // Regular Supabase auth check
         const { data } = await supabase.auth.getSession();
         
         if (data && data.session) {
@@ -57,6 +75,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             email: session.user.email || ''
           });
         } else {
+          // Check for mock auth
+          const mockUser = localStorage.getItem('mock_current_user');
+          if (mockUser) {
+            try {
+              const parsedUser = JSON.parse(mockUser);
+              setUser({
+                id: parsedUser.id,
+                email: parsedUser.email || ''
+              });
+              return; // Exit early if we found a mock user
+            } catch (e) {
+              console.error('Error parsing mock user:', e);
+              // Continue with setting user to null
+            }
+          }
+          
           setUser(null);
         }
         
@@ -130,10 +164,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { success: false, error: error.message };
       }
       
-      toast({
-        title: "Registration successful",
-        description: "Please check your email for verification link."
-      });
+      // If data.session exists, the user is automatically confirmed (happens in development)
+      if (data && data.session) {
+        toast({
+          title: "Registration successful",
+          description: "You're now logged in!"
+        });
+      } else {
+        toast({
+          title: "Registration successful",
+          description: "Please check your email for verification link."
+        });
+      }
+      
       return { success: true };
     } catch (error: any) {
       console.error('Sign up error:', error);
@@ -149,6 +192,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     try {
       await supabase.auth.signOut();
+      
+      // Also clear mock auth if it exists
+      localStorage.removeItem('mock_current_user');
+      
       toast({
         title: "Logged out",
         description: "You have been logged out successfully."
