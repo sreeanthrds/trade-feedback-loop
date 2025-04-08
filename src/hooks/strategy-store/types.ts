@@ -12,6 +12,7 @@ export interface StrategyStore {
   undo: () => void;
   redo: () => void;
   resetHistory: () => void;
+  resetNodes: () => void; // Added resetNodes method
 }
 
 export type SetState = (partial: Partial<StrategyStore> | ((state: StrategyStore) => Partial<StrategyStore>)) => void;

@@ -12,6 +12,7 @@ import {
   createRedoFunction,
   createResetHistoryFunction
 } from './history-management';
+import { initialNodes } from '../../components/strategy/utils/flowUtils';
 
 /**
  * Strategy store for managing nodes, edges, and history
@@ -31,4 +32,12 @@ export const useStrategyStore = create<StrategyStore>((set, get) => ({
   undo: createUndoFunction(set),
   redo: createRedoFunction(set),
   resetHistory: createResetHistoryFunction(set),
+  
+  // Reset nodes to initial state
+  resetNodes: () => {
+    set({
+      nodes: initialNodes,
+      edges: []
+    });
+  }
 }));
