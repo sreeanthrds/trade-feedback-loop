@@ -16,7 +16,6 @@ const StrategiesLanding = () => {
   const { strategies, isLoading, refreshStrategies, deleteStrategy } = useStrategies();
   
   const [showNameDialog, setShowNameDialog] = useState(false);
-  const [strategyName, setStrategyName] = useState("My New Strategy");
   
   const handleDeleteStrategy = (id: string) => {
     const success = deleteStrategy(id);
@@ -32,7 +31,7 @@ const StrategiesLanding = () => {
     setShowNameDialog(true);
   };
 
-  const handleSubmitStrategyName = () => {
+  const handleSubmitStrategyName = (strategyName: string) => {
     // Validate that strategy name is not empty
     if (!strategyName.trim()) {
       toast({
@@ -79,10 +78,9 @@ const StrategiesLanding = () => {
 
       <CreateStrategyDialog 
         open={showNameDialog}
-        strategyName={strategyName}
         onOpenChange={setShowNameDialog}
-        onStrategyNameChange={setStrategyName}
         onSubmit={handleSubmitStrategyName}
+        defaultName="My New Strategy"
       />
     </div>
   );

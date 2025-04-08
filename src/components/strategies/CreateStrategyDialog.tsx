@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -7,19 +7,24 @@ import { Label } from '@/components/ui/label';
 
 interface CreateStrategyDialogProps {
   open: boolean;
-  strategyName: string;
   onOpenChange: (open: boolean) => void;
-  onStrategyNameChange: (name: string) => void;
-  onSubmit: () => void;
+  onSubmit: (strategyName: string) => void;
+  defaultName?: string;
 }
 
 const CreateStrategyDialog = ({ 
   open, 
-  strategyName, 
   onOpenChange, 
-  onStrategyNameChange,
-  onSubmit 
+  onSubmit,
+  defaultName = "My New Strategy"
 }: CreateStrategyDialogProps) => {
+  const [strategyName, setStrategyName] = useState(defaultName);
+
+  const handleSubmit = () => {
+    onSubmit(strategyName);
+    setStrategyName(defaultName);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -36,7 +41,7 @@ const CreateStrategyDialog = ({
               <Input
                 id="name"
                 value={strategyName}
-                onChange={(e) => onStrategyNameChange(e.target.value)}
+                onChange={(e) => setStrategyName(e.target.value)}
                 placeholder="Enter strategy name"
               />
             </div>
@@ -46,7 +51,7 @@ const CreateStrategyDialog = ({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={onSubmit}>
+          <Button onClick={handleSubmit}>
             Create Strategy
           </Button>
         </DialogFooter>
