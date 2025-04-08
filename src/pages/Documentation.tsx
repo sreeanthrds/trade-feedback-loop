@@ -22,7 +22,9 @@ const Documentation = () => {
         </div>
       </header>
       
-      <DocumentationLayout />
+      <div className="py-6">
+        <DocumentationLayout />
+      </div>
     </div>
   );
 };
