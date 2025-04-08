@@ -9,6 +9,10 @@ import StrategyFlowContent from './StrategyFlowContent';
 import VisualPositionStore from './vps/VisualPositionStore';
 import FloatingVpsButton from './vps/FloatingVpsButton';
 
+interface StrategyFlowProps {
+  isNew?: boolean;
+}
+
 const LoadingIndicator = () => (
   <div className="h-full w-full flex items-center justify-center bg-background/50">
     <div className="flex flex-col items-center">
@@ -18,11 +22,11 @@ const LoadingIndicator = () => (
   </div>
 );
 
-const StrategyFlow = () => {
+const StrategyFlow = ({ isNew = false }: StrategyFlowProps) => {
   return (
     <ReactFlowProvider>
       <Suspense fallback={<LoadingIndicator />}>
-        <StrategyFlowContent />
+        <StrategyFlowContent isNew={isNew} />
         <FloatingVpsButton />
         <VisualPositionStore />
       </Suspense>
@@ -30,5 +34,4 @@ const StrategyFlow = () => {
   );
 };
 
-// Make sure this is a proper default export
 export default StrategyFlow;

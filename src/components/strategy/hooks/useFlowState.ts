@@ -15,7 +15,7 @@ import {
   useStrategyHandlers
 } from './flow-handlers';
 
-export function useFlowState() {
+export function useFlowState(isNew: boolean = false) {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const reactFlowInstance = useReactFlow();
   const strategyStore = useStrategyStore();
@@ -52,13 +52,25 @@ export function useFlowState() {
     isWorkflowValid
   } = useWorkflowValidation();
   
-  // Sync with localStorage - only run once
-  const { isInitialLoadRef } = useLocalStorageSync(
+  // Initialize with new strategy if isNew is true
+  useEffect(() => {
+    if (isNew) {
+      console.log('Initializing new strategy with default nodes');
+      setNodes(initialNodes);
+      setEdges([]);
+      strategyStore.setNodes(initialNodes);
+      strategyStore.setEdges([]);
+      strategyStore.resetHistory();
+    }
+  }, [isNew, setNodes, setEdges, strategyStore]);
+  
+  // Sync with localStorage - only run if not creating a new strategy
+  const { isInitialLoadRef } = !isNew ? useLocalStorageSync(
     setNodes,
     setEdges,
     strategyStore,
     initialNodes
-  );
+  ) : { isInitialLoadRef: { current: false } };
   
   // Only initialize store after ReactFlow is ready and initial load is complete
   useEffect(() => {

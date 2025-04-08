@@ -23,9 +23,20 @@ const StrategyBuilder = () => {
   const [searchParams] = useSearchParams();
   const strategyId = searchParams.get('id') || `strategy-${Date.now()}`;
   const strategyName = searchParams.get('name') || 'Untitled Strategy';
+  const isNewStrategy = !searchParams.get('id');
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { nodes, edges } = useStrategyStore();
+  const { nodes, edges, resetNodes } = useStrategyStore();
+  
+  // If it's a new strategy, reset the store to initial state
+  useEffect(() => {
+    if (isNewStrategy && resetNodes) {
+      resetNodes();
+      // Clear the current strategy in localStorage
+      localStorage.removeItem('tradyStrategy');
+      console.log('Created new strategy, cleared localStorage workspace');
+    }
+  }, [isNewStrategy, resetNodes]);
   
   // Auto-save changes when nodes or edges change
   useEffect(() => {
@@ -44,10 +55,10 @@ const StrategyBuilder = () => {
       setIsLoaded(true);
     }, 100);
     
-    console.log(`Strategy initialized with ID: ${strategyId}, name: ${strategyName}`);
+    console.log(`Strategy initialized with ID: ${strategyId}, name: ${strategyName}, isNew: ${isNewStrategy}`);
     
     return () => clearTimeout(timer);
-  }, [strategyId, strategyName]);
+  }, [strategyId, strategyName, isNewStrategy]);
 
   const handleSaveAndExit = () => {
     saveStrategyToLocalStorage(nodes, edges, strategyId, strategyName);
@@ -118,7 +129,7 @@ const StrategyBuilder = () => {
       
       <div className="w-full h-full flex-1 flex flex-col p-0">
         <div className="h-full w-full overflow-hidden rounded-none border-none">
-          {isLoaded ? <StrategyFlow /> : <LoadingPlaceholder />}
+          {isLoaded ? <StrategyFlow isNew={isNewStrategy} /> : <LoadingPlaceholder />}
         </div>
       </div>
     </div>

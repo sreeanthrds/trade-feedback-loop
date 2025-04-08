@@ -14,6 +14,10 @@ import { BarChart } from 'lucide-react';
 import '@xyflow/react/dist/style.css';
 import './styles/menus.css';
 
+interface StrategyFlowContentProps {
+  isNew?: boolean;
+}
+
 const NodePanelLoading = () => (
   <div className="p-4 animate-pulse">
     <div className="h-6 w-3/4 bg-muted rounded mb-4"></div>
@@ -30,7 +34,7 @@ const nodeTypesFactory = (handleDeleteNode, handleAddNode, updateNodeData) =>
 const edgeTypesFactory = (handleDeleteEdge) => 
   createEdgeTypes(handleDeleteEdge);
 
-const StrategyFlowContent = () => {
+const StrategyFlowContent = ({ isNew = false }: StrategyFlowContentProps) => {
   const { theme } = useTheme();
   
   const {
@@ -56,7 +60,7 @@ const StrategyFlowContent = () => {
     resetStrategy,
     handleImportSuccess,
     onNodeClick
-  } = useFlowState();
+  } = useFlowState(isNew);
 
   // Create node types and edge types with stable reference using useCallback
   const nodeTypes = useMemo(() => 
