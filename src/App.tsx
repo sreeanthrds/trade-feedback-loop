@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -22,6 +21,9 @@ import StrategiesLanding from "./pages/StrategiesLanding";
 import StrategyBuilder from "./pages/StrategyBuilder";
 import Backtesting from "./pages/Backtesting";
 import Dashboard from "./pages/Dashboard";
+
+// Documentation Page
+import Documentation from './pages/Documentation';
 
 const queryClient = new QueryClient();
 
@@ -60,6 +62,9 @@ const App = () => (
             <Route path="/strategy-builder" element={<Navigate to="/app/strategy-builder/new" replace />} />
             <Route path="/backtesting" element={<Navigate to="/app/backtesting" replace />} />
             <Route path="/dashboard" element={<Navigate to="/app/dashboard" replace />} />
+            
+            {/* Documentation route */}
+            <Route path="/documentation" element={<Documentation />} />
             
             {/* Catch-all */}
             <Route path="*" element={<WebsiteLayout><NotFound /></WebsiteLayout>} />
