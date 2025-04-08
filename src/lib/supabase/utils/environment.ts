@@ -7,7 +7,8 @@
  * Check if Supabase is properly configured with required environment variables
  */
 export const isSupabaseConfigured = (): boolean => {
-  return !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
+  const hasConfig = !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
+  return hasConfig;
 };
 
 /**

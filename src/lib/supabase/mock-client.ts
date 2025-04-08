@@ -4,19 +4,31 @@
  * Used when Supabase credentials are not available or initialization fails
  */
 export function createMockClient() {
+  console.log('Using mock Supabase client - functionality will be limited to local storage');
+  
   return {
     auth: {
-      getSession: () => Promise.resolve({ data: { session: null } }),
-      getUser: () => Promise.resolve({ data: { user: null } })
+      getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+      getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+      onAuthStateChange: () => ({
+        data: { 
+          subscription: { 
+            unsubscribe: () => {} 
+          }
+        }
+      }),
+      signInWithPassword: () => Promise.resolve({ data: null, error: { message: 'Mock auth: Not implemented' } }),
+      signUp: () => Promise.resolve({ data: null, error: { message: 'Mock auth: Not implemented' } }),
+      signOut: () => Promise.resolve({ error: null })
     },
-    from: () => ({
-      select: () => ({
-        order: () => ({
+    from: (table) => ({
+      select: (columns) => ({
+        order: (column, { ascending }) => Promise.resolve({
           data: [],
           error: null
         }),
-        eq: () => ({
-          single: () => ({
+        eq: (column, value) => ({
+          single: () => Promise.resolve({
             data: null,
             error: null
           }),
@@ -26,16 +38,16 @@ export function createMockClient() {
         data: [],
         error: null
       }),
-      upsert: () => ({
+      upsert: (data) => ({
         select: () => ({
-          single: () => ({
+          single: () => Promise.resolve({
             data: null,
             error: null
           })
         })
       }),
       delete: () => ({
-        eq: () => ({
+        eq: () => Promise.resolve({
           error: null
         })
       })
