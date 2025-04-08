@@ -1,7 +1,7 @@
-
 import React, { useEffect, useRef } from 'react';
 import { Node, Edge } from '@xyflow/react';
-import { loadStrategyFromLocalStorage } from '../utils/flowUtils';
+import { loadStrategyFromLocalStorage } from '../utils/storage/localStorageUtils';
+import { loadStrategyFromLocalStorage as loadStrategy } from '../utils/flowUtils';
 
 /**
  * Hook to synchronize with localStorage on initial load

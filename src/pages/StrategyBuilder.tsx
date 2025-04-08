@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import StrategyFlow from '@/components/strategy/StrategyFlow';
@@ -27,41 +26,34 @@ const StrategyBuilder = () => {
   const { toast } = useToast();
   const { nodes, edges } = useStrategyStore();
   
-  // Mark as loaded after a short delay to improve perceived performance
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoaded(true);
     }, 100);
     
-    // Initialize strategy with name and ID
     console.log(`Strategy initialized with ID: ${strategyId}, name: ${strategyName}`);
     
     return () => clearTimeout(timer);
   }, [strategyId, strategyName]);
 
   const handleSaveAndExit = () => {
-    // Save to localStorage with ID and name
     saveStrategyToLocalStorage(nodes, edges, strategyId, strategyName);
     
     toast({
       title: "Strategy saved successfully",
-      description: `"${strategyName}" has been saved to your strategies.`
+      description: `"${strategyName}" has been saved to your strategies."
     });
     
-    // Trigger a storage event to update the strategies list
     window.dispatchEvent(new StorageEvent('storage', {
       key: 'strategies'
     }));
     
-    // Navigate back to strategies list
     navigate('/app');
   };
 
   const handleSave = () => {
-    // Save to localStorage with ID and name
     saveStrategyToLocalStorage(nodes, edges, strategyId, strategyName);
     
-    // Trigger a storage event to update the strategies list
     window.dispatchEvent(new StorageEvent('storage', {
       key: 'strategies'
     }));
@@ -69,7 +61,6 @@ const StrategyBuilder = () => {
 
   return (
     <div className="h-[calc(100vh-4px)] w-full relative">
-      {/* Back button */}
       <div className="absolute top-1 left-16 z-10">
         <Link to="/app">
           <Button variant="ghost" size="sm" className="flex items-center gap-1.5 text-xs">
@@ -79,14 +70,12 @@ const StrategyBuilder = () => {
         </Link>
       </div>
       
-      {/* Strategy name indicator */}
       <div className="absolute top-1 left-1/2 transform -translate-x-1/2 z-10">
         <div className="text-sm font-medium">
           {strategyName}
         </div>
       </div>
       
-      {/* Save & Save & Exit buttons */}
       <div className="absolute top-1 right-4 z-10 flex gap-2">
         <Button 
           variant="ghost" 
