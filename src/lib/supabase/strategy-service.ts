@@ -1,115 +1,11 @@
 
-import { createClient } from '@supabase/supabase-js';
-
-// Get environment variables
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-// Validate environment variables
-if (!supabaseUrl) {
-  console.warn('Missing VITE_SUPABASE_URL environment variable. Using mock client.');
-}
-
-if (!supabaseAnonKey) {
-  console.warn('Missing VITE_SUPABASE_ANON_KEY environment variable. Using mock client.');
-}
-
-// Create a "safe" version of Supabase client that doesn't throw in development
-let supabase;
-
-// Only attempt to create the client if both URL and key are available
-if (supabaseUrl && supabaseAnonKey) {
-  try {
-    supabase = createClient(supabaseUrl, supabaseAnonKey);
-  } catch (error) {
-    console.error('Failed to initialize Supabase client:', error);
-    // Create a mock client for development so the app doesn't crash
-    supabase = {
-      auth: {
-        getSession: () => Promise.resolve({ data: { session: null } }),
-        getUser: () => Promise.resolve({ data: { user: null } })
-      },
-      from: () => ({
-        select: () => ({
-          order: () => ({
-            data: [],
-            error: null
-          }),
-          eq: () => ({
-            single: () => ({
-              data: null,
-              error: null
-            }),
-            data: [],
-            error: null
-          }),
-          data: [],
-          error: null
-        }),
-        upsert: () => ({
-          select: () => ({
-            single: () => ({
-              data: null,
-              error: null
-            })
-          })
-        }),
-        delete: () => ({
-          eq: () => ({
-            error: null
-          })
-        })
-      })
-    };
-  }
-} else {
-  // Create a mock client for development so the app doesn't crash
-  supabase = {
-    auth: {
-      getSession: () => Promise.resolve({ data: { session: null } }),
-      getUser: () => Promise.resolve({ data: { user: null } })
-    },
-    from: () => ({
-      select: () => ({
-        order: () => ({
-          data: [],
-          error: null
-        }),
-        eq: () => ({
-          single: () => ({
-            data: null,
-            error: null
-          }),
-          data: [],
-          error: null
-        }),
-        data: [],
-        error: null
-      }),
-      upsert: () => ({
-        select: () => ({
-          single: () => ({
-            data: null,
-            error: null
-          })
-        })
-      }),
-      delete: () => ({
-        eq: () => ({
-          error: null
-        })
-      })
-    })
-  };
-}
-
-export { supabase };
+import { supabase } from './client';
 
 // Strategy-related database operations
 export const strategyService = {
   // Fetch all strategies for the current user
   async getStrategies() {
-    if (!supabaseUrl || !supabaseAnonKey) {
+    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
       console.warn('Supabase not configured, using local storage only');
       return [];
     }
@@ -134,7 +30,7 @@ export const strategyService = {
   
   // Get a specific strategy by ID
   async getStrategyById(id: string) {
-    if (!supabaseUrl || !supabaseAnonKey) {
+    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
       console.warn('Supabase not configured, using local storage only');
       return null;
     }
@@ -160,7 +56,7 @@ export const strategyService = {
   
   // Create or update a strategy
   async saveStrategy(strategy: any) {
-    if (!supabaseUrl || !supabaseAnonKey) {
+    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
       console.warn('Supabase not configured, using local storage only');
       return null;
     }
@@ -203,7 +99,7 @@ export const strategyService = {
   
   // Delete a strategy by ID
   async deleteStrategy(id: string) {
-    if (!supabaseUrl || !supabaseAnonKey) {
+    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
       console.warn('Supabase not configured, using local storage only');
       return false;
     }
