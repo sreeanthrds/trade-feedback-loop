@@ -11,7 +11,7 @@ const AuthPage = () => {
       <div className="max-w-md w-full">
         <Card className="w-full">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">TradyFeedback</CardTitle>
+            <CardTitle className="text-2xl">Trady</CardTitle>
             <CardDescription>
               Please sign in to continue to the platform
             </CardDescription>

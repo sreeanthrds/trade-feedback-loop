@@ -24,7 +24,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         <header className="border-b">
           <div className="container flex items-center justify-between h-14 px-4">
             <div className="flex items-center gap-6">
-              <Link to="/" className="font-semibold text-lg">TradyFeedback</Link>
+              <Link to="/" className="font-semibold text-lg">Trady</Link>
               <nav className="hidden md:flex items-center gap-4">
                 <Link to="/app" className={`text-sm ${location.pathname === '/app' ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
                   Strategies
