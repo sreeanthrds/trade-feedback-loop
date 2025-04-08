@@ -42,10 +42,10 @@ export const strategyService = {
   
   // Create or update a strategy
   async saveStrategy(strategy: any) {
-    const user = supabase.auth.getUser();
+    const { data: userData } = await supabase.auth.getUser();
     
     // If no user is logged in, return null
-    if (!user) {
+    if (!userData.user) {
       console.warn('No user logged in, cannot save strategy');
       return null;
     }

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Node, Edge } from '@xyflow/react';
 import { saveStrategy, loadStrategy, deleteStrategy, isAuthenticated } from './strategy-store/supabase-persistence';
 import { useToast } from './use-toast';
+import { strategyService } from '@/lib/supabase';
 
 interface Strategy {
   id: string;

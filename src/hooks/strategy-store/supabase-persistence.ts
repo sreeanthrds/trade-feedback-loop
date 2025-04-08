@@ -1,5 +1,5 @@
 
-import { strategyService } from '@/lib/supabase';
+import { strategyService, supabase } from '@/lib/supabase';
 import { Node, Edge } from '@xyflow/react';
 import { toast } from "@/hooks/use-toast";
 import { saveStrategyToLocalStorage } from '@/components/strategy/utils/storage/localStorageUtils';
@@ -7,7 +7,7 @@ import { saveStrategyToLocalStorage } from '@/components/strategy/utils/storage/
 // Check if user is authenticated with Supabase
 export const isAuthenticated = async () => {
   try {
-    const { data } = await strategyService.supabase.auth.getSession();
+    const { data } = await supabase.auth.getSession();
     return !!data.session;
   } catch (error) {
     console.error('Error checking authentication status:', error);
