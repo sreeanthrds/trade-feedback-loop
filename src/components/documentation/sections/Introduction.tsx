@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -9,7 +8,7 @@ const Introduction: React.FC = () => {
     <div className="space-y-6">
       <h1 className="text-3xl font-bold tracking-tight">Introduction to the Trading Strategy Builder</h1>
       
-      <Alert variant="info" className="bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900">
+      <Alert className="bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900">
         <Info className="h-4 w-4" />
         <AlertTitle>Welcome to the documentation</AlertTitle>
         <AlertDescription>

@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { 
   BookOpen, 
-  FlowChart, 
+  Flow, 
   Box, 
   AlertTriangle, 
   PlayCircle, 
@@ -19,7 +19,7 @@ interface DocNavigationProps {
 const DocNavigation: React.FC<DocNavigationProps> = ({ activeSection, setActiveSection }) => {
   const sections = [
     { id: 'introduction', name: 'Introduction', icon: <BookOpen className="h-4 w-4 mr-2" /> },
-    { id: 'strategy-builder', name: 'Strategy Builder', icon: <FlowChart className="h-4 w-4 mr-2" /> },
+    { id: 'strategy-builder', name: 'Strategy Builder', icon: <Flow className="h-4 w-4 mr-2" /> },
     { id: 'node-types', name: 'Node Types', icon: <Box className="h-4 w-4 mr-2" /> },
     { id: 'signal-nodes', name: 'Signal Nodes', icon: <AlertTriangle className="h-4 w-4 mr-2" /> },
     { id: 'action-nodes', name: 'Action Nodes', icon: <PlayCircle className="h-4 w-4 mr-2" /> },

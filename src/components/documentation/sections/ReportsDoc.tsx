@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { LineChart, BarChart, InfoCircle } from 'lucide-react';
+import { LineChart, BarChart, Info } from 'lucide-react';
 
 const ReportsDoc: React.FC = () => {
   return (
@@ -636,7 +635,7 @@ const ReportsDoc: React.FC = () => {
       </div>
       
       <Alert className="bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900 mt-4">
-        <InfoCircle className="h-4 w-4" />
+        <Info className="h-4 w-4" />
         <AlertDescription>
           <strong>Pro Tip:</strong> For detailed chart customization, click the settings icon in the top-right 
           corner of any chart. This allows you to modify colors, labels, scales, and other visual elements 
@@ -679,32 +678,4 @@ const ReportsDoc: React.FC = () => {
               </div>
               
               <div className="bg-yellow-50 dark:bg-yellow-950/20 p-3 rounded-md border border-yellow-200 dark:border-yellow-900">
-                <h4 className="font-medium text-yellow-700 dark:text-yellow-400 mb-1">Modify</h4>
-                <ul className="list-disc pl-5 text-muted-foreground space-y-1">
-                  <li>Marginally profitable</li>
-                  <li>Excessive drawdowns</li>
-                  <li>Inconsistent performance</li>
-                  <li>Over-optimized parameters</li>
-                  <li>Good in some markets only</li>
-                </ul>
-              </div>
-              
-              <div className="bg-red-50 dark:bg-red-950/20 p-3 rounded-md border border-red-200 dark:border-red-900">
-                <h4 className="font-medium text-red-700 dark:text-red-400 mb-1">Reject</h4>
-                <ul className="list-disc pl-5 text-muted-foreground space-y-1">
-                  <li>Unprofitable after costs</li>
-                  <li>Extreme drawdowns</li>
-                  <li>Highly curve-fitted</li>
-                  <li>No clear market edge</li>
-                  <li>Poor risk-adjusted returns</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default ReportsDoc;
+                <h4 className="font-medium text-yellow-700 dark:text

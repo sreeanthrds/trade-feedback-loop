@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { InfoCircle, AlertTriangle } from 'lucide-react';
+import { Info, AlertTriangle } from 'lucide-react';
 
 const BacktestingDoc: React.FC = () => {
   return (
@@ -43,7 +43,7 @@ const BacktestingDoc: React.FC = () => {
             <li>Compare multiple strategy variations to select the most promising approach</li>
           </ul>
           
-          <Alert variant="warning" className="bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900 mt-4">
+          <Alert className="bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900 mt-4">
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               <strong>Important:</strong> Past performance does not guarantee future results. Backtested 
