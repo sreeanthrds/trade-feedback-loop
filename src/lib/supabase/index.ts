@@ -1,3 +1,3 @@
 
 export { supabase } from './client';
-export { strategyService } from './strategy-service';
+export { strategyService } from './services/strategy-service';
