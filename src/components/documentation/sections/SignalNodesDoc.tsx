@@ -171,7 +171,7 @@ const SignalNodesDoc: React.FC = () => {
           The condition builder supports various comparison operators:
         </p>
         <ul className="list-disc pl-6 space-y-2">
-          <li><strong>Basic Comparisons:</strong> Equals (=), Not Equals (≠), Greater Than (>), Less Than (&lt;), Greater Than or Equal (≥), Less Than or Equal (≤)</li>
+          <li><strong>Basic Comparisons:</strong> Equals (=), Not Equals (≠), Greater Than (&gt;), Less Than (&lt;), Greater Than or Equal (≥), Less Than or Equal (≤)</li>
           <li><strong>Crossing Operators:</strong> Crosses Above (↗), Crosses Below (↘)</li>
           <li><strong>Range Operators:</strong> Between, Not Between, Inside Range, Outside Range</li>
           <li><strong>Pattern Operators:</strong> Increasing For N Bars, Decreasing For N Bars, Bouncing Off, Rejecting From</li>
