@@ -11,7 +11,7 @@ import {
 } from '../utils/flowUtils';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
 import { useBacktestingStore } from '../backtesting/useBacktestingStore';
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface BottomToolbarProps {
   resetStrategy: () => void;
@@ -30,6 +30,7 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
   const [searchParams] = useSearchParams();
   const strategyId = searchParams.get('id');
   const strategyName = searchParams.get('name') || 'Untitled Strategy';
+  const { toast } = useToast();
 
   const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
     const success = importStrategyFromEvent(event, setNodes, setEdges, addHistoryItem, resetHistory);
@@ -45,15 +46,22 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
   };
 
   const handleSave = () => {
+    // Save to localStorage with ID and name
     saveStrategyToLocalStorage(nodes, edges, strategyId || undefined, strategyName);
+    
+    // Trigger storage event to update strategies list
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'strategies'
+    }));
+    
     toast({
       title: "Strategy saved",
-      description: "Your strategy has been saved locally"
+      description: "Your strategy has been saved"
     });
   };
 
   const handleExport = () => {
-    exportStrategyToFile(nodes, edges);
+    exportStrategyToFile(nodes, edges, strategyName);
   };
 
   const triggerFileInput = () => {

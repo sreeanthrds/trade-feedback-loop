@@ -1,3 +1,4 @@
+
 import { Node, Edge } from '@xyflow/react';
 import { toast } from 'sonner';
 
@@ -92,6 +93,10 @@ export const saveStrategyToLocalStorage = (
   strategyId?: string, 
   strategyName?: string
 ) => {
+  // Generate a unique ID if this is a new strategy
+  const finalStrategyId = strategyId || `strategy-${Date.now()}`;
+  const finalStrategyName = strategyName || "Untitled Strategy";
+  
   // Cancel any pending save operations
   if (saveTimeout !== null) {
     window.clearTimeout(saveTimeout);
@@ -100,10 +105,12 @@ export const saveStrategyToLocalStorage = (
   // If a save is already in progress, defer this save
   if (saveInProgress) {
     saveTimeout = window.setTimeout(() => {
-      saveStrategyToLocalStorage(nodes, edges, strategyId, strategyName);
+      saveStrategyToLocalStorage(nodes, edges, finalStrategyId, finalStrategyName);
     }, 1000);
     return;
   }
+  
+  console.log(`Saving strategy: ${finalStrategyId} - ${finalStrategyName}`);
   
   // Debounce the save operation
   saveTimeout = window.setTimeout(() => {
@@ -144,65 +151,72 @@ export const saveStrategyToLocalStorage = (
       const sanitizedNodes = sanitizeForStorage(optimizedNodes);
       const sanitizedEdges = sanitizeForStorage(edges);
       
-      // First save the current working strategy
-      const currentStrategy = { nodes: sanitizedNodes, edges: sanitizedEdges };
-      localStorage.setItem('tradyStrategy', JSON.stringify(currentStrategy));
+      // Save the strategy with its ID and metadata
+      const strategyData = {
+        id: finalStrategyId,
+        name: finalStrategyName,
+        nodes: sanitizedNodes,
+        edges: sanitizedEdges,
+        lastModified: new Date().toISOString(),
+        created: localStorage.getItem(`strategy_${finalStrategyId}_created`) || new Date().toISOString()
+      };
       
-      // If ID and name are provided, save to strategies list
-      if (strategyId && strategyName) {
-        // Save the strategy with its ID and metadata
-        const strategyData = {
-          id: strategyId,
-          name: strategyName,
-          nodes: sanitizedNodes,
-          edges: sanitizedEdges,
-          lastModified: new Date().toISOString(),
-          created: localStorage.getItem(`strategy_${strategyId}_created`) || new Date().toISOString()
-        };
-        
-        // Save the creation date if it's the first time
-        if (!localStorage.getItem(`strategy_${strategyId}_created`)) {
-          localStorage.setItem(`strategy_${strategyId}_created`, strategyData.created);
-        }
-        
-        // Save the strategy with its ID
-        localStorage.setItem(`strategy_${strategyId}`, JSON.stringify(strategyData));
-        
-        // Update strategies list
-        let strategies = [];
-        try {
-          const savedStrategiesList = localStorage.getItem('strategies');
-          strategies = savedStrategiesList ? JSON.parse(savedStrategiesList) : [];
-        } catch (e) {
-          console.error('Failed to parse strategies list:', e);
-          strategies = [];
-        }
-        
-        // Check if strategy already exists in the list
-        const existingIndex = strategies.findIndex((s: any) => s.id === strategyId);
-        if (existingIndex >= 0) {
-          // Update existing strategy metadata
-          strategies[existingIndex] = {
-            id: strategyId,
-            name: strategyName,
-            lastModified: strategyData.lastModified,
-            created: strategyData.created,
-            description: strategies[existingIndex].description || "Trading strategy created with Trady"
-          };
-        } else {
-          // Add new strategy to list
-          strategies.push({
-            id: strategyId,
-            name: strategyName,
-            lastModified: strategyData.lastModified,
-            created: strategyData.created,
-            description: "Trading strategy created with Trady"
-          });
-        }
-        
-        // Save updated strategies list
-        localStorage.setItem('strategies', JSON.stringify(strategies));
+      // Save the creation date if it's the first time
+      if (!localStorage.getItem(`strategy_${finalStrategyId}_created`)) {
+        localStorage.setItem(`strategy_${finalStrategyId}_created`, strategyData.created);
       }
+      
+      // Save the complete strategy with its ID
+      localStorage.setItem(`strategy_${finalStrategyId}`, JSON.stringify(strategyData));
+      console.log(`Saved complete strategy to localStorage: strategy_${finalStrategyId}`);
+      
+      // First save the current working strategy
+      const currentStrategy = { 
+        nodes: sanitizedNodes, 
+        edges: sanitizedEdges,
+        id: finalStrategyId,
+        name: finalStrategyName
+      };
+      localStorage.setItem('tradyStrategy', JSON.stringify(currentStrategy));
+      console.log('Saved current working strategy to localStorage');
+      
+      // Update strategies list
+      let strategies = [];
+      try {
+        const savedStrategiesList = localStorage.getItem('strategies');
+        strategies = savedStrategiesList ? JSON.parse(savedStrategiesList) : [];
+      } catch (e) {
+        console.error('Failed to parse strategies list:', e);
+        strategies = [];
+      }
+      
+      // Check if strategy already exists in the list
+      const existingIndex = strategies.findIndex((s: any) => s.id === finalStrategyId);
+      if (existingIndex >= 0) {
+        // Update existing strategy metadata
+        strategies[existingIndex] = {
+          id: finalStrategyId,
+          name: finalStrategyName,
+          lastModified: strategyData.lastModified,
+          created: strategyData.created,
+          description: strategies[existingIndex].description || "Trading strategy created with Trady"
+        };
+        console.log(`Updated existing strategy in list at index ${existingIndex}`);
+      } else {
+        // Add new strategy to list
+        strategies.push({
+          id: finalStrategyId,
+          name: finalStrategyName,
+          lastModified: strategyData.lastModified,
+          created: strategyData.created,
+          description: "Trading strategy created with Trady"
+        });
+        console.log(`Added new strategy to list, now contains ${strategies.length} strategies`);
+      }
+      
+      // Save updated strategies list
+      localStorage.setItem('strategies', JSON.stringify(strategies));
+      console.log('Saved updated strategies list to localStorage');
       
       toast.success("Strategy saved successfully", {
         duration: 2000,
@@ -215,7 +229,7 @@ export const saveStrategyToLocalStorage = (
       saveInProgress = false;
       saveTimeout = null;
     }
-  }, 1000); // Reduced debounce time for faster feedback
+  }, 500); // Reduced debounce time for faster feedback
 };
 
 /**
@@ -283,7 +297,9 @@ export const loadStrategyById = (strategyId: string): { nodes: Node[], edges: Ed
 export const getStrategiesList = () => {
   try {
     const savedStrategies = localStorage.getItem('strategies');
-    return savedStrategies ? JSON.parse(savedStrategies) : [];
+    const strategies = savedStrategies ? JSON.parse(savedStrategies) : [];
+    console.log(`Retrieved ${strategies.length} strategies from localStorage`);
+    return strategies;
   } catch (error) {
     console.error('Failed to load strategies list:', error);
     return [];
@@ -297,6 +313,7 @@ export const deleteStrategy = (strategyId: string) => {
   try {
     // Remove strategy data
     localStorage.removeItem(`strategy_${strategyId}`);
+    localStorage.removeItem(`strategy_${strategyId}_created`);
     
     // Update strategies list
     const savedStrategiesList = localStorage.getItem('strategies');
@@ -304,6 +321,7 @@ export const deleteStrategy = (strategyId: string) => {
       const strategies = JSON.parse(savedStrategiesList);
       const updatedStrategies = strategies.filter((s: any) => s.id !== strategyId);
       localStorage.setItem('strategies', JSON.stringify(updatedStrategies));
+      console.log(`Deleted strategy ${strategyId}, updated list has ${updatedStrategies.length} strategies`);
     }
     
     return true;
@@ -312,3 +330,4 @@ export const deleteStrategy = (strategyId: string) => {
     return false;
   }
 };
+

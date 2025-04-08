@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -52,14 +53,13 @@ const App = () => (
             
             {/* App Routes */}
             <Route path="/app" element={<AppLayout><StrategiesLanding /></AppLayout>} />
-            <Route path="/app/strategy-builder" element={<Navigate to="/app/strategy-builder/new" replace />} />
-            <Route path="/app/strategy-builder/:id" element={<AppLayout><StrategyBuilder /></AppLayout>} />
+            <Route path="/app/strategy-builder" element={<AppLayout><StrategyBuilder /></AppLayout>} />
             <Route path="/app/backtesting" element={<AppLayout><Backtesting /></AppLayout>} />
             <Route path="/app/backtesting/:id" element={<AppLayout><Backtesting /></AppLayout>} />
             <Route path="/app/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
             
             {/* Legacy routes - redirect to app routes */}
-            <Route path="/strategy-builder" element={<Navigate to="/app/strategy-builder/new" replace />} />
+            <Route path="/strategy-builder" element={<Navigate to="/app/strategy-builder" replace />} />
             <Route path="/backtesting" element={<Navigate to="/app/backtesting" replace />} />
             <Route path="/dashboard" element={<Navigate to="/app/dashboard" replace />} />
             
