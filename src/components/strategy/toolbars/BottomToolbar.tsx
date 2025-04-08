@@ -46,7 +46,7 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
   };
 
   const handleSave = () => {
-    // Save to localStorage with ID and name
+    // Save to localStorage with ID and name - pass the entire nodes and edges objects
     saveStrategyToLocalStorage(nodes, edges, strategyId || undefined, strategyName);
     
     // Trigger storage event to update strategies list

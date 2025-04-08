@@ -86,6 +86,7 @@ const sanitizeForStorage = (data: any): any => {
 
 /**
  * Saves the current strategy to localStorage with ID and name
+ * The format matches the exported JSON file format
  */
 export const saveStrategyToLocalStorage = (
   nodes: Node[], 
@@ -123,42 +124,19 @@ export const saveStrategyToLocalStorage = (
         return;
       }
       
-      // Optimize nodes before saving to reduce size
-      const optimizedNodes = nodes.map(node => {
-        // Remove empty node data objects
-        if (node.data && Object.keys(node.data).length === 0) {
-          return { ...node, data: null };
-        }
-        
-        // For signal nodes with many conditions, simplify to reduce storage size
-        if (node.type === 'signalNode' && 
-            node.data && 
-            Array.isArray(node.data.conditions) && 
-            node.data.conditions.length > 20) {
-          // Deep clone to avoid modifying original
-          const simplifiedNode = { ...node, data: { ...node.data } };
-          
-          // Limit conditions to improve serialization performance
-          simplifiedNode.data.conditions = [...node.data.conditions.slice(0, 20)];
-          
-          return simplifiedNode;
-        }
-        
-        return node;
-      });
-      
       // Sanitize to remove circular references
-      const sanitizedNodes = sanitizeForStorage(optimizedNodes);
+      const sanitizedNodes = sanitizeForStorage(nodes);
       const sanitizedEdges = sanitizeForStorage(edges);
       
-      // Save the strategy with its ID and metadata
+      // Create the complete strategy object (matches export format)
       const strategyData = {
-        id: finalStrategyId,
-        name: finalStrategyName,
         nodes: sanitizedNodes,
         edges: sanitizedEdges,
+        id: finalStrategyId,
+        name: finalStrategyName,
         lastModified: new Date().toISOString(),
-        created: localStorage.getItem(`strategy_${finalStrategyId}_created`) || new Date().toISOString()
+        created: localStorage.getItem(`strategy_${finalStrategyId}_created`) || new Date().toISOString(),
+        description: "Trading strategy created with Trady"
       };
       
       // Save the creation date if it's the first time
@@ -170,14 +148,8 @@ export const saveStrategyToLocalStorage = (
       localStorage.setItem(`strategy_${finalStrategyId}`, JSON.stringify(strategyData));
       console.log(`Saved complete strategy to localStorage: strategy_${finalStrategyId}`);
       
-      // First save the current working strategy
-      const currentStrategy = { 
-        nodes: sanitizedNodes, 
-        edges: sanitizedEdges,
-        id: finalStrategyId,
-        name: finalStrategyName
-      };
-      localStorage.setItem('tradyStrategy', JSON.stringify(currentStrategy));
+      // Also save as the current working strategy
+      localStorage.setItem('tradyStrategy', JSON.stringify(strategyData));
       console.log('Saved current working strategy to localStorage');
       
       // Update strategies list
@@ -330,4 +302,3 @@ export const deleteStrategy = (strategyId: string) => {
     return false;
   }
 };
-

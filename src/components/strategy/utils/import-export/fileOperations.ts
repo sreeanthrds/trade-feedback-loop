@@ -58,12 +58,21 @@ const transformNodeForExport = (node: Node) => {
   return transformedNode;
 };
 
-export const exportStrategyToFile = (nodes: Node[], edges: Edge[]) => {
+export const exportStrategyToFile = (nodes: Node[], edges: Edge[], strategyName: string = 'Untitled Strategy') => {
   try {
     // Transform nodes to include display names for indicators
     const transformedNodes = nodes.map(transformNodeForExport);
     
-    const strategy = { nodes: transformedNodes, edges };
+    const strategy = { 
+      nodes: transformedNodes, 
+      edges,
+      name: strategyName,
+      id: `strategy-${Date.now()}`,
+      lastModified: new Date().toISOString(),
+      created: new Date().toISOString(),
+      description: "Trading strategy created with Trady"
+    };
+    
     const blob = new Blob([JSON.stringify(strategy, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -138,6 +147,20 @@ export const importStrategyFromEvent = (
         setEdges(validatedEdges);
         resetHistory();
         addHistoryItem(validatedNodes, validatedEdges);
+        
+        // Also save the imported strategy to localStorage
+        if (imported.name && imported.id) {
+          localStorage.setItem('tradyStrategy', JSON.stringify({
+            nodes: validatedNodes,
+            edges: validatedEdges,
+            name: imported.name,
+            id: imported.id,
+            lastModified: new Date().toISOString(),
+            created: imported.created || new Date().toISOString(),
+            description: imported.description || "Imported trading strategy"
+          }));
+        }
+        
         toast.success("Strategy imported successfully");
         success = true;
       } else {
