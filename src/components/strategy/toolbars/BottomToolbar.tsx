@@ -5,10 +5,10 @@ import { Panel } from '@xyflow/react';
 import { Save, Download, Upload, RotateCcw, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { 
-  saveStrategyToLocalStorage, 
   exportStrategyToFile, 
   importStrategyFromEvent
-} from '../utils/flowUtils';
+} from '../utils/import-export/fileOperations';
+import { saveStrategyToLocalStorage } from '../utils/storage/localStorageUtils';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
 import { useBacktestingStore } from '../backtesting/useBacktestingStore';
 import { useToast } from "@/hooks/use-toast";
