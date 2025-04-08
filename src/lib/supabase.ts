@@ -7,11 +7,11 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Validate environment variables
 if (!supabaseUrl) {
-  console.error('Missing VITE_SUPABASE_URL environment variable');
+  console.warn('Missing VITE_SUPABASE_URL environment variable. Using mock client.');
 }
 
 if (!supabaseAnonKey) {
-  console.error('Missing VITE_SUPABASE_ANON_KEY environment variable');
+  console.warn('Missing VITE_SUPABASE_ANON_KEY environment variable. Using mock client.');
 }
 
 // Create a "safe" version of Supabase client that doesn't throw in development

@@ -5,12 +5,12 @@ import './index.css'
 
 // Check for required environment variables
 if (!import.meta.env.VITE_SUPABASE_URL) {
-  console.error('ERROR: Missing VITE_SUPABASE_URL environment variable');
+  console.warn('Warning: Missing VITE_SUPABASE_URL environment variable. Some features will be limited.');
   // You might want to display a more user-friendly error in the UI
 }
 
 if (!import.meta.env.VITE_SUPABASE_ANON_KEY) {
-  console.error('ERROR: Missing VITE_SUPABASE_ANON_KEY environment variable');
+  console.warn('Warning: Missing VITE_SUPABASE_ANON_KEY environment variable. Some features will be limited.');
   // You might want to display a more user-friendly error in the UI
 }
 

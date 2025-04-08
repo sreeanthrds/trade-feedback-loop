@@ -7,6 +7,11 @@ import { saveStrategyToLocalStorage } from '@/components/strategy/utils/storage/
 // Check if user is authenticated with Supabase
 export const isAuthenticated = async () => {
   try {
+    // If Supabase is not properly configured, return false
+    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+      return false;
+    }
+    
     const { data } = await supabase.auth.getSession();
     return !!data.session;
   } catch (error) {
@@ -23,7 +28,18 @@ export const saveStrategy = async (
   strategyName: string
 ) => {
   try {
-    // First check if user is authenticated
+    // First check if Supabase is properly configured
+    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+      // If not configured, save to local storage only
+      saveStrategyToLocalStorage(nodes, edges, strategyId, strategyName);
+      toast({
+        title: "Strategy saved locally",
+        description: `"${strategyName}" has been saved to your device (Supabase not configured).`
+      });
+      return true;
+    }
+    
+    // Check if user is authenticated
     const authenticated = await isAuthenticated();
     
     if (authenticated) {

@@ -26,12 +26,15 @@ export function useStrategyPersistence() {
   const loadStrategiesList = async () => {
     setIsLoading(true);
     try {
+      // Check if Supabase is configured
+      const supabaseConfigured = !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
+      
       // First check if user is authenticated
       const authenticated = await isAuthenticated();
       
       let strategiesList: Strategy[] = [];
       
-      if (authenticated) {
+      if (supabaseConfigured && authenticated) {
         try {
           // If authenticated, load from Supabase
           const cloudStrategies = await strategyService.getStrategies();
