@@ -30,14 +30,16 @@ import Account from "./pages/Account";
 // Documentation Page
 import Documentation from './pages/Documentation';
 
-// Create query client with error handling
+// Create query client with error handling - fixed TypeScript error with proper structure
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
       refetchOnWindowFocus: false,
-      onError: (error) => {
-        console.error('Query error:', error);
+      meta: {
+        onError: (error: Error) => {
+          console.error('Query error:', error);
+        }
       }
     }
   }
