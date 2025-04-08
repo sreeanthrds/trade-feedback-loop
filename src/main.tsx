@@ -8,6 +8,7 @@ const rootElement = document.getElementById("root");
 
 if (!rootElement) {
   console.error("Failed to find the root element");
+  document.body.innerHTML = '<div style="padding: 20px; text-align: center;"><h2>Application Error</h2><p>Root element not found.</p></div>';
 } else {
   try {
     const root = createRoot(rootElement);

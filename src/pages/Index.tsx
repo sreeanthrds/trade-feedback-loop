@@ -11,6 +11,9 @@ const Index = () => {
   useEffect(() => {
     // Reset scroll position when component mounts
     window.scrollTo(0, 0);
+    
+    // Log that home page is loading
+    console.log('Home page mounted');
   }, []);
 
   return (
@@ -28,4 +31,3 @@ const Index = () => {
 };
 
 export default Index;
-

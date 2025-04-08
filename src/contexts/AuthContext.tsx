@@ -46,25 +46,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
     
-    checkSession();
-    
-    // Listen for auth changes
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session && session.user) {
-        setUser({
-          id: session.user.id,
-          email: session.user.email || ''
-        });
-      } else {
-        setUser(null);
-      }
+    try {
+      checkSession();
       
+      // Listen for auth changes
+      const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+        if (session && session.user) {
+          setUser({
+            id: session.user.id,
+            email: session.user.email || ''
+          });
+        } else {
+          setUser(null);
+        }
+        
+        setIsLoading(false);
+      });
+      
+      return () => {
+        if (authListener && authListener.subscription) {
+          authListener.subscription.unsubscribe();
+        }
+      };
+    } catch (error) {
+      console.error('Auth provider setup error:', error);
       setIsLoading(false);
-    });
-    
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
+      return () => {};
+    }
   }, []);
 
   // Sign in function

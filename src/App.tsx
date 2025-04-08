@@ -30,7 +30,18 @@ import Account from "./pages/Account";
 // Documentation Page
 import Documentation from './pages/Documentation';
 
-const queryClient = new QueryClient();
+// Create query client with error handling
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+      onError: (error) => {
+        console.error('Query error:', error);
+      }
+    }
+  }
+});
 
 // Animation and page transitions observer
 const AppObserver = () => {
