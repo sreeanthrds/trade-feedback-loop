@@ -678,4 +678,32 @@ const ReportsDoc: React.FC = () => {
               </div>
               
               <div className="bg-yellow-50 dark:bg-yellow-950/20 p-3 rounded-md border border-yellow-200 dark:border-yellow-900">
-                <h4 className="font-medium text-yellow-700 dark:text
+                <h4 className="font-medium text-yellow-700 dark:text-yellow-400 mb-1">Modify</h4>
+                <ul className="list-disc pl-5 text-muted-foreground space-y-1">
+                  <li>Positive returns but high drawdowns</li>
+                  <li>Good concept but inconsistent results</li>
+                  <li>Overly sensitive to parameters</li>
+                  <li>Seasonal or market-dependent performance</li>
+                  <li>Too few trades for statistical significance</li>
+                </ul>
+              </div>
+              
+              <div className="bg-red-50 dark:bg-red-950/20 p-3 rounded-md border border-red-200 dark:border-red-900">
+                <h4 className="font-medium text-red-700 dark:text-red-400 mb-1">Reject</h4>
+                <ul className="list-disc pl-5 text-muted-foreground space-y-1">
+                  <li>Negative returns after costs</li>
+                  <li>Unacceptable drawdowns</li>
+                  <li>No clear edge over buy-and-hold</li>
+                  <li>Poor risk-adjusted metrics</li>
+                  <li>Works in backtests but fails forward testing</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ReportsDoc;
