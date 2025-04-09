@@ -1,6 +1,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { createMockClient } from './mock-client';
+import { toast } from '@/components/ui/use-toast';
 
 // Get environment variables
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -14,15 +15,21 @@ let supabase;
 
 try {
   if (isMissingConfig) {
-    console.warn('Missing Supabase configuration. Using mock client.');
-    supabase = createMockClient();
+    // Show a more helpful warning message
+    console.warn(
+      'Missing Supabase configuration. This app is running in development mode with mock authentication. ' +
+      'To use real authentication, please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment variables.'
+    );
+    
+    // Create mock client but modify behavior to make it more usable in dev
+    supabase = createMockClient(true); // Pass true to enable dev-friendly mock mode
   } else {
     supabase = createClient(supabaseUrl, supabaseAnonKey);
     console.log('Supabase client initialized successfully.');
   }
 } catch (error) {
   console.error('Failed to initialize Supabase client:', error);
-  supabase = createMockClient();
+  supabase = createMockClient(true);
 }
 
 export { supabase };

@@ -14,10 +14,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import AuthModal from './AuthModal';
 import { User, LogOut, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 const UserProfileDropdown = () => {
   const { user, isAuthenticated, signOut } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   
   // Get initials from email
   const getInitials = (email: string) => {
@@ -28,6 +30,12 @@ const UserProfileDropdown = () => {
   const handleSignOut = async () => {
     await signOut();
     navigate('/auth'); // Redirect to auth page after sign out
+    
+    // Show toast notification
+    toast({
+      title: "Logged out successfully",
+      description: "You have been signed out of your account."
+    });
   };
 
   // Force re-render when auth state changes
