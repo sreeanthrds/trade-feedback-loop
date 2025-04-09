@@ -25,7 +25,11 @@ export function useLocalStorageSync({
   
   // Update the ref when the strategy ID changes
   useEffect(() => {
-    currentStrategyIdRef.current = currentStrategyId;
+    if (currentStrategyId !== currentStrategyIdRef.current) {
+      console.log(`Strategy ID changed from ${currentStrategyIdRef.current} to ${currentStrategyId}`);
+      isInitialLoadRef.current = true; // Reset to trigger loading the new strategy
+      currentStrategyIdRef.current = currentStrategyId;
+    }
   }, [currentStrategyId]);
   
   // Safe setter functions that check if the setters exist
@@ -118,7 +122,7 @@ export function useLocalStorageSync({
     }
   }, [safeSetNodes, safeSetEdges, strategyStore, initialNodes, currentStrategyId]);
 
-  // Listen for external changes to localStorage (from another tab)
+  // Listen for external changes to localStorage (from another tab or from import)
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       // Only react to changes for the current strategy
@@ -128,35 +132,52 @@ export function useLocalStorageSync({
         try {
           // Prevent update loops by using a ref flag
           if (!isUpdatingFromLocalStorageRef.current) {
+            console.log(`Storage event detected for strategy: ${strategyKey}`);
             isUpdatingFromLocalStorageRef.current = true;
             
-            console.log(`Storage event detected for current strategy: ${strategyKey}`);
-            const parsed = JSON.parse(e.newValue);
+            // Load the updated strategy
+            const loadedStrategy = loadStrategyFromLocalStorage(currentStrategyIdRef.current);
             
-            if (parsed.nodes && parsed.edges) {
-              safeSetNodes(parsed.nodes);
-              safeSetEdges(parsed.edges);
+            if (loadedStrategy) {
+              console.log('Reloading strategy from localStorage after external change');
               
-              // Update store in a separate cycle
+              // Clear existing state first
+              safeSetNodes([]);
               setTimeout(() => {
-                if (strategyStore && typeof strategyStore.setNodes === 'function') {
-                  strategyStore.setNodes(parsed.nodes);
-                  strategyStore.setEdges(parsed.edges);
-                  
-                  if (typeof strategyStore.resetHistory === 'function') {
-                    strategyStore.resetHistory();
-                  }
-                  
-                  if (typeof strategyStore.addHistoryItem === 'function') {
-                    strategyStore.addHistoryItem(parsed.nodes, parsed.edges);
-                  }
-                }
+                safeSetEdges([]);
                 
-                // Reset flag after applying changes
+                // Then apply the new state
                 setTimeout(() => {
-                  isUpdatingFromLocalStorageRef.current = false;
+                  safeSetNodes(loadedStrategy.nodes);
+                  
+                  setTimeout(() => {
+                    safeSetEdges(loadedStrategy.edges);
+                    
+                    // Update store in a separate cycle
+                    setTimeout(() => {
+                      if (strategyStore && typeof strategyStore.setNodes === 'function') {
+                        strategyStore.setNodes(loadedStrategy.nodes);
+                        strategyStore.setEdges(loadedStrategy.edges);
+                        
+                        if (typeof strategyStore.resetHistory === 'function') {
+                          strategyStore.resetHistory();
+                        }
+                        
+                        if (typeof strategyStore.addHistoryItem === 'function') {
+                          strategyStore.addHistoryItem(loadedStrategy.nodes, loadedStrategy.edges);
+                        }
+                      }
+                      
+                      // Reset flag after applying changes
+                      setTimeout(() => {
+                        isUpdatingFromLocalStorageRef.current = false;
+                      }, 100);
+                    }, 100);
+                  }, 100);
                 }, 100);
               }, 100);
+            } else {
+              isUpdatingFromLocalStorageRef.current = false;
             }
           }
         } catch (error) {

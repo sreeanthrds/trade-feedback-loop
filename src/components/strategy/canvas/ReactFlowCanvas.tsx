@@ -1,5 +1,5 @@
 
-import React, { useCallback, useRef, useEffect } from 'react';
+import React, { useCallback, useRef, useEffect, useState } from 'react';
 import { ReactFlow, Controls, Background, BackgroundVariant, Node, Edge } from '@xyflow/react';
 import BottomToolbar from '../toolbars/BottomToolbar';
 import TopToolbar from '../toolbars/TopToolbar';
@@ -66,15 +66,16 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   const importInProgressRef = useRef(false);
   const lastImportRef = useRef(0);
   const currentStrategyIdRef = useRef(currentStrategyId);
-  const canvasKeyRef = useRef(`flow-${currentStrategyId || Date.now()}`);
+  
+  // Force remount of ReactFlow when strategy changes by using a unique key
+  const [flowKey, setFlowKey] = useState(`flow-${currentStrategyId || Date.now()}`);
 
-  // CRITICAL: Track strategy ID changes and update key to force remount
+  // Update flow key when strategy ID changes to force remount
   useEffect(() => {
     if (currentStrategyId !== currentStrategyIdRef.current) {
-      // Strategy has changed - update the key to force remount
-      canvasKeyRef.current = `flow-${currentStrategyId || Date.now()}-${Date.now()}`;
+      console.log(`Strategy changed from ${currentStrategyIdRef.current} to ${currentStrategyId}, forcing remount`);
+      setFlowKey(`flow-${currentStrategyId}-${Date.now()}`);
       currentStrategyIdRef.current = currentStrategyId;
-      console.log(`ReactFlowCanvas: Strategy changed - updating key to ${canvasKeyRef.current}`);
       
       // Reset import flags when strategy changes
       importInProgressRef.current = false;
@@ -87,6 +88,21 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
     nodesLengthRef.current = nodes.length;
     edgesLengthRef.current = edges.length;
   }, [nodes.length, edges.length]);
+
+  // Listen for storage events to reload current strategy
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      const strategyKey = `strategy_${currentStrategyId}`;
+      if (e.key === strategyKey && e.newValue) {
+        console.log(`Storage event detected for current strategy: ${strategyKey}`);
+        console.log('Forcing ReactFlow remount to reload strategy');
+        setFlowKey(`flow-${currentStrategyId}-${Date.now()}`);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [currentStrategyId]);
 
   // Wrap onNodesChange to use our enhanced node change handler
   const wrappedNodesChange = useCallback((changes: any) => {
@@ -115,57 +131,30 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
     console.log(`Import success handler called in ReactFlowCanvas for strategy: ${currentStrategyIdRef.current}`);
     console.log(`Current nodes: ${nodes.length}, edges: ${edges.length}`);
     
+    // Force remount of ReactFlow to ensure clean state
+    console.log('Forcing ReactFlow remount after import');
+    setFlowKey(`flow-${currentStrategyId}-${Date.now()}`);
+    
     // Set a timeout to ensure we have the latest nodes/edges
     setTimeout(() => {
       if (reactFlowInstanceRef.current) {
-        console.log("Fitting view after import with multiple attempts");
-        
-        // First attempt
+        console.log("Fitting view after import");
         try {
           fitView();
         } catch (e) {
-          console.error("Error in first fit view attempt:", e);
+          console.error("Error fitting view:", e);
         }
-        
-        // Second attempt after a delay
-        setTimeout(() => {
-          try {
-            fitView();
-            
-            // Force a zoom adjustment to ensure we see the whole strategy
-            if (reactFlowInstanceRef.current) {
-              const { zoom } = reactFlowInstanceRef.current.getViewport();
-              reactFlowInstanceRef.current.setViewport({
-                x: reactFlowInstanceRef.current.getViewport().x,
-                y: reactFlowInstanceRef.current.getViewport().y,
-                zoom: zoom * 0.9 // Zoom out slightly
-              }, { duration: 300 });
-            }
-          } catch (e) {
-            console.error("Error in second fit view attempt:", e);
-          }
-          
-          // Third attempt after another delay
-          setTimeout(() => {
-            try {
-              fitView();
-            } catch (e) {
-              console.error("Error in third fit view attempt:", e);
-            }
-            
-            // Release import flag
-            importInProgressRef.current = false;
-            
-            // Call the parent's import success handler
-            onImportSuccess();
-          }, 600);
-        }, 600);
-      } else {
-        importInProgressRef.current = false;
-        onImportSuccess();
       }
-    }, 300);
-  }, [fitView, onImportSuccess, nodes.length, edges.length]);
+      
+      // Release import flag
+      setTimeout(() => {
+        importInProgressRef.current = false;
+        
+        // Call the parent's import success handler
+        onImportSuccess();
+      }, 500);
+    }, 500);
+  }, [fitView, onImportSuccess, nodes.length, edges.length, currentStrategyId]);
 
   // Add logging for backtest panel toggle
   const handleToggleBacktest = useCallback(() => {
@@ -177,7 +166,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   
   // Update instance ref when initialized
   const handleInit = useCallback((instance) => {
-    console.log(`ReactFlow initialized for strategy: ${currentStrategyIdRef.current} with key ${canvasKeyRef.current}`);
+    console.log(`ReactFlow initialized for strategy: ${currentStrategyIdRef.current} with key ${flowKey}`);
     reactFlowInstanceRef.current = instance;
     
     // Fit view on init
@@ -188,7 +177,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
         console.error("Error in initial fit view:", e);
       }
     }, 300);
-  }, [fitView]);
+  }, [fitView, flowKey]);
 
   return (
     <div 
@@ -198,7 +187,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
       onDrop={onDrop}
     >
       <ReactFlow
-        key={canvasKeyRef.current} // Use dynamic key to force remount on strategy changes
+        key={flowKey}
         nodes={nodes}
         edges={edges}
         onNodesChange={wrappedNodesChange}
