@@ -80,7 +80,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   const handleImportSuccess = useCallback(() => {
     // Prevent import handling if too recent (throttle)
     const now = Date.now();
-    if (now - lastImportRef.current < 500) {
+    if (now - lastImportRef.current < 800) {
       console.log("Import success handler called too soon, skipping");
       return;
     }
@@ -122,22 +122,32 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
                 x: reactFlowInstanceRef.current.getViewport().x,
                 y: reactFlowInstanceRef.current.getViewport().y,
                 zoom: zoom * 0.9 // Zoom out slightly
-              }, { duration: 200 });
+              }, { duration: 300 });
             }
           } catch (e) {
             console.error("Error in second fit view attempt:", e);
           }
           
-          // Release import flag
-          importInProgressRef.current = false;
-        }, 500);
+          // Third attempt after another delay
+          setTimeout(() => {
+            try {
+              fitView();
+            } catch (e) {
+              console.error("Error in third fit view attempt:", e);
+            }
+            
+            // Release import flag
+            importInProgressRef.current = false;
+            
+            // Call the parent's import success handler
+            onImportSuccess();
+          }, 600);
+        }, 600);
       } else {
         importInProgressRef.current = false;
+        onImportSuccess();
       }
-      
-      // Call the parent's import success handler
-      onImportSuccess();
-    }, 200);
+    }, 300);
   }, [fitView, onImportSuccess, nodes.length, edges.length, currentStrategyId]);
 
   // When nodes change significantly, trigger a fit view
@@ -165,7 +175,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
         } catch (e) {
           console.error("Error fitting view after major change:", e);
         }
-      }, 300);
+      }, 400);
     }
   }, [nodes.length, edges.length, fitView]);
 
@@ -189,7 +199,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
       } catch (e) {
         console.error("Error in initial fit view:", e);
       }
-    }, 100);
+    }, 300);
   }, [fitView]);
 
   return (
@@ -218,6 +228,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
         proOptions={{ hideAttribution: true }}
         selectNodesOnDrag={false}
         className="strategy-flow"
+        key={`flow-${currentStrategyId}`} // Force re-creation when strategy changes
       >
         <Background variant={BackgroundVariant.Dots} gap={15} size={1} color="#e2e8f0" />
         <Controls showInteractive={false} position="bottom-left" />

@@ -86,7 +86,7 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
         setTimeout(() => {
           console.log("Calling onImportSuccess callback with delay");
           onImportSuccess();
-        }, 100);
+        }, 300); // Increased delay for better state propagation
       }
     } catch (error) {
       console.error("Error during import:", error);
@@ -104,8 +104,18 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
   };
 
   const handleSave = () => {
+    if (!strategyId) {
+      console.error("Cannot save strategy without ID");
+      toast({
+        title: "Save failed",
+        description: "Strategy ID is missing",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     // Save to localStorage with ID and name - pass the entire nodes and edges objects
-    saveStrategyToLocalStorage(nodes, edges, strategyId || undefined, strategyName);
+    saveStrategyToLocalStorage(nodes, edges, strategyId, strategyName);
     
     // Trigger storage event to update strategies list
     window.dispatchEvent(new StorageEvent('storage', {

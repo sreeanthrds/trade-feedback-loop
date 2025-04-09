@@ -75,9 +75,21 @@ export const saveStrategyToLocalStorage = (
       localStorage.setItem(`strategy_${finalStrategyId}`, JSON.stringify(strategyData));
       console.log(`Saved complete strategy to localStorage: strategy_${finalStrategyId}`);
       
-      // Also save as the current working strategy
+      // Also save as the current working strategy, clearing previous working strategy for other IDs
+      const existingWorkingStrategy = localStorage.getItem('tradyStrategy');
+      if (existingWorkingStrategy) {
+        try {
+          const parsed = JSON.parse(existingWorkingStrategy);
+          if (parsed.id !== finalStrategyId) {
+            console.log(`Replacing working strategy from ${parsed.id} to ${finalStrategyId}`);
+          }
+        } catch (e) {
+          console.error("Error parsing existing working strategy:", e);
+        }
+      }
+      
       localStorage.setItem('tradyStrategy', JSON.stringify(strategyData));
-      console.log('Saved current working strategy to localStorage');
+      console.log(`Saved current working strategy to localStorage for ID: ${finalStrategyId}`);
       
       // Update strategies list
       updateStrategiesList(strategyData);
@@ -103,9 +115,16 @@ const updateStrategiesList = (strategyData: StrategyData) => {
   let strategies = [];
   try {
     const savedStrategiesList = localStorage.getItem('strategies');
-    strategies = savedStrategiesList ? JSON.parse(savedStrategiesList) : [];
+    if (savedStrategiesList) {
+      try {
+        strategies = JSON.parse(savedStrategiesList);
+      } catch (e) {
+        console.error('Failed to parse strategies list:', e);
+        strategies = [];
+      }
+    }
   } catch (e) {
-    console.error('Failed to parse strategies list:', e);
+    console.error('Failed to get strategies list:', e);
     strategies = [];
   }
   

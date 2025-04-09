@@ -1,3 +1,4 @@
+
 import { Node, Edge } from '@xyflow/react';
 import { toast } from '@/hooks/use-toast';
 import { indicatorConfig } from '../indicatorConfig';
@@ -106,7 +107,19 @@ export const importStrategyFromEvent = (
       return;
     }
     
+    if (!currentStrategyId) {
+      console.error("Cannot import strategy without target strategy ID");
+      toast({
+        title: "Import failed",
+        description: "Strategy context is missing",
+        variant: "destructive"
+      });
+      resolve(false);
+      return;
+    }
+    
     console.log("File selected for import:", file.name);
+    console.log(`Importing to strategy: ${currentStrategyId} - ${currentStrategyName || 'Unnamed'}`);
     
     const reader = new FileReader();
     
@@ -171,13 +184,28 @@ export const importStrategyFromEvent = (
             return;
           }
           
-          const strategyId = currentStrategyId || imported.id || `strategy-${Date.now()}`;
+          // Use provided strategy ID and name or generate fallbacks
+          const strategyId = currentStrategyId;
           const strategyName = currentStrategyName || imported.name || "Imported Strategy";
           
-          console.log(`Importing to strategy: ${strategyId} - ${strategyName}`);
+          // Clear existing strategy data
+          localStorage.removeItem(`strategy_${strategyId}`);
           
-          localStorage.removeItem('tradyStrategy');
-          console.log("Cleared current working strategy from localStorage");
+          // Clear current working strategy
+          const existingWorkingStrategy = localStorage.getItem('tradyStrategy');
+          if (existingWorkingStrategy) {
+            try {
+              const parsed = JSON.parse(existingWorkingStrategy);
+              // Only clear if the ID matches the current strategy
+              if (parsed.id === strategyId) {
+                localStorage.removeItem('tradyStrategy');
+              }
+            } catch (e) {
+              console.error("Error parsing existing working strategy:", e);
+            }
+          }
+          
+          console.log(`Clearing existing data for strategy: ${strategyId}`);
           
           resetHistory();
           
@@ -186,12 +214,12 @@ export const importStrategyFromEvent = (
               console.log("Setting validated nodes:", validatedNodes.length);
               setNodes(validatedNodes);
               
-              await new Promise(resolve => setTimeout(resolve, 50));
+              await new Promise(resolve => setTimeout(resolve, 100));
               
               console.log("Setting validated edges:", validatedEdges.length);
               setEdges(validatedEdges);
               
-              await new Promise(resolve => setTimeout(resolve, 50));
+              await new Promise(resolve => setTimeout(resolve, 100));
               
               console.log(`Saving imported strategy to localStorage with ID: ${strategyId}`);
               
@@ -205,18 +233,24 @@ export const importStrategyFromEvent = (
                 description: imported.description || "Imported trading strategy"
               };
               
+              // Save to specific strategy storage
               localStorage.setItem(`strategy_${strategyId}`, JSON.stringify(strategyToSave));
+              
+              // Save as current working strategy
               localStorage.setItem('tradyStrategy', JSON.stringify(strategyToSave));
               
+              // Update history
               addHistoryItem(validatedNodes, validatedEdges);
               
+              // Update strategies list
               updateStrategiesList(strategyToSave);
               
               toast({
                 title: "Strategy imported successfully",
-                description: "Your strategy has been loaded"
+                description: `Strategy imported to "${strategyName}"`
               });
               
+              // Trigger a storage event to update UI in other tabs
               window.dispatchEvent(new StorageEvent('storage', {
                 key: 'strategies'
               }));
@@ -228,7 +262,8 @@ export const importStrategyFromEvent = (
             }
           };
           
-          setTimeout(applyImport, 50);
+          // Use a delay to ensure DOM is ready
+          setTimeout(applyImport, 100);
         } else {
           console.error("Missing nodes or edges in imported data", imported);
           toast({
@@ -264,32 +299,44 @@ export const importStrategyFromEvent = (
 };
 
 const updateStrategiesList = (strategyData: any) => {
-  let strategies = [];
   try {
-    const savedStrategiesList = localStorage.getItem('strategies');
-    strategies = savedStrategiesList ? JSON.parse(savedStrategiesList) : [];
+    const strategiesJSON = localStorage.getItem('strategies');
+    let strategies = [];
+    
+    if (strategiesJSON) {
+      try {
+        strategies = JSON.parse(strategiesJSON);
+      } catch (e) {
+        console.error('Failed to parse strategies list:', e);
+        strategies = [];
+      }
+    }
+    
+    const strategyMetadata = {
+      id: strategyData.id,
+      name: strategyData.name,
+      lastModified: strategyData.lastModified,
+      created: strategyData.created,
+      description: strategyData.description
+    };
+    
+    // Find if this strategy already exists in the list
+    const existingIndex = strategies.findIndex((s: any) => s.id === strategyData.id);
+    
+    if (existingIndex >= 0) {
+      // Update existing strategy in the list
+      strategies[existingIndex] = strategyMetadata;
+      console.log(`Updated existing strategy in list at index ${existingIndex}`);
+    } else {
+      // Add new strategy to list
+      strategies.push(strategyMetadata);
+      console.log(`Added new strategy to list, now contains ${strategies.length} strategies`);
+    }
+    
+    // Save updated list to localStorage
+    localStorage.setItem('strategies', JSON.stringify(strategies));
+    console.log('Saved updated strategies list to localStorage');
   } catch (e) {
-    console.error('Failed to parse strategies list:', e);
-    strategies = [];
+    console.error('Error updating strategies list:', e);
   }
-  
-  const strategyMetadata = {
-    id: strategyData.id,
-    name: strategyData.name,
-    lastModified: strategyData.lastModified,
-    created: strategyData.created,
-    description: strategyData.description
-  };
-  
-  const existingIndex = strategies.findIndex((s: any) => s.id === strategyData.id);
-  if (existingIndex >= 0) {
-    strategies[existingIndex] = strategyMetadata;
-    console.log(`Updated existing strategy in list at index ${existingIndex}`);
-  } else {
-    strategies.push(strategyMetadata);
-    console.log(`Added new strategy to list, now contains ${strategies.length} strategies`);
-  }
-  
-  localStorage.setItem('strategies', JSON.stringify(strategies));
-  console.log('Saved updated strategies list to localStorage');
 };

@@ -49,6 +49,11 @@ export const useStrategyHandlers = ({
       return;
     }
     
+    if (!currentStrategyId) {
+      console.error("Cannot reset strategy without ID");
+      return;
+    }
+    
     resetInProgressRef.current = true;
     updateHandlingRef.current = true;
     
@@ -80,15 +85,23 @@ export const useStrategyHandlers = ({
             storeRef.current.addHistoryItem(initialNodes, []);
             
             // Clear localStorage ONLY for current strategy
-            localStorage.removeItem('tradyStrategy');
+            localStorage.removeItem(`strategy_${currentStrategyId}`);
             
-            if (currentStrategyId) {
-              // Remove only this specific strategy
-              localStorage.removeItem(`strategy_${currentStrategyId}`);
-              
-              // Update the strategies list to reflect changes
-              updateStrategiesList(currentStrategyId);
+            // Clear current working strategy only if it matches the current ID
+            const currentWorkingStrategy = localStorage.getItem('tradyStrategy');
+            if (currentWorkingStrategy) {
+              try {
+                const parsed = JSON.parse(currentWorkingStrategy);
+                if (parsed.id === currentStrategyId) {
+                  localStorage.removeItem('tradyStrategy');
+                }
+              } catch (e) {
+                console.error('Error parsing current working strategy:', e);
+              }
             }
+            
+            // Update the strategies list
+            updateStrategiesList(currentStrategyId);
             
             // Fit view after reset
             if (instanceRef.current) {
@@ -209,8 +222,8 @@ export const useStrategyHandlers = ({
         // Release update flag after viewport adjustment
         setTimeout(() => {
           updateHandlingRef.current = false;
-        }, 400);
-      }, 400);
+        }, 600);
+      }, 600);
     } catch (error) {
       console.error("Error in import success handler:", error);
       updateHandlingRef.current = false;
