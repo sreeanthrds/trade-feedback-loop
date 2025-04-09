@@ -2,6 +2,7 @@
 export type ExitOrderType = 'market' | 'limit';
 export type QuantityType = 'all' | 'percentage' | 'specific';
 export type TriggerType = 'percentage' | 'points' | 'pnl';
+export type TimeUnit = 'seconds' | 'minutes' | 'hours';
 
 export interface ExitOrderConfig {
   orderType: ExitOrderType;
@@ -27,6 +28,12 @@ export interface StopLossConfig {
   stopPoints?: number;
   stopPnl?: number;
   reEntry?: ReEntryConfig;
+  // New properties for stop-loss wait time
+  waitForMarket?: boolean;
+  waitTime?: number;
+  waitTimeUnit?: TimeUnit;
+  // New property for limit buffer
+  limitBuffer?: number;
 }
 
 export interface TrailingStopConfig {
@@ -39,6 +46,12 @@ export interface TrailingStopConfig {
   pointsStepSize?: number;
   pnlStepSize?: number;
   reEntry?: ReEntryConfig;
+  // New properties for stop-loss wait time
+  waitForMarket?: boolean;
+  waitTime?: number;
+  waitTimeUnit?: TimeUnit;
+  // New property for limit buffer
+  limitBuffer?: number;
 }
 
 export interface TakeProfitConfig {
@@ -48,6 +61,12 @@ export interface TakeProfitConfig {
   targetPoints?: number;
   targetPnl?: number;
   reEntry?: ReEntryConfig;
+  // New properties for stop-loss wait time
+  waitForMarket?: boolean;
+  waitTime?: number;
+  waitTimeUnit?: TimeUnit;
+  // New property for limit buffer
+  limitBuffer?: number;
 }
 
 // Add the postExecutionConfig property to ExitNodeData

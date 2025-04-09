@@ -1,10 +1,10 @@
 
 import React from 'react';
-import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
+import { EnhancedNumberInput, EnhancedSelectField } from '@/components/ui/form/enhanced';
 import EnhancedSwitch from '@/components/ui/form/enhanced/EnhancedSwitch';
 import EnhancedRadioGroup from '@/components/ui/form/enhanced/EnhancedRadioGroup';
-import { StopLossConfig, TriggerType } from '../exit-node/types';
-import { DollarSign, PercentIcon, Hash } from 'lucide-react';
+import { StopLossConfig, TriggerType, TimeUnit } from '../exit-node/types';
+import { DollarSign, PercentIcon, Hash, Clock, Buffer } from 'lucide-react';
 
 interface StopLossSectionProps {
   stopLoss: StopLossConfig;
@@ -27,6 +27,26 @@ const StopLossSection: React.FC<StopLossSectionProps> = ({
 
   const handleTriggerTypeChange = (value: string) => {
     handleStopLossParamChange({ triggerType: value as TriggerType });
+  };
+
+  const handleWaitForMarketToggle = (enabled: boolean) => {
+    handleStopLossParamChange({ 
+      waitForMarket: enabled,
+      waitTime: enabled ? (stopLoss.waitTime || 5) : undefined,
+      waitTimeUnit: enabled ? (stopLoss.waitTimeUnit || 'seconds') : undefined
+    });
+  };
+
+  const handleWaitTimeChange = (value: number | undefined) => {
+    handleStopLossParamChange({ waitTime: value });
+  };
+
+  const handleTimeUnitChange = (value: string) => {
+    handleStopLossParamChange({ waitTimeUnit: value as TimeUnit });
+  };
+
+  const handleLimitBufferChange = (value: number | undefined) => {
+    handleStopLossParamChange({ limitBuffer: value });
   };
 
   const renderTriggerInput = () => {
@@ -87,7 +107,55 @@ const StopLossSection: React.FC<StopLossSectionProps> = ({
       
       {renderTriggerInput()}
       
-      <div className="pt-1">
+      <div className="pt-1 pb-2 border-t border-border/30 mt-2">
+        <EnhancedSwitch
+          id="wait-for-market-toggle"
+          label="Wait before Market Order"
+          checked={stopLoss.waitForMarket || false}
+          onCheckedChange={handleWaitForMarketToggle}
+          tooltip="Wait for a specified time before converting to market order"
+        />
+        
+        {stopLoss.waitForMarket && (
+          <div className="pl-4 space-y-3 pt-2 flex items-center gap-2">
+            <EnhancedNumberInput
+              label="Wait Time"
+              value={stopLoss.waitTime || 5}
+              onChange={handleWaitTimeChange}
+              min={1}
+              step={1}
+              tooltip="Time to wait before converting to market order"
+              className="flex-1"
+            />
+            
+            <EnhancedSelectField
+              label="Time Unit"
+              value={stopLoss.waitTimeUnit || 'seconds'}
+              onChange={handleTimeUnitChange}
+              options={[
+                { value: 'seconds', label: 'Seconds' },
+                { value: 'minutes', label: 'Minutes' },
+                { value: 'hours', label: 'Hours' }
+              ]}
+              tooltip="Unit of time to wait"
+              className="flex-1"
+            />
+          </div>
+        )}
+      </div>
+
+      <div className="pt-1 pb-2 border-t border-border/30">
+        <EnhancedNumberInput
+          label="Limit Price Buffer"
+          value={stopLoss.limitBuffer}
+          onChange={handleLimitBufferChange}
+          min={0}
+          step={0.1}
+          tooltip="Buffer amount from trigger price for limit orders"
+        />
+      </div>
+      
+      <div className="pt-1 border-t border-border/30">
         <EnhancedSwitch
           id="stop-loss-reentry-toggle"
           label="Re-entry After Stop Loss"

@@ -1,93 +1,94 @@
 
-import { useMemo } from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import {
-  ExitNodeData,
-  ExitOrderConfig,
-  ReEntryConfig,
+import { useCallback } from 'react';
+import { 
+  ExitNodeData, 
+  ExitOrderConfig, 
+  ReEntryConfig, 
+  StopLossConfig, 
+  TrailingStopConfig, 
+  TakeProfitConfig, 
   PostExecutionConfig,
-  StopLossConfig,
-  TrailingStopConfig,
-  TakeProfitConfig
+  TimeUnit
 } from '../types';
 
+/**
+ * Default values for Exit Node
+ */
 export const useExitNodeDefaults = () => {
-  const defaultOrderConfig: ExitOrderConfig = useMemo(() => ({
-    orderType: 'market',
-    quantity: 'all',
-    partialQuantityPercentage: 50,
-    specificQuantity: 1,
-    _lastUpdated: Date.now()
-  }), []);
-
-  const defaultReEntryConfig: ReEntryConfig = useMemo(() => ({
+  // Default configuration for the order
+  const defaultOrderConfig: ExitOrderConfig = {
+    orderType: 'market'
+  };
+  
+  // Default re-entry configuration
+  const defaultReEntryConfig: ReEntryConfig = {
     enabled: false,
     groupNumber: 1,
     maxReEntries: 1
-  }), []);
-
-  const defaultStopLossConfig: StopLossConfig = useMemo(() => ({
+  };
+  
+  // Default stop loss configuration
+  const defaultStopLossConfig: StopLossConfig = {
     enabled: false,
     triggerType: 'percentage',
-    stopPercentage: 5,
-    stopPoints: 10,
-    stopPnl: 100,
-    reEntry: {
-      enabled: false,
-      groupNumber: 1,
-      maxReEntries: 1
-    }
-  }), []);
-
-  const defaultTrailingStopConfig: TrailingStopConfig = useMemo(() => ({
+    stopPercentage: 2,
+    waitForMarket: false,
+    waitTime: 5,
+    waitTimeUnit: 'seconds' as TimeUnit,
+    limitBuffer: 0.5
+  };
+  
+  // Default trailing stop configuration
+  const defaultTrailingStopConfig: TrailingStopConfig = {
     enabled: false,
     triggerType: 'percentage',
-    initialDistance: 5,
-    initialPoints: 10,
-    initialPnl: 100,
-    stepSize: 1,
-    pointsStepSize: 2,
-    pnlStepSize: 20,
-    reEntry: {
-      enabled: false,
-      groupNumber: 1,
-      maxReEntries: 1
-    }
-  }), []);
-
-  const defaultTakeProfitConfig: TakeProfitConfig = useMemo(() => ({
+    initialDistance: 2,
+    stepSize: 0.5,
+    waitForMarket: false,
+    waitTime: 5,
+    waitTimeUnit: 'seconds' as TimeUnit,
+    limitBuffer: 0.5
+  };
+  
+  // Default take profit configuration
+  const defaultTakeProfitConfig: TakeProfitConfig = {
     enabled: false,
     triggerType: 'percentage',
-    targetPercentage: 10,
-    targetPoints: 20,
-    targetPnl: 200,
-    reEntry: {
-      enabled: false,
-      groupNumber: 1,
-      maxReEntries: 1
-    }
-  }), []);
-
-  const defaultPostExecutionConfig: PostExecutionConfig = useMemo(() => ({
+    targetPercentage: 5,
+    waitForMarket: false,
+    waitTime: 5,
+    waitTimeUnit: 'seconds' as TimeUnit,
+    limitBuffer: 0.5
+  };
+  
+  // Default post execution configuration
+  const defaultPostExecutionConfig: PostExecutionConfig = {
     stopLoss: defaultStopLossConfig,
     trailingStop: defaultTrailingStopConfig,
     takeProfit: defaultTakeProfitConfig
-  }), [defaultStopLossConfig, defaultTrailingStopConfig, defaultTakeProfitConfig]);
-
-  const defaultExitNodeData: ExitNodeData = useMemo(() => ({
+  };
+  
+  // Default exit node data
+  const defaultExitNodeData: ExitNodeData = {
     orderConfig: defaultOrderConfig,
     reEntryConfig: defaultReEntryConfig,
     postExecutionConfig: defaultPostExecutionConfig,
     _initialized: true
-  }), [defaultOrderConfig, defaultReEntryConfig, defaultPostExecutionConfig]);
-
+  };
+  
+  // Create function to get a fresh copy of the default data
+  const getDefaultExitNodeData = useCallback((): ExitNodeData => {
+    return JSON.parse(JSON.stringify(defaultExitNodeData));
+  }, []);
+  
   return {
     defaultExitNodeData,
+    getDefaultExitNodeData,
     defaultOrderConfig,
     defaultReEntryConfig,
-    defaultPostExecutionConfig,
     defaultStopLossConfig,
     defaultTrailingStopConfig,
-    defaultTakeProfitConfig
+    defaultTakeProfitConfig,
+    defaultPostExecutionConfig
   };
 };

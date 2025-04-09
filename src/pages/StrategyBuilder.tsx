@@ -85,21 +85,6 @@ const StrategyBuilder = () => {
     return () => clearTimeout(timer);
   }, [strategyId, strategyName, isNewStrategy]);
 
-  const handleSaveAndExit = () => {
-    saveStrategyToLocalStorage(nodes, edges, strategyId, strategyName);
-    
-    toast({
-      title: "Strategy saved successfully",
-      description: `"${strategyName}" has been saved to your strategies.`
-    });
-    
-    window.dispatchEvent(new StorageEvent('storage', {
-      key: 'strategies'
-    }));
-    
-    navigate('/app');
-  };
-
   const handleSave = () => {
     saveStrategyToLocalStorage(nodes, edges, strategyId, strategyName);
     
@@ -139,16 +124,6 @@ const StrategyBuilder = () => {
         >
           <Save className="h-3.5 w-3.5" />
           Save
-        </Button>
-        
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={handleSaveAndExit}
-          className="flex items-center gap-1.5 text-xs"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          Save & Exit
         </Button>
       </div>
       

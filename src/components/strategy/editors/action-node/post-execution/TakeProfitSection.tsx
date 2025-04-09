@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
+import { EnhancedNumberInput, EnhancedSelectField } from '@/components/ui/form/enhanced';
 import EnhancedSwitch from '@/components/ui/form/enhanced/EnhancedSwitch';
 import EnhancedRadioGroup from '@/components/ui/form/enhanced/EnhancedRadioGroup';
-import { TakeProfitConfig, TriggerType } from '../exit-node/types';
+import { TakeProfitConfig, TriggerType, TimeUnit } from '../exit-node/types';
 
 interface TakeProfitSectionProps {
   takeProfit: TakeProfitConfig;
@@ -28,7 +28,27 @@ const TakeProfitSection: React.FC<TakeProfitSectionProps> = ({
     handleTakeProfitParamChange({ triggerType: value as TriggerType });
   };
 
-  const renderTriggerInput = () => {
+  const handleWaitForMarketToggle = (enabled: boolean) => {
+    handleTakeProfitParamChange({ 
+      waitForMarket: enabled,
+      waitTime: enabled ? (takeProfit.waitTime || 5) : undefined,
+      waitTimeUnit: enabled ? (takeProfit.waitTimeUnit || 'seconds') : undefined
+    });
+  };
+
+  const handleWaitTimeChange = (value: number | undefined) => {
+    handleTakeProfitParamChange({ waitTime: value });
+  };
+
+  const handleTimeUnitChange = (value: string) => {
+    handleTakeProfitParamChange({ waitTimeUnit: value as TimeUnit });
+  };
+
+  const handleLimitBufferChange = (value: number | undefined) => {
+    handleTakeProfitParamChange({ limitBuffer: value });
+  };
+
+  const renderTargetInput = () => {
     switch (triggerType) {
       case 'percentage':
         return (
@@ -37,9 +57,8 @@ const TakeProfitSection: React.FC<TakeProfitSectionProps> = ({
             value={takeProfit.targetPercentage}
             onChange={(value) => handleTakeProfitParamChange({ targetPercentage: value })}
             min={0.1}
-            max={1000}
             step={0.1}
-            tooltip="Percentage above entry price for take profit"
+            tooltip="Target percentage for take profit"
           />
         );
       case 'points':
@@ -50,7 +69,7 @@ const TakeProfitSection: React.FC<TakeProfitSectionProps> = ({
             onChange={(value) => handleTakeProfitParamChange({ targetPoints: value })}
             min={0.1}
             step={0.1}
-            tooltip="Points above entry price for take profit"
+            tooltip="Target points for take profit"
           />
         );
       case 'pnl':
@@ -61,7 +80,7 @@ const TakeProfitSection: React.FC<TakeProfitSectionProps> = ({
             onChange={(value) => handleTakeProfitParamChange({ targetPnl: value })}
             min={0}
             step={100}
-            tooltip="Profit amount to trigger take profit"
+            tooltip="Target P&L amount for take profit"
           />
         );
       default:
@@ -84,9 +103,57 @@ const TakeProfitSection: React.FC<TakeProfitSectionProps> = ({
         tooltip="Type of measurement to use for take profit"
       />
       
-      {renderTriggerInput()}
+      {renderTargetInput()}
       
-      <div className="pt-1">
+      <div className="pt-1 pb-2 border-t border-border/30 mt-2">
+        <EnhancedSwitch
+          id="wait-for-market-toggle"
+          label="Wait before Market Order"
+          checked={takeProfit.waitForMarket || false}
+          onCheckedChange={handleWaitForMarketToggle}
+          tooltip="Wait for a specified time before converting to market order"
+        />
+        
+        {takeProfit.waitForMarket && (
+          <div className="pl-4 space-y-3 pt-2 flex items-center gap-2">
+            <EnhancedNumberInput
+              label="Wait Time"
+              value={takeProfit.waitTime || 5}
+              onChange={handleWaitTimeChange}
+              min={1}
+              step={1}
+              tooltip="Time to wait before converting to market order"
+              className="flex-1"
+            />
+            
+            <EnhancedSelectField
+              label="Time Unit"
+              value={takeProfit.waitTimeUnit || 'seconds'}
+              onChange={handleTimeUnitChange}
+              options={[
+                { value: 'seconds', label: 'Seconds' },
+                { value: 'minutes', label: 'Minutes' },
+                { value: 'hours', label: 'Hours' }
+              ]}
+              tooltip="Unit of time to wait"
+              className="flex-1"
+            />
+          </div>
+        )}
+      </div>
+
+      <div className="pt-1 pb-2 border-t border-border/30">
+        <EnhancedNumberInput
+          label="Limit Price Buffer"
+          value={takeProfit.limitBuffer}
+          onChange={handleLimitBufferChange}
+          min={0}
+          step={0.1}
+          tooltip="Buffer amount from trigger price for limit orders"
+        />
+      </div>
+      
+      <div className="pt-1 border-t border-border/30">
         <EnhancedSwitch
           id="take-profit-reentry-toggle"
           label="Re-entry After Take Profit"
