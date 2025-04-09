@@ -1,11 +1,23 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SignInForm from '@/components/auth/SignInForm';
 import SignUpForm from '@/components/auth/SignUpForm';
+import { useAuth } from '@/contexts/AuthContext';
 
 const AuthPage = () => {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/app');
+    }
+  }, [isAuthenticated, navigate]);
+
   return (
     <div className="h-screen flex items-center justify-center bg-gradient-to-b from-background to-muted/50 p-4">
       <div className="max-w-md w-full">

@@ -1,8 +1,6 @@
-
 import React, { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import AuthPage from '@/pages/AuthPage';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -26,15 +24,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
   
-  // If not authenticated, redirect to auth page and remember the original destination
+  // If not authenticated, redirect to auth page
   if (!isAuthenticated) {
-    // For documentation page, we just redirect to auth
-    if (location.pathname === '/documentation') {
-      return <Navigate to="/auth" replace />;
-    }
-    
-    // For other pages, we show the auth page directly
-    return <AuthPage />;
+    return <Navigate to="/auth" state={{ from: location }} replace />;
   }
   
   // Otherwise, render the protected content
