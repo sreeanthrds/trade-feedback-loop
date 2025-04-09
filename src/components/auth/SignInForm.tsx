@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Facebook, LogIn } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';

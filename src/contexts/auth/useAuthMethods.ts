@@ -1,117 +1,17 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
+import { User, AuthResult } from './types';
 
-type User = {
-  id: string;
-  email: string;
-} | null;
-
-type AuthContextType = {
-  user: User;
-  isLoading: boolean;
-  isAuthenticated: boolean;
-  signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  signUp: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  signOut: () => Promise<void>;
-  signInWithProvider: (provider: 'google' | 'facebook') => Promise<{ success: boolean; error?: string }>;
-};
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+export function useAuthMethods(
+  user: User, 
+  setUser: React.Dispatch<React.SetStateAction<User>>,
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
+) {
   const { toast } = useToast();
 
-  // Check for current session on mount
-  useEffect(() => {
-    const checkSession = async () => {
-      setIsLoading(true);
-      
-      try {
-        // First, check localStorage for mock auth in development
-        const mockUser = localStorage.getItem('mock_current_user');
-        if (mockUser) {
-          try {
-            const parsedUser = JSON.parse(mockUser);
-            setUser({
-              id: parsedUser.id,
-              email: parsedUser.email || ''
-            });
-            setIsLoading(false);
-            return; // Exit early if we found a mock user
-          } catch (e) {
-            console.error('Error parsing mock user:', e);
-            // Continue with regular auth check
-          }
-        }
-        
-        // Regular Supabase auth check
-        const { data } = await supabase.auth.getSession();
-        
-        if (data && data.session) {
-          const { user } = data.session;
-          setUser({
-            id: user.id,
-            email: user.email || ''
-          });
-        }
-      } catch (error) {
-        console.error('Session check error:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    try {
-      checkSession();
-      
-      // Listen for auth changes
-      const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-        if (session && session.user) {
-          setUser({
-            id: session.user.id,
-            email: session.user.email || ''
-          });
-        } else {
-          // Check for mock auth
-          const mockUser = localStorage.getItem('mock_current_user');
-          if (mockUser) {
-            try {
-              const parsedUser = JSON.parse(mockUser);
-              setUser({
-                id: parsedUser.id,
-                email: parsedUser.email || ''
-              });
-              return; // Exit early if we found a mock user
-            } catch (e) {
-              console.error('Error parsing mock user:', e);
-              // Continue with setting user to null
-            }
-          }
-          
-          setUser(null);
-        }
-        
-        setIsLoading(false);
-      });
-      
-      return () => {
-        if (authListener && authListener.subscription) {
-          authListener.subscription.unsubscribe();
-        }
-      };
-    } catch (error) {
-      console.error('Auth provider setup error:', error);
-      setIsLoading(false);
-      return () => {};
-    }
-  }, []);
-
   // Sign in function
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string): Promise<AuthResult> => {
     setIsLoading(true);
     
     try {
@@ -147,7 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   // Sign up function
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string): Promise<AuthResult> => {
     setIsLoading(true);
     
     try {
@@ -188,7 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   // Sign in with social provider
-  const signInWithProvider = async (provider: 'google' | 'facebook') => {
+  const signInWithProvider = async (provider: 'google' | 'facebook'): Promise<AuthResult> => {
     setIsLoading(true);
     
     try {
@@ -245,7 +145,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   // Sign out function
-  const signOut = async () => {
+  const signOut = async (): Promise<void> => {
     setIsLoading(true);
     
     try {
@@ -270,25 +170,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const value = {
-    user,
-    isLoading,
-    isAuthenticated: !!user,
+  return {
     signIn,
     signUp,
     signOut,
     signInWithProvider
   };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  
-  return context;
-};
