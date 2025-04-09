@@ -1,8 +1,7 @@
 
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { Node, Edge } from '@xyflow/react';
-import { toast } from '@/hooks/use-toast';
-import { loadStrategyFromLocalStorage } from '../../utils/storage/operations/loadStrategy';
+import { loadStrategyFromLocalStorage } from '../../utils/storage/localStorageUtils';
 
 interface UseInitialLocalStorageLoadProps {
   setNodes: (nodes: Node[] | ((prev: Node[]) => Node[])) => void;
@@ -23,111 +22,70 @@ export function useInitialLocalStorageLoad({
   isInitialLoadRef,
   isUpdatingFromLocalStorageRef
 }: UseInitialLocalStorageLoadProps) {
-  // Safe setter functions that check if the setters exist
-  const safeSetNodes = (nodes: Node[] | ((prev: Node[]) => Node[])) => {
-    if (typeof setNodes === 'function') {
-      try {
-        setNodes(nodes);
-      } catch (error) {
-        console.error('Error in safeSetNodes:', error);
-      }
-    } else {
-      console.warn('setNodes is not a function');
-    }
-  };
-  
-  const safeSetEdges = (edges: Edge[] | ((prev: Edge[]) => Edge[])) => {
-    if (typeof setEdges === 'function') {
-      try {
-        setEdges(edges);
-        console.log('Edges set successfully via safeSetEdges:', 
-          typeof edges === 'function' ? 'function' : edges.length);
-      } catch (error) {
-        console.error('Error in safeSetEdges:', error);
-      }
-    } else {
-      console.warn('setEdges is not a function');
-    }
-  };
-
   // Initial load from localStorage
   useEffect(() => {
-    if (!isInitialLoadRef.current || isUpdatingFromLocalStorageRef.current || !currentStrategyId) {
-      return; // Prevent duplicate loading
-    }
-    
-    try {
-      isUpdatingFromLocalStorageRef.current = true;
-      
-      // Try to load the specific strategy by ID
+    if (isInitialLoadRef.current && currentStrategyId) {
       console.log(`Initial load for strategy: ${currentStrategyId}`);
-      const loadedStrategy = loadStrategyFromLocalStorage(currentStrategyId);
       
-      if (loadedStrategy) {
-        console.log('Loading strategy from localStorage:', 
-          `${loadedStrategy.nodes.length} nodes, ${loadedStrategy.edges.length} edges`);
+      try {
+        isUpdatingFromLocalStorageRef.current = true;
         
-        if (loadedStrategy.edges && loadedStrategy.edges.length > 0) {
-          console.log('Loaded edges from localStorage:', JSON.stringify(loadedStrategy.edges));
-        }
+        // Load strategy from localStorage
+        const { loadedNodes, loadedEdges, strategyName } = 
+          loadStrategyFromLocalStorage(currentStrategyId);
         
-        // Clear existing state first to avoid conflicts
-        safeSetNodes([]);
-        setTimeout(() => {
-          safeSetEdges([]);
+        if (loadedNodes && loadedNodes.length > 0) {
+          // Set the loaded nodes and edges
+          setNodes(loadedNodes);
+          setEdges(loadedEdges || []);
           
-          // Apply nodes first with safety check
-          setTimeout(() => {
-            console.log(`Setting ${loadedStrategy.nodes.length} nodes from localStorage`);
-            safeSetNodes(loadedStrategy.nodes);
-            
-            // Apply edges in the next cycle to prevent conflicts
-            setTimeout(() => {
-              console.log(`Setting ${loadedStrategy.edges.length} edges from localStorage:`, 
-                JSON.stringify(loadedStrategy.edges));
-              safeSetEdges(loadedStrategy.edges);
-              
-              // Update store in a separate cycle
-              setTimeout(() => {
-                if (strategyStore && typeof strategyStore.setNodes === 'function') {
-                  strategyStore.setNodes(loadedStrategy.nodes);
-                  strategyStore.setEdges(loadedStrategy.edges);
-                  
-                  if (typeof strategyStore.resetHistory === 'function') {
-                    strategyStore.resetHistory();
-                  }
-                  
-                  if (typeof strategyStore.addHistoryItem === 'function') {
-                    strategyStore.addHistoryItem(loadedStrategy.nodes, loadedStrategy.edges);
-                  }
-                }
-                
-                console.log('Strategy loaded from localStorage successfully');
-                isInitialLoadRef.current = false;
-              }, 200); // Increased timeout
-            }, 200); // Increased timeout
-          }, 200);
-        }, 200);
-      } else {
-        console.log('No saved strategy found, using default nodes');
-        safeSetNodes(initialNodes);
+          // Update store
+          strategyStore.setNodes(loadedNodes);
+          strategyStore.setEdges(loadedEdges || []);
+          
+          // Reset history and add initial state
+          strategyStore.resetHistory();
+          strategyStore.addHistoryItem(loadedNodes, loadedEdges || []);
+          
+          console.log(`Loaded strategy from localStorage: ${loadedNodes.length} nodes, ${loadedEdges?.length || 0} edges`);
+        } else {
+          // If no nodes were loaded, use initial nodes
+          setNodes(initialNodes);
+          setEdges([]);
+          
+          // Update store
+          strategyStore.setNodes(initialNodes);
+          strategyStore.setEdges([]);
+          
+          // Reset history and add initial state
+          strategyStore.resetHistory();
+          strategyStore.addHistoryItem(initialNodes, []);
+          
+          console.log('No nodes found in localStorage, using initial nodes');
+        }
+      } catch (error) {
+        console.error('Error loading from localStorage:', error);
+        
+        // Fallback to initial nodes
+        setNodes(initialNodes);
+        setEdges([]);
+      } finally {
+        // Reset flags
         isInitialLoadRef.current = false;
+        
+        // Reset updating flag after a delay
+        setTimeout(() => {
+          isUpdatingFromLocalStorageRef.current = false;
+        }, 200);
       }
-    } catch (error) {
-      console.error('Error loading strategy from localStorage:', error);
-      safeSetNodes(initialNodes);
-      isInitialLoadRef.current = false;
-      
-      toast({
-        title: "Error loading strategy",
-        description: "Could not load your saved strategy. Starting with a new one.",
-        variant: "destructive"
-      });
-    } finally {
-      // Reset flag after a small delay
-      setTimeout(() => {
-        isUpdatingFromLocalStorageRef.current = false;
-      }, 500);
     }
-  }, [safeSetNodes, safeSetEdges, strategyStore, initialNodes, currentStrategyId]);
+  }, [
+    setNodes, 
+    setEdges, 
+    strategyStore, 
+    initialNodes, 
+    currentStrategyId, 
+    isInitialLoadRef, 
+    isUpdatingFromLocalStorageRef
+  ]);
 }

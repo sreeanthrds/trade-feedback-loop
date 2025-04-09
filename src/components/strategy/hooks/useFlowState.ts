@@ -1,13 +1,16 @@
 
-import { useRef, useEffect, useState, useCallback } from 'react';
-import { useReactFlow } from '@xyflow/react';
+import { useRef, useState } from 'react';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
 import { initialNodes } from '../utils/flowUtils';
 import { useNodeStateManagement } from './useNodeStateManagement';
 import { useEdgeStateManagement } from './useEdgeStateManagement';
 import { useLocalStorageSync } from './useLocalStorageSync';
 import { usePanelState } from './usePanelState';
-import { useWorkflowValidation } from './useWorkflowValidation';
+import { useWorkflowValidation } from './flow-state/useWorkflowValidation';
+import { useReactFlowRefs } from './flow-state/useReactFlowRefs';
+import { useStrategyInitialization } from './flow-state/useStrategyInitialization';
+import { useStrategyOperations } from './flow-state/useStrategyOperations';
+import { useConnectHandler } from './flow-state/useConnectHandler';
 import { 
   useNodeHandlers, 
   useEdgeHandlers, 
@@ -17,15 +20,16 @@ import {
 import { useSearchParams } from 'react-router-dom';
 
 export function useFlowState(isNew: boolean = false) {
-  const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const reactFlowInstance = useReactFlow();
   const strategyStore = useStrategyStore();
-  const isInitializedRef = useRef(false);
-  const onConnectMemoizedRef = useRef(null);
-  const [storeInitialized, setStoreInitialized] = useState(false);
-  const updateHandlingRef = useRef(false);
   const [searchParams] = useSearchParams();
   const currentStrategyId = searchParams.get('id') || '';
+  
+  // Get refs and instance management 
+  const {
+    reactFlowWrapper,
+    reactFlowInstance,
+    updateHandlingRef
+  } = useReactFlowRefs();
   
   // Node state management
   const {
@@ -48,46 +52,16 @@ export function useFlowState(isNew: boolean = false) {
   // Panel state
   const { isPanelOpen, setIsPanelOpen } = usePanelState();
   
-  // Workflow validation
-  const { 
-    validateCurrentWorkflow,
-    validateBeforeCriticalOperation,
-    isWorkflowValid
-  } = useWorkflowValidation();
+  // Connect handler with node awareness
+  const onConnect = useConnectHandler(baseOnConnect, nodes);
   
   // Initialize with new strategy if isNew is true
-  useEffect(() => {
-    if (isNew) {
-      console.log('Initializing new strategy with default nodes');
-      
-      // Clear any previous nodes and edges first
-      setTimeout(() => {
-        // First clear all nodes and edges
-        setNodes([]);
-        setEdges([]);
-        
-        // Then update store
-        strategyStore.setNodes([]);
-        strategyStore.setEdges([]);
-        strategyStore.resetHistory();
-        
-        // Then set the initial nodes after a small delay to ensure clean start
-        setTimeout(() => {
-          setNodes(initialNodes);
-          strategyStore.setNodes(initialNodes);
-          
-          // Wait for nodes to be set before adding to history
-          setTimeout(() => {
-            strategyStore.addHistoryItem(initialNodes, []);
-            
-            // Clear localStorage for good measure
-            localStorage.removeItem('tradyStrategy');
-            console.log('New strategy initialized with default nodes');
-          }, 100);
-        }, 100);
-      }, 0);
-    }
-  }, [isNew, setNodes, setEdges, strategyStore]);
+  useStrategyInitialization({
+    isNew,
+    setNodes,
+    setEdges,
+    strategyStore
+  });
   
   // Sync with localStorage - only run if not creating a new strategy
   const { isInitialLoadRef } = !isNew ? useLocalStorageSync({
@@ -98,26 +72,17 @@ export function useFlowState(isNew: boolean = false) {
     currentStrategyId
   }) : { isInitialLoadRef: { current: false } };
   
-  // Only initialize store after ReactFlow is ready and initial load is complete
-  useEffect(() => {
-    if (!isInitializedRef.current && reactFlowInstance && !isInitialLoadRef.current) {
-      isInitializedRef.current = true;
-      
-      // Delay the store initialization to ensure initial load is complete
-      const syncTimeout = setTimeout(() => {
-        setStoreInitialized(true);
-      }, 3000); // Longer delay for initialization
-      
-      return () => clearTimeout(syncTimeout);
-    }
-  }, [reactFlowInstance, isInitialLoadRef.current]);
+  // Workflow validation
+  const { 
+    validateCurrentWorkflow,
+    validateBeforeCriticalOperation,
+    isWorkflowValid
+  } = useWorkflowValidation();
   
-  // Create onConnect handler with nodes that doesn't recreate on every render
-  const onConnect = useCallback((params) => {
-    // Store the current handler in a ref to avoid recreating it constantly
-    onConnectMemoizedRef.current = (params) => baseOnConnect(params, nodes);
-    return onConnectMemoizedRef.current(params);
-  }, [baseOnConnect, nodes]);
+  // Strategy operation handlers
+  const { validateAndRunOperation } = useStrategyOperations({
+    validateBeforeCriticalOperation
+  });
 
   // Panel handlers
   const { closePanel } = usePanelHandlers({
@@ -168,17 +133,6 @@ export function useFlowState(isNew: boolean = false) {
     closePanel,
     updateHandlingRef
   });
-  
-  // Validate workflow on critical operations
-  const validateAndRunOperation = useCallback(
-    async (operation: () => void, operationName: string) => {
-      const isValid = await validateBeforeCriticalOperation(operationName);
-      if (isValid) {
-        operation();
-      }
-    },
-    [validateBeforeCriticalOperation]
-  );
 
   return {
     nodes,
