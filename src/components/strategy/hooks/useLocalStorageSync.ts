@@ -1,11 +1,11 @@
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { Node, Edge } from '@xyflow/react';
 import { toast } from '@/hooks/use-toast';
 
 interface UseLocalStorageSyncProps {
-  setNodes: (nodes: Node[]) => void;
-  setEdges: (edges: Edge[]) => void;
+  setNodes: (nodes: Node[] | ((prev: Node[]) => Node[])) => void;
+  setEdges: (edges: Edge[] | ((prev: Edge[]) => Edge[])) => void;
   strategyStore: any;
   initialNodes: Node[];
 }
@@ -18,6 +18,31 @@ export function useLocalStorageSync({
 }: UseLocalStorageSyncProps) {
   const isInitialLoadRef = useRef(true);
   const isUpdatingFromLocalStorageRef = useRef(false);
+  
+  // Ensure setNodes and setEdges are functions before using them
+  const safeSetNodes = useCallback((nodes: Node[] | ((prev: Node[]) => Node[])) => {
+    if (typeof setNodes === 'function') {
+      try {
+        setNodes(nodes);
+      } catch (error) {
+        console.error('Error in safeSetNodes:', error);
+      }
+    } else {
+      console.warn('setNodes is not a function');
+    }
+  }, [setNodes]);
+  
+  const safeSetEdges = useCallback((edges: Edge[] | ((prev: Edge[]) => Edge[])) => {
+    if (typeof setEdges === 'function') {
+      try {
+        setEdges(edges);
+      } catch (error) {
+        console.error('Error in safeSetEdges:', error);
+      }
+    } else {
+      console.warn('setEdges is not a function');
+    }
+  }, [setEdges]);
   
   // Initial load from localStorage
   useEffect(() => {
@@ -37,19 +62,27 @@ export function useLocalStorageSync({
         if (parsed.nodes && parsed.edges) {
           console.log('Loading strategy from localStorage');
           
-          // Apply nodes first
-          setNodes(parsed.nodes);
+          // Apply nodes first with safety check
+          safeSetNodes(parsed.nodes);
           
           // Apply edges in the next cycle to prevent conflicts
           setTimeout(() => {
-            setEdges(parsed.edges);
+            safeSetEdges(parsed.edges);
             
             // Update store in a separate cycle
             setTimeout(() => {
-              strategyStore.setNodes(parsed.nodes);
-              strategyStore.setEdges(parsed.edges);
-              strategyStore.resetHistory();
-              strategyStore.addHistoryItem(parsed.nodes, parsed.edges);
+              if (strategyStore && typeof strategyStore.setNodes === 'function') {
+                strategyStore.setNodes(parsed.nodes);
+                strategyStore.setEdges(parsed.edges);
+                
+                if (typeof strategyStore.resetHistory === 'function') {
+                  strategyStore.resetHistory();
+                }
+                
+                if (typeof strategyStore.addHistoryItem === 'function') {
+                  strategyStore.addHistoryItem(parsed.nodes, parsed.edges);
+                }
+              }
               
               console.log('Strategy loaded from localStorage successfully');
               isInitialLoadRef.current = false;
@@ -57,17 +90,17 @@ export function useLocalStorageSync({
           }, 0);
         } else {
           console.log('Invalid saved strategy format, using default nodes');
-          setNodes(initialNodes);
+          safeSetNodes(initialNodes);
           isInitialLoadRef.current = false;
         }
       } else {
         console.log('No saved strategy found, using default nodes');
-        setNodes(initialNodes);
+        safeSetNodes(initialNodes);
         isInitialLoadRef.current = false;
       }
     } catch (error) {
       console.error('Error loading strategy from localStorage:', error);
-      setNodes(initialNodes);
+      safeSetNodes(initialNodes);
       isInitialLoadRef.current = false;
       
       toast({
@@ -81,7 +114,7 @@ export function useLocalStorageSync({
         isUpdatingFromLocalStorageRef.current = false;
       }, 500);
     }
-  }, [setNodes, setEdges, strategyStore, initialNodes]);
+  }, [safeSetNodes, safeSetEdges, strategyStore, initialNodes]);
 
   // Listen for external changes to localStorage (from another tab)
   useEffect(() => {
@@ -94,15 +127,23 @@ export function useLocalStorageSync({
             
             const parsed = JSON.parse(e.newValue);
             if (parsed.nodes && parsed.edges) {
-              setNodes(parsed.nodes);
-              setEdges(parsed.edges);
+              safeSetNodes(parsed.nodes);
+              safeSetEdges(parsed.edges);
               
               // Update store in a separate cycle
               setTimeout(() => {
-                strategyStore.setNodes(parsed.nodes);
-                strategyStore.setEdges(parsed.edges);
-                strategyStore.resetHistory();
-                strategyStore.addHistoryItem(parsed.nodes, parsed.edges);
+                if (strategyStore && typeof strategyStore.setNodes === 'function') {
+                  strategyStore.setNodes(parsed.nodes);
+                  strategyStore.setEdges(parsed.edges);
+                  
+                  if (typeof strategyStore.resetHistory === 'function') {
+                    strategyStore.resetHistory();
+                  }
+                  
+                  if (typeof strategyStore.addHistoryItem === 'function') {
+                    strategyStore.addHistoryItem(parsed.nodes, parsed.edges);
+                  }
+                }
                 
                 // Reset flag after applying changes
                 setTimeout(() => {
@@ -120,7 +161,7 @@ export function useLocalStorageSync({
 
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
-  }, [setNodes, setEdges, strategyStore]);
+  }, [safeSetNodes, safeSetEdges, strategyStore]);
 
   return { isInitialLoadRef };
 }

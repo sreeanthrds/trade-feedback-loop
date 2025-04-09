@@ -65,12 +65,12 @@ export function useFlowState(isNew: boolean = false) {
   }, [isNew, setNodes, setEdges, strategyStore]);
   
   // Sync with localStorage - only run if not creating a new strategy
-  const { isInitialLoadRef } = !isNew ? useLocalStorageSync(
+  const { isInitialLoadRef } = !isNew ? useLocalStorageSync({
     setNodes,
     setEdges,
     strategyStore,
     initialNodes
-  ) : { isInitialLoadRef: { current: false } };
+  }) : { isInitialLoadRef: { current: false } };
   
   // Only initialize store after ReactFlow is ready and initial load is complete
   useEffect(() => {
