@@ -33,9 +33,15 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
   const strategyName = searchParams.get('name') || 'Untitled Strategy';
   const { toast } = useToast();
   const importProcessingRef = useRef(false);
+  const currentStrategyIdRef = useRef(strategyId);
+  const currentStrategyNameRef = useRef(strategyName);
   
-  // Reset import status when strategy ID changes
+  // Update refs when strategy ID/name changes
   useEffect(() => {
+    currentStrategyIdRef.current = strategyId;
+    currentStrategyNameRef.current = strategyName;
+    
+    // Reset import status when strategy ID changes
     setIsImporting(false);
     importProcessingRef.current = false;
     
@@ -43,7 +49,9 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-  }, [strategyId]);
+    
+    console.log(`BottomToolbar: Strategy context updated - ID: ${strategyId}, Name: ${strategyName}`);
+  }, [strategyId, strategyName]);
 
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (isImporting || importProcessingRef.current) {
@@ -51,9 +59,19 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
       return;
     }
     
+    if (!currentStrategyIdRef.current) {
+      console.error("Cannot import without a strategy ID");
+      toast({
+        title: "Import failed",
+        description: "Strategy ID is missing",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsImporting(true);
     importProcessingRef.current = true;
-    console.log(`Starting import process for strategy: ${strategyId} - ${strategyName}`);
+    console.log(`Starting import process for strategy: ${currentStrategyIdRef.current} - ${currentStrategyNameRef.current}`);
     
     try {
       // Show loading toast
@@ -71,7 +89,7 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
       setEdges([]);
       
       // Force a brief delay to ensure React state is updated before import
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 200));
       
       // Perform the import operation with current strategy context
       const result = await importStrategyFromEvent(
@@ -80,8 +98,8 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
         setEdges, 
         addHistoryItem, 
         resetHistory,
-        strategyId,
-        strategyName
+        currentStrategyIdRef.current,
+        currentStrategyNameRef.current
       );
       
       console.log("Import completed with result:", result);
@@ -93,11 +111,11 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
       
       // Call the success handler with a delay to ensure state has propagated
       if (result && onImportSuccess) {
-        // Delay to allow state updates to complete
+        // Longer delay to allow state updates to complete
         setTimeout(() => {
           console.log("Calling onImportSuccess callback with delay");
           onImportSuccess();
-        }, 500); // Increased delay for better state propagation
+        }, 800);
       }
     } catch (error) {
       console.error("Error during import:", error);
@@ -116,7 +134,7 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
   };
 
   const handleSave = () => {
-    if (!strategyId) {
+    if (!currentStrategyIdRef.current) {
       console.error("Cannot save strategy without ID");
       toast({
         title: "Save failed",
@@ -127,7 +145,7 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
     }
     
     // Save to localStorage with ID and name - pass the entire nodes and edges objects
-    saveStrategyToLocalStorage(nodes, edges, strategyId, strategyName);
+    saveStrategyToLocalStorage(nodes, edges, currentStrategyIdRef.current, currentStrategyNameRef.current);
     
     // Trigger storage event to update strategies list
     window.dispatchEvent(new StorageEvent('storage', {
@@ -141,11 +159,11 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
   };
 
   const handleExport = () => {
-    exportStrategyToFile(nodes, edges, strategyName);
+    exportStrategyToFile(nodes, edges, currentStrategyNameRef.current);
   };
   
   const handleReset = () => {
-    if (!strategyId) {
+    if (!currentStrategyIdRef.current) {
       console.error("Cannot reset strategy without ID");
       toast({
         title: "Reset failed",
@@ -155,7 +173,7 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
       return;
     }
     
-    console.log(`Resetting strategy with ID: ${strategyId}`);
+    console.log(`Resetting strategy with ID: ${currentStrategyIdRef.current}`);
     resetStrategy();
   };
 

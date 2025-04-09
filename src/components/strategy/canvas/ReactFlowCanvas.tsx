@@ -59,6 +59,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
 
   const [searchParams] = useSearchParams();
   const currentStrategyId = searchParams.get('id') || '';
+  const currentStrategyName = searchParams.get('name') || 'Untitled Strategy';
   const reactFlowInstanceRef = useRef(null);
   const nodesLengthRef = useRef(nodes.length);
   const edgesLengthRef = useRef(edges.length);
@@ -69,10 +70,12 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   // Track strategy ID changes
   useEffect(() => {
     currentStrategyIdRef.current = currentStrategyId;
+    console.log(`ReactFlowCanvas: Strategy changed to ID: ${currentStrategyId}, Name: ${currentStrategyName}`);
+    
     // Reset import flags when strategy changes
     importInProgressRef.current = false;
     lastImportRef.current = 0;
-  }, [currentStrategyId]);
+  }, [currentStrategyId, currentStrategyName]);
 
   // Track node/edge changes to detect major updates
   useEffect(() => {
@@ -89,7 +92,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   const handleImportSuccess = useCallback(() => {
     // Prevent import handling if too recent (throttle)
     const now = Date.now();
-    if (now - lastImportRef.current < 800) {
+    if (now - lastImportRef.current < 1000) {
       console.log("Import success handler called too soon, skipping");
       return;
     }
@@ -159,35 +162,6 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
     }, 300);
   }, [fitView, onImportSuccess, nodes.length, edges.length]);
 
-  // When nodes change significantly, trigger a fit view
-  useEffect(() => {
-    // Skip if import is in progress (it will handle fit view)
-    if (importInProgressRef.current) {
-      return;
-    }
-    
-    const nodeCountChanged = nodes.length !== nodesLengthRef.current;
-    const edgeCountChanged = edges.length !== edgesLengthRef.current;
-    
-    if ((nodeCountChanged || edgeCountChanged) && nodes.length > 0 && reactFlowInstanceRef.current) {
-      console.log(`Major change detected - nodes: ${nodes.length} (was ${nodesLengthRef.current}), edges: ${edges.length} (was ${edgesLengthRef.current})`);
-      
-      // Update refs immediately to prevent multiple triggers
-      nodesLengthRef.current = nodes.length;
-      edgesLengthRef.current = edges.length;
-      
-      // Fit view with delay to allow rendering
-      setTimeout(() => {
-        try {
-          console.log("Fitting view after major change");
-          fitView();
-        } catch (e) {
-          console.error("Error fitting view after major change:", e);
-        }
-      }, 400);
-    }
-  }, [nodes.length, edges.length, fitView]);
-
   // Add logging for backtest panel toggle
   const handleToggleBacktest = useCallback(() => {
     console.log("Toggle backtest called from ReactFlowCanvas");
@@ -198,7 +172,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   
   // Update instance ref when initialized
   const handleInit = useCallback((instance) => {
-    console.log("ReactFlow initialized");
+    console.log(`ReactFlow initialized for strategy: ${currentStrategyIdRef.current}`);
     reactFlowInstanceRef.current = instance;
     
     // Fit view on init
@@ -211,13 +185,6 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
     }, 300);
   }, [fitView]);
 
-  // Reset import flags when strategy ID changes
-  useEffect(() => {
-    importInProgressRef.current = false;
-    lastImportRef.current = 0;
-    console.log(`Strategy changed to: ${currentStrategyId}, resetting import state`);
-  }, [currentStrategyId]);
-
   return (
     <div 
       className="strategy-flow-container" 
@@ -226,7 +193,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
       onDrop={onDrop}
     >
       <ReactFlow
-        key={`flow-${currentStrategyId}`} // Force re-creation when strategy changes
+        key={`flow-${currentStrategyId}`} // This key forces ReactFlow to unmount and remount when strategy changes
         nodes={nodes}
         edges={edges}
         onNodesChange={wrappedNodesChange}

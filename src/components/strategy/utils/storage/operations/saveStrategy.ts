@@ -52,9 +52,13 @@ export const saveStrategyToLocalStorage = (
         return;
       }
       
+      // Deep clone to avoid reference issues
+      const clonedNodes = JSON.parse(JSON.stringify(nodes));
+      const clonedEdges = JSON.parse(JSON.stringify(edges));
+      
       // Sanitize to remove circular references
-      const sanitizedNodes = sanitizeForStorage(nodes);
-      const sanitizedEdges = sanitizeForStorage(edges);
+      const sanitizedNodes = sanitizeForStorage(clonedNodes);
+      const sanitizedEdges = sanitizeForStorage(clonedEdges);
       
       // Get existing creation date if available
       const existingCreationDate = localStorage.getItem(`strategy_${finalStrategyId}_created`);

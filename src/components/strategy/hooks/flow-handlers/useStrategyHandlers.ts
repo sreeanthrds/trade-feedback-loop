@@ -33,15 +33,17 @@ export const useStrategyHandlers = ({
   const currentStrategyId = searchParams.get('id') || '';
   const currentStrategyName = searchParams.get('name') || 'Untitled Strategy';
   const resetInProgressRef = useRef(false);
+  const currentStrategyIdRef = useRef(currentStrategyId);
   
   // Update refs when dependencies change
   useEffect(() => {
     storeRef.current = strategyStore;
     instanceRef.current = reactFlowInstance;
     nodesRef.current = nodes;
-  }, [strategyStore, reactFlowInstance, nodes]);
+    currentStrategyIdRef.current = currentStrategyId;
+  }, [strategyStore, reactFlowInstance, nodes, currentStrategyId]);
 
-  // Create strategy reset handler - now isolated to current strategy
+  // Create strategy reset handler - now with improved isolation to current strategy
   const resetStrategy = useCallback(() => {
     // Prevent multiple simultaneous resets
     if (resetInProgressRef.current || updateHandlingRef.current) {
@@ -51,6 +53,11 @@ export const useStrategyHandlers = ({
     
     if (!currentStrategyId) {
       console.error("Cannot reset strategy without ID");
+      toast({
+        title: "Reset failed",
+        description: "Strategy ID is missing",
+        variant: "destructive"
+      });
       return;
     }
     
@@ -59,7 +66,7 @@ export const useStrategyHandlers = ({
     
     try {
       // First clear all nodes and edges
-      console.log(`Resetting strategy: ${currentStrategyId} - ${currentStrategyName}`);
+      console.log(`RESET: Explicitly resetting strategy with ID: ${currentStrategyId} - ${currentStrategyName}`);
       
       // Set empty arrays first to clear everything
       setNodes([]);
@@ -84,16 +91,24 @@ export const useStrategyHandlers = ({
             // Add to history
             storeRef.current.addHistoryItem(initialNodes, []);
             
-            // Clear localStorage ONLY for current strategy
-            localStorage.removeItem(`strategy_${currentStrategyId}`);
+            // Clear localStorage ONLY for current strategy - be specific about the key name
+            const strategyKey = `strategy_${currentStrategyIdRef.current}`;
+            console.log(`RESET: Removing specific strategy from localStorage: ${strategyKey}`);
+            localStorage.removeItem(strategyKey);
+            
+            // Clear other related keys for this strategy
+            localStorage.removeItem(`strategy_${currentStrategyIdRef.current}_created`);
             
             // Clear current working strategy only if it matches the current ID
             const currentWorkingStrategy = localStorage.getItem('tradyStrategy');
             if (currentWorkingStrategy) {
               try {
                 const parsed = JSON.parse(currentWorkingStrategy);
-                if (parsed.id === currentStrategyId) {
+                if (parsed.id === currentStrategyIdRef.current) {
+                  console.log(`RESET: Removing working strategy with ID: ${currentStrategyIdRef.current}`);
                   localStorage.removeItem('tradyStrategy');
+                } else {
+                  console.log(`RESET: Working strategy has different ID (${parsed.id}), not removing`);
                 }
               } catch (e) {
                 console.error('Error parsing current working strategy:', e);
@@ -101,7 +116,7 @@ export const useStrategyHandlers = ({
             }
             
             // Update the strategies list by marking this strategy as reset
-            updateStrategiesListForReset(currentStrategyId);
+            updateStrategiesListForReset(currentStrategyIdRef.current);
             
             // Fit view after reset
             if (instanceRef.current) {
@@ -116,7 +131,7 @@ export const useStrategyHandlers = ({
             
             toast({
               title: "Strategy reset",
-              description: "Strategy has been reset to initial state."
+              description: `Strategy "${currentStrategyName}" has been reset to initial state.`
             });
             
             // Reset flags
@@ -132,6 +147,12 @@ export const useStrategyHandlers = ({
       console.error("Error during strategy reset:", error);
       resetInProgressRef.current = false;
       updateHandlingRef.current = false;
+      
+      toast({
+        title: "Reset failed",
+        description: "An error occurred while resetting the strategy",
+        variant: "destructive"
+      });
     }
   }, [setNodes, setEdges, closePanel, updateHandlingRef, currentStrategyId, currentStrategyName]);
 
@@ -177,7 +198,7 @@ export const useStrategyHandlers = ({
       return;
     }
     
-    console.log(`Import success handler called for strategy: ${currentStrategyId}`);
+    console.log(`Import success handler called for strategy: ${currentStrategyIdRef.current}`);
     updateHandlingRef.current = true;
     
     try {
@@ -222,13 +243,13 @@ export const useStrategyHandlers = ({
         // Release update flag after viewport adjustment
         setTimeout(() => {
           updateHandlingRef.current = false;
-        }, 600);
-      }, 600);
+        }, 800);
+      }, 800);
     } catch (error) {
       console.error("Error in import success handler:", error);
       updateHandlingRef.current = false;
     }
-  }, [closePanel, updateHandlingRef, currentStrategyId]);
+  }, [closePanel, updateHandlingRef]);
 
   return {
     resetStrategy,

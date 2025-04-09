@@ -185,7 +185,7 @@ export const importStrategyFromEvent = (
             return;
           }
           
-          // Use provided strategy ID and name or generate fallbacks
+          // Always use the current strategy ID and name
           const strategyId = currentStrategyId;
           const strategyName = currentStrategyName || imported.name || "Imported Strategy";
           
@@ -206,30 +206,37 @@ export const importStrategyFromEvent = (
             }
           }
           
+          // Reset history for this strategy
           resetHistory();
           
           const applyImport = async () => {
             try {
-              console.log("Setting validated nodes:", validatedNodes.length);
-              setNodes([]);  // Clear nodes first
+              // Clear nodes first
+              console.log("Clearing existing nodes before import");
+              setNodes([]);
               
-              await new Promise(resolve => setTimeout(resolve, 50));
+              await new Promise(resolve => setTimeout(resolve, 100));
               
-              setNodes(validatedNodes);  // Then set new nodes
+              // Then set new nodes
+              console.log("Setting imported nodes:", validatedNodes.length);
+              setNodes(validatedNodes);
               
-              await new Promise(resolve => setTimeout(resolve, 50));
+              await new Promise(resolve => setTimeout(resolve, 100));
               
-              console.log("Setting validated edges:", validatedEdges.length);
-              setEdges([]);  // Clear edges first
+              // Clear edges first
+              console.log("Clearing existing edges before import");
+              setEdges([]);
               
-              await new Promise(resolve => setTimeout(resolve, 50));
+              await new Promise(resolve => setTimeout(resolve, 100));
               
-              setEdges(validatedEdges);  // Then set new edges
+              // Then set new edges
+              console.log("Setting imported edges:", validatedEdges.length);
+              setEdges(validatedEdges);
               
-              await new Promise(resolve => setTimeout(resolve, 50));
+              await new Promise(resolve => setTimeout(resolve, 100));
               
-              // Save to localStorage using the common save function
-              console.log(`Saving imported strategy to localStorage with ID: ${strategyId}`);
+              // Save to localStorage with EXPLICIT strategy ID to ensure isolation
+              console.log(`Explicitly saving imported strategy to localStorage with ID: ${strategyId}`);
               saveStrategyToLocalStorage(validatedNodes, validatedEdges, strategyId, strategyName);
               
               // Update history after a brief delay to ensure nodes are rendered
@@ -249,15 +256,15 @@ export const importStrategyFromEvent = (
                 }));
                 
                 resolve(true);
-              }, 100);
+              }, 300);
             } catch (innerError) {
               console.error("Error during final import steps:", innerError);
               resolve(false);
             }
           };
           
-          // Use a delay to ensure DOM is ready
-          setTimeout(applyImport, 100);
+          // Use a longer delay to ensure DOM is ready
+          setTimeout(applyImport, 300);
         } else {
           console.error("Missing nodes or edges in imported data", imported);
           toast({
