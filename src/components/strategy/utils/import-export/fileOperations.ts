@@ -155,6 +155,8 @@ export const importStrategyFromEvent = async (
         console.log("Checking for nodes and edges in imported data");
         if (imported.nodes && imported.edges) {
           console.log(`Found ${imported.nodes.length} nodes and ${imported.edges.length} edges`);
+          
+          // Deep clone to avoid reference issues
           const nodes = JSON.parse(JSON.stringify(imported.nodes));
           const edges = JSON.parse(JSON.stringify(imported.edges));
           
@@ -208,15 +210,18 @@ export const importStrategyFromEvent = async (
           resetHistory();
           
           // Wait for changes to propagate
-          await new Promise(r => setTimeout(r, 200));
+          await new Promise(r => setTimeout(r, 300)); // Increased wait time
           
-          // Set the new nodes and edges
+          // Set the new nodes and edges - CRITICAL: Set nodes first, then edges
           console.log(`Setting ${validatedNodes.length} nodes and ${validatedEdges.length} edges`);
           setNodes(validatedNodes);
-          await new Promise(r => setTimeout(r, 100));
+          await new Promise(r => setTimeout(r, 200)); // Increased wait time
+          
+          // Explicitly log edges before setting them
+          console.log("Setting edges:", JSON.stringify(validatedEdges));
           setEdges(validatedEdges);
           
-          // Add to history after a delay
+          // Add to history after a longer delay
           setTimeout(() => {
             try {
               console.log("Adding imported strategy to history");
@@ -239,7 +244,7 @@ export const importStrategyFromEvent = async (
               console.error("Error in final import steps:", e);
               resolve(false);
             }
-          }, 300);
+          }, 500); // Increased timeout
         } else {
           console.error("Missing nodes or edges in imported data", imported);
           toast({

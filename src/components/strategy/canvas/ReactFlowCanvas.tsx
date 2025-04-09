@@ -70,6 +70,11 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   // Force remount of ReactFlow when strategy changes by using a unique key
   const [flowKey, setFlowKey] = useState(`flow-${currentStrategyId || Date.now()}`);
 
+  // Log current state for debugging
+  useEffect(() => {
+    console.log(`Current state: ${nodes.length} nodes, ${edges.length} edges`);
+  }, [nodes.length, edges.length]);
+
   // Update flow key when strategy ID changes to force remount
   useEffect(() => {
     if (currentStrategyId !== currentStrategyIdRef.current) {
@@ -152,6 +157,9 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
         
         // Call the parent's import success handler
         onImportSuccess();
+        
+        // Log the current state after import for debugging
+        console.log(`After import: ${nodes.length} nodes, ${edges.length} edges`);
       }, 500);
     }, 500);
   }, [fitView, onImportSuccess, nodes.length, edges.length, currentStrategyId]);

@@ -78,6 +78,7 @@ export function useLocalStorageSync({
         
         // Apply edges in the next cycle to prevent conflicts
         setTimeout(() => {
+          console.log(`Setting ${loadedStrategy.edges.length} edges:`, JSON.stringify(loadedStrategy.edges));
           safeSetEdges(loadedStrategy.edges);
           
           // Update store in a separate cycle
@@ -97,8 +98,8 @@ export function useLocalStorageSync({
             
             console.log('Strategy loaded from localStorage successfully');
             isInitialLoadRef.current = false;
-          }, 0);
-        }, 0);
+          }, 100); // Increased timeout
+        }, 100); // Increased timeout
       } else {
         console.log('No saved strategy found, using default nodes');
         safeSetNodes(initialNodes);
@@ -148,9 +149,12 @@ export function useLocalStorageSync({
                 
                 // Then apply the new state
                 setTimeout(() => {
+                  console.log(`Setting ${loadedStrategy.nodes.length} nodes from storage event`);
                   safeSetNodes(loadedStrategy.nodes);
                   
                   setTimeout(() => {
+                    console.log(`Setting ${loadedStrategy.edges.length} edges from storage event:`, 
+                               JSON.stringify(loadedStrategy.edges));
                     safeSetEdges(loadedStrategy.edges);
                     
                     // Update store in a separate cycle

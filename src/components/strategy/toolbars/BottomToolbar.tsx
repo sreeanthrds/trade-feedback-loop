@@ -1,4 +1,3 @@
-
 import React, { useRef, useCallback, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Panel } from '@xyflow/react';
@@ -33,19 +32,15 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
   const strategyName = searchParams.get('name') || 'Untitled Strategy';
   const { toast } = useToast();
   
-  // Use refs to maintain current strategy context
   const currentStrategyIdRef = useRef(strategyId);
   const currentStrategyNameRef = useRef(strategyName);
   
-  // Update refs when strategy ID/name changes
   useEffect(() => {
     currentStrategyIdRef.current = strategyId;
     currentStrategyNameRef.current = strategyName;
     
-    // Reset import status when strategy ID changes
     setIsImporting(false);
     
-    // Clear file input when strategy changes
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -71,15 +66,14 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
     
     setIsImporting(true);
     console.log(`Starting import process for strategy: ${currentStrategyIdRef.current} - ${currentStrategyNameRef.current}`);
+    console.log(`Current state before import: ${nodes.length} nodes, ${edges.length} edges`);
     
     try {
-      // Show loading toast
       toast({
         title: "Importing strategy",
         description: "Please wait while we process your file..."
       });
       
-      // CRITICAL: Process the import with explicit strategy context
       console.log(`Importing with strategy ID: ${currentStrategyIdRef.current}`);
       const result = await importStrategyFromEvent(
         event, 
@@ -91,12 +85,12 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
         currentStrategyNameRef.current
       );
       
-      // Reset the input value so the same file can be imported again if needed
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
       
-      // Call the success handler with a delay to ensure state has propagated
+      console.log(`After importStrategyFromEvent: ${nodes.length} nodes, ${edges.length} edges`);
+      
       if (result && onImportSuccess) {
         setTimeout(() => {
           console.log("Calling onImportSuccess callback");
@@ -111,12 +105,11 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
         variant: "destructive"
       });
     } finally {
-      // Set importing to false after a delay
       setTimeout(() => {
         setIsImporting(false);
       }, 1000);
     }
-  }, [addHistoryItem, onImportSuccess, resetHistory, setEdges, setNodes, toast, isImporting]);
+  }, [addHistoryItem, onImportSuccess, resetHistory, setEdges, setNodes, toast, isImporting, nodes, edges]);
 
   const handleSave = useCallback(() => {
     if (!currentStrategyIdRef.current) {
@@ -129,11 +122,9 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
       return;
     }
     
-    // Save to localStorage with current strategy context
     console.log(`Saving strategy with ID: ${currentStrategyIdRef.current}`);
     saveStrategyToLocalStorage(nodes, edges, currentStrategyIdRef.current, currentStrategyNameRef.current);
     
-    // Trigger storage event to update strategies list
     window.dispatchEvent(new StorageEvent('storage', {
       key: `strategy_${currentStrategyIdRef.current}`,
       newValue: localStorage.getItem(`strategy_${currentStrategyIdRef.current}`)
@@ -162,10 +153,8 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
     
     console.log(`Resetting strategy with ID: ${currentStrategyIdRef.current}`);
     
-    // Remove the strategy data from localStorage
     localStorage.removeItem(`strategy_${currentStrategyIdRef.current}`);
     
-    // Now run the reset function which will reinitialize with default nodes
     resetStrategy();
     
     toast({
@@ -176,7 +165,6 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
 
   const triggerFileInput = useCallback(() => {
     if (fileInputRef.current) {
-      // Reset the input value before triggering click
       fileInputRef.current.value = '';
       fileInputRef.current.click();
     }
