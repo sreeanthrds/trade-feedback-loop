@@ -100,8 +100,8 @@ export const useStrategyHandlers = ({
               }
             }
             
-            // Update the strategies list
-            updateStrategiesList(currentStrategyId);
+            // Update the strategies list by marking this strategy as reset
+            updateStrategiesListForReset(currentStrategyId);
             
             // Fit view after reset
             if (instanceRef.current) {
@@ -136,7 +136,7 @@ export const useStrategyHandlers = ({
   }, [setNodes, setEdges, closePanel, updateHandlingRef, currentStrategyId, currentStrategyName]);
 
   // Helper function to update strategies list when resetting
-  const updateStrategiesList = (strategyId: string) => {
+  const updateStrategiesListForReset = (strategyId: string) => {
     try {
       const strategiesJSON = localStorage.getItem('strategies');
       if (!strategiesJSON) return;

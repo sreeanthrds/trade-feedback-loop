@@ -1,5 +1,5 @@
 
-import React, { useRef, useCallback, useState } from 'react';
+import React, { useRef, useCallback, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Panel } from '@xyflow/react';
 import { Save, Download, Upload, RotateCcw, Play } from 'lucide-react';
@@ -8,7 +8,7 @@ import {
   exportStrategyToFile, 
   importStrategyFromEvent
 } from '../utils/import-export/fileOperations';
-import { saveStrategyToLocalStorage } from '../utils/storage/localStorageUtils';
+import { saveStrategyToLocalStorage } from '../utils/storage/operations/saveStrategy';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
 import { useBacktestingStore } from '../backtesting/useBacktestingStore';
 import { useToast } from "@/hooks/use-toast";
@@ -32,14 +32,27 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
   const strategyId = searchParams.get('id') || '';
   const strategyName = searchParams.get('name') || 'Untitled Strategy';
   const { toast } = useToast();
+  const importProcessingRef = useRef(false);
+  
+  // Reset import status when strategy ID changes
+  useEffect(() => {
+    setIsImporting(false);
+    importProcessingRef.current = false;
+    
+    // Clear file input when strategy changes
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }, [strategyId]);
 
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (isImporting) {
+    if (isImporting || importProcessingRef.current) {
       console.log("Import already in progress, ignoring");
       return;
     }
     
     setIsImporting(true);
+    importProcessingRef.current = true;
     console.log(`Starting import process for strategy: ${strategyId} - ${strategyName}`);
     
     try {
@@ -50,10 +63,8 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
       });
       
       // Important: Clear the file input value first to ensure we can import the same file again
-      if (fileInputRef.current) {
-        const filePath = fileInputRef.current.value;
-        console.log("Current file input path:", filePath);
-      }
+      const filePath = fileInputRef.current?.value;
+      console.log("Current file input path:", filePath);
       
       // Clear existing nodes and edges first to prevent conflicts
       setNodes([]);
@@ -86,7 +97,7 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
         setTimeout(() => {
           console.log("Calling onImportSuccess callback with delay");
           onImportSuccess();
-        }, 300); // Increased delay for better state propagation
+        }, 500); // Increased delay for better state propagation
       }
     } catch (error) {
       console.error("Error during import:", error);
@@ -99,7 +110,8 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
       // Set importing to false after a delay to prevent rapid re-imports
       setTimeout(() => {
         setIsImporting(false);
-      }, 800);
+        importProcessingRef.current = false;
+      }, 1000);
     }
   };
 
@@ -131,6 +143,21 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
   const handleExport = () => {
     exportStrategyToFile(nodes, edges, strategyName);
   };
+  
+  const handleReset = () => {
+    if (!strategyId) {
+      console.error("Cannot reset strategy without ID");
+      toast({
+        title: "Reset failed",
+        description: "Strategy ID is missing",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    console.log(`Resetting strategy with ID: ${strategyId}`);
+    resetStrategy();
+  };
 
   const triggerFileInput = () => {
     if (fileInputRef.current) {
@@ -160,7 +187,11 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
           <Download className="mr-1 h-4 w-4" />
           Export
         </Button>
-        <Button variant="secondary" onClick={triggerFileInput} disabled={isImporting}>
+        <Button 
+          variant="secondary" 
+          onClick={triggerFileInput} 
+          disabled={isImporting || importProcessingRef.current}
+        >
           <Upload className="mr-1 h-4 w-4" />
           {isImporting ? 'Importing...' : 'Import'}
           <input
@@ -169,10 +200,10 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
             accept=".json"
             className="hidden"
             onChange={handleImport}
-            disabled={isImporting}
+            disabled={isImporting || importProcessingRef.current}
           />
         </Button>
-        <Button variant="secondary" onClick={resetStrategy}>
+        <Button variant="secondary" onClick={handleReset}>
           <RotateCcw className="mr-1 h-4 w-4" />
           Reset
         </Button>

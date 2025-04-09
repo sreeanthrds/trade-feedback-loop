@@ -64,6 +64,15 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   const edgesLengthRef = useRef(edges.length);
   const importInProgressRef = useRef(false);
   const lastImportRef = useRef(0);
+  const currentStrategyIdRef = useRef(currentStrategyId);
+
+  // Track strategy ID changes
+  useEffect(() => {
+    currentStrategyIdRef.current = currentStrategyId;
+    // Reset import flags when strategy changes
+    importInProgressRef.current = false;
+    lastImportRef.current = 0;
+  }, [currentStrategyId]);
 
   // Track node/edge changes to detect major updates
   useEffect(() => {
@@ -95,7 +104,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
     }
     
     importInProgressRef.current = true;
-    console.log(`Import success handler called in ReactFlowCanvas for strategy: ${currentStrategyId}`);
+    console.log(`Import success handler called in ReactFlowCanvas for strategy: ${currentStrategyIdRef.current}`);
     console.log(`Current nodes: ${nodes.length}, edges: ${edges.length}`);
     
     // Set a timeout to ensure we have the latest nodes/edges
@@ -148,7 +157,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
         onImportSuccess();
       }
     }, 300);
-  }, [fitView, onImportSuccess, nodes.length, edges.length, currentStrategyId]);
+  }, [fitView, onImportSuccess, nodes.length, edges.length]);
 
   // When nodes change significantly, trigger a fit view
   useEffect(() => {
@@ -170,7 +179,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
       // Fit view with delay to allow rendering
       setTimeout(() => {
         try {
-          console.log("Fitting view after major change in nodes/edges");
+          console.log("Fitting view after major change");
           fitView();
         } catch (e) {
           console.error("Error fitting view after major change:", e);
@@ -202,6 +211,13 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
     }, 300);
   }, [fitView]);
 
+  // Reset import flags when strategy ID changes
+  useEffect(() => {
+    importInProgressRef.current = false;
+    lastImportRef.current = 0;
+    console.log(`Strategy changed to: ${currentStrategyId}, resetting import state`);
+  }, [currentStrategyId]);
+
   return (
     <div 
       className="strategy-flow-container" 
@@ -210,14 +226,15 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
       onDrop={onDrop}
     >
       <ReactFlow
+        key={`flow-${currentStrategyId}`} // Force re-creation when strategy changes
         nodes={nodes}
         edges={edges}
         onNodesChange={wrappedNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onNodeClick={onNodeClick}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
-        onNodeClick={onNodeClick}
         onInit={handleInit}
         fitView
         minZoom={0.3}
@@ -228,7 +245,6 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
         proOptions={{ hideAttribution: true }}
         selectNodesOnDrag={false}
         className="strategy-flow"
-        key={`flow-${currentStrategyId}`} // Force re-creation when strategy changes
       >
         <Background variant={BackgroundVariant.Dots} gap={15} size={1} color="#e2e8f0" />
         <Controls showInteractive={false} position="bottom-left" />

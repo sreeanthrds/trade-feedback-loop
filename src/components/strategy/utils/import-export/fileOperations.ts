@@ -2,6 +2,7 @@
 import { Node, Edge } from '@xyflow/react';
 import { toast } from '@/hooks/use-toast';
 import { indicatorConfig } from '../indicatorConfig';
+import { saveStrategyToLocalStorage } from '../storage/operations/saveStrategy';
 
 const getIndicatorDisplayName = (key: string, parameters: Record<string, any>) => {
   const baseName = key.split('_')[0];
@@ -188,15 +189,15 @@ export const importStrategyFromEvent = (
           const strategyId = currentStrategyId;
           const strategyName = currentStrategyName || imported.name || "Imported Strategy";
           
-          // Clear existing strategy data
+          // Clear strategy-specific data from localStorage first
+          console.log(`Clearing existing data for strategy: ${strategyId}`);
           localStorage.removeItem(`strategy_${strategyId}`);
           
-          // Clear current working strategy
+          // Clear current working strategy only if it matches the current strategy
           const existingWorkingStrategy = localStorage.getItem('tradyStrategy');
           if (existingWorkingStrategy) {
             try {
               const parsed = JSON.parse(existingWorkingStrategy);
-              // Only clear if the ID matches the current strategy
               if (parsed.id === strategyId) {
                 localStorage.removeItem('tradyStrategy');
               }
@@ -205,57 +206,50 @@ export const importStrategyFromEvent = (
             }
           }
           
-          console.log(`Clearing existing data for strategy: ${strategyId}`);
-          
           resetHistory();
           
           const applyImport = async () => {
             try {
               console.log("Setting validated nodes:", validatedNodes.length);
-              setNodes(validatedNodes);
+              setNodes([]);  // Clear nodes first
               
-              await new Promise(resolve => setTimeout(resolve, 100));
+              await new Promise(resolve => setTimeout(resolve, 50));
+              
+              setNodes(validatedNodes);  // Then set new nodes
+              
+              await new Promise(resolve => setTimeout(resolve, 50));
               
               console.log("Setting validated edges:", validatedEdges.length);
-              setEdges(validatedEdges);
+              setEdges([]);  // Clear edges first
               
-              await new Promise(resolve => setTimeout(resolve, 100));
+              await new Promise(resolve => setTimeout(resolve, 50));
               
+              setEdges(validatedEdges);  // Then set new edges
+              
+              await new Promise(resolve => setTimeout(resolve, 50));
+              
+              // Save to localStorage using the common save function
               console.log(`Saving imported strategy to localStorage with ID: ${strategyId}`);
+              saveStrategyToLocalStorage(validatedNodes, validatedEdges, strategyId, strategyName);
               
-              const strategyToSave = {
-                nodes: validatedNodes,
-                edges: validatedEdges,
-                name: strategyName,
-                id: strategyId,
-                lastModified: new Date().toISOString(),
-                created: imported.created || new Date().toISOString(),
-                description: imported.description || "Imported trading strategy"
-              };
-              
-              // Save to specific strategy storage
-              localStorage.setItem(`strategy_${strategyId}`, JSON.stringify(strategyToSave));
-              
-              // Save as current working strategy
-              localStorage.setItem('tradyStrategy', JSON.stringify(strategyToSave));
-              
-              // Update history
-              addHistoryItem(validatedNodes, validatedEdges);
-              
-              // Update strategies list
-              updateStrategiesList(strategyToSave);
-              
-              toast({
-                title: "Strategy imported successfully",
-                description: `Strategy imported to "${strategyName}"`
-              });
-              
-              // Trigger a storage event to update UI in other tabs
-              window.dispatchEvent(new StorageEvent('storage', {
-                key: 'strategies'
-              }));
-              
-              resolve(true);
+              // Update history after a brief delay to ensure nodes are rendered
+              setTimeout(() => {
+                console.log("Adding imported strategy to history");
+                addHistoryItem(validatedNodes, validatedEdges);
+                
+                // Update UI
+                toast({
+                  title: "Strategy imported successfully",
+                  description: `Strategy imported to "${strategyName}"`
+                });
+                
+                // Trigger a storage event to update UI in other tabs
+                window.dispatchEvent(new StorageEvent('storage', {
+                  key: 'strategies'
+                }));
+                
+                resolve(true);
+              }, 100);
             } catch (innerError) {
               console.error("Error during final import steps:", innerError);
               resolve(false);
@@ -296,47 +290,4 @@ export const importStrategyFromEvent = (
     
     reader.readAsText(file);
   });
-};
-
-const updateStrategiesList = (strategyData: any) => {
-  try {
-    const strategiesJSON = localStorage.getItem('strategies');
-    let strategies = [];
-    
-    if (strategiesJSON) {
-      try {
-        strategies = JSON.parse(strategiesJSON);
-      } catch (e) {
-        console.error('Failed to parse strategies list:', e);
-        strategies = [];
-      }
-    }
-    
-    const strategyMetadata = {
-      id: strategyData.id,
-      name: strategyData.name,
-      lastModified: strategyData.lastModified,
-      created: strategyData.created,
-      description: strategyData.description
-    };
-    
-    // Find if this strategy already exists in the list
-    const existingIndex = strategies.findIndex((s: any) => s.id === strategyData.id);
-    
-    if (existingIndex >= 0) {
-      // Update existing strategy in the list
-      strategies[existingIndex] = strategyMetadata;
-      console.log(`Updated existing strategy in list at index ${existingIndex}`);
-    } else {
-      // Add new strategy to list
-      strategies.push(strategyMetadata);
-      console.log(`Added new strategy to list, now contains ${strategies.length} strategies`);
-    }
-    
-    // Save updated list to localStorage
-    localStorage.setItem('strategies', JSON.stringify(strategies));
-    console.log('Saved updated strategies list to localStorage');
-  } catch (e) {
-    console.error('Error updating strategies list:', e);
-  }
 };

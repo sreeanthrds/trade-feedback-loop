@@ -47,6 +47,8 @@ export const saveStrategyToLocalStorage = (
       // Only save if we have valid nodes and edges
       if (!Array.isArray(nodes) || !Array.isArray(edges)) {
         console.warn('Invalid nodes or edges provided to saveStrategyToLocalStorage');
+        saveInProgress = false;
+        saveTimeout = null;
         return;
       }
       
@@ -71,25 +73,32 @@ export const saveStrategyToLocalStorage = (
         localStorage.setItem(`strategy_${finalStrategyId}_created`, strategyData.created);
       }
       
-      // Save the complete strategy with its ID
+      // First: save the specific strategy with its ID
       localStorage.setItem(`strategy_${finalStrategyId}`, JSON.stringify(strategyData));
-      console.log(`Saved complete strategy to localStorage: strategy_${finalStrategyId}`);
+      console.log(`Saved dedicated strategy to localStorage: strategy_${finalStrategyId}`);
       
-      // Also save as the current working strategy, clearing previous working strategy for other IDs
+      // Second: save as the current working strategy (only if this is the current strategy)
+      // Check if there's an existing working strategy with a different ID
       const existingWorkingStrategy = localStorage.getItem('tradyStrategy');
+      let shouldSetWorkingStrategy = true;
+      
       if (existingWorkingStrategy) {
         try {
-          const parsed = JSON.parse(existingWorkingStrategy);
-          if (parsed.id !== finalStrategyId) {
-            console.log(`Replacing working strategy from ${parsed.id} to ${finalStrategyId}`);
+          const parsedExisting = JSON.parse(existingWorkingStrategy);
+          // Only replace if it's the same ID or there's no ID in the existing
+          if (parsedExisting.id && parsedExisting.id !== finalStrategyId) {
+            console.log(`Not overwriting working strategy with ID ${parsedExisting.id}`);
+            shouldSetWorkingStrategy = false;
           }
         } catch (e) {
           console.error("Error parsing existing working strategy:", e);
         }
       }
       
-      localStorage.setItem('tradyStrategy', JSON.stringify(strategyData));
-      console.log(`Saved current working strategy to localStorage for ID: ${finalStrategyId}`);
+      if (shouldSetWorkingStrategy) {
+        localStorage.setItem('tradyStrategy', JSON.stringify(strategyData));
+        console.log(`Saved current working strategy to localStorage for ID: ${finalStrategyId}`);
+      }
       
       // Update strategies list
       updateStrategiesList(strategyData);
