@@ -7,7 +7,7 @@ import SignUpForm from '@/components/auth/SignUpForm';
 import { useAuth } from '@/contexts/auth';
 
 const AuthPage = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -16,11 +16,11 @@ const AuthPage = () => {
   
   // Redirect if already authenticated
   useEffect(() => {
-    if (isAuthenticated) {
+    if (!isLoading && isAuthenticated) {
       console.log('User is authenticated, redirecting to:', from);
       navigate(from, { replace: true });
     }
-  }, [isAuthenticated, navigate, from]);
+  }, [isAuthenticated, isLoading, navigate, from]);
 
   return (
     <div className="h-screen flex items-center justify-center bg-gradient-to-b from-background to-muted/50 p-4">

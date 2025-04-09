@@ -30,6 +30,11 @@ export function useAuthMethods(
       }
       
       if (data && data.user) {
+        setUser({
+          id: data.user.id,
+          email: data.user.email || ''
+        });
+        
         toast({
           title: "Logged in successfully",
           description: `Welcome back, ${data.user.email}!`
@@ -153,6 +158,9 @@ export function useAuthMethods(
       
       // Also clear mock auth if it exists
       localStorage.removeItem('mock_current_user');
+      
+      // Explicitly set user to null after logout
+      setUser(null);
       
       toast({
         title: "Logged out",

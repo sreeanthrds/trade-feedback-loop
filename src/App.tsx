@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -32,7 +31,7 @@ import Account from "./pages/Account";
 // Documentation Page
 import Documentation from './pages/Documentation';
 
-// Create query client with error handling - fixed TypeScript error with proper structure
+// Create query client with error handling
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -68,11 +67,11 @@ const App = () => (
               {/* Direct auth route */}
               <Route path="/auth" element={<AuthPage />} />
               
-              {/* Protected Website Routes */}
-              <Route path="/" element={<ProtectedRoute><WebsiteLayout><Index /></WebsiteLayout></ProtectedRoute>} />
-              <Route path="/features" element={<ProtectedRoute><WebsiteLayout><Features /></WebsiteLayout></ProtectedRoute>} />
-              <Route path="/pricing" element={<ProtectedRoute><WebsiteLayout><Pricing /></WebsiteLayout></ProtectedRoute>} />
-              <Route path="/blog" element={<ProtectedRoute><WebsiteLayout><Blog /></WebsiteLayout></ProtectedRoute>} />
+              {/* Website Routes - no longer protected */}
+              <Route path="/" element={<WebsiteLayout><Index /></WebsiteLayout>} />
+              <Route path="/features" element={<WebsiteLayout><Features /></WebsiteLayout>} />
+              <Route path="/pricing" element={<WebsiteLayout><Pricing /></WebsiteLayout>} />
+              <Route path="/blog" element={<WebsiteLayout><Blog /></WebsiteLayout>} />
               
               {/* Protected App Routes */}
               <Route path="/app" element={<ProtectedRoute><AppLayout><StrategiesLanding /></AppLayout></ProtectedRoute>} />

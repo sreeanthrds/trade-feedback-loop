@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -31,8 +30,7 @@ const SignInForm = () => {
       if (!result.success && result.error) {
         setError(result.error);
       } else if (result.success) {
-        // Explicitly navigate to the app or intended destination
-        console.log("Login successful, redirecting to:", from);
+        // Force navigation to app or intended destination
         navigate(from, { replace: true });
       }
     } finally {

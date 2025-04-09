@@ -30,7 +30,7 @@ const UserProfileDropdown = () => {
   const handleSignOut = async () => {
     try {
       await signOut();
-      // Explicitly navigate to auth page after sign out
+      // Force navigation to auth page after sign out
       navigate('/auth', { replace: true });
       
       // Show toast notification
