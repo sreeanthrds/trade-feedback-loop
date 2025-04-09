@@ -8,7 +8,7 @@ import { createNodeTypes } from './nodes/nodeTypes';
 import { createEdgeTypes } from './edges/edgeTypes';
 import NodePanel from './NodePanel';
 import BacktestingToggle from './backtesting/BacktestingToggle';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { BarChart } from 'lucide-react';
 import '@xyflow/react/dist/style.css';

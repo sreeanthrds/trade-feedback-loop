@@ -14,6 +14,7 @@ import {
   usePanelHandlers,
   useStrategyHandlers
 } from './flow-handlers';
+import { useSearchParams } from 'react-router-dom';
 
 export function useFlowState(isNew: boolean = false) {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
@@ -23,6 +24,8 @@ export function useFlowState(isNew: boolean = false) {
   const onConnectMemoizedRef = useRef(null);
   const [storeInitialized, setStoreInitialized] = useState(false);
   const updateHandlingRef = useRef(false);
+  const [searchParams] = useSearchParams();
+  const currentStrategyId = searchParams.get('id') || '';
   
   // Node state management
   const {
@@ -91,7 +94,8 @@ export function useFlowState(isNew: boolean = false) {
     setNodes,
     setEdges,
     strategyStore,
-    initialNodes
+    initialNodes,
+    currentStrategyId
   }) : { isInitialLoadRef: { current: false } };
   
   // Only initialize store after ReactFlow is ready and initial load is complete
