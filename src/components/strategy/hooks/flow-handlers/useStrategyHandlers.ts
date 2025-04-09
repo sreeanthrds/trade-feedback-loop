@@ -45,38 +45,42 @@ export const useStrategyHandlers = ({
       setNodes(initialNodes);
       setEdges([]);
       
-      // Update store
-      storeRef.current.setNodes(initialNodes);
-      storeRef.current.setEdges([]);
-      storeRef.current.resetHistory();
-      storeRef.current.addHistoryItem(initialNodes, []);
-      
-      // Clear selection and close panel
-      closePanel();
-      
-      // Clear localStorage for current strategy
-      localStorage.removeItem('tradyStrategy');
-      
-      // Fit view after reset
-      if (instanceRef.current) {
-        setTimeout(() => {
-          instanceRef.current.fitView({ padding: 0.2 });
-        }, 100);
-      }
-      
-      toast({
-        title: "Strategy reset",
-        description: "Strategy has been reset to initial state."
-      });
+      // Update store in a separate cycle to prevent update loops
+      setTimeout(() => {
+        storeRef.current.setNodes(initialNodes);
+        storeRef.current.setEdges([]);
+        storeRef.current.resetHistory();
+        storeRef.current.addHistoryItem(initialNodes, []);
+        
+        // Clear selection and close panel
+        closePanel();
+        
+        // Clear localStorage for current strategy
+        localStorage.removeItem('tradyStrategy');
+        
+        // Fit view after reset with delay
+        if (instanceRef.current) {
+          setTimeout(() => {
+            instanceRef.current.fitView({ padding: 0.2 });
+          }, 300);
+        }
+        
+        toast({
+          title: "Strategy reset",
+          description: "Strategy has been reset to initial state."
+        });
+      }, 100);
     } finally {
+      // Allow time for updates to process before releasing flag
       setTimeout(() => {
         updateHandlingRef.current = false;
-      }, 100);
+      }, 500);
     }
   }, [setNodes, setEdges, closePanel, updateHandlingRef]);
 
   // Create import success handler with improved viewport handling
   const handleImportSuccess = useCallback(() => {
+    // Skip if already handling updates
     if (updateHandlingRef.current) return;
     updateHandlingRef.current = true;
     
@@ -84,22 +88,31 @@ export const useStrategyHandlers = ({
       // Close panel if open
       closePanel();
       
-      // Fit view after successful import with a delay to ensure nodes are rendered
-      if (instanceRef.current) {
-        // Use a longer timeout to make sure everything is rendered properly
-        setTimeout(() => {
+      // Ensure we have a reference to the current flow instance
+      if (!instanceRef.current) {
+        console.warn('ReactFlow instance not available for fitting view');
+        return;
+      }
+      
+      // Use a longer timeout to make sure everything is rendered properly
+      // This is crucial to prevent update loops - we need to wait for state to settle
+      setTimeout(() => {
+        try {
           console.log("Fitting view after import");
           instanceRef.current.fitView({ 
             padding: 0.2,
             includeHiddenNodes: false,
             duration: 800
           });
-        }, 300);
-      }
+        } catch (e) {
+          console.error("Error fitting view:", e);
+        }
+      }, 600);
     } finally {
+      // Release update flag after sufficient time for async operations
       setTimeout(() => {
         updateHandlingRef.current = false;
-      }, 500);
+      }, 1000);
     }
   }, [closePanel, updateHandlingRef]);
 

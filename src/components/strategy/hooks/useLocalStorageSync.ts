@@ -1,144 +1,126 @@
 
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Node, Edge } from '@xyflow/react';
-import { loadStrategyFromLocalStorage } from '../utils/storage/localStorageUtils';
-import { loadStrategyFromLocalStorage as loadStrategy } from '../utils/flowUtils';
+import { toast } from '@/hooks/use-toast';
 
-/**
- * Hook to synchronize with localStorage on initial load
- */
-export function useLocalStorageSync(
-  setNodes: (nodes: Node[]) => void,
-  setEdges: (edges: Edge[]) => void,
-  strategyStore: any,
-  initialNodes: Node[]
-) {
+interface UseLocalStorageSyncProps {
+  setNodes: (nodes: Node[]) => void;
+  setEdges: (edges: Edge[]) => void;
+  strategyStore: any;
+  initialNodes: Node[];
+}
+
+export function useLocalStorageSync({
+  setNodes,
+  setEdges,
+  strategyStore,
+  initialNodes
+}: UseLocalStorageSyncProps) {
   const isInitialLoadRef = useRef(true);
-  const hasInitializedRef = useRef(false);
-  const isUpdatingStoreRef = useRef(false);
-  const initTimeoutRef = useRef<number | null>(null);
-  const syncTimeoutRef = useRef<number | null>(null);
-
-  // Cleanup function for timeouts
+  const isUpdatingFromLocalStorageRef = useRef(false);
+  
+  // Initial load from localStorage
   useEffect(() => {
-    return () => {
-      if (initTimeoutRef.current !== null) {
-        window.clearTimeout(initTimeoutRef.current);
-      }
-      if (syncTimeoutRef.current !== null) {
-        window.clearTimeout(syncTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  // Load from localStorage on initial mount with better handling
-  useEffect(() => {
-    // Only run once
-    if (hasInitializedRef.current) {
-      return;
+    if (!isInitialLoadRef.current || isUpdatingFromLocalStorageRef.current) {
+      return; // Prevent duplicate loading
     }
-    
-    hasInitializedRef.current = true;
     
     try {
-      // Use requestIdleCallback if available for better performance
-      const processStrategy = () => {
-        try {
-          const savedStrategy = loadStrategyFromLocalStorage();
-          
-          if (savedStrategy && savedStrategy.nodes && savedStrategy.nodes.length > 0) {
-            // Validate the saved strategy before loading it
-            const isValidStrategy = Array.isArray(savedStrategy.nodes) && 
-                                  Array.isArray(savedStrategy.edges);
-            
-            if (isValidStrategy) {
-              console.log('Loading saved strategy from localStorage');
-              
-              // Set local state first to avoid render loops
-              setNodes(savedStrategy.nodes);
-              setEdges(savedStrategy.edges);
-              
-              // Then update the store with a short delay
-              isUpdatingStoreRef.current = true;
-              
-              if (syncTimeoutRef.current !== null) {
-                window.clearTimeout(syncTimeoutRef.current);
-              }
-              
-              syncTimeoutRef.current = window.setTimeout(() => {
-                try {
-                  // Direct state update instead of using actions that trigger useEffect loops
-                  strategyStore.setNodes(savedStrategy.nodes);
-                  strategyStore.setEdges(savedStrategy.edges);
-                  strategyStore.resetHistory();
-                  strategyStore.addHistoryItem(savedStrategy.nodes, savedStrategy.edges);
-                } catch (error) {
-                  console.error('Error updating strategy store:', error);
-                } finally {
-                  isUpdatingStoreRef.current = false;
-                  syncTimeoutRef.current = null;
-                }
-              }, 100); // Reduced delay
-            } else {
-              console.warn('Invalid saved strategy found in localStorage, using default nodes');
-              initializeWithDefaultNodes();
-            }
-          } else {
-            console.log('No saved strategy found, using default nodes');
-            initializeWithDefaultNodes();
-          }
-        } catch (error) {
-          console.error('Error loading strategy from localStorage:', error);
-          initializeWithDefaultNodes();
-        }
+      isUpdatingFromLocalStorageRef.current = true;
+      
+      // Try to load the strategy from localStorage
+      const savedStrategy = localStorage.getItem('tradyStrategy');
+      
+      if (savedStrategy) {
+        const parsed = JSON.parse(savedStrategy);
         
-        // Set the initial load flag to false after a shorter delay
-        initTimeoutRef.current = window.setTimeout(() => {
+        if (parsed.nodes && parsed.edges) {
+          console.log('Loading strategy from localStorage');
+          
+          // Apply nodes first
+          setNodes(parsed.nodes);
+          
+          // Apply edges in the next cycle to prevent conflicts
+          setTimeout(() => {
+            setEdges(parsed.edges);
+            
+            // Update store in a separate cycle
+            setTimeout(() => {
+              strategyStore.setNodes(parsed.nodes);
+              strategyStore.setEdges(parsed.edges);
+              strategyStore.resetHistory();
+              strategyStore.addHistoryItem(parsed.nodes, parsed.edges);
+              
+              console.log('Strategy loaded from localStorage successfully');
+              isInitialLoadRef.current = false;
+            }, 0);
+          }, 0);
+        } else {
+          console.log('Invalid saved strategy format, using default nodes');
+          setNodes(initialNodes);
           isInitialLoadRef.current = false;
-          console.log('Initial load complete');
-        }, 200); // Reduced delay
-      };
-
-      // Use requestIdleCallback if available for non-critical initialization
-      if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-        (window as any).requestIdleCallback(processStrategy);
+        }
       } else {
-        // Fallback to setTimeout with a small delay
-        setTimeout(processStrategy, 10);
+        console.log('No saved strategy found, using default nodes');
+        setNodes(initialNodes);
+        isInitialLoadRef.current = false;
       }
     } catch (error) {
-      console.error('Error in useLocalStorageSync:', error);
-      initializeWithDefaultNodes();
+      console.error('Error loading strategy from localStorage:', error);
+      setNodes(initialNodes);
+      isInitialLoadRef.current = false;
+      
+      toast({
+        title: "Error loading strategy",
+        description: "Could not load your saved strategy. Starting with a new one.",
+        variant: "destructive"
+      });
+    } finally {
+      // Reset flag after a small delay
+      setTimeout(() => {
+        isUpdatingFromLocalStorageRef.current = false;
+      }, 500);
     }
-  }, []);
+  }, [setNodes, setEdges, strategyStore, initialNodes]);
 
-  // Helper function to initialize with default nodes
-  const initializeWithDefaultNodes = () => {
-    // Set local state
-    setNodes(initialNodes);
-    setEdges([]);
-    
-    // Update store with a delay
-    isUpdatingStoreRef.current = true;
-    
-    if (syncTimeoutRef.current !== null) {
-      window.clearTimeout(syncTimeoutRef.current);
-    }
-    
-    syncTimeoutRef.current = window.setTimeout(() => {
-      try {
-        strategyStore.setNodes(initialNodes);
-        strategyStore.setEdges([]);
-        strategyStore.resetHistory();
-        strategyStore.addHistoryItem(initialNodes, []);
-      } catch (error) {
-        console.error('Error initializing with default nodes:', error);
-      } finally {
-        isUpdatingStoreRef.current = false;
-        syncTimeoutRef.current = null;
+  // Listen for external changes to localStorage (from another tab)
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'tradyStrategy' && e.newValue) {
+        try {
+          // Prevent update loops by using a ref flag
+          if (!isUpdatingFromLocalStorageRef.current) {
+            isUpdatingFromLocalStorageRef.current = true;
+            
+            const parsed = JSON.parse(e.newValue);
+            if (parsed.nodes && parsed.edges) {
+              setNodes(parsed.nodes);
+              setEdges(parsed.edges);
+              
+              // Update store in a separate cycle
+              setTimeout(() => {
+                strategyStore.setNodes(parsed.nodes);
+                strategyStore.setEdges(parsed.edges);
+                strategyStore.resetHistory();
+                strategyStore.addHistoryItem(parsed.nodes, parsed.edges);
+                
+                // Reset flag after applying changes
+                setTimeout(() => {
+                  isUpdatingFromLocalStorageRef.current = false;
+                }, 100);
+              }, 100);
+            }
+          }
+        } catch (error) {
+          console.error('Error handling storage event:', error);
+          isUpdatingFromLocalStorageRef.current = false;
+        }
       }
-    }, 100); // Reduced delay for faster initialization
-  };
+    };
 
-  return { isInitialLoadRef, isUpdatingStoreRef };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [setNodes, setEdges, strategyStore]);
+
+  return { isInitialLoadRef };
 }

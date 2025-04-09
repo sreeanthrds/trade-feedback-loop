@@ -82,6 +82,9 @@ export const exportStrategyToFile = (nodes: Node[], edges: Edge[], strategyName:
     a.click();
     document.body.removeChild(a);
     
+    // Clean up the URL object after download
+    URL.revokeObjectURL(url);
+    
     // Updated toast implementation
     toast({
       title: "Strategy exported successfully",
@@ -121,7 +124,8 @@ export const importStrategyFromEvent = (
         if (!result) {
           toast({
             title: "Failed to read file",
-            description: "Could not read the uploaded file"
+            description: "Could not read the uploaded file",
+            variant: "destructive"
           });
           resolve(false);
           return;
@@ -167,35 +171,51 @@ export const importStrategyFromEvent = (
           
           // Apply the changes - use a slight delay to ensure proper rendering
           setTimeout(() => {
-            // First reset history to avoid any issues with history
-            resetHistory();
-            
-            // Then apply the changes to both local state and store
-            setNodes(validatedNodes);
-            setEdges(validatedEdges);
-            
-            // Add this as a new history item
-            addHistoryItem(validatedNodes, validatedEdges);
-            
-            // Also save the imported strategy to localStorage
-            if (imported.name && imported.id) {
-              localStorage.setItem('tradyStrategy', JSON.stringify({
-                nodes: validatedNodes,
-                edges: validatedEdges,
-                name: imported.name,
-                id: imported.id,
-                lastModified: new Date().toISOString(),
-                created: imported.created || new Date().toISOString(),
-                description: imported.description || "Imported trading strategy"
-              }));
+            try {
+              // First reset history to avoid any issues with update cycles
+              resetHistory();
+              
+              // Apply nodes first
+              setNodes(validatedNodes);
+              
+              // Then apply edges in a subsequent update cycle to prevent conflicts
+              setTimeout(() => {
+                setEdges(validatedEdges);
+                
+                // Add this as a new history item in another cycle
+                setTimeout(() => {
+                  addHistoryItem(validatedNodes, validatedEdges);
+                  
+                  // Also save the imported strategy to localStorage
+                  if (imported.name && imported.id) {
+                    localStorage.setItem('tradyStrategy', JSON.stringify({
+                      nodes: validatedNodes,
+                      edges: validatedEdges,
+                      name: imported.name,
+                      id: imported.id,
+                      lastModified: new Date().toISOString(),
+                      created: imported.created || new Date().toISOString(),
+                      description: imported.description || "Imported trading strategy"
+                    }));
+                  }
+                  
+                  toast({
+                    title: "Strategy imported successfully",
+                    description: "Your strategy has been loaded"
+                  });
+                  
+                  resolve(true);
+                }, 50);
+              }, 50);
+            } catch (error) {
+              console.error("Error applying imported strategy:", error);
+              toast({
+                title: "Import failed",
+                description: "Failed to apply imported strategy",
+                variant: "destructive"
+              });
+              resolve(false);
             }
-            
-            toast({
-              title: "Strategy imported successfully",
-              description: "Your strategy has been loaded"
-            });
-            
-            resolve(true);
           }, 100);
         } else {
           toast({
