@@ -63,6 +63,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   const nodesLengthRef = useRef(nodes.length);
   const edgesLengthRef = useRef(edges.length);
   const importInProgressRef = useRef(false);
+  const lastImportRef = useRef(0);
 
   // Track node/edge changes to detect major updates
   useEffect(() => {
@@ -77,6 +78,16 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
 
   // Handle import success with improved viewport fitting
   const handleImportSuccess = useCallback(() => {
+    // Prevent import handling if too recent (throttle)
+    const now = Date.now();
+    if (now - lastImportRef.current < 500) {
+      console.log("Import success handler called too soon, skipping");
+      return;
+    }
+    
+    // Update last import timestamp
+    lastImportRef.current = now;
+    
     // Prevent duplicate processing
     if (importInProgressRef.current) {
       console.log("Import already in progress, skipping additional callbacks");
@@ -87,59 +98,55 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
     console.log(`Import success handler called in ReactFlowCanvas for strategy: ${currentStrategyId}`);
     console.log(`Current nodes: ${nodes.length}, edges: ${edges.length}`);
     
-    // Set a timeout to ensure we don't retry too quickly
+    // Set a timeout to ensure we have the latest nodes/edges
     setTimeout(() => {
       if (reactFlowInstanceRef.current) {
-        // Schedule multiple fit view attempts to ensure it works
-        // This helps with async state updates that might not be fully processed
-        const scheduleMultipleFitViewAttempts = () => {
-          // First attempt
-          setTimeout(() => {
-            try {
-              console.log("First fit view attempt after import");
-              fitView();
-            } catch (e) {
-              console.error("Error in first fit view attempt:", e);
-            }
-            
-            // Second attempt with longer delay
-            setTimeout(() => {
-              try {
-                console.log("Second fit view attempt after import");
-                fitView();
-              } catch (e) {
-                console.error("Error in second fit view attempt:", e);
-              }
-              
-              // Final attempt with even longer delay
-              setTimeout(() => {
-                try {
-                  console.log("Final fit view attempt after import");
-                  fitView();
-                  
-                  // Reset the import in progress flag
-                  importInProgressRef.current = false;
-                } catch (e) {
-                  console.error("Error in final fit view attempt:", e);
-                  importInProgressRef.current = false;
-                }
-              }, 1000);
-            }, 500);
-          }, 200);
-        };
+        console.log("Fitting view after import with multiple attempts");
         
-        scheduleMultipleFitViewAttempts();
+        // First attempt
+        try {
+          fitView();
+        } catch (e) {
+          console.error("Error in first fit view attempt:", e);
+        }
+        
+        // Second attempt after a delay
+        setTimeout(() => {
+          try {
+            fitView();
+            
+            // Force a zoom adjustment to ensure we see the whole strategy
+            if (reactFlowInstanceRef.current) {
+              const { zoom } = reactFlowInstanceRef.current.getViewport();
+              reactFlowInstanceRef.current.setViewport({
+                x: reactFlowInstanceRef.current.getViewport().x,
+                y: reactFlowInstanceRef.current.getViewport().y,
+                zoom: zoom * 0.9 // Zoom out slightly
+              }, { duration: 200 });
+            }
+          } catch (e) {
+            console.error("Error in second fit view attempt:", e);
+          }
+          
+          // Release import flag
+          importInProgressRef.current = false;
+        }, 500);
       } else {
         importInProgressRef.current = false;
       }
       
       // Call the parent's import success handler
       onImportSuccess();
-    }, 100); // Short delay before starting the process
+    }, 200);
   }, [fitView, onImportSuccess, nodes.length, edges.length, currentStrategyId]);
 
-  // When nodes change significantly (particularly on import), trigger a fit view
+  // When nodes change significantly, trigger a fit view
   useEffect(() => {
+    // Skip if import is in progress (it will handle fit view)
+    if (importInProgressRef.current) {
+      return;
+    }
+    
     const nodeCountChanged = nodes.length !== nodesLengthRef.current;
     const edgeCountChanged = edges.length !== edgesLengthRef.current;
     
@@ -162,13 +169,28 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
     }
   }, [nodes.length, edges.length, fitView]);
 
-  // Important: Add logging to help troubleshoot the backtest panel toggle
+  // Add logging for backtest panel toggle
   const handleToggleBacktest = useCallback(() => {
     console.log("Toggle backtest called from ReactFlowCanvas");
     if (toggleBacktest) {
       toggleBacktest();
     }
   }, [toggleBacktest]);
+  
+  // Update instance ref when initialized
+  const handleInit = useCallback((instance) => {
+    console.log("ReactFlow initialized");
+    reactFlowInstanceRef.current = instance;
+    
+    // Fit view on init
+    setTimeout(() => {
+      try {
+        fitView();
+      } catch (e) {
+        console.error("Error in initial fit view:", e);
+      }
+    }, 100);
+  }, [fitView]);
 
   return (
     <div 
@@ -186,10 +208,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         onNodeClick={onNodeClick}
-        onInit={(instance) => {
-          console.log("ReactFlow initialized");
-          reactFlowInstanceRef.current = instance;
-        }}
+        onInit={handleInit}
         fitView
         minZoom={0.3}
         maxZoom={1.5}

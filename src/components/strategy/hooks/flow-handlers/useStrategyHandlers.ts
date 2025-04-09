@@ -32,6 +32,7 @@ export const useStrategyHandlers = ({
   const [searchParams] = useSearchParams();
   const currentStrategyId = searchParams.get('id') || '';
   const currentStrategyName = searchParams.get('name') || 'Untitled Strategy';
+  const resetInProgressRef = useRef(false);
   
   // Update refs when dependencies change
   useEffect(() => {
@@ -42,37 +43,50 @@ export const useStrategyHandlers = ({
 
   // Create strategy reset handler - now isolated to current strategy
   const resetStrategy = useCallback(() => {
-    if (updateHandlingRef.current) return;
+    // Prevent multiple simultaneous resets
+    if (resetInProgressRef.current || updateHandlingRef.current) {
+      console.log("Reset already in progress, ignoring");
+      return;
+    }
+    
+    resetInProgressRef.current = true;
     updateHandlingRef.current = true;
     
     try {
       // First clear all nodes and edges
       console.log(`Resetting strategy: ${currentStrategyId} - ${currentStrategyName}`);
+      
+      // Set empty arrays first to clear everything
       setNodes([]);
       setEdges([]);
       
       // Close panel if open
       closePanel();
       
-      // Reset store state in a separate cycle
+      // Reset store state after a short delay
       setTimeout(() => {
         if (storeRef.current) {
           storeRef.current.setNodes([]);
           storeRef.current.setEdges([]);
           storeRef.current.resetHistory();
           
-          // Set to initial state after a brief delay
+          // Set to initial state after another brief delay
           setTimeout(() => {
+            // Set initial nodes in both state and store
             setNodes(initialNodes);
             storeRef.current.setNodes(initialNodes);
+            
+            // Add to history
             storeRef.current.addHistoryItem(initialNodes, []);
             
-            // Clear localStorage only for current strategy
+            // Clear localStorage ONLY for current strategy
             localStorage.removeItem('tradyStrategy');
+            
             if (currentStrategyId) {
+              // Remove only this specific strategy
               localStorage.removeItem(`strategy_${currentStrategyId}`);
               
-              // Update the strategies list to remove this strategy
+              // Update the strategies list to reflect changes
               updateStrategiesList(currentStrategyId);
             }
             
@@ -91,14 +105,20 @@ export const useStrategyHandlers = ({
               title: "Strategy reset",
               description: "Strategy has been reset to initial state."
             });
+            
+            // Reset flags
+            resetInProgressRef.current = false;
+            updateHandlingRef.current = false;
           }, 200);
+        } else {
+          resetInProgressRef.current = false;
+          updateHandlingRef.current = false;
         }
       }, 100);
-    } finally {
-      // Allow time for updates to process before releasing flag
-      setTimeout(() => {
-        updateHandlingRef.current = false;
-      }, 800);
+    } catch (error) {
+      console.error("Error during strategy reset:", error);
+      resetInProgressRef.current = false;
+      updateHandlingRef.current = false;
     }
   }, [setNodes, setEdges, closePanel, updateHandlingRef, currentStrategyId, currentStrategyName]);
 
@@ -109,21 +129,34 @@ export const useStrategyHandlers = ({
       if (!strategiesJSON) return;
       
       const strategies = JSON.parse(strategiesJSON);
-      const updatedStrategies = strategies.filter((s: any) => s.id !== strategyId);
       
-      localStorage.setItem('strategies', JSON.stringify(updatedStrategies));
+      // Find the strategy to modify
+      const strategyIndex = strategies.findIndex((s: any) => s.id === strategyId);
       
-      // Trigger update event
-      window.dispatchEvent(new StorageEvent('storage', {
-        key: 'strategies'
-      }));
+      if (strategyIndex >= 0) {
+        // Replace with a reset version rather than removing
+        strategies[strategyIndex] = {
+          ...strategies[strategyIndex],
+          lastModified: new Date().toISOString(),
+          description: "Reset trading strategy"
+        };
+        
+        // Save updated list
+        localStorage.setItem('strategies', JSON.stringify(strategies));
+        
+        // Trigger update event
+        window.dispatchEvent(new StorageEvent('storage', {
+          key: 'strategies'
+        }));
+        
+        console.log(`Updated strategy ${strategyId} in strategies list`);
+      }
     } catch (e) {
       console.error('Error updating strategies list:', e);
     }
   };
 
   // Create import success handler with improved viewport handling
-  // Now properly isolated to current strategy
   const handleImportSuccess = useCallback(() => {
     // Skip if already handling updates
     if (updateHandlingRef.current) {
@@ -141,19 +174,16 @@ export const useStrategyHandlers = ({
       // Force a store update to ensure UI reconciliation
       if (storeRef.current && nodesRef.current) {
         console.log("Forcing store update after import to ensure UI reconciliation");
+        
         // Create a deep copy of the nodes to trigger state updates
         const nodesCopy = JSON.parse(JSON.stringify(nodesRef.current));
         storeRef.current.setNodes(nodesCopy);
-        
-        // Apply any pending changes to the store
-        if (storeRef.current.applyPendingChanges) {
-          storeRef.current.applyPendingChanges();
-        }
       }
       
       // Ensure we have a reference to the current flow instance
       if (!instanceRef.current) {
         console.warn('ReactFlow instance not available for fitting view');
+        updateHandlingRef.current = false;
         return;
       }
       

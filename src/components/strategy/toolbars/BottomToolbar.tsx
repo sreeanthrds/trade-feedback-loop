@@ -55,6 +55,13 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
         console.log("Current file input path:", filePath);
       }
       
+      // Clear existing nodes and edges first to prevent conflicts
+      setNodes([]);
+      setEdges([]);
+      
+      // Force a brief delay to ensure React state is updated before import
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       // Perform the import operation with current strategy context
       const result = await importStrategyFromEvent(
         event, 
@@ -73,15 +80,13 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
         fileInputRef.current.value = '';
       }
       
-      // Call the success handler immediately to ensure proper UI updates
+      // Call the success handler with a delay to ensure state has propagated
       if (result && onImportSuccess) {
-        console.log("Calling onImportSuccess callback immediately");
-        onImportSuccess();
-        
-        // Also call it again after a brief delay to ensure state has fully propagated
+        // Delay to allow state updates to complete
         setTimeout(() => {
-          if (onImportSuccess) onImportSuccess();
-        }, 500);
+          console.log("Calling onImportSuccess callback with delay");
+          onImportSuccess();
+        }, 100);
       }
     } catch (error) {
       console.error("Error during import:", error);

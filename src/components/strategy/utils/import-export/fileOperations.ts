@@ -181,59 +181,54 @@ export const importStrategyFromEvent = (
           
           resetHistory();
           
-          setNodes([]);
-          setEdges([]);
-          
-          setTimeout(() => {
+          const applyImport = async () => {
             try {
               console.log("Setting validated nodes:", validatedNodes.length);
               setNodes(validatedNodes);
               
+              await new Promise(resolve => setTimeout(resolve, 50));
+              
               console.log("Setting validated edges:", validatedEdges.length);
               setEdges(validatedEdges);
               
-              setTimeout(() => {
-                try {
-                  console.log(`Saving imported strategy to localStorage with ID: ${strategyId}`);
-                  
-                  const strategyToSave = {
-                    nodes: validatedNodes,
-                    edges: validatedEdges,
-                    name: strategyName,
-                    id: strategyId,
-                    lastModified: new Date().toISOString(),
-                    created: imported.created || new Date().toISOString(),
-                    description: imported.description || "Imported trading strategy"
-                  };
-                  
-                  localStorage.setItem(`strategy_${strategyId}`, JSON.stringify(strategyToSave));
-                  localStorage.setItem('tradyStrategy', JSON.stringify(strategyToSave));
-                  
-                  addHistoryItem(validatedNodes, validatedEdges);
-                  
-                  updateStrategiesList(strategyToSave);
-                  
-                  toast({
-                    title: "Strategy imported successfully",
-                    description: "Your strategy has been loaded"
-                  });
-                  
-                  resolve(true);
-                } catch (innerError) {
-                  console.error("Error during final import steps:", innerError);
-                  resolve(false);
-                }
-              }, 100);
-            } catch (error) {
-              console.error("Error applying imported strategy:", error);
+              await new Promise(resolve => setTimeout(resolve, 50));
+              
+              console.log(`Saving imported strategy to localStorage with ID: ${strategyId}`);
+              
+              const strategyToSave = {
+                nodes: validatedNodes,
+                edges: validatedEdges,
+                name: strategyName,
+                id: strategyId,
+                lastModified: new Date().toISOString(),
+                created: imported.created || new Date().toISOString(),
+                description: imported.description || "Imported trading strategy"
+              };
+              
+              localStorage.setItem(`strategy_${strategyId}`, JSON.stringify(strategyToSave));
+              localStorage.setItem('tradyStrategy', JSON.stringify(strategyToSave));
+              
+              addHistoryItem(validatedNodes, validatedEdges);
+              
+              updateStrategiesList(strategyToSave);
+              
               toast({
-                title: "Import failed",
-                description: "Failed to apply imported strategy",
-                variant: "destructive"
+                title: "Strategy imported successfully",
+                description: "Your strategy has been loaded"
               });
+              
+              window.dispatchEvent(new StorageEvent('storage', {
+                key: 'strategies'
+              }));
+              
+              resolve(true);
+            } catch (innerError) {
+              console.error("Error during final import steps:", innerError);
               resolve(false);
             }
-          }, 100);
+          };
+          
+          setTimeout(applyImport, 50);
         } else {
           console.error("Missing nodes or edges in imported data", imported);
           toast({
