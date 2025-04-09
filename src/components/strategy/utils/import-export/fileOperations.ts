@@ -81,11 +81,21 @@ export const exportStrategyToFile = (nodes: Node[], edges: Edge[], strategyName:
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    toast.success("Strategy exported successfully");
+    
+    // Updated toast implementation
+    toast({
+      title: "Strategy exported successfully",
+      description: "Your strategy has been downloaded as a JSON file"
+    });
   } catch (error) {
     console.error("Export error:", error);
-    toast.error("Failed to export strategy");
+    
+    // Updated toast implementation
+    toast({
+      title: "Failed to export strategy",
+      description: error instanceof Error ? error.message : "An unknown error occurred",
+      variant: "destructive"
+    });
   }
 };
 
@@ -145,7 +155,8 @@ export const importStrategyFromEvent = (
           if (validatedEdges.some((edge: Edge) => !edge.source || !edge.target)) {
             toast({
               title: "Invalid file format",
-              description: "Invalid edge connections in imported file"
+              description: "Invalid edge connections in imported file",
+              variant: "destructive"
             });
             resolve(false);
             return;
@@ -189,7 +200,8 @@ export const importStrategyFromEvent = (
         } else {
           toast({
             title: "Invalid file format",
-            description: "The file does not contain a valid strategy"
+            description: "The file does not contain a valid strategy",
+            variant: "destructive"
           });
           resolve(false);
         }
@@ -197,7 +209,8 @@ export const importStrategyFromEvent = (
         console.error("Import error:", error);
         toast({
           title: "Import failed",
-          description: "Failed to parse strategy file"
+          description: "Failed to parse strategy file",
+          variant: "destructive"
         });
         resolve(false);
       }
@@ -206,7 +219,8 @@ export const importStrategyFromEvent = (
     reader.onerror = () => {
       toast({
         title: "Error reading file",
-        description: "Could not read the uploaded file"
+        description: "Could not read the uploaded file",
+        variant: "destructive"
       });
       resolve(false);
     };
