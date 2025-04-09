@@ -57,11 +57,90 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   } = useViewportUtils();
 
   const reactFlowInstanceRef = useRef(null);
+  const nodesLengthRef = useRef(nodes.length);
+  const edgesLengthRef = useRef(edges.length);
+
+  // Track node/edge changes to detect major updates
+  useEffect(() => {
+    nodesLengthRef.current = nodes.length;
+    edgesLengthRef.current = edges.length;
+  }, [nodes.length, edges.length]);
 
   // Wrap onNodesChange to use our enhanced node change handler
   const wrappedNodesChange = useCallback((changes: any) => {
     internalHandleNodesChange(changes, onNodesChange);
   }, [internalHandleNodesChange, onNodesChange]);
+
+  // Handle import success with improved viewport fitting
+  const handleImportSuccess = useCallback(() => {
+    console.log("Import success handler called in ReactFlowCanvas");
+    console.log(`Current nodes: ${nodes.length}, edges: ${edges.length}`);
+    
+    if (reactFlowInstanceRef.current) {
+      // Schedule multiple fit view attempts to ensure it works
+      // This helps with async state updates that might not be fully processed
+      const scheduleMultipleFitViewAttempts = () => {
+        // First attempt
+        setTimeout(() => {
+          try {
+            console.log("First fit view attempt after import");
+            fitView();
+          } catch (e) {
+            console.error("Error in first fit view attempt:", e);
+          }
+          
+          // Second attempt with longer delay
+          setTimeout(() => {
+            try {
+              console.log("Second fit view attempt after import");
+              fitView();
+            } catch (e) {
+              console.error("Error in second fit view attempt:", e);
+            }
+            
+            // Final attempt with even longer delay
+            setTimeout(() => {
+              try {
+                console.log("Final fit view attempt after import");
+                fitView();
+              } catch (e) {
+                console.error("Error in final fit view attempt:", e);
+              }
+            }, 1000);
+          }, 500);
+        }, 200);
+      };
+      
+      scheduleMultipleFitViewAttempts();
+    }
+    
+    // Call the parent's import success handler
+    onImportSuccess();
+  }, [fitView, onImportSuccess, nodes.length, edges.length]);
+
+  // When nodes change significantly (particularly on import), trigger a fit view
+  useEffect(() => {
+    const nodeCountChanged = nodes.length !== nodesLengthRef.current;
+    const edgeCountChanged = edges.length !== edgesLengthRef.current;
+    
+    if ((nodeCountChanged || edgeCountChanged) && nodes.length > 0 && reactFlowInstanceRef.current) {
+      console.log(`Major change detected - nodes: ${nodes.length} (was ${nodesLengthRef.current}), edges: ${edges.length} (was ${edgesLengthRef.current})`);
+      
+      // Update refs immediately to prevent multiple triggers
+      nodesLengthRef.current = nodes.length;
+      edgesLengthRef.current = edges.length;
+      
+      // Fit view with delay to allow rendering
+      setTimeout(() => {
+        try {
+          console.log("Fitting view after major change in nodes/edges");
+          fitView();
+        } catch (e) {
+          console.error("Error fitting view after major change:", e);
+        }
+      }, 300);
+    }
+  }, [nodes.length, edges.length, fitView]);
 
   // Important: Add logging to help troubleshoot the backtest panel toggle
   const handleToggleBacktest = useCallback(() => {
@@ -70,36 +149,6 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
       toggleBacktest();
     }
   }, [toggleBacktest]);
-
-  // Handle import success with improved viewport fitting
-  const handleImportSuccess = useCallback(() => {
-    console.log("Import success handler called in ReactFlowCanvas");
-    if (reactFlowInstanceRef.current) {
-      console.log("Fitting view after successful import");
-      setTimeout(() => {
-        try {
-          fitView();
-        } catch (e) {
-          console.error("Error fitting view after import:", e);
-        }
-      }, 500);
-    }
-    // Call the parent's import success handler
-    onImportSuccess();
-  }, [fitView, onImportSuccess]);
-
-  // When nodes change (particularly on import), trigger a fit view
-  useEffect(() => {
-    if (nodes.length > 0 && reactFlowInstanceRef.current) {
-      // Only do this when we detect a major change in nodes (like after an import)
-      if (nodes.length >= 1 && edges.length === 0) {
-        console.log("Major change in nodes detected, fitting view");
-        setTimeout(() => {
-          fitView();
-        }, 200);
-      }
-    }
-  }, [nodes, edges, fitView]);
 
   return (
     <div 

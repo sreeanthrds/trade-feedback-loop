@@ -3,6 +3,7 @@ import { useCallback, useRef, useEffect } from 'react';
 import { Node, Edge } from '@xyflow/react';
 import { toast } from '@/hooks/use-toast';
 import { initialNodes } from '../../utils/flowUtils';
+import { createViewportAdjustmentHandler } from '../../utils/handlers/viewportHandlers';
 
 interface UseStrategyHandlersProps {
   strategyStore: any;
@@ -106,26 +107,44 @@ export const useStrategyHandlers = ({
       // Close panel if open
       closePanel();
       
+      // Force a store update to ensure UI reconciliation
+      if (storeRef.current && nodesRef.current) {
+        console.log("Forcing store update after import to ensure UI reconciliation");
+        // Create a copy of the nodes to trigger state updates
+        const nodesCopy = JSON.parse(JSON.stringify(nodesRef.current));
+        storeRef.current.setNodes(nodesCopy);
+        
+        // Apply any pending changes to the store
+        if (storeRef.current.applyPendingChanges) {
+          storeRef.current.applyPendingChanges();
+        }
+      }
+      
       // Ensure we have a reference to the current flow instance
       if (!instanceRef.current) {
         console.warn('ReactFlow instance not available for fitting view');
         return;
       }
       
-      // Use a longer timeout to make sure everything is rendered properly
-      // This is crucial to prevent update loops - we need to wait for state to settle
+      // Use the dedicated viewport handler
+      const adjustViewport = createViewportAdjustmentHandler(instanceRef.current);
+      
+      // Give the DOM time to update before adjusting viewport
       setTimeout(() => {
         try {
           console.log("Fitting view after import");
+          adjustViewport();
+        } catch (e) {
+          console.error("Error fitting view:", e);
+          
+          // Fallback to basic fit view if the advanced handler fails
           instanceRef.current.fitView({ 
             padding: 0.2,
             includeHiddenNodes: false,
-            duration: 800
+            duration: 600 
           });
-        } catch (e) {
-          console.error("Error fitting view:", e);
         }
-      }, 600);
+      }, 400);
     } finally {
       // Release update flag after sufficient time for async operations
       setTimeout(() => {

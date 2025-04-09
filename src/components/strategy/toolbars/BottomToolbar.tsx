@@ -49,7 +49,8 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
         description: "Please wait while we process your file..."
       });
       
-      const success = await importStrategyFromEvent(
+      // Perform the import operation
+      const result = await importStrategyFromEvent(
         event, 
         setNodes, 
         setEdges, 
@@ -57,19 +58,20 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
         resetHistory
       );
       
-      console.log("Import completed with success:", success);
+      console.log("Import completed with success:", result);
       
       // Reset the input value so the same file can be imported again if needed
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
       
-      // Notify parent component that import was successful
-      if (success && onImportSuccess) {
+      // Call the success handler after a brief delay to allow state updates to complete
+      if (result && onImportSuccess) {
         console.log("Calling onImportSuccess callback");
+        // Use a slightly longer timeout to ensure state has settled
         setTimeout(() => {
-          onImportSuccess();
-        }, 100);
+          if (onImportSuccess) onImportSuccess();
+        }, 300);
       }
     } catch (error) {
       console.error("Error during import:", error);
@@ -79,7 +81,10 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
         variant: "destructive"
       });
     } finally {
-      setIsImporting(false);
+      // Set importing to false after a delay to prevent rapid re-imports
+      setTimeout(() => {
+        setIsImporting(false);
+      }, 500);
     }
   };
 

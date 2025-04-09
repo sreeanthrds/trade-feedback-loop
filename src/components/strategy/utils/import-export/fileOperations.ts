@@ -195,54 +195,72 @@ export const importStrategyFromEvent = (
           localStorage.removeItem('tradyStrategy');
           console.log("Cleared existing strategy from localStorage");
           
-          // Apply the changes - use a slight delay to ensure proper rendering
+          // Reset history before applying changes to avoid state conflicts
+          console.log("Resetting history before applying new strategy");
+          resetHistory();
+          
+          // Apply the changes in a carefully sequenced manner
+          // We need to ensure the store is updated correctly to avoid visual glitches
+          
+          // Step 1: Clear existing nodes and edges (this ensures a clean slate)
+          setNodes([]);
+          setEdges([]);
+          
+          // Step 2: Apply the new nodes and edges with a slight delay to ensure the UI has updated
           setTimeout(() => {
             try {
-              console.log("Resetting history before applying new strategy");
-              // First reset history to avoid any issues with update cycles
-              resetHistory();
-              
-              console.log("Setting nodes:", validatedNodes.length);
-              // Apply nodes first
+              console.log("Setting validated nodes:", validatedNodes.length);
+              // Set nodes first
               setNodes(validatedNodes);
               
-              // Then apply edges in a subsequent update cycle to prevent conflicts
+              // Step 3: Set edges immediately after to ensure proper connection
+              console.log("Setting validated edges:", validatedEdges.length);
+              setEdges(validatedEdges);
+              
+              // Step 4: Save to localStorage and update history
               setTimeout(() => {
-                console.log("Setting edges:", validatedEdges.length);
-                setEdges(validatedEdges);
-                
-                // Add this as a new history item in another cycle
-                setTimeout(() => {
-                  console.log("Adding new history item");
+                try {
+                  console.log("Saving imported strategy to localStorage");
+                  
+                  // Create the strategy object for localStorage
+                  const strategyToSave = {
+                    nodes: validatedNodes,
+                    edges: validatedEdges,
+                    name: imported.name || "Imported Strategy",
+                    id: imported.id || `strategy-${Date.now()}`,
+                    lastModified: new Date().toISOString(),
+                    created: imported.created || new Date().toISOString(),
+                    description: imported.description || "Imported trading strategy"
+                  };
+                  
+                  // Save as current strategy
+                  localStorage.setItem('tradyStrategy', JSON.stringify(strategyToSave));
+                  
+                  // Also save with ID for persistence
+                  localStorage.setItem(`strategy_${strategyToSave.id}`, JSON.stringify(strategyToSave));
+                  
+                  // Step 5: Add to history after everything else is done
+                  console.log("Adding imported strategy to history");
                   addHistoryItem(validatedNodes, validatedEdges);
                   
-                  // Also save the imported strategy to localStorage
-                  if (imported.name && imported.id) {
-                    const strategyToSave = {
-                      nodes: validatedNodes,
-                      edges: validatedEdges,
-                      name: imported.name,
-                      id: imported.id,
-                      lastModified: new Date().toISOString(),
-                      created: imported.created || new Date().toISOString(),
-                      description: imported.description || "Imported trading strategy"
-                    };
-                    
-                    console.log("Saving imported strategy to localStorage", strategyToSave.id);
-                    localStorage.setItem('tradyStrategy', JSON.stringify(strategyToSave));
-                    
-                    // Also save as strategy with ID
-                    localStorage.setItem(`strategy_${imported.id}`, JSON.stringify(strategyToSave));
-                  }
+                  // Trigger a UI update by dispatching a storage event
+                  window.dispatchEvent(new StorageEvent('storage', {
+                    key: 'tradyStrategy'
+                  }));
                   
+                  // Show success message
                   toast({
                     title: "Strategy imported successfully",
                     description: "Your strategy has been loaded"
                   });
                   
+                  // Resolve the promise with success
                   resolve(true);
-                }, 50);
-              }, 50);
+                } catch (innerError) {
+                  console.error("Error during final import steps:", innerError);
+                  resolve(false);
+                }
+              }, 100);
             } catch (error) {
               console.error("Error applying imported strategy:", error);
               toast({
@@ -252,7 +270,7 @@ export const importStrategyFromEvent = (
               });
               resolve(false);
             }
-          }, 100);
+          }, 200);
         } else {
           console.error("Missing nodes or edges in imported data", imported);
           toast({
