@@ -1,8 +1,10 @@
 
-import { useEffect, useRef, useCallback } from 'react';
+import { useRef } from 'react';
 import { Node, Edge } from '@xyflow/react';
-import { toast } from '@/hooks/use-toast';
-import { loadStrategyFromLocalStorage } from '../utils/storage/operations/loadStrategy';
+import { useStrategyIdTracking } from './local-storage/useStrategyIdTracking';
+import { useSafeFlowSetters } from './local-storage/useSafeFlowSetters';
+import { useInitialLocalStorageLoad } from './local-storage/useInitialLocalStorageLoad';
+import { useExternalStorageChangeListener } from './local-storage/useExternalStorageChangeListener';
 
 interface UseLocalStorageSyncProps {
   setNodes: (nodes: Node[] | ((prev: Node[]) => Node[])) => void;
@@ -19,203 +21,38 @@ export function useLocalStorageSync({
   initialNodes,
   currentStrategyId
 }: UseLocalStorageSyncProps) {
-  const isInitialLoadRef = useRef(true);
+  // Track if updates are in progress to avoid conflicts
   const isUpdatingFromLocalStorageRef = useRef(false);
-  const currentStrategyIdRef = useRef(currentStrategyId);
   
-  // Update the ref when the strategy ID changes
-  useEffect(() => {
-    if (currentStrategyId !== currentStrategyIdRef.current) {
-      console.log(`Strategy ID changed from ${currentStrategyIdRef.current} to ${currentStrategyId}`);
-      isInitialLoadRef.current = true; // Reset to trigger loading the new strategy
-      currentStrategyIdRef.current = currentStrategyId;
-    }
-  }, [currentStrategyId]);
+  // Track strategy ID changes
+  const { currentStrategyIdRef, isInitialLoadRef } = useStrategyIdTracking(currentStrategyId);
   
-  // Safe setter functions that check if the setters exist
-  const safeSetNodes = useCallback((nodes: Node[] | ((prev: Node[]) => Node[])) => {
-    if (typeof setNodes === 'function') {
-      try {
-        setNodes(nodes);
-      } catch (error) {
-        console.error('Error in safeSetNodes:', error);
-      }
-    } else {
-      console.warn('setNodes is not a function');
-    }
-  }, [setNodes]);
+  // Get safe setters for ReactFlow
+  const { safeSetNodes, safeSetEdges } = useSafeFlowSetters({ setNodes, setEdges });
   
-  const safeSetEdges = useCallback((edges: Edge[] | ((prev: Edge[]) => Edge[])) => {
-    if (typeof setEdges === 'function') {
-      try {
-        setEdges(edges);
-        console.log('Edges set successfully via safeSetEdges:', 
-          typeof edges === 'function' ? 'function' : edges.length);
-      } catch (error) {
-        console.error('Error in safeSetEdges:', error);
-      }
-    } else {
-      console.warn('setEdges is not a function');
-    }
-  }, [setEdges]);
+  // Handle initial load from localStorage
+  useInitialLocalStorageLoad({
+    setNodes,
+    setEdges,
+    strategyStore,
+    initialNodes,
+    currentStrategyId,
+    isInitialLoadRef,
+    isUpdatingFromLocalStorageRef
+  });
   
-  // Initial load from localStorage
-  useEffect(() => {
-    if (!isInitialLoadRef.current || isUpdatingFromLocalStorageRef.current || !currentStrategyId) {
-      return; // Prevent duplicate loading
-    }
-    
-    try {
-      isUpdatingFromLocalStorageRef.current = true;
-      
-      // Try to load the specific strategy by ID
-      console.log(`Initial load for strategy: ${currentStrategyId}`);
-      const loadedStrategy = loadStrategyFromLocalStorage(currentStrategyId);
-      
-      if (loadedStrategy) {
-        console.log('Loading strategy from localStorage:', 
-          `${loadedStrategy.nodes.length} nodes, ${loadedStrategy.edges.length} edges`);
-        
-        if (loadedStrategy.edges && loadedStrategy.edges.length > 0) {
-          console.log('Loaded edges from localStorage:', JSON.stringify(loadedStrategy.edges));
-        }
-        
-        // Clear existing state first to avoid conflicts
-        safeSetNodes([]);
-        setTimeout(() => {
-          safeSetEdges([]);
-          
-          // Apply nodes first with safety check
-          setTimeout(() => {
-            console.log(`Setting ${loadedStrategy.nodes.length} nodes from localStorage`);
-            safeSetNodes(loadedStrategy.nodes);
-            
-            // Apply edges in the next cycle to prevent conflicts
-            setTimeout(() => {
-              console.log(`Setting ${loadedStrategy.edges.length} edges from localStorage:`, 
-                JSON.stringify(loadedStrategy.edges));
-              safeSetEdges(loadedStrategy.edges);
-              
-              // Update store in a separate cycle
-              setTimeout(() => {
-                if (strategyStore && typeof strategyStore.setNodes === 'function') {
-                  strategyStore.setNodes(loadedStrategy.nodes);
-                  strategyStore.setEdges(loadedStrategy.edges);
-                  
-                  if (typeof strategyStore.resetHistory === 'function') {
-                    strategyStore.resetHistory();
-                  }
-                  
-                  if (typeof strategyStore.addHistoryItem === 'function') {
-                    strategyStore.addHistoryItem(loadedStrategy.nodes, loadedStrategy.edges);
-                  }
-                }
-                
-                console.log('Strategy loaded from localStorage successfully');
-                isInitialLoadRef.current = false;
-              }, 200); // Increased timeout
-            }, 200); // Increased timeout
-          }, 200);
-        }, 200);
-      } else {
-        console.log('No saved strategy found, using default nodes');
-        safeSetNodes(initialNodes);
-        isInitialLoadRef.current = false;
-      }
-    } catch (error) {
-      console.error('Error loading strategy from localStorage:', error);
-      safeSetNodes(initialNodes);
-      isInitialLoadRef.current = false;
-      
-      toast({
-        title: "Error loading strategy",
-        description: "Could not load your saved strategy. Starting with a new one.",
-        variant: "destructive"
-      });
-    } finally {
-      // Reset flag after a small delay
-      setTimeout(() => {
-        isUpdatingFromLocalStorageRef.current = false;
-      }, 500);
-    }
-  }, [safeSetNodes, safeSetEdges, strategyStore, initialNodes, currentStrategyId]);
-
   // Listen for external changes to localStorage (from another tab or from import)
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      // Only react to changes for the current strategy
-      const strategyKey = `strategy_${currentStrategyIdRef.current}`;
-      
-      if (e.key === strategyKey && e.newValue) {
-        try {
-          // Prevent update loops by using a ref flag
-          if (!isUpdatingFromLocalStorageRef.current) {
-            console.log(`Storage event detected for strategy: ${strategyKey}`);
-            isUpdatingFromLocalStorageRef.current = true;
-            
-            // Load the updated strategy
-            const loadedStrategy = loadStrategyFromLocalStorage(currentStrategyIdRef.current);
-            
-            if (loadedStrategy) {
-              console.log('Reloading strategy from localStorage after external change');
-              console.log(`Found ${loadedStrategy.nodes.length} nodes and ${loadedStrategy.edges.length} edges`);
-              
-              if (loadedStrategy.edges && loadedStrategy.edges.length > 0) {
-                console.log('Edges from storage event:', JSON.stringify(loadedStrategy.edges));
-              }
-              
-              // Clear existing state first
-              safeSetNodes([]);
-              setTimeout(() => {
-                safeSetEdges([]);
-                
-                // Then apply the new state with sufficient delays
-                setTimeout(() => {
-                  console.log(`Setting ${loadedStrategy.nodes.length} nodes from storage event`);
-                  safeSetNodes(loadedStrategy.nodes);
-                  
-                  setTimeout(() => {
-                    console.log(`Setting ${loadedStrategy.edges.length} edges from storage event:`, 
-                      JSON.stringify(loadedStrategy.edges));
-                    safeSetEdges(loadedStrategy.edges);
-                    
-                    // Update store in a separate cycle
-                    setTimeout(() => {
-                      if (strategyStore && typeof strategyStore.setNodes === 'function') {
-                        strategyStore.setNodes(loadedStrategy.nodes);
-                        strategyStore.setEdges(loadedStrategy.edges);
-                        
-                        if (typeof strategyStore.resetHistory === 'function') {
-                          strategyStore.resetHistory();
-                        }
-                        
-                        if (typeof strategyStore.addHistoryItem === 'function') {
-                          strategyStore.addHistoryItem(loadedStrategy.nodes, loadedStrategy.edges);
-                        }
-                      }
-                      
-                      // Reset flag after applying changes
-                      setTimeout(() => {
-                        isUpdatingFromLocalStorageRef.current = false;
-                      }, 300);
-                    }, 300);
-                  }, 300);
-                }, 300);
-              }, 300);
-            } else {
-              isUpdatingFromLocalStorageRef.current = false;
-            }
-          }
-        } catch (error) {
-          console.error('Error handling storage event:', error);
-          isUpdatingFromLocalStorageRef.current = false;
-        }
-      }
-    };
+  useExternalStorageChangeListener({
+    setNodes,
+    setEdges,
+    strategyStore,
+    currentStrategyIdRef,
+    isUpdatingFromLocalStorageRef
+  });
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, [safeSetNodes, safeSetEdges, strategyStore]);
-
-  return { isInitialLoadRef };
+  return { 
+    isInitialLoadRef,
+    isUpdatingFromLocalStorageRef,
+    currentStrategyIdRef
+  };
 }
