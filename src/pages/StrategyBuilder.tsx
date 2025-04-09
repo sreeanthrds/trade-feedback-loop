@@ -39,35 +39,25 @@ const StrategyBuilder = () => {
           // Reset the store's nodes
           resetNodes();
           
-          // Clear any existing strategy in localStorage
-          localStorage.removeItem('tradyStrategy');
+          // For new strategies, no need to clear any existing localStorage
+          // as we'll be using a new, unique strategy ID
           
-          // Remove any strategy-specific localStorage items
-          const keysToRemove = [];
-          for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && key.startsWith('tradyStrategy_')) {
-              keysToRemove.push(key);
-            }
-          }
-          
-          // Remove collected keys
-          keysToRemove.forEach(key => localStorage.removeItem(key));
-          
-          console.log('Created new strategy, cleared localStorage workspace');
+          console.log('Created new strategy workspace');
         } catch (error) {
           console.error('Error resetting strategy:', error);
         }
       }, 0);
+    } else {
+      console.log(`Loading existing strategy: ${strategyId}`);
     }
-  }, [isNewStrategy, resetNodes]);
+  }, [isNewStrategy, resetNodes, strategyId]);
   
   // Auto-save changes when nodes or edges change
   useEffect(() => {
     if (isLoaded && nodes.length > 0) {
       const autoSaveTimer = setTimeout(() => {
         saveStrategyToLocalStorage(nodes, edges, strategyId, strategyName);
-        console.log('Auto-saved strategy changes');
+        console.log(`Auto-saved strategy changes for: ${strategyId}`);
       }, 2000); // Auto-save after 2 seconds of inactivity
       
       return () => clearTimeout(autoSaveTimer);

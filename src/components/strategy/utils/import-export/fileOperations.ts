@@ -1,3 +1,4 @@
+
 import { Node, Edge } from '@xyflow/react';
 import { toast } from '@/hooks/use-toast';
 import { indicatorConfig } from '../indicatorConfig';
@@ -85,7 +86,7 @@ export const exportStrategyToFile = (nodes: Node[], edges: Edge[], strategyName:
   }
 };
 
-export const importStrategyFromEvent = (
+export const importStrategyFromEvent = async (
   event: React.ChangeEvent<HTMLInputElement>,
   setNodes: (nodes: Node[]) => void,
   setEdges: (edges: Edge[]) => void,
@@ -184,19 +185,21 @@ export const importStrategyFromEvent = (
             return;
           }
           
-          // CRITICAL FIX: Always use the current strategy ID and name
-          // This ensures we import TO the current strategy context
+          // Use the current strategy ID and name for isolation
           const strategyId = currentStrategyId;
           const strategyName = currentStrategyName || imported.name || "Imported Strategy";
           
-          // CRITICAL ISOLATION STEP: Clear existing nodes/edges
-          // This must be done BEFORE setting new ones
+          // First clear the current strategy from localStorage if it exists
+          localStorage.removeItem(`strategy_${strategyId}`);
+          localStorage.removeItem(`strategy_${strategyId}_created`);
+          
+          // Clear existing nodes/edges
           try {
+            console.log("Clearing existing nodes and edges before import");
             setNodes([]);
-            await new Promise(r => setTimeout(r, 50));
+            await new Promise(r => setTimeout(r, 100));
             setEdges([]);
-            await new Promise(r => setTimeout(r, 50));
-            console.log("Cleared existing nodes and edges before import");
+            await new Promise(r => setTimeout(r, 100));
             
             // Reset history for this specific strategy
             resetHistory();
@@ -205,7 +208,7 @@ export const importStrategyFromEvent = (
             console.error("Error clearing state before import:", e);
           }
           
-          // Apply the new nodes and edges after a brief delay
+          // Apply the new nodes and edges with a delay
           setTimeout(async () => {
             try {
               console.log(`Setting ${validatedNodes.length} nodes and ${validatedEdges.length} edges`);
@@ -213,24 +216,22 @@ export const importStrategyFromEvent = (
               await new Promise(r => setTimeout(r, 100));
               setEdges(validatedEdges);
               
-              // CRITICAL: Use the common saveStrategyToLocalStorage function
-              // This ensures proper isolation with specific strategy ID
+              // Save directly to localStorage with the specific strategy ID
               console.log(`Saving imported strategy with ID ${strategyId}`);
               saveStrategyToLocalStorage(validatedNodes, validatedEdges, strategyId, strategyName);
               
-              // Add the imported strategy to history after another delay
+              // Add to history after another delay
               setTimeout(() => {
                 try {
                   console.log("Adding imported strategy to history");
                   addHistoryItem(validatedNodes, validatedEdges);
                   
-                  // Success notification
                   toast({
                     title: "Strategy imported successfully",
                     description: `Strategy imported as "${strategyName}"`
                   });
                   
-                  // Trigger update event
+                  // Trigger update event for the strategies list
                   window.dispatchEvent(new StorageEvent('storage', {
                     key: 'strategies'
                   }));

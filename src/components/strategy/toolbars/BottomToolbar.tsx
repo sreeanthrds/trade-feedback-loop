@@ -146,7 +146,7 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
       return;
     }
     
-    // CRITICAL: Save to localStorage with EXPLICIT ID and name
+    // Save to localStorage with current strategy context
     console.log(`Explicitly saving strategy with ID: ${currentStrategyIdRef.current}`);
     saveStrategyToLocalStorage(nodes, edges, currentStrategyIdRef.current, currentStrategyNameRef.current);
     
@@ -165,7 +165,7 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
     exportStrategyToFile(nodes, edges, currentStrategyNameRef.current);
   };
   
-  const handleReset = () => {
+  const handleReset = async () => {
     if (!currentStrategyIdRef.current) {
       console.error("Cannot reset strategy without ID");
       toast({
@@ -177,7 +177,23 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
     }
     
     console.log(`Resetting strategy with ID: ${currentStrategyIdRef.current}`);
+    
+    // First clear all nodes and edges
+    setNodes([]);
+    await new Promise(resolve => setTimeout(resolve, 50));
+    setEdges([]);
+    await new Promise(resolve => setTimeout(resolve, 50));
+    
+    // Then remove the strategy from localStorage
+    localStorage.removeItem(`strategy_${currentStrategyIdRef.current}`);
+    
+    // Now run the reset function which will reinitialize with default nodes
     resetStrategy();
+    
+    toast({
+      title: "Strategy reset",
+      description: "Your strategy has been reset to default"
+    });
   };
 
   const triggerFileInput = () => {

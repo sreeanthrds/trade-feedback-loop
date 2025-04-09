@@ -77,22 +77,15 @@ export const saveStrategyToLocalStorage = (
         localStorage.setItem(`strategy_${finalStrategyId}_created`, strategyData.created);
       }
       
-      // First: save the specific strategy with its ID - CRITICAL FOR ISOLATION
+      // CRITICAL CHANGE: ONLY save to the specific strategy key
+      // This ensures each strategy is completely isolated
       const strategyKey = `strategy_${finalStrategyId}`;
       localStorage.setItem(strategyKey, JSON.stringify(strategyData));
-      console.log(`Saved dedicated strategy to localStorage: ${strategyKey}`);
+      console.log(`Saved strategy to localStorage with key: ${strategyKey}`);
       
-      // Second: ONLY save as current working strategy if explicitly requested
-      // We'll set a flag to identify if this should be the working strategy
-      const isWorkingStrategy = true; // By default, assume it's the working strategy
-      
-      if (isWorkingStrategy) {
-        localStorage.setItem('tradyStrategy', JSON.stringify({
-          ...strategyData,
-          _lastSaved: new Date().toISOString() // Add timestamp to help debugging
-        }));
-        console.log(`Saved current working strategy to localStorage for ID: ${finalStrategyId}`);
-      }
+      // DO NOT save to 'tradyStrategy' as that was causing conflicts
+      // Remove the non-specific working strategy concept altogether
+      // Each strategy is loaded only by its specific ID
       
       // Update strategies list
       updateStrategiesList(strategyData);
