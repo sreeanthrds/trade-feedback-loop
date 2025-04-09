@@ -1,7 +1,7 @@
 
 import { useEffect } from 'react';
 import { Node, Edge } from '@xyflow/react';
-import { loadStrategyFromLocalStorage } from '../../utils/storage/localStorageUtils';
+import { loadStrategyFromLocalStorage } from '../../utils/storage/operations/loadStrategy';
 
 interface UseExternalStorageChangeListenerProps {
   setNodes: (nodes: Node[] | ((prev: Node[]) => Node[])) => void;
@@ -34,20 +34,19 @@ export function useExternalStorageChangeListener({
           isUpdatingFromLocalStorageRef.current = true;
           
           // Load strategy from localStorage
-          const { loadedNodes, loadedEdges, strategyName } = 
-            loadStrategyFromLocalStorage(currentStrategyIdRef.current);
+          const loadedStrategy = loadStrategyFromLocalStorage(currentStrategyIdRef.current);
           
-          if (loadedNodes && loadedNodes.length > 0) {
+          if (loadedStrategy && loadedStrategy.nodes && loadedStrategy.nodes.length > 0) {
             // Update local state
-            setNodes(loadedNodes);
-            setEdges(loadedEdges || []);
+            setNodes(loadedStrategy.nodes);
+            setEdges(loadedStrategy.edges || []);
             
             // Update store
-            strategyStore.setNodes(loadedNodes);
-            strategyStore.setEdges(loadedEdges || []);
-            strategyStore.addHistoryItem(loadedNodes, loadedEdges || []);
+            strategyStore.setNodes(loadedStrategy.nodes);
+            strategyStore.setEdges(loadedStrategy.edges || []);
+            strategyStore.addHistoryItem(loadedStrategy.nodes, loadedStrategy.edges || []);
             
-            console.log(`Updated from external change: ${loadedNodes.length} nodes, ${loadedEdges?.length || 0} edges`);
+            console.log(`Updated from external change: ${loadedStrategy.nodes.length} nodes, ${loadedStrategy.edges?.length || 0} edges`);
           }
         } catch (error) {
           console.error('Error handling storage event:', error);

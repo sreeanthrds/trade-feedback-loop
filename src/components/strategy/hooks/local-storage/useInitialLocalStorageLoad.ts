@@ -1,7 +1,7 @@
 
 import { useEffect } from 'react';
 import { Node, Edge } from '@xyflow/react';
-import { loadStrategyFromLocalStorage } from '../../utils/storage/localStorageUtils';
+import { loadStrategyFromLocalStorage } from '../../utils/storage/operations/loadStrategy';
 
 interface UseInitialLocalStorageLoadProps {
   setNodes: (nodes: Node[] | ((prev: Node[]) => Node[])) => void;
@@ -31,23 +31,22 @@ export function useInitialLocalStorageLoad({
         isUpdatingFromLocalStorageRef.current = true;
         
         // Load strategy from localStorage
-        const { loadedNodes, loadedEdges, strategyName } = 
-          loadStrategyFromLocalStorage(currentStrategyId);
+        const loadedStrategy = loadStrategyFromLocalStorage(currentStrategyId);
         
-        if (loadedNodes && loadedNodes.length > 0) {
+        if (loadedStrategy && loadedStrategy.nodes && loadedStrategy.nodes.length > 0) {
           // Set the loaded nodes and edges
-          setNodes(loadedNodes);
-          setEdges(loadedEdges || []);
+          setNodes(loadedStrategy.nodes);
+          setEdges(loadedStrategy.edges || []);
           
           // Update store
-          strategyStore.setNodes(loadedNodes);
-          strategyStore.setEdges(loadedEdges || []);
+          strategyStore.setNodes(loadedStrategy.nodes);
+          strategyStore.setEdges(loadedStrategy.edges || []);
           
           // Reset history and add initial state
           strategyStore.resetHistory();
-          strategyStore.addHistoryItem(loadedNodes, loadedEdges || []);
+          strategyStore.addHistoryItem(loadedStrategy.nodes, loadedStrategy.edges || []);
           
-          console.log(`Loaded strategy from localStorage: ${loadedNodes.length} nodes, ${loadedEdges?.length || 0} edges`);
+          console.log(`Loaded strategy from localStorage: ${loadedStrategy.nodes.length} nodes, ${loadedStrategy.edges?.length || 0} edges`);
         } else {
           // If no nodes were loaded, use initial nodes
           setNodes(initialNodes);
