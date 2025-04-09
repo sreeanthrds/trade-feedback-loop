@@ -3,7 +3,7 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FileText, LogIn } from 'lucide-react';
 import { Button } from './button';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth';
 import UserProfileDropdown from '@/components/auth/UserProfileDropdown';
 
 const DesktopNav: React.FC = () => {

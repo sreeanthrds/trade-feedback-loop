@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -6,7 +5,7 @@ import { useStrategies } from '@/hooks/useStrategies';
 import StrategiesHeader from '@/components/strategies/StrategiesHeader';
 import StrategiesList from '@/components/strategies/StrategiesList';
 import CreateStrategyDialog from '@/components/strategies/CreateStrategyDialog';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth';
 
 const StrategiesLanding = () => {
   const { toast } = useToast();
