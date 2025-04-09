@@ -40,7 +40,7 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
     }
     
     setIsImporting(true);
-    console.log("Starting import process");
+    console.log(`Starting import process for strategy: ${strategyId} - ${strategyName}`);
     
     try {
       // Show loading toast
@@ -49,13 +49,15 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
         description: "Please wait while we process your file..."
       });
       
-      // Perform the import operation
+      // Perform the import operation with current strategy context
       const result = await importStrategyFromEvent(
         event, 
         setNodes, 
         setEdges, 
         addHistoryItem, 
-        resetHistory
+        resetHistory,
+        strategyId,
+        strategyName
       );
       
       console.log("Import completed with success:", result);

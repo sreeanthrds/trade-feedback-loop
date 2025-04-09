@@ -4,6 +4,7 @@ import { Node, Edge } from '@xyflow/react';
 import { toast } from '@/hooks/use-toast';
 import { initialNodes } from '../../utils/flowUtils';
 import { createViewportAdjustmentHandler } from '../../utils/handlers/viewportHandlers';
+import { useSearchParams } from 'react-router-dom';
 
 interface UseStrategyHandlersProps {
   strategyStore: any;
@@ -28,6 +29,9 @@ export const useStrategyHandlers = ({
   const storeRef = useRef(strategyStore);
   const instanceRef = useRef(reactFlowInstance);
   const nodesRef = useRef(nodes);
+  const [searchParams] = useSearchParams();
+  const currentStrategyId = searchParams.get('id') || '';
+  const currentStrategyName = searchParams.get('name') || 'Untitled Strategy';
   
   // Update refs when dependencies change
   useEffect(() => {
@@ -36,14 +40,14 @@ export const useStrategyHandlers = ({
     nodesRef.current = nodes;
   }, [strategyStore, reactFlowInstance, nodes]);
 
-  // Create strategy reset handler
+  // Create strategy reset handler - now isolated to current strategy
   const resetStrategy = useCallback(() => {
     if (updateHandlingRef.current) return;
     updateHandlingRef.current = true;
     
     try {
       // First clear all nodes and edges
-      console.log('Resetting strategy...');
+      console.log(`Resetting strategy: ${currentStrategyId} - ${currentStrategyName}`);
       setNodes([]);
       setEdges([]);
       
@@ -63,8 +67,14 @@ export const useStrategyHandlers = ({
             storeRef.current.setNodes(initialNodes);
             storeRef.current.addHistoryItem(initialNodes, []);
             
-            // Clear localStorage for current strategy
+            // Clear localStorage only for current strategy
             localStorage.removeItem('tradyStrategy');
+            if (currentStrategyId) {
+              localStorage.removeItem(`strategy_${currentStrategyId}`);
+              
+              // Update the strategies list to remove this strategy
+              updateStrategiesList(currentStrategyId);
+            }
             
             // Fit view after reset
             if (instanceRef.current) {
@@ -90,9 +100,30 @@ export const useStrategyHandlers = ({
         updateHandlingRef.current = false;
       }, 800);
     }
-  }, [setNodes, setEdges, closePanel, updateHandlingRef]);
+  }, [setNodes, setEdges, closePanel, updateHandlingRef, currentStrategyId, currentStrategyName]);
+
+  // Helper function to update strategies list when resetting
+  const updateStrategiesList = (strategyId: string) => {
+    try {
+      const strategiesJSON = localStorage.getItem('strategies');
+      if (!strategiesJSON) return;
+      
+      const strategies = JSON.parse(strategiesJSON);
+      const updatedStrategies = strategies.filter((s: any) => s.id !== strategyId);
+      
+      localStorage.setItem('strategies', JSON.stringify(updatedStrategies));
+      
+      // Trigger update event
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'strategies'
+      }));
+    } catch (e) {
+      console.error('Error updating strategies list:', e);
+    }
+  };
 
   // Create import success handler with improved viewport handling
+  // Now properly isolated to current strategy
   const handleImportSuccess = useCallback(() => {
     // Skip if already handling updates
     if (updateHandlingRef.current) {
@@ -100,7 +131,7 @@ export const useStrategyHandlers = ({
       return;
     }
     
-    console.log("Import success handler called in useStrategyHandlers");
+    console.log(`Import success handler called for strategy: ${currentStrategyId}`);
     updateHandlingRef.current = true;
     
     try {
@@ -151,7 +182,7 @@ export const useStrategyHandlers = ({
         updateHandlingRef.current = false;
       }, 1000);
     }
-  }, [closePanel, updateHandlingRef]);
+  }, [closePanel, updateHandlingRef, currentStrategyId]);
 
   return {
     resetStrategy,

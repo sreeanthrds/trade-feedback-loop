@@ -8,6 +8,7 @@ import { useViewportUtils } from './useViewportUtils';
 import { NodeTypesObj } from '../nodes/nodeTypes';
 import { EdgeTypesObj } from '../edges/edgeTypes';
 import '../styles/index.css';
+import { useSearchParams } from 'react-router-dom';
 
 export interface ReactFlowCanvasProps {
   flowRef: React.RefObject<HTMLDivElement>;
@@ -56,6 +57,8 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
     fitView
   } = useViewportUtils();
 
+  const [searchParams] = useSearchParams();
+  const currentStrategyId = searchParams.get('id') || '';
   const reactFlowInstanceRef = useRef(null);
   const nodesLengthRef = useRef(nodes.length);
   const edgesLengthRef = useRef(edges.length);
@@ -73,7 +76,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
 
   // Handle import success with improved viewport fitting
   const handleImportSuccess = useCallback(() => {
-    console.log("Import success handler called in ReactFlowCanvas");
+    console.log(`Import success handler called in ReactFlowCanvas for strategy: ${currentStrategyId}`);
     console.log(`Current nodes: ${nodes.length}, edges: ${edges.length}`);
     
     if (reactFlowInstanceRef.current) {
@@ -116,7 +119,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
     
     // Call the parent's import success handler
     onImportSuccess();
-  }, [fitView, onImportSuccess, nodes.length, edges.length]);
+  }, [fitView, onImportSuccess, nodes.length, edges.length, currentStrategyId]);
 
   // When nodes change significantly (particularly on import), trigger a fit view
   useEffect(() => {

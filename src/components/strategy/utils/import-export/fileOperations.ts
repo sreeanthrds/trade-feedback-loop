@@ -107,7 +107,9 @@ export const importStrategyFromEvent = (
   setNodes: (nodes: Node[]) => void,
   setEdges: (edges: Edge[]) => void,
   addHistoryItem: (nodes: Node[], edges: Edge[]) => void,
-  resetHistory: () => void
+  resetHistory: () => void,
+  currentStrategyId?: string | null,
+  currentStrategyName?: string | null
 ): Promise<boolean> => {
   return new Promise((resolve) => {
     const file = event.target.files?.[0];
@@ -191,9 +193,15 @@ export const importStrategyFromEvent = (
             return;
           }
           
-          // Clear any existing strategy first
+          // Use current strategy ID or the imported one
+          const strategyId = currentStrategyId || imported.id || `strategy-${Date.now()}`;
+          const strategyName = currentStrategyName || imported.name || "Imported Strategy";
+          
+          console.log(`Importing to strategy: ${strategyId} - ${strategyName}`);
+          
+          // Clear current working strategy only, not other strategies
           localStorage.removeItem('tradyStrategy');
-          console.log("Cleared existing strategy from localStorage");
+          console.log("Cleared current working strategy from localStorage");
           
           // Reset history before applying changes to avoid state conflicts
           console.log("Resetting history before applying new strategy");
@@ -220,14 +228,14 @@ export const importStrategyFromEvent = (
               // Step 4: Save to localStorage and update history
               setTimeout(() => {
                 try {
-                  console.log("Saving imported strategy to localStorage");
+                  console.log(`Saving imported strategy to localStorage with ID: ${strategyId}`);
                   
                   // Create the strategy object for localStorage
                   const strategyToSave = {
                     nodes: validatedNodes,
                     edges: validatedEdges,
-                    name: imported.name || "Imported Strategy",
-                    id: imported.id || `strategy-${Date.now()}`,
+                    name: strategyName,
+                    id: strategyId,
                     lastModified: new Date().toISOString(),
                     created: imported.created || new Date().toISOString(),
                     description: imported.description || "Imported trading strategy"
@@ -237,16 +245,14 @@ export const importStrategyFromEvent = (
                   localStorage.setItem('tradyStrategy', JSON.stringify(strategyToSave));
                   
                   // Also save with ID for persistence
-                  localStorage.setItem(`strategy_${strategyToSave.id}`, JSON.stringify(strategyToSave));
+                  localStorage.setItem(`strategy_${strategyId}`, JSON.stringify(strategyToSave));
                   
                   // Step 5: Add to history after everything else is done
                   console.log("Adding imported strategy to history");
                   addHistoryItem(validatedNodes, validatedEdges);
                   
-                  // Trigger a UI update by dispatching a storage event
-                  window.dispatchEvent(new StorageEvent('storage', {
-                    key: 'tradyStrategy'
-                  }));
+                  // Update strategies list to include this strategy
+                  updateStrategiesList(strategyToSave);
                   
                   // Show success message
                   toast({
@@ -303,4 +309,43 @@ export const importStrategyFromEvent = (
     
     reader.readAsText(file);
   });
+};
+
+/**
+ * Update the strategies list in localStorage
+ */
+const updateStrategiesList = (strategyData: any) => {
+  let strategies = [];
+  try {
+    const savedStrategiesList = localStorage.getItem('strategies');
+    strategies = savedStrategiesList ? JSON.parse(savedStrategiesList) : [];
+  } catch (e) {
+    console.error('Failed to parse strategies list:', e);
+    strategies = [];
+  }
+  
+  // Extract metadata for the strategies list
+  const strategyMetadata = {
+    id: strategyData.id,
+    name: strategyData.name,
+    lastModified: strategyData.lastModified,
+    created: strategyData.created,
+    description: strategyData.description
+  };
+  
+  // Check if strategy already exists in the list
+  const existingIndex = strategies.findIndex((s: any) => s.id === strategyData.id);
+  if (existingIndex >= 0) {
+    // Update existing strategy metadata
+    strategies[existingIndex] = strategyMetadata;
+    console.log(`Updated existing strategy in list at index ${existingIndex}`);
+  } else {
+    // Add new strategy to list
+    strategies.push(strategyMetadata);
+    console.log(`Added new strategy to list, now contains ${strategies.length} strategies`);
+  }
+  
+  // Save updated strategies list
+  localStorage.setItem('strategies', JSON.stringify(strategies));
+  console.log('Saved updated strategies list to localStorage');
 };
