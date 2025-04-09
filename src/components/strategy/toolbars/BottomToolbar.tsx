@@ -29,7 +29,7 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [searchParams] = useSearchParams();
   const [isImporting, setIsImporting] = useState(false);
-  const strategyId = searchParams.get('id');
+  const strategyId = searchParams.get('id') || '';
   const strategyName = searchParams.get('name') || 'Untitled Strategy';
   const { toast } = useToast();
 
@@ -49,6 +49,12 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
         description: "Please wait while we process your file..."
       });
       
+      // Important: Clear the file input value first to ensure we can import the same file again
+      if (fileInputRef.current) {
+        const filePath = fileInputRef.current.value;
+        console.log("Current file input path:", filePath);
+      }
+      
       // Perform the import operation with current strategy context
       const result = await importStrategyFromEvent(
         event, 
@@ -60,20 +66,22 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
         strategyName
       );
       
-      console.log("Import completed with success:", result);
+      console.log("Import completed with result:", result);
       
       // Reset the input value so the same file can be imported again if needed
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
       
-      // Call the success handler after a brief delay to allow state updates to complete
+      // Call the success handler immediately to ensure proper UI updates
       if (result && onImportSuccess) {
-        console.log("Calling onImportSuccess callback");
-        // Use a slightly longer timeout to ensure state has settled
+        console.log("Calling onImportSuccess callback immediately");
+        onImportSuccess();
+        
+        // Also call it again after a brief delay to ensure state has fully propagated
         setTimeout(() => {
           if (onImportSuccess) onImportSuccess();
-        }, 300);
+        }, 500);
       }
     } catch (error) {
       console.error("Error during import:", error);
@@ -86,7 +94,7 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
       // Set importing to false after a delay to prevent rapid re-imports
       setTimeout(() => {
         setIsImporting(false);
-      }, 500);
+      }, 800);
     }
   };
 
@@ -111,6 +119,8 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
 
   const triggerFileInput = () => {
     if (fileInputRef.current) {
+      // Reset the input value before triggering click
+      fileInputRef.current.value = '';
       fileInputRef.current.click();
     }
   };

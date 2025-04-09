@@ -141,7 +141,7 @@ export const useStrategyHandlers = ({
       // Force a store update to ensure UI reconciliation
       if (storeRef.current && nodesRef.current) {
         console.log("Forcing store update after import to ensure UI reconciliation");
-        // Create a copy of the nodes to trigger state updates
+        // Create a deep copy of the nodes to trigger state updates
         const nodesCopy = JSON.parse(JSON.stringify(nodesRef.current));
         storeRef.current.setNodes(nodesCopy);
         
@@ -175,12 +175,15 @@ export const useStrategyHandlers = ({
             duration: 600 
           });
         }
+        
+        // Release update flag after viewport adjustment
+        setTimeout(() => {
+          updateHandlingRef.current = false;
+        }, 400);
       }, 400);
-    } finally {
-      // Release update flag after sufficient time for async operations
-      setTimeout(() => {
-        updateHandlingRef.current = false;
-      }, 1000);
+    } catch (error) {
+      console.error("Error in import success handler:", error);
+      updateHandlingRef.current = false;
     }
   }, [closePanel, updateHandlingRef, currentStrategyId]);
 
