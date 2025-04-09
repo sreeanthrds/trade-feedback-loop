@@ -72,15 +72,32 @@ export function useAuthMethods(
       
       // If data.session exists, the user is automatically confirmed (happens in development)
       if (data && data.session) {
+        // Set user immediately for auto-confirmed accounts
+        if (data.user) {
+          setUser({
+            id: data.user.id,
+            email: data.user.email || ''
+          });
+        }
+        
         toast({
           title: "Registration successful",
           description: "You're now logged in!"
         });
       } else {
+        // For email confirmation flow
         toast({
           title: "Registration successful",
           description: "Please check your email for verification link."
         });
+      }
+      
+      // For development purposes, we can also set mock auth
+      if (process.env.NODE_ENV === 'development' && data.user) {
+        localStorage.setItem('mock_current_user', JSON.stringify({
+          id: data.user.id,
+          email: data.user.email || ''
+        }));
       }
       
       return { success: true };

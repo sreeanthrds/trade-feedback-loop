@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,9 +19,19 @@ const AuthPage = () => {
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
       console.log('User is authenticated, redirecting to:', from);
+      // Force immediate redirect
       navigate(from, { replace: true });
     }
   }, [isAuthenticated, isLoading, navigate, from]);
+
+  // If still loading auth state, show loading indicator
+  if (isLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen flex items-center justify-center bg-gradient-to-b from-background to-muted/50 p-4">

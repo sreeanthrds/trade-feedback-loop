@@ -35,8 +35,12 @@ const SignUpForm = () => {
       if (!result.success && result.error) {
         setError(result.error);
       } else if (result.success) {
-        // Success - navigate will happen via AuthPage's useEffect
+        // Force navigation to app route after successful signup
         console.log("Signup successful, redirecting...");
+        // Give auth state a moment to update before redirecting
+        setTimeout(() => {
+          navigate('/app', { replace: true });
+        }, 500);
       }
     } finally {
       setIsSubmitting(false);
