@@ -71,6 +71,23 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
     }
   }, [toggleBacktest]);
 
+  // Handle import success with improved viewport fitting
+  const handleImportSuccess = useCallback(() => {
+    console.log("Import success handler called in ReactFlowCanvas");
+    if (reactFlowInstanceRef.current) {
+      console.log("Fitting view after successful import");
+      setTimeout(() => {
+        try {
+          fitView();
+        } catch (e) {
+          console.error("Error fitting view after import:", e);
+        }
+      }, 500);
+    }
+    // Call the parent's import success handler
+    onImportSuccess();
+  }, [fitView, onImportSuccess]);
+
   // When nodes change (particularly on import), trigger a fit view
   useEffect(() => {
     if (nodes.length > 0 && reactFlowInstanceRef.current) {
@@ -101,6 +118,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
         edgeTypes={edgeTypes}
         onNodeClick={onNodeClick}
         onInit={(instance) => {
+          console.log("ReactFlow initialized");
           reactFlowInstanceRef.current = instance;
         }}
         fitView
@@ -116,7 +134,11 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
         <Background variant={BackgroundVariant.Dots} gap={15} size={1} color="#e2e8f0" />
         <Controls showInteractive={false} position="bottom-left" />
         <TopToolbar />
-        <BottomToolbar resetStrategy={resetStrategy} onImportSuccess={onImportSuccess} toggleBacktest={handleToggleBacktest} />
+        <BottomToolbar 
+          resetStrategy={resetStrategy} 
+          onImportSuccess={handleImportSuccess} 
+          toggleBacktest={handleToggleBacktest} 
+        />
       </ReactFlow>
     </div>
   );

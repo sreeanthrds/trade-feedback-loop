@@ -94,7 +94,12 @@ export const useStrategyHandlers = ({
   // Create import success handler with improved viewport handling
   const handleImportSuccess = useCallback(() => {
     // Skip if already handling updates
-    if (updateHandlingRef.current) return;
+    if (updateHandlingRef.current) {
+      console.log("Skipping import success handler - update already in progress");
+      return;
+    }
+    
+    console.log("Import success handler called in useStrategyHandlers");
     updateHandlingRef.current = true;
     
     try {

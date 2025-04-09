@@ -112,9 +112,17 @@ export const importStrategyFromEvent = (
   return new Promise((resolve) => {
     const file = event.target.files?.[0];
     if (!file) {
+      console.error("No file selected for import");
+      toast({
+        title: "Import failed",
+        description: "No file was selected",
+        variant: "destructive"
+      });
       resolve(false);
       return;
     }
+    
+    console.log("File selected for import:", file.name);
     
     const reader = new FileReader();
     
@@ -122,6 +130,7 @@ export const importStrategyFromEvent = (
       try {
         const result = e.target?.result as string;
         if (!result) {
+          console.error("FileReader result is empty");
           toast({
             title: "Failed to read file",
             description: "Could not read the uploaded file",
@@ -131,9 +140,24 @@ export const importStrategyFromEvent = (
           return;
         }
         
+        console.log("File content loaded, attempting to parse JSON");
         const imported = JSON.parse(result);
-        if (imported && imported.nodes && imported.edges) {
+        
+        if (!imported) {
+          console.error("Parsed result is null or undefined");
+          toast({
+            title: "Invalid file format",
+            description: "The file does not contain valid JSON",
+            variant: "destructive"
+          });
+          resolve(false);
+          return;
+        }
+        
+        console.log("Checking for nodes and edges in imported data");
+        if (imported.nodes && imported.edges) {
           // Make a deep copy to ensure we're not importing references
+          console.log(`Found ${imported.nodes.length} nodes and ${imported.edges.length} edges`);
           const nodes = JSON.parse(JSON.stringify(imported.nodes));
           const edges = JSON.parse(JSON.stringify(imported.edges));
           
@@ -157,6 +181,7 @@ export const importStrategyFromEvent = (
           
           // Only proceed if we have valid connections
           if (validatedEdges.some((edge: Edge) => !edge.source || !edge.target)) {
+            console.error("Invalid edge connections found");
             toast({
               title: "Invalid file format",
               description: "Invalid edge connections in imported file",
@@ -168,27 +193,32 @@ export const importStrategyFromEvent = (
           
           // Clear any existing strategy first
           localStorage.removeItem('tradyStrategy');
+          console.log("Cleared existing strategy from localStorage");
           
           // Apply the changes - use a slight delay to ensure proper rendering
           setTimeout(() => {
             try {
+              console.log("Resetting history before applying new strategy");
               // First reset history to avoid any issues with update cycles
               resetHistory();
               
+              console.log("Setting nodes:", validatedNodes.length);
               // Apply nodes first
               setNodes(validatedNodes);
               
               // Then apply edges in a subsequent update cycle to prevent conflicts
               setTimeout(() => {
+                console.log("Setting edges:", validatedEdges.length);
                 setEdges(validatedEdges);
                 
                 // Add this as a new history item in another cycle
                 setTimeout(() => {
+                  console.log("Adding new history item");
                   addHistoryItem(validatedNodes, validatedEdges);
                   
                   // Also save the imported strategy to localStorage
                   if (imported.name && imported.id) {
-                    localStorage.setItem('tradyStrategy', JSON.stringify({
+                    const strategyToSave = {
                       nodes: validatedNodes,
                       edges: validatedEdges,
                       name: imported.name,
@@ -196,7 +226,13 @@ export const importStrategyFromEvent = (
                       lastModified: new Date().toISOString(),
                       created: imported.created || new Date().toISOString(),
                       description: imported.description || "Imported trading strategy"
-                    }));
+                    };
+                    
+                    console.log("Saving imported strategy to localStorage", strategyToSave.id);
+                    localStorage.setItem('tradyStrategy', JSON.stringify(strategyToSave));
+                    
+                    // Also save as strategy with ID
+                    localStorage.setItem(`strategy_${imported.id}`, JSON.stringify(strategyToSave));
                   }
                   
                   toast({
@@ -218,6 +254,7 @@ export const importStrategyFromEvent = (
             }
           }, 100);
         } else {
+          console.error("Missing nodes or edges in imported data", imported);
           toast({
             title: "Invalid file format",
             description: "The file does not contain a valid strategy",
@@ -226,7 +263,7 @@ export const importStrategyFromEvent = (
           resolve(false);
         }
       } catch (error) {
-        console.error("Import error:", error);
+        console.error("Import parsing error:", error);
         toast({
           title: "Import failed",
           description: "Failed to parse strategy file",
@@ -236,7 +273,8 @@ export const importStrategyFromEvent = (
       }
     };
     
-    reader.onerror = () => {
+    reader.onerror = (error) => {
+      console.error("FileReader error:", error);
       toast({
         title: "Error reading file",
         description: "Could not read the uploaded file",

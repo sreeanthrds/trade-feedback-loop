@@ -34,9 +34,13 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
   const { toast } = useToast();
 
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (isImporting) return;
+    if (isImporting) {
+      console.log("Import already in progress, ignoring");
+      return;
+    }
     
     setIsImporting(true);
+    console.log("Starting import process");
     
     try {
       // Show loading toast
@@ -53,6 +57,8 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
         resetHistory
       );
       
+      console.log("Import completed with success:", success);
+      
       // Reset the input value so the same file can be imported again if needed
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
@@ -60,6 +66,7 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
       
       // Notify parent component that import was successful
       if (success && onImportSuccess) {
+        console.log("Calling onImportSuccess callback");
         setTimeout(() => {
           onImportSuccess();
         }, 100);
