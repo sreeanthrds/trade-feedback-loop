@@ -43,7 +43,7 @@ export const useStrategyHandlers = ({
     currentStrategyIdRef.current = currentStrategyId;
   }, [strategyStore, reactFlowInstance, nodes, currentStrategyId]);
 
-  // Create strategy reset handler - now with improved isolation to current strategy
+  // Create strategy reset handler - exclusively for current strategy
   const resetStrategy = useCallback(() => {
     // Prevent multiple simultaneous resets
     if (resetInProgressRef.current || updateHandlingRef.current) {
@@ -65,80 +65,86 @@ export const useStrategyHandlers = ({
     updateHandlingRef.current = true;
     
     try {
-      // First clear all nodes and edges
-      console.log(`RESET: Explicitly resetting strategy with ID: ${currentStrategyId} - ${currentStrategyName}`);
+      // CRITICAL ISOLATION STEP: Only reset THIS specific strategy
+      console.log(`RESET: Explicitly resetting ONLY strategy with ID: ${currentStrategyId}`);
       
-      // Set empty arrays first to clear everything
+      // First, clear everything from memory
       setNodes([]);
       setEdges([]);
-      
-      // Close panel if open
       closePanel();
       
-      // Reset store state after a short delay
+      // Then reset the store state with a delay to ensure clean slate
       setTimeout(() => {
-        if (storeRef.current) {
-          storeRef.current.setNodes([]);
-          storeRef.current.setEdges([]);
-          storeRef.current.resetHistory();
-          
-          // Set to initial state after another brief delay
-          setTimeout(() => {
-            // Set initial nodes in both state and store
-            setNodes(initialNodes);
-            storeRef.current.setNodes(initialNodes);
+        try {
+          if (storeRef.current) {
+            // Clear store state
+            storeRef.current.setNodes([]);
+            storeRef.current.setEdges([]);
+            storeRef.current.resetHistory();
             
-            // Add to history
-            storeRef.current.addHistoryItem(initialNodes, []);
-            
-            // Clear localStorage ONLY for current strategy - be specific about the key name
-            const strategyKey = `strategy_${currentStrategyIdRef.current}`;
-            console.log(`RESET: Removing specific strategy from localStorage: ${strategyKey}`);
-            localStorage.removeItem(strategyKey);
-            
-            // Clear other related keys for this strategy
-            localStorage.removeItem(`strategy_${currentStrategyIdRef.current}_created`);
-            
-            // Clear current working strategy only if it matches the current ID
-            const currentWorkingStrategy = localStorage.getItem('tradyStrategy');
-            if (currentWorkingStrategy) {
+            // Then set to initial state after another brief delay
+            setTimeout(() => {
               try {
-                const parsed = JSON.parse(currentWorkingStrategy);
-                if (parsed.id === currentStrategyIdRef.current) {
-                  console.log(`RESET: Removing working strategy with ID: ${currentStrategyIdRef.current}`);
-                  localStorage.removeItem('tradyStrategy');
-                } else {
-                  console.log(`RESET: Working strategy has different ID (${parsed.id}), not removing`);
+                // Set initial nodes
+                setNodes(initialNodes);
+                storeRef.current.setNodes(initialNodes);
+                storeRef.current.addHistoryItem(initialNodes, []);
+                
+                // CRITICAL ISOLATION: Only remove keys for THIS strategy
+                const strategyKey = `strategy_${currentStrategyIdRef.current}`;
+                console.log(`RESET: Removing only THIS strategy from localStorage: ${strategyKey}`);
+                localStorage.removeItem(strategyKey);
+                localStorage.removeItem(`${strategyKey}_created`);
+                
+                // Only clear working strategy if it matches this strategy
+                const workingStrategyData = localStorage.getItem('tradyStrategy');
+                if (workingStrategyData) {
+                  try {
+                    const parsed = JSON.parse(workingStrategyData);
+                    // STRICT ID MATCHING: Only remove if ID matches exactly
+                    if (parsed.id === currentStrategyIdRef.current) {
+                      console.log(`RESET: Removing working strategy because ID matches: ${currentStrategyIdRef.current}`);
+                      localStorage.removeItem('tradyStrategy');
+                    } else {
+                      console.log(`RESET: Working strategy has different ID (${parsed.id}), NOT removing`);
+                    }
+                  } catch (e) {
+                    console.error('Error parsing working strategy:', e);
+                  }
                 }
+                
+                // Update strategies list to mark this specific strategy as reset
+                updateStrategiesListForReset(currentStrategyIdRef.current);
+                
+                // Adjust viewport after reset
+                if (instanceRef.current) {
+                  setTimeout(() => {
+                    try {
+                      instanceRef.current.fitView({ padding: 0.2 });
+                    } catch (e) {
+                      console.error('Error fitting view:', e);
+                    }
+                  }, 300);
+                }
+                
+                toast({
+                  title: "Strategy reset",
+                  description: `Strategy "${currentStrategyName}" has been reset to initial state.`
+                });
               } catch (e) {
-                console.error('Error parsing current working strategy:', e);
+                console.error("Error in final reset phase:", e);
+              } finally {
+                // Reset flags regardless of success/failure
+                resetInProgressRef.current = false;
+                updateHandlingRef.current = false;
               }
-            }
-            
-            // Update the strategies list by marking this strategy as reset
-            updateStrategiesListForReset(currentStrategyIdRef.current);
-            
-            // Fit view after reset
-            if (instanceRef.current) {
-              setTimeout(() => {
-                try {
-                  instanceRef.current.fitView({ padding: 0.2 });
-                } catch (e) {
-                  console.error('Error fitting view:', e);
-                }
-              }, 300);
-            }
-            
-            toast({
-              title: "Strategy reset",
-              description: `Strategy "${currentStrategyName}" has been reset to initial state.`
-            });
-            
-            // Reset flags
+            }, 200);
+          } else {
             resetInProgressRef.current = false;
             updateHandlingRef.current = false;
-          }, 200);
-        } else {
+          }
+        } catch (e) {
+          console.error("Error in store reset phase:", e);
           resetInProgressRef.current = false;
           updateHandlingRef.current = false;
         }

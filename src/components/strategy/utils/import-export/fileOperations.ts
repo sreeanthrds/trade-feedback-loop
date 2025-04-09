@@ -1,4 +1,3 @@
-
 import { Node, Edge } from '@xyflow/react';
 import { toast } from '@/hooks/use-toast';
 import { indicatorConfig } from '../indicatorConfig';
@@ -120,11 +119,11 @@ export const importStrategyFromEvent = (
     }
     
     console.log("File selected for import:", file.name);
-    console.log(`Importing to strategy: ${currentStrategyId} - ${currentStrategyName || 'Unnamed'}`);
+    console.log(`Importing to strategy ID: ${currentStrategyId} - ${currentStrategyName || 'Unnamed'}`);
     
     const reader = new FileReader();
     
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       try {
         const result = e.target?.result as string;
         if (!result) {
@@ -185,86 +184,68 @@ export const importStrategyFromEvent = (
             return;
           }
           
-          // Always use the current strategy ID and name
+          // CRITICAL FIX: Always use the current strategy ID and name
+          // This ensures we import TO the current strategy context
           const strategyId = currentStrategyId;
           const strategyName = currentStrategyName || imported.name || "Imported Strategy";
           
-          // Clear strategy-specific data from localStorage first
-          console.log(`Clearing existing data for strategy: ${strategyId}`);
-          localStorage.removeItem(`strategy_${strategyId}`);
-          
-          // Clear current working strategy only if it matches the current strategy
-          const existingWorkingStrategy = localStorage.getItem('tradyStrategy');
-          if (existingWorkingStrategy) {
-            try {
-              const parsed = JSON.parse(existingWorkingStrategy);
-              if (parsed.id === strategyId) {
-                localStorage.removeItem('tradyStrategy');
-              }
-            } catch (e) {
-              console.error("Error parsing existing working strategy:", e);
-            }
+          // CRITICAL ISOLATION STEP: Clear existing nodes/edges
+          // This must be done BEFORE setting new ones
+          try {
+            setNodes([]);
+            await new Promise(r => setTimeout(r, 50));
+            setEdges([]);
+            await new Promise(r => setTimeout(r, 50));
+            console.log("Cleared existing nodes and edges before import");
+            
+            // Reset history for this specific strategy
+            resetHistory();
+            console.log("Reset history for strategy", strategyId);
+          } catch (e) {
+            console.error("Error clearing state before import:", e);
           }
           
-          // Reset history for this strategy
-          resetHistory();
-          
-          const applyImport = async () => {
+          // Apply the new nodes and edges after a brief delay
+          setTimeout(async () => {
             try {
-              // Clear nodes first
-              console.log("Clearing existing nodes before import");
-              setNodes([]);
-              
-              await new Promise(resolve => setTimeout(resolve, 100));
-              
-              // Then set new nodes
-              console.log("Setting imported nodes:", validatedNodes.length);
+              console.log(`Setting ${validatedNodes.length} nodes and ${validatedEdges.length} edges`);
               setNodes(validatedNodes);
-              
-              await new Promise(resolve => setTimeout(resolve, 100));
-              
-              // Clear edges first
-              console.log("Clearing existing edges before import");
-              setEdges([]);
-              
-              await new Promise(resolve => setTimeout(resolve, 100));
-              
-              // Then set new edges
-              console.log("Setting imported edges:", validatedEdges.length);
+              await new Promise(r => setTimeout(r, 100));
               setEdges(validatedEdges);
               
-              await new Promise(resolve => setTimeout(resolve, 100));
-              
-              // Save to localStorage with EXPLICIT strategy ID to ensure isolation
-              console.log(`Explicitly saving imported strategy to localStorage with ID: ${strategyId}`);
+              // CRITICAL: Use the common saveStrategyToLocalStorage function
+              // This ensures proper isolation with specific strategy ID
+              console.log(`Saving imported strategy with ID ${strategyId}`);
               saveStrategyToLocalStorage(validatedNodes, validatedEdges, strategyId, strategyName);
               
-              // Update history after a brief delay to ensure nodes are rendered
+              // Add the imported strategy to history after another delay
               setTimeout(() => {
-                console.log("Adding imported strategy to history");
-                addHistoryItem(validatedNodes, validatedEdges);
-                
-                // Update UI
-                toast({
-                  title: "Strategy imported successfully",
-                  description: `Strategy imported to "${strategyName}"`
-                });
-                
-                // Trigger a storage event to update UI in other tabs
-                window.dispatchEvent(new StorageEvent('storage', {
-                  key: 'strategies'
-                }));
-                
-                resolve(true);
-              }, 300);
-            } catch (innerError) {
-              console.error("Error during final import steps:", innerError);
+                try {
+                  console.log("Adding imported strategy to history");
+                  addHistoryItem(validatedNodes, validatedEdges);
+                  
+                  // Success notification
+                  toast({
+                    title: "Strategy imported successfully",
+                    description: `Strategy imported as "${strategyName}"`
+                  });
+                  
+                  // Trigger update event
+                  window.dispatchEvent(new StorageEvent('storage', {
+                    key: 'strategies'
+                  }));
+                  
+                  resolve(true);
+                } catch (e) {
+                  console.error("Error in final import steps:", e);
+                  resolve(false);
+                }
+              }, 200);
+            } catch (e) {
+              console.error("Error applying imported strategy:", e);
               resolve(false);
             }
-          };
-          
-          // Use a longer delay to ensure DOM is ready
-          setTimeout(applyImport, 300);
+          }, 200);
         } else {
           console.error("Missing nodes or edges in imported data", imported);
           toast({

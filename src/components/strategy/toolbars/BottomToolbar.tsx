@@ -84,14 +84,16 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
       const filePath = fileInputRef.current?.value;
       console.log("Current file input path:", filePath);
       
-      // Clear existing nodes and edges first to prevent conflicts
+      // CRITICAL: Clear existing nodes and edges first to prevent conflicts
+      console.log("Explicitly clearing nodes and edges before import");
       setNodes([]);
+      await new Promise(resolve => setTimeout(resolve, 100));
       setEdges([]);
+      await new Promise(resolve => setTimeout(resolve, 100));
       
-      // Force a brief delay to ensure React state is updated before import
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
-      // Perform the import operation with current strategy context
+      // CRITICAL: Perform the import with explicit, current strategy context
+      // This ensures import is isolated to this strategy
+      console.log(`Importing with explicit strategy ID: ${currentStrategyIdRef.current}`);
       const result = await importStrategyFromEvent(
         event, 
         setNodes, 
@@ -144,7 +146,8 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
       return;
     }
     
-    // Save to localStorage with ID and name - pass the entire nodes and edges objects
+    // CRITICAL: Save to localStorage with EXPLICIT ID and name
+    console.log(`Explicitly saving strategy with ID: ${currentStrategyIdRef.current}`);
     saveStrategyToLocalStorage(nodes, edges, currentStrategyIdRef.current, currentStrategyNameRef.current);
     
     // Trigger storage event to update strategies list

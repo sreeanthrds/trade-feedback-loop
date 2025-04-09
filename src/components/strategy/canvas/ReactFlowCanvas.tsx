@@ -66,16 +66,21 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   const importInProgressRef = useRef(false);
   const lastImportRef = useRef(0);
   const currentStrategyIdRef = useRef(currentStrategyId);
+  const canvasKeyRef = useRef(`flow-${currentStrategyId || Date.now()}`);
 
-  // Track strategy ID changes
+  // CRITICAL: Track strategy ID changes and update key to force remount
   useEffect(() => {
-    currentStrategyIdRef.current = currentStrategyId;
-    console.log(`ReactFlowCanvas: Strategy changed to ID: ${currentStrategyId}, Name: ${currentStrategyName}`);
-    
-    // Reset import flags when strategy changes
-    importInProgressRef.current = false;
-    lastImportRef.current = 0;
-  }, [currentStrategyId, currentStrategyName]);
+    if (currentStrategyId !== currentStrategyIdRef.current) {
+      // Strategy has changed - update the key to force remount
+      canvasKeyRef.current = `flow-${currentStrategyId || Date.now()}-${Date.now()}`;
+      currentStrategyIdRef.current = currentStrategyId;
+      console.log(`ReactFlowCanvas: Strategy changed - updating key to ${canvasKeyRef.current}`);
+      
+      // Reset import flags when strategy changes
+      importInProgressRef.current = false;
+      lastImportRef.current = 0;
+    }
+  }, [currentStrategyId]);
 
   // Track node/edge changes to detect major updates
   useEffect(() => {
@@ -172,7 +177,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   
   // Update instance ref when initialized
   const handleInit = useCallback((instance) => {
-    console.log(`ReactFlow initialized for strategy: ${currentStrategyIdRef.current}`);
+    console.log(`ReactFlow initialized for strategy: ${currentStrategyIdRef.current} with key ${canvasKeyRef.current}`);
     reactFlowInstanceRef.current = instance;
     
     // Fit view on init
@@ -193,7 +198,7 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
       onDrop={onDrop}
     >
       <ReactFlow
-        key={`flow-${currentStrategyId}`} // This key forces ReactFlow to unmount and remount when strategy changes
+        key={canvasKeyRef.current} // Use dynamic key to force remount on strategy changes
         nodes={nodes}
         edges={edges}
         onNodesChange={wrappedNodesChange}

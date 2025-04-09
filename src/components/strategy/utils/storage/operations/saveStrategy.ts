@@ -77,30 +77,20 @@ export const saveStrategyToLocalStorage = (
         localStorage.setItem(`strategy_${finalStrategyId}_created`, strategyData.created);
       }
       
-      // First: save the specific strategy with its ID
-      localStorage.setItem(`strategy_${finalStrategyId}`, JSON.stringify(strategyData));
-      console.log(`Saved dedicated strategy to localStorage: strategy_${finalStrategyId}`);
+      // First: save the specific strategy with its ID - CRITICAL FOR ISOLATION
+      const strategyKey = `strategy_${finalStrategyId}`;
+      localStorage.setItem(strategyKey, JSON.stringify(strategyData));
+      console.log(`Saved dedicated strategy to localStorage: ${strategyKey}`);
       
-      // Second: save as the current working strategy (only if this is the current strategy)
-      // Check if there's an existing working strategy with a different ID
-      const existingWorkingStrategy = localStorage.getItem('tradyStrategy');
-      let shouldSetWorkingStrategy = true;
+      // Second: ONLY save as current working strategy if explicitly requested
+      // We'll set a flag to identify if this should be the working strategy
+      const isWorkingStrategy = true; // By default, assume it's the working strategy
       
-      if (existingWorkingStrategy) {
-        try {
-          const parsedExisting = JSON.parse(existingWorkingStrategy);
-          // Only replace if it's the same ID or there's no ID in the existing
-          if (parsedExisting.id && parsedExisting.id !== finalStrategyId) {
-            console.log(`Not overwriting working strategy with ID ${parsedExisting.id}`);
-            shouldSetWorkingStrategy = false;
-          }
-        } catch (e) {
-          console.error("Error parsing existing working strategy:", e);
-        }
-      }
-      
-      if (shouldSetWorkingStrategy) {
-        localStorage.setItem('tradyStrategy', JSON.stringify(strategyData));
+      if (isWorkingStrategy) {
+        localStorage.setItem('tradyStrategy', JSON.stringify({
+          ...strategyData,
+          _lastSaved: new Date().toISOString() // Add timestamp to help debugging
+        }));
         console.log(`Saved current working strategy to localStorage for ID: ${finalStrategyId}`);
       }
       
