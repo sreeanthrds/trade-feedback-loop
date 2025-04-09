@@ -28,14 +28,24 @@ const UserProfileDropdown = () => {
 
   // Handle sign out with redirection
   const handleSignOut = async () => {
-    await signOut();
-    navigate('/auth'); // Redirect to auth page after sign out
-    
-    // Show toast notification
-    toast({
-      title: "Logged out successfully",
-      description: "You have been signed out of your account."
-    });
+    try {
+      await signOut();
+      // Explicitly navigate to auth page after sign out
+      navigate('/auth', { replace: true });
+      
+      // Show toast notification
+      toast({
+        title: "Logged out successfully",
+        description: "You have been signed out of your account."
+      });
+    } catch (error) {
+      console.error('Error during sign out:', error);
+      toast({
+        title: "Error signing out",
+        description: "There was a problem signing out. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   // Force re-render when auth state changes
@@ -80,11 +90,11 @@ const UserProfileDropdown = () => {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate('/app/account')}>
           <User className="mr-2 h-4 w-4" />
           <span>Profile</span>
         </DropdownMenuItem>
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate('/app/account?tab=settings')}>
           <Settings className="mr-2 h-4 w-4" />
           <span>Settings</span>
         </DropdownMenuItem>

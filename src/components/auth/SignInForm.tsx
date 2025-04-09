@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,10 @@ const SignInForm = () => {
   const [error, setError] = useState<string | null>(null);
   const { signIn, signInWithProvider } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Determine where to redirect after successful login
+  const from = location.state?.from?.pathname || '/app';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,8 +31,9 @@ const SignInForm = () => {
       if (!result.success && result.error) {
         setError(result.error);
       } else if (result.success) {
-        // Success - navigate will happen via AuthPage's useEffect
-        console.log("Login successful, redirecting...");
+        // Explicitly navigate to the app or intended destination
+        console.log("Login successful, redirecting to:", from);
+        navigate(from, { replace: true });
       }
     } finally {
       setIsSubmitting(false);
