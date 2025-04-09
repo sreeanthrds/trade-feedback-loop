@@ -154,7 +154,8 @@ export const importStrategyFromEvent = async (
         
         console.log("Checking for nodes and edges in imported data");
         if (imported.nodes && imported.edges) {
-          console.log(`Found ${imported.nodes.length} nodes and ${imported.edges.length} edges`);
+          console.log(`Found ${imported.nodes.length} nodes and ${imported.edges.length} edges in imported file`);
+          console.log("Edges from import:", JSON.stringify(imported.edges));
           
           // Deep clone to avoid reference issues
           const nodes = JSON.parse(JSON.stringify(imported.nodes));
@@ -176,6 +177,8 @@ export const importStrategyFromEvent = async (
             type: edge.type || 'default'
           }));
           
+          console.log("Validated edges:", JSON.stringify(validatedEdges));
+          
           if (validatedEdges.some((edge: Edge) => !edge.source || !edge.target)) {
             console.error("Invalid edge connections found");
             toast({
@@ -196,35 +199,40 @@ export const importStrategyFromEvent = async (
           localStorage.removeItem(`strategy_${strategyId}`);
           
           // Then save the imported strategy directly to localStorage with the current ID
-          console.log(`Saving imported strategy directly to localStorage with ID: ${strategyId}`);
+          console.log(`Saving imported strategy with ${validatedNodes.length} nodes and ${validatedEdges.length} edges directly to localStorage with ID: ${strategyId}`);
           saveStrategyToLocalStorage(validatedNodes, validatedEdges, strategyId, strategyName);
+          
+          // Wait for localStorage operations to complete
+          await new Promise(r => setTimeout(r, 100));
           
           // Now clear existing app state before setting new nodes and edges
           console.log("Clearing existing nodes and edges before setting new ones");
           setNodes([]);
-          await new Promise(r => setTimeout(r, 100));
+          await new Promise(r => setTimeout(r, 200));
           setEdges([]);
-          await new Promise(r => setTimeout(r, 100));
+          await new Promise(r => setTimeout(r, 200));
           
           // Reset history for this specific strategy
           resetHistory();
           
           // Wait for changes to propagate
-          await new Promise(r => setTimeout(r, 300)); // Increased wait time
+          await new Promise(r => setTimeout(r, 300));
           
-          // Set the new nodes and edges - CRITICAL: Set nodes first, then edges
-          console.log(`Setting ${validatedNodes.length} nodes and ${validatedEdges.length} edges`);
+          // Set the new nodes first
+          console.log(`Setting ${validatedNodes.length} nodes`);
           setNodes(validatedNodes);
-          await new Promise(r => setTimeout(r, 200)); // Increased wait time
           
-          // Explicitly log edges before setting them
-          console.log("Setting edges:", JSON.stringify(validatedEdges));
+          // Wait for nodes to be set
+          await new Promise(r => setTimeout(r, 400));
+          
+          // Then set edges with explicit logging
+          console.log(`Setting ${validatedEdges.length} edges:`, JSON.stringify(validatedEdges));
           setEdges(validatedEdges);
           
           // Add to history after a longer delay
           setTimeout(() => {
             try {
-              console.log("Adding imported strategy to history");
+              console.log("Adding imported strategy to history with edges:", validatedEdges.length);
               addHistoryItem(validatedNodes, validatedEdges);
               
               toast({
@@ -234,17 +242,19 @@ export const importStrategyFromEvent = async (
               
               // Force reload the strategy by triggering a storage event
               // This ensures all components update consistently
+              console.log("Dispatching storage event to notify components of the import");
               window.dispatchEvent(new StorageEvent('storage', {
                 key: `strategy_${strategyId}`,
                 newValue: localStorage.getItem(`strategy_${strategyId}`)
               }));
               
+              console.log("Import process completed successfully");
               resolve(true);
             } catch (e) {
               console.error("Error in final import steps:", e);
               resolve(false);
             }
-          }, 500); // Increased timeout
+          }, 600);
         } else {
           console.error("Missing nodes or edges in imported data", imported);
           toast({

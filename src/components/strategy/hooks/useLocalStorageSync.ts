@@ -49,6 +49,8 @@ export function useLocalStorageSync({
     if (typeof setEdges === 'function') {
       try {
         setEdges(edges);
+        console.log('Edges set successfully via safeSetEdges:', 
+          typeof edges === 'function' ? 'function' : edges.length);
       } catch (error) {
         console.error('Error in safeSetEdges:', error);
       }
@@ -71,35 +73,50 @@ export function useLocalStorageSync({
       const loadedStrategy = loadStrategyFromLocalStorage(currentStrategyId);
       
       if (loadedStrategy) {
-        console.log('Loading strategy from localStorage:', loadedStrategy);
+        console.log('Loading strategy from localStorage:', 
+          `${loadedStrategy.nodes.length} nodes, ${loadedStrategy.edges.length} edges`);
         
-        // Apply nodes first with safety check
-        safeSetNodes(loadedStrategy.nodes);
+        if (loadedStrategy.edges && loadedStrategy.edges.length > 0) {
+          console.log('Loaded edges from localStorage:', JSON.stringify(loadedStrategy.edges));
+        }
         
-        // Apply edges in the next cycle to prevent conflicts
+        // Clear existing state first to avoid conflicts
+        safeSetNodes([]);
         setTimeout(() => {
-          console.log(`Setting ${loadedStrategy.edges.length} edges:`, JSON.stringify(loadedStrategy.edges));
-          safeSetEdges(loadedStrategy.edges);
+          safeSetEdges([]);
           
-          // Update store in a separate cycle
+          // Apply nodes first with safety check
           setTimeout(() => {
-            if (strategyStore && typeof strategyStore.setNodes === 'function') {
-              strategyStore.setNodes(loadedStrategy.nodes);
-              strategyStore.setEdges(loadedStrategy.edges);
-              
-              if (typeof strategyStore.resetHistory === 'function') {
-                strategyStore.resetHistory();
-              }
-              
-              if (typeof strategyStore.addHistoryItem === 'function') {
-                strategyStore.addHistoryItem(loadedStrategy.nodes, loadedStrategy.edges);
-              }
-            }
+            console.log(`Setting ${loadedStrategy.nodes.length} nodes from localStorage`);
+            safeSetNodes(loadedStrategy.nodes);
             
-            console.log('Strategy loaded from localStorage successfully');
-            isInitialLoadRef.current = false;
-          }, 100); // Increased timeout
-        }, 100); // Increased timeout
+            // Apply edges in the next cycle to prevent conflicts
+            setTimeout(() => {
+              console.log(`Setting ${loadedStrategy.edges.length} edges from localStorage:`, 
+                JSON.stringify(loadedStrategy.edges));
+              safeSetEdges(loadedStrategy.edges);
+              
+              // Update store in a separate cycle
+              setTimeout(() => {
+                if (strategyStore && typeof strategyStore.setNodes === 'function') {
+                  strategyStore.setNodes(loadedStrategy.nodes);
+                  strategyStore.setEdges(loadedStrategy.edges);
+                  
+                  if (typeof strategyStore.resetHistory === 'function') {
+                    strategyStore.resetHistory();
+                  }
+                  
+                  if (typeof strategyStore.addHistoryItem === 'function') {
+                    strategyStore.addHistoryItem(loadedStrategy.nodes, loadedStrategy.edges);
+                  }
+                }
+                
+                console.log('Strategy loaded from localStorage successfully');
+                isInitialLoadRef.current = false;
+              }, 200); // Increased timeout
+            }, 200); // Increased timeout
+          }, 200);
+        }, 200);
       } else {
         console.log('No saved strategy found, using default nodes');
         safeSetNodes(initialNodes);
@@ -141,20 +158,25 @@ export function useLocalStorageSync({
             
             if (loadedStrategy) {
               console.log('Reloading strategy from localStorage after external change');
+              console.log(`Found ${loadedStrategy.nodes.length} nodes and ${loadedStrategy.edges.length} edges`);
+              
+              if (loadedStrategy.edges && loadedStrategy.edges.length > 0) {
+                console.log('Edges from storage event:', JSON.stringify(loadedStrategy.edges));
+              }
               
               // Clear existing state first
               safeSetNodes([]);
               setTimeout(() => {
                 safeSetEdges([]);
                 
-                // Then apply the new state
+                // Then apply the new state with sufficient delays
                 setTimeout(() => {
                   console.log(`Setting ${loadedStrategy.nodes.length} nodes from storage event`);
                   safeSetNodes(loadedStrategy.nodes);
                   
                   setTimeout(() => {
                     console.log(`Setting ${loadedStrategy.edges.length} edges from storage event:`, 
-                               JSON.stringify(loadedStrategy.edges));
+                      JSON.stringify(loadedStrategy.edges));
                     safeSetEdges(loadedStrategy.edges);
                     
                     // Update store in a separate cycle
@@ -175,11 +197,11 @@ export function useLocalStorageSync({
                       // Reset flag after applying changes
                       setTimeout(() => {
                         isUpdatingFromLocalStorageRef.current = false;
-                      }, 100);
-                    }, 100);
-                  }, 100);
-                }, 100);
-              }, 100);
+                      }, 300);
+                    }, 300);
+                  }, 300);
+                }, 300);
+              }, 300);
             } else {
               isUpdatingFromLocalStorageRef.current = false;
             }

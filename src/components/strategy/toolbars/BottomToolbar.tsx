@@ -1,3 +1,4 @@
+
 import React, { useRef, useCallback, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Panel } from '@xyflow/react';
@@ -90,12 +91,14 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
       }
       
       console.log(`After importStrategyFromEvent: ${nodes.length} nodes, ${edges.length} edges`);
+      console.log("Current edges after import:", JSON.stringify(edges));
       
       if (result && onImportSuccess) {
+        console.log("Import was successful, calling onImportSuccess callback in 700ms");
         setTimeout(() => {
           console.log("Calling onImportSuccess callback");
           onImportSuccess();
-        }, 500);
+        }, 700);
       }
     } catch (error) {
       console.error("Error during import:", error);
@@ -106,6 +109,7 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
       });
     } finally {
       setTimeout(() => {
+        console.log("Resetting importing state");
         setIsImporting(false);
       }, 1000);
     }

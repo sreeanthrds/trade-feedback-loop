@@ -73,6 +73,9 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
   // Log current state for debugging
   useEffect(() => {
     console.log(`Current state: ${nodes.length} nodes, ${edges.length} edges`);
+    if (edges.length > 0) {
+      console.log("Current edges:", JSON.stringify(edges));
+    }
   }, [nodes.length, edges.length]);
 
   // Update flow key when strategy ID changes to force remount
@@ -160,6 +163,9 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
         
         // Log the current state after import for debugging
         console.log(`After import: ${nodes.length} nodes, ${edges.length} edges`);
+        if (edges.length > 0) {
+          console.log("Edges after import:", JSON.stringify(edges));
+        }
       }, 500);
     }, 500);
   }, [fitView, onImportSuccess, nodes.length, edges.length, currentStrategyId]);
