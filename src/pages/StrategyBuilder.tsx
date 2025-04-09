@@ -30,10 +30,25 @@ const StrategyBuilder = () => {
   
   // If it's a new strategy, reset the store to initial state
   useEffect(() => {
-    if (isNewStrategy && resetNodes) {
+    if (isNewStrategy) {
+      // Complete reset for new strategies
       resetNodes();
-      // Clear the current strategy in localStorage
+      
+      // Clear any existing strategy in localStorage
       localStorage.removeItem('tradyStrategy');
+      
+      // Remove any strategy-specific localStorage items
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('tradyStrategy_')) {
+          keysToRemove.push(key);
+        }
+      }
+      
+      // Remove collected keys
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+      
       console.log('Created new strategy, cleared localStorage workspace');
     }
   }, [isNewStrategy, resetNodes]);

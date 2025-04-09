@@ -39,5 +39,13 @@ export const useStrategyStore = create<StrategyStore>((set, get) => ({
       nodes: initialNodes,
       edges: []
     });
+    
+    // Also reset history
+    get().resetHistory();
+    
+    // Add initial state to history
+    setTimeout(() => {
+      get().addHistoryItem(initialNodes, []);
+    }, 100);
   }
 }));

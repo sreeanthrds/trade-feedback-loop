@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 import { Node, Edge } from '@xyflow/react';
 import { loadStrategyFromLocalStorage } from '../utils/storage/localStorageUtils';
@@ -115,6 +116,7 @@ export function useLocalStorageSync(
   const initializeWithDefaultNodes = () => {
     // Set local state
     setNodes(initialNodes);
+    setEdges([]);
     
     // Update store with a delay
     isUpdatingStoreRef.current = true;

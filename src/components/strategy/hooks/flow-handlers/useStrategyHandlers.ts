@@ -54,6 +54,9 @@ export const useStrategyHandlers = ({
       // Clear selection and close panel
       closePanel();
       
+      // Clear localStorage for current strategy
+      localStorage.removeItem('tradyStrategy');
+      
       // Fit view after reset
       if (instanceRef.current) {
         setTimeout(() => {
