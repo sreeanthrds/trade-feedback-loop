@@ -33,19 +33,27 @@ export const useStrategyStore = create<StrategyStore>((set, get) => ({
   redo: createRedoFunction(set),
   resetHistory: createResetHistoryFunction(set),
   
-  // Reset nodes to initial state
+  // Reset nodes to initial state in a controlled sequence
   resetNodes: () => {
+    // First clear everything
     set({
-      nodes: initialNodes,
+      nodes: [],
       edges: []
     });
     
-    // Also reset history
+    // Reset history
     get().resetHistory();
     
-    // Add initial state to history
+    // Add initial nodes after a slight delay
     setTimeout(() => {
-      get().addHistoryItem(initialNodes, []);
+      set({
+        nodes: initialNodes
+      });
+      
+      // Add initial state to history after nodes are set
+      setTimeout(() => {
+        get().addHistoryItem(initialNodes, []);
+      }, 100);
     }, 100);
   }
 }));

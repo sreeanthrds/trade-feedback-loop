@@ -41,40 +41,53 @@ export const useStrategyHandlers = ({
     updateHandlingRef.current = true;
     
     try {
-      // Reset to initial state
-      setNodes(initialNodes);
+      // First clear all nodes and edges
+      console.log('Resetting strategy...');
+      setNodes([]);
       setEdges([]);
       
-      // Update store in a separate cycle to prevent update loops
+      // Close panel if open
+      closePanel();
+      
+      // Reset store state in a separate cycle
       setTimeout(() => {
-        storeRef.current.setNodes(initialNodes);
-        storeRef.current.setEdges([]);
-        storeRef.current.resetHistory();
-        storeRef.current.addHistoryItem(initialNodes, []);
-        
-        // Clear selection and close panel
-        closePanel();
-        
-        // Clear localStorage for current strategy
-        localStorage.removeItem('tradyStrategy');
-        
-        // Fit view after reset with delay
-        if (instanceRef.current) {
+        if (storeRef.current) {
+          storeRef.current.setNodes([]);
+          storeRef.current.setEdges([]);
+          storeRef.current.resetHistory();
+          
+          // Set to initial state after a brief delay
           setTimeout(() => {
-            instanceRef.current.fitView({ padding: 0.2 });
-          }, 300);
+            setNodes(initialNodes);
+            storeRef.current.setNodes(initialNodes);
+            storeRef.current.addHistoryItem(initialNodes, []);
+            
+            // Clear localStorage for current strategy
+            localStorage.removeItem('tradyStrategy');
+            
+            // Fit view after reset
+            if (instanceRef.current) {
+              setTimeout(() => {
+                try {
+                  instanceRef.current.fitView({ padding: 0.2 });
+                } catch (e) {
+                  console.error('Error fitting view:', e);
+                }
+              }, 300);
+            }
+            
+            toast({
+              title: "Strategy reset",
+              description: "Strategy has been reset to initial state."
+            });
+          }, 200);
         }
-        
-        toast({
-          title: "Strategy reset",
-          description: "Strategy has been reset to initial state."
-        });
       }, 100);
     } finally {
       // Allow time for updates to process before releasing flag
       setTimeout(() => {
         updateHandlingRef.current = false;
-      }, 500);
+      }, 800);
     }
   }, [setNodes, setEdges, closePanel, updateHandlingRef]);
 

@@ -28,28 +28,37 @@ const StrategyBuilder = () => {
   const { toast } = useToast();
   const { nodes, edges, resetNodes } = useStrategyStore();
   
-  // If it's a new strategy, reset the store to initial state
+  // Clear store and localStorage if this is a new strategy
   useEffect(() => {
     if (isNewStrategy) {
-      // Complete reset for new strategies
-      resetNodes();
+      console.log('New strategy detected - preparing clean workspace');
       
-      // Clear any existing strategy in localStorage
-      localStorage.removeItem('tradyStrategy');
-      
-      // Remove any strategy-specific localStorage items
-      const keysToRemove = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith('tradyStrategy_')) {
-          keysToRemove.push(key);
+      // Complete reset of store
+      setTimeout(() => {
+        try {
+          // Reset the store's nodes
+          resetNodes();
+          
+          // Clear any existing strategy in localStorage
+          localStorage.removeItem('tradyStrategy');
+          
+          // Remove any strategy-specific localStorage items
+          const keysToRemove = [];
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('tradyStrategy_')) {
+              keysToRemove.push(key);
+            }
+          }
+          
+          // Remove collected keys
+          keysToRemove.forEach(key => localStorage.removeItem(key));
+          
+          console.log('Created new strategy, cleared localStorage workspace');
+        } catch (error) {
+          console.error('Error resetting strategy:', error);
         }
-      }
-      
-      // Remove collected keys
-      keysToRemove.forEach(key => localStorage.removeItem(key));
-      
-      console.log('Created new strategy, cleared localStorage workspace');
+      }, 0);
     }
   }, [isNewStrategy, resetNodes]);
   
@@ -65,10 +74,11 @@ const StrategyBuilder = () => {
     }
   }, [nodes, edges, isLoaded, strategyId, strategyName]);
   
+  // Set loaded state with delay to ensure components are ready
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoaded(true);
-    }, 100);
+    }, 300); // Increased delay for better component initialization
     
     console.log(`Strategy initialized with ID: ${strategyId}, name: ${strategyName}, isNew: ${isNewStrategy}`);
     

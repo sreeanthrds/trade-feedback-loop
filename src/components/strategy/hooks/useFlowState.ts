@@ -56,11 +56,33 @@ export function useFlowState(isNew: boolean = false) {
   useEffect(() => {
     if (isNew) {
       console.log('Initializing new strategy with default nodes');
-      setNodes(initialNodes);
-      setEdges([]);
-      strategyStore.setNodes(initialNodes);
-      strategyStore.setEdges([]);
-      strategyStore.resetHistory();
+      
+      // Clear any previous nodes and edges first
+      setTimeout(() => {
+        // First clear all nodes and edges
+        setNodes([]);
+        setEdges([]);
+        
+        // Then update store
+        strategyStore.setNodes([]);
+        strategyStore.setEdges([]);
+        strategyStore.resetHistory();
+        
+        // Then set the initial nodes after a small delay to ensure clean start
+        setTimeout(() => {
+          setNodes(initialNodes);
+          strategyStore.setNodes(initialNodes);
+          
+          // Wait for nodes to be set before adding to history
+          setTimeout(() => {
+            strategyStore.addHistoryItem(initialNodes, []);
+            
+            // Clear localStorage for good measure
+            localStorage.removeItem('tradyStrategy');
+            console.log('New strategy initialized with default nodes');
+          }, 100);
+        }, 100);
+      }, 0);
     }
   }, [isNew, setNodes, setEdges, strategyStore]);
   
