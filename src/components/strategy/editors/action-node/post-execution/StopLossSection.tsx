@@ -4,7 +4,7 @@ import { EnhancedNumberInput, EnhancedSelectField } from '@/components/ui/form/e
 import EnhancedSwitch from '@/components/ui/form/enhanced/EnhancedSwitch';
 import EnhancedRadioGroup from '@/components/ui/form/enhanced/EnhancedRadioGroup';
 import { StopLossConfig, TriggerType, TimeUnit } from '../exit-node/types';
-import { DollarSign, PercentIcon, Hash, Clock, Buffer } from 'lucide-react';
+import { DollarSign, PercentIcon, Hash, Clock, Shield } from 'lucide-react';
 
 interface StopLossSectionProps {
   stopLoss: StopLossConfig;
