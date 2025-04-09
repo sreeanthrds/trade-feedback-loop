@@ -28,20 +28,51 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
   const { isRunning } = useBacktestingStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [searchParams] = useSearchParams();
+  const [isImporting, setIsImporting] = useState(false);
   const strategyId = searchParams.get('id');
   const strategyName = searchParams.get('name') || 'Untitled Strategy';
   const { toast } = useToast();
 
-  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const success = importStrategyFromEvent(event, setNodes, setEdges, addHistoryItem, resetHistory);
-    // Reset the input value so the same file can be imported again if needed
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+  const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (isImporting) return;
     
-    // Notify parent component that import was successful
-    if (success && onImportSuccess) {
-      onImportSuccess();
+    setIsImporting(true);
+    
+    try {
+      // Show loading toast
+      toast({
+        title: "Importing strategy",
+        description: "Please wait while we process your file..."
+      });
+      
+      const success = await importStrategyFromEvent(
+        event, 
+        setNodes, 
+        setEdges, 
+        addHistoryItem, 
+        resetHistory
+      );
+      
+      // Reset the input value so the same file can be imported again if needed
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      
+      // Notify parent component that import was successful
+      if (success && onImportSuccess) {
+        setTimeout(() => {
+          onImportSuccess();
+        }, 100);
+      }
+    } catch (error) {
+      console.error("Error during import:", error);
+      toast({
+        title: "Import failed",
+        description: "An unexpected error occurred during import",
+        variant: "destructive"
+      });
+    } finally {
+      setIsImporting(false);
     }
   };
 
@@ -90,15 +121,16 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
           <Download className="mr-1 h-4 w-4" />
           Export
         </Button>
-        <Button variant="secondary" onClick={triggerFileInput}>
+        <Button variant="secondary" onClick={triggerFileInput} disabled={isImporting}>
           <Upload className="mr-1 h-4 w-4" />
-          Import
+          {isImporting ? 'Importing...' : 'Import'}
           <input
             ref={fileInputRef}
             type="file"
             accept=".json"
             className="hidden"
             onChange={handleImport}
+            disabled={isImporting}
           />
         </Button>
         <Button variant="secondary" onClick={resetStrategy}>

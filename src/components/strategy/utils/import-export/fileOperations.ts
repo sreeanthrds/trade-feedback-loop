@@ -1,6 +1,6 @@
 
 import { Node, Edge } from '@xyflow/react';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 import { indicatorConfig } from '../indicatorConfig';
 
 // Helper function to get a readable display name for an indicator
@@ -95,83 +95,122 @@ export const importStrategyFromEvent = (
   setEdges: (edges: Edge[]) => void,
   addHistoryItem: (nodes: Node[], edges: Edge[]) => void,
   resetHistory: () => void
-): boolean => {
-  const file = event.target.files?.[0];
-  if (!file) {
-    return false;
-  }
-  
-  const reader = new FileReader();
-  let success = false;
-  
-  reader.onload = (e) => {
-    try {
-      const result = e.target?.result as string;
-      if (!result) {
-        toast.error("Failed to read file");
-        return;
-      }
-      
-      const imported = JSON.parse(result);
-      if (imported && imported.nodes && imported.edges) {
-        // Make a deep copy to ensure we're not importing references
-        const nodes = JSON.parse(JSON.stringify(imported.nodes));
-        const edges = JSON.parse(JSON.stringify(imported.edges));
-        
-        // Ensure each node has appropriate properties
-        const validatedNodes = nodes.map((node: Node) => ({
-          ...node,
-          id: node.id || `node-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          type: node.type || 'default',
-          position: node.position || { x: 0, y: 0 },
-          data: node.data || {}
-        }));
-        
-        // Ensure each edge has appropriate properties
-        const validatedEdges = edges.map((edge: Edge) => ({
-          ...edge,
-          id: edge.id || `edge-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          source: edge.source || '',
-          target: edge.target || '',
-          type: edge.type || 'default' // Make sure edge type is preserved
-        }));
-        
-        // Only proceed if we have valid connections
-        if (validatedEdges.some((edge: Edge) => !edge.source || !edge.target)) {
-          toast.error("Invalid edge connections in imported file");
+): Promise<boolean> => {
+  return new Promise((resolve) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      resolve(false);
+      return;
+    }
+    
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      try {
+        const result = e.target?.result as string;
+        if (!result) {
+          toast({
+            title: "Failed to read file",
+            description: "Could not read the uploaded file"
+          });
+          resolve(false);
           return;
         }
         
-        // Apply the changes
-        setNodes(validatedNodes);
-        setEdges(validatedEdges);
-        resetHistory();
-        addHistoryItem(validatedNodes, validatedEdges);
-        
-        // Also save the imported strategy to localStorage
-        if (imported.name && imported.id) {
-          localStorage.setItem('tradyStrategy', JSON.stringify({
-            nodes: validatedNodes,
-            edges: validatedEdges,
-            name: imported.name,
-            id: imported.id,
-            lastModified: new Date().toISOString(),
-            created: imported.created || new Date().toISOString(),
-            description: imported.description || "Imported trading strategy"
+        const imported = JSON.parse(result);
+        if (imported && imported.nodes && imported.edges) {
+          // Make a deep copy to ensure we're not importing references
+          const nodes = JSON.parse(JSON.stringify(imported.nodes));
+          const edges = JSON.parse(JSON.stringify(imported.edges));
+          
+          // Ensure each node has appropriate properties
+          const validatedNodes = nodes.map((node: Node) => ({
+            ...node,
+            id: node.id || `node-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            type: node.type || 'default',
+            position: node.position || { x: 0, y: 0 },
+            data: node.data || {}
           }));
+          
+          // Ensure each edge has appropriate properties
+          const validatedEdges = edges.map((edge: Edge) => ({
+            ...edge,
+            id: edge.id || `edge-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            source: edge.source || '',
+            target: edge.target || '',
+            type: edge.type || 'default' // Make sure edge type is preserved
+          }));
+          
+          // Only proceed if we have valid connections
+          if (validatedEdges.some((edge: Edge) => !edge.source || !edge.target)) {
+            toast({
+              title: "Invalid file format",
+              description: "Invalid edge connections in imported file"
+            });
+            resolve(false);
+            return;
+          }
+          
+          // Clear any existing strategy first
+          localStorage.removeItem('tradyStrategy');
+          
+          // Apply the changes - use a slight delay to ensure proper rendering
+          setTimeout(() => {
+            // First reset history to avoid any issues with history
+            resetHistory();
+            
+            // Then apply the changes to both local state and store
+            setNodes(validatedNodes);
+            setEdges(validatedEdges);
+            
+            // Add this as a new history item
+            addHistoryItem(validatedNodes, validatedEdges);
+            
+            // Also save the imported strategy to localStorage
+            if (imported.name && imported.id) {
+              localStorage.setItem('tradyStrategy', JSON.stringify({
+                nodes: validatedNodes,
+                edges: validatedEdges,
+                name: imported.name,
+                id: imported.id,
+                lastModified: new Date().toISOString(),
+                created: imported.created || new Date().toISOString(),
+                description: imported.description || "Imported trading strategy"
+              }));
+            }
+            
+            toast({
+              title: "Strategy imported successfully",
+              description: "Your strategy has been loaded"
+            });
+            
+            resolve(true);
+          }, 100);
+        } else {
+          toast({
+            title: "Invalid file format",
+            description: "The file does not contain a valid strategy"
+          });
+          resolve(false);
         }
-        
-        toast.success("Strategy imported successfully");
-        success = true;
-      } else {
-        toast.error("Invalid strategy file format");
+      } catch (error) {
+        console.error("Import error:", error);
+        toast({
+          title: "Import failed",
+          description: "Failed to parse strategy file"
+        });
+        resolve(false);
       }
-    } catch (error) {
-      console.error("Import error:", error);
-      toast.error("Failed to parse strategy file");
-    }
-  };
-  
-  reader.readAsText(file);
-  return success;
+    };
+    
+    reader.onerror = () => {
+      toast({
+        title: "Error reading file",
+        description: "Could not read the uploaded file"
+      });
+      resolve(false);
+    };
+    
+    reader.readAsText(file);
+  });
 };

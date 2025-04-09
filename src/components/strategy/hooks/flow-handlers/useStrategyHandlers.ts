@@ -75,23 +75,33 @@ export const useStrategyHandlers = ({
     }
   }, [setNodes, setEdges, closePanel, updateHandlingRef]);
 
-  // Create import success handler
+  // Create import success handler with improved viewport handling
   const handleImportSuccess = useCallback(() => {
-    // Fit view after successful import
-    if (instanceRef.current) {
+    if (updateHandlingRef.current) return;
+    updateHandlingRef.current = true;
+    
+    try {
+      // Close panel if open
+      closePanel();
+      
+      // Fit view after successful import with a delay to ensure nodes are rendered
+      if (instanceRef.current) {
+        // Use a longer timeout to make sure everything is rendered properly
+        setTimeout(() => {
+          console.log("Fitting view after import");
+          instanceRef.current.fitView({ 
+            padding: 0.2,
+            includeHiddenNodes: false,
+            duration: 800
+          });
+        }, 300);
+      }
+    } finally {
       setTimeout(() => {
-        instanceRef.current.fitView({ padding: 0.2 });
-      }, 200);
+        updateHandlingRef.current = false;
+      }, 500);
     }
-    
-    // Close panel if open
-    closePanel();
-    
-    toast({
-      title: "Import successful",
-      description: "Strategy imported successfully."
-    });
-  }, [closePanel]);
+  }, [closePanel, updateHandlingRef]);
 
   return {
     resetStrategy,

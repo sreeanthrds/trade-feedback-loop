@@ -1,5 +1,5 @@
 
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useEffect } from 'react';
 import { ReactFlow, Controls, Background, BackgroundVariant, Node, Edge } from '@xyflow/react';
 import BottomToolbar from '../toolbars/BottomToolbar';
 import TopToolbar from '../toolbars/TopToolbar';
@@ -56,6 +56,8 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
     fitView
   } = useViewportUtils();
 
+  const reactFlowInstanceRef = useRef(null);
+
   // Wrap onNodesChange to use our enhanced node change handler
   const wrappedNodesChange = useCallback((changes: any) => {
     internalHandleNodesChange(changes, onNodesChange);
@@ -68,6 +70,19 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
       toggleBacktest();
     }
   }, [toggleBacktest]);
+
+  // When nodes change (particularly on import), trigger a fit view
+  useEffect(() => {
+    if (nodes.length > 0 && reactFlowInstanceRef.current) {
+      // Only do this when we detect a major change in nodes (like after an import)
+      if (nodes.length >= 1 && edges.length === 0) {
+        console.log("Major change in nodes detected, fitting view");
+        setTimeout(() => {
+          fitView();
+        }, 200);
+      }
+    }
+  }, [nodes, edges, fitView]);
 
   return (
     <div 
@@ -85,6 +100,9 @@ const ReactFlowCanvas: React.FC<ReactFlowCanvasProps> = ({
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         onNodeClick={onNodeClick}
+        onInit={(instance) => {
+          reactFlowInstanceRef.current = instance;
+        }}
         fitView
         minZoom={0.3}
         maxZoom={1.5}
