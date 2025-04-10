@@ -61,8 +61,8 @@ const SignUpForm = () => {
       // Create request body (excluding confirmPassword)
       const { confirmPassword, ...requestBody } = formData;
       
-      // Make API request
-      const response = await fetch('http://35.244.16.191:2232/user/registration', {
+      // Make API request with the new IP address
+      const response = await fetch('http://34.47.197.96:2232/user/registration', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
