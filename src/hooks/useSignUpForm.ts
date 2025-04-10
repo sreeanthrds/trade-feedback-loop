@@ -32,6 +32,7 @@ export const useSignUpForm = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [apiResponse, setApiResponse] = useState<any>(null);
   const { signUp } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -76,20 +77,25 @@ export const useSignUpForm = () => {
     
     setError(null);
     setIsSubmitting(true);
+    setApiResponse(null);
     
     try {
       const { confirmPassword, ...requestBody } = formData;
       
+      // Skip Supabase attempt and go directly to API for debugging
+      console.log("Attempting API registration call with credentials:", JSON.stringify(requestBody));
+      
       try {
-        const supabaseResult = await supabaseSignUp();
-        if (supabaseResult.error) {
-          // Fix: Properly handle error which could be string or object with message
-          const errorMessage = typeof supabaseResult.error === 'string' 
-            ? supabaseResult.error 
-            : (supabaseResult.error as ErrorWithMessage | undefined)?.message || 'Unknown error';
-            
-          console.log("Supabase signup fallback failed, continuing with API attempt:", errorMessage);
-        } else {
+        const response = await authService.register(requestBody);
+        console.log("API registration response:", response);
+        setApiResponse(response);
+        
+        toast({
+          title: "Registration Attempt",
+          description: "See console for full API response details"
+        });
+        
+        if (response.success) {
           toast({
             title: "Account created",
             description: "Your account has been created successfully"
@@ -97,43 +103,34 @@ export const useSignUpForm = () => {
           
           setTimeout(() => {
             navigate('/app', { replace: true });
-          }, 500);
-          return;
+          }, 2000);
+        } else {
+          setError(response.message || "Registration failed with an unknown error");
         }
-      } catch (supabaseError) {
-        console.log("Supabase signup attempt failed, continuing with API:", supabaseError);
+      } catch (apiError: any) {
+        console.error("API registration error:", apiError);
+        setApiResponse({ error: apiError.message || "Failed to connect to registration API" });
+        setError(apiError.message || "Registration failed. Please try again.");
+        
+        // Fall back to mock user in development
+        if (process.env.NODE_ENV === 'development') {
+          console.log("Development mode: creating mock user as fallback");
+          authService.createMockUser(formData);
+          
+          toast({
+            title: "Development Mode",
+            description: "Created mock user account since API connection failed"
+          });
+          
+          setTimeout(() => {
+            navigate('/app', { replace: true });
+          }, 2000);
+        }
       }
-      
-      console.log("Attempting API registration call with credentials:", JSON.stringify(requestBody));
-      const response = await authService.register(requestBody);
-      
-      toast({
-        title: "Account created",
-        description: "Your account has been created successfully"
-      });
-      
-      setTimeout(() => {
-        navigate('/app', { replace: true });
-      }, 500);
-      
     } catch (err: any) {
       console.error('Registration error:', err);
-      
-      if (process.env.NODE_ENV === 'development') {
-        console.log("Development mode: creating mock user as fallback");
-        authService.createMockUser(formData);
-        
-        toast({
-          title: "Development Mode",
-          description: "Created mock user account since API connection failed"
-        });
-        
-        setTimeout(() => {
-          navigate('/app', { replace: true });
-        }, 500);
-      } else {
-        setError(err.message || 'Registration failed. Please try again.');
-      }
+      setApiResponse({ error: err.message || "Unknown error occurred" });
+      setError(err.message || 'Registration failed. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -143,6 +140,7 @@ export const useSignUpForm = () => {
     formData,
     isSubmitting,
     error,
+    apiResponse,
     handleChange,
     handleSubmit,
     setError

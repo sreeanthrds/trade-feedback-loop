@@ -13,6 +13,7 @@ const SignUpForm = () => {
     formData, 
     isSubmitting, 
     error, 
+    apiResponse,
     handleChange, 
     handleSubmit, 
     setError 
@@ -32,6 +33,17 @@ const SignUpForm = () => {
       <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting ? 'Creating Account...' : 'Create Account'}
       </Button>
+      
+      {apiResponse && (
+        <Alert className={apiResponse.success ? "bg-green-50 border-green-200" : "bg-yellow-50 border-yellow-200"}>
+          <div className="text-sm">
+            <strong>API Response:</strong>
+            <pre className="mt-2 text-xs overflow-auto max-h-40 p-2 bg-gray-100 rounded">
+              {JSON.stringify(apiResponse, null, 2)}
+            </pre>
+          </div>
+        </Alert>
+      )}
       
       <div className="relative my-2">
         <div className="absolute inset-0 flex items-center">
