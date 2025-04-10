@@ -6,14 +6,32 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SignInForm from '@/components/auth/SignInForm';
 import SignUpForm from '@/components/auth/SignUpForm';
 import { useAuth } from '@/contexts/auth';
+import { useToast } from '@/hooks/use-toast';
 
 const AuthPage = () => {
   const { isAuthenticated, isLoading } = useAuth();
+  const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
   
   // Get the intended destination from state, or default to /app
   const from = location.state?.from?.pathname || '/app';
+  
+  // Check for success message in query params (for redirect after signup)
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const successMessage = searchParams.get('message');
+    
+    if (successMessage) {
+      toast({
+        title: "Success",
+        description: decodeURIComponent(successMessage),
+      });
+      
+      // Clean up the URL
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location, navigate, toast]);
   
   // Redirect if already authenticated
   useEffect(() => {

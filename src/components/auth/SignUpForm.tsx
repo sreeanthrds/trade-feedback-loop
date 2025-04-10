@@ -10,38 +10,82 @@ import { AlertCircle, Facebook } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 const SignUpForm = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [formData, setFormData] = useState({
+    first_name: '',
+    last_name: '',
+    phone_number: '',
+    email_id: '',
+    username: '',
+    password: '',
+    confirmPassword: ''
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { signUp, signInWithProvider } = useAuth();
+  const { signInWithProvider } = useAuth();
   const navigate = useNavigate();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+      // Auto-populate username with email if they're the same
+      ...(name === 'email_id' ? { username: value } : {})
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     
     // Validate passwords match
-    if (password !== confirmPassword) {
+    if (formData.password !== formData.confirmPassword) {
       setError("Passwords don't match");
       return;
+    }
+    
+    // Validate required fields
+    const requiredFields = ['first_name', 'last_name', 'phone_number', 'email_id', 'password'];
+    for (const field of requiredFields) {
+      if (!formData[field as keyof typeof formData]) {
+        setError(`${field.replace('_', ' ')} is required`);
+        return;
+      }
     }
     
     setIsSubmitting(true);
     
     try {
-      const result = await signUp(email, password);
-      if (!result.success && result.error) {
-        setError(result.error);
-      } else if (result.success) {
-        // Force navigation to app route after successful signup
-        console.log("Signup successful, redirecting...");
-        // Give auth state a moment to update before redirecting
-        setTimeout(() => {
-          navigate('/app', { replace: true });
-        }, 500);
+      // Create request body (excluding confirmPassword)
+      const { confirmPassword, ...requestBody } = formData;
+      
+      // Make API request
+      const response = await fetch('http://35.244.16.191:2232/user/registration', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-client-id': 'trady'
+        },
+        body: JSON.stringify(requestBody)
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed');
       }
+      
+      // Success - show toast and redirect
+      console.log("Signup successful:", data);
+      
+      // Navigate to sign-in tab or app
+      setTimeout(() => {
+        navigate('/app', { replace: true });
+      }, 500);
+      
+    } catch (err: any) {
+      console.error('Registration error:', err);
+      setError(err.message || 'Registration failed. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -67,41 +111,89 @@ const SignUpForm = () => {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
+      
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="first_name">First Name</Label>
+          <Input 
+            id="first_name"
+            name="first_name"
+            type="text"
+            placeholder="John"
+            value={formData.first_name}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="last_name">Last Name</Label>
+          <Input 
+            id="last_name"
+            name="last_name"
+            type="text"
+            placeholder="Doe"
+            value={formData.last_name}
+            onChange={handleChange}
+            required
+          />
+        </div>
+      </div>
+      
       <div className="space-y-2">
-        <Label htmlFor="signup-email">Email</Label>
+        <Label htmlFor="phone_number">Phone Number</Label>
         <Input 
-          id="signup-email" 
-          type="email" 
-          placeholder="your@email.com" 
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          id="phone_number"
+          name="phone_number"
+          type="tel"
+          placeholder="1234567890"
+          value={formData.phone_number}
+          onChange={handleChange}
           required
         />
       </div>
+      
       <div className="space-y-2">
-        <Label htmlFor="signup-password">Password</Label>
+        <Label htmlFor="email_id">Email</Label>
         <Input 
-          id="signup-password" 
-          type="password" 
-          placeholder="••••••••" 
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          id="email_id"
+          name="email_id"
+          type="email"
+          placeholder="your@email.com"
+          value={formData.email_id}
+          onChange={handleChange}
+          required
+        />
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="password">Password</Label>
+        <Input 
+          id="password"
+          name="password"
+          type="password"
+          placeholder="••••••••"
+          value={formData.password}
+          onChange={handleChange}
           required
           minLength={6}
         />
       </div>
+      
       <div className="space-y-2">
-        <Label htmlFor="signup-confirm-password">Confirm Password</Label>
+        <Label htmlFor="confirmPassword">Confirm Password</Label>
         <Input 
-          id="signup-confirm-password" 
-          type="password" 
-          placeholder="••••••••" 
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
+          id="confirmPassword"
+          name="confirmPassword"
+          type="password"
+          placeholder="••••••••"
+          value={formData.confirmPassword}
+          onChange={handleChange}
           required
           minLength={6}
         />
       </div>
+      
       <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting ? 'Creating Account...' : 'Create Account'}
       </Button>
