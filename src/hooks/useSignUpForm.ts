@@ -78,9 +78,10 @@ export const useSignUpForm = () => {
       try {
         const supabaseResult = await supabaseSignUp();
         if (supabaseResult.error) {
+          // Fix: Properly handle error which could be string or object with message
           const errorMessage = typeof supabaseResult.error === 'string' 
             ? supabaseResult.error 
-            : supabaseResult.error.message || 'Unknown error';
+            : supabaseResult.error?.message || 'Unknown error';
             
           console.log("Supabase signup fallback failed, continuing with API attempt:", errorMessage);
         } else {
