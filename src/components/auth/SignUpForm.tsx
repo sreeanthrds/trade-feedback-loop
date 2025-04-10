@@ -38,13 +38,11 @@ const SignUpForm = () => {
     e.preventDefault();
     setError(null);
     
-    // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords don't match");
       return;
     }
     
-    // Validate required fields
     const requiredFields = ['first_name', 'last_name', 'phone_number', 'email_id', 'username', 'password'];
     for (const field of requiredFields) {
       if (!formData[field as keyof typeof formData]) {
@@ -56,16 +54,17 @@ const SignUpForm = () => {
     setIsSubmitting(true);
     
     try {
-      // Create request body (excluding confirmPassword)
       const { confirmPassword, ...requestBody } = formData;
       
-      // First try Supabase authentication (as fallback)
       try {
-        const { error } = await supabaseSignUp();
-        if (error) {
-          console.log("Supabase signup fallback failed, continuing with API attempt:", error.message);
+        const supabaseResult = await supabaseSignUp();
+        if (supabaseResult.error) {
+          const errorMessage = typeof supabaseResult.error === 'string' 
+            ? supabaseResult.error 
+            : supabaseResult.error.message || 'Unknown error';
+            
+          console.log("Supabase signup fallback failed, continuing with API attempt:", errorMessage);
         } else {
-          // If Supabase is successful, skip API call
           toast({
             title: "Account created",
             description: "Your account has been created successfully"
@@ -80,7 +79,6 @@ const SignUpForm = () => {
         console.log("Supabase signup attempt failed, continuing with API:", supabaseError);
       }
       
-      // Try with API call (with CORS mode)
       console.log("Attempting API registration call with credentials:", JSON.stringify(requestBody));
       const response = await fetch('http://34.47.197.96:2232/user/registration', {
         method: 'POST',
@@ -88,11 +86,10 @@ const SignUpForm = () => {
           'Content-Type': 'application/json',
           'x-client-id': 'trady'
         },
-        mode: 'cors', // Explicitly request CORS
+        mode: 'cors',
         body: JSON.stringify(requestBody)
       });
       
-      // Handle response - we may not get here if CORS blocks
       if (response && response.ok) {
         const data = await response.json();
         console.log("Signup successful:", data);
@@ -105,18 +102,15 @@ const SignUpForm = () => {
           navigate('/app', { replace: true });
         }, 500);
       } else if (response) {
-        // We got a response but it's an error
         const errorData = await response.json();
         throw new Error(errorData.message || 'Registration failed');
       } else {
-        // No response object at all
         throw new Error('Network error - could not connect to registration service');
       }
       
     } catch (err: any) {
       console.error('Registration error:', err);
       
-      // Implementation with fallback to mock auth
       if (process.env.NODE_ENV === 'development') {
         console.log("Development mode: creating mock user as fallback");
         localStorage.setItem('mock_current_user', JSON.stringify({
@@ -142,8 +136,8 @@ const SignUpForm = () => {
   };
 
   const supabaseSignUp = async () => {
-    const { data, error } = await useAuth().signUp(formData.email_id, formData.password);
-    return { data, error };
+    const result = await useAuth().signUp(formData.email_id, formData.password);
+    return result;
   };
 
   const handleSocialLogin = async (provider: 'google' | 'facebook') => {
