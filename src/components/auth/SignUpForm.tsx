@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -31,7 +30,6 @@ const SignUpForm = () => {
     setFormData(prev => ({
       ...prev,
       [name]: value,
-      // Auto-populate username with email if they're both empty or email was changed
       ...(name === 'email_id' && !prev.username ? { username: value } : {})
     }));
   };
@@ -61,40 +59,91 @@ const SignUpForm = () => {
       // Create request body (excluding confirmPassword)
       const { confirmPassword, ...requestBody } = formData;
       
-      // Make API request with the new IP address
+      // First try Supabase authentication (as fallback)
+      try {
+        const { error } = await supabaseSignUp();
+        if (error) {
+          console.log("Supabase signup fallback failed, continuing with API attempt:", error.message);
+        } else {
+          // If Supabase is successful, skip API call
+          toast({
+            title: "Account created",
+            description: "Your account has been created successfully"
+          });
+          
+          setTimeout(() => {
+            navigate('/app', { replace: true });
+          }, 500);
+          return;
+        }
+      } catch (supabaseError) {
+        console.log("Supabase signup attempt failed, continuing with API:", supabaseError);
+      }
+      
+      // Try with API call (with CORS mode)
+      console.log("Attempting API registration call with credentials:", JSON.stringify(requestBody));
       const response = await fetch('http://34.47.197.96:2232/user/registration', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-client-id': 'trady'
         },
+        mode: 'cors', // Explicitly request CORS
         body: JSON.stringify(requestBody)
       });
       
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Registration failed');
+      // Handle response - we may not get here if CORS blocks
+      if (response && response.ok) {
+        const data = await response.json();
+        console.log("Signup successful:", data);
+        toast({
+          title: "Account created",
+          description: "Your account has been created successfully"
+        });
+        
+        setTimeout(() => {
+          navigate('/app', { replace: true });
+        }, 500);
+      } else if (response) {
+        // We got a response but it's an error
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Registration failed');
+      } else {
+        // No response object at all
+        throw new Error('Network error - could not connect to registration service');
       }
-      
-      // Success - show toast and redirect
-      console.log("Signup successful:", data);
-      toast({
-        title: "Account created",
-        description: "Your account has been created successfully"
-      });
-      
-      // Navigate to sign-in tab or app
-      setTimeout(() => {
-        navigate('/app', { replace: true });
-      }, 500);
       
     } catch (err: any) {
       console.error('Registration error:', err);
-      setError(err.message || 'Registration failed. Please try again.');
+      
+      // Implementation with fallback to mock auth
+      if (process.env.NODE_ENV === 'development') {
+        console.log("Development mode: creating mock user as fallback");
+        localStorage.setItem('mock_current_user', JSON.stringify({
+          id: `mock-user-${Date.now()}`,
+          email: formData.email_id,
+          name: `${formData.first_name} ${formData.last_name}`
+        }));
+        
+        toast({
+          title: "Development Mode",
+          description: "Created mock user account since API connection failed"
+        });
+        
+        setTimeout(() => {
+          navigate('/app', { replace: true });
+        }, 500);
+      } else {
+        setError(err.message || 'Registration failed. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const supabaseSignUp = async () => {
+    const { data, error } = await useAuth().signUp(formData.email_id, formData.password);
+    return { data, error };
   };
 
   const handleSocialLogin = async (provider: 'google' | 'facebook') => {
