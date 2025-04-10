@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/auth';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Facebook } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/hooks/use-toast';
 
 const SignUpForm = () => {
   const [formData, setFormData] = useState({
@@ -23,14 +24,15 @@ const SignUpForm = () => {
   const [error, setError] = useState<string | null>(null);
   const { signInWithProvider } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value,
-      // Auto-populate username with email if they're the same
-      ...(name === 'email_id' ? { username: value } : {})
+      // Auto-populate username with email if they're both empty or email was changed
+      ...(name === 'email_id' && !prev.username ? { username: value } : {})
     }));
   };
 
@@ -45,7 +47,7 @@ const SignUpForm = () => {
     }
     
     // Validate required fields
-    const requiredFields = ['first_name', 'last_name', 'phone_number', 'email_id', 'password'];
+    const requiredFields = ['first_name', 'last_name', 'phone_number', 'email_id', 'username', 'password'];
     for (const field of requiredFields) {
       if (!formData[field as keyof typeof formData]) {
         setError(`${field.replace('_', ' ')} is required`);
@@ -77,6 +79,10 @@ const SignUpForm = () => {
       
       // Success - show toast and redirect
       console.log("Signup successful:", data);
+      toast({
+        title: "Account created",
+        description: "Your account has been created successfully"
+      });
       
       // Navigate to sign-in tab or app
       setTimeout(() => {
@@ -161,6 +167,19 @@ const SignUpForm = () => {
           type="email"
           placeholder="your@email.com"
           value={formData.email_id}
+          onChange={handleChange}
+          required
+        />
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="username">Username</Label>
+        <Input 
+          id="username"
+          name="username"
+          type="text"
+          placeholder="username"
+          value={formData.username}
           onChange={handleChange}
           required
         />
