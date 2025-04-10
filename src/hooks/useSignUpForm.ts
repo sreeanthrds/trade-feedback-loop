@@ -15,6 +15,11 @@ export interface SignUpFormData {
   confirmPassword: string;
 }
 
+// Define possible error types from Supabase
+interface ErrorWithMessage {
+  message: string;
+}
+
 export const useSignUpForm = () => {
   const [formData, setFormData] = useState<SignUpFormData>({
     first_name: '',
@@ -81,7 +86,7 @@ export const useSignUpForm = () => {
           // Fix: Properly handle error which could be string or object with message
           const errorMessage = typeof supabaseResult.error === 'string' 
             ? supabaseResult.error 
-            : supabaseResult.error?.message || 'Unknown error';
+            : (supabaseResult.error as ErrorWithMessage | undefined)?.message || 'Unknown error';
             
           console.log("Supabase signup fallback failed, continuing with API attempt:", errorMessage);
         } else {
