@@ -96,7 +96,12 @@ const SocialLoginButtons: React.FC<SocialLoginButtonsProps> = ({ onError }) => {
           <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
           <AlertDescription className="text-amber-600 dark:text-amber-400">
             <p className="font-medium">Running with mock authentication</p>
-            <p className="text-xs mt-1">Set VITE_SUPABASE_ANON_KEY in your .env file to enable real Google authentication.</p>
+            <p className="text-xs mt-1">To use real authentication:</p>
+            <ol className="text-xs list-decimal ml-4 mt-1">
+              <li>Create a <code>.env</code> file in the project root</li>
+              <li>Add <code>VITE_SUPABASE_ANON_KEY=your_anon_key</code></li>
+              <li>Restart your development server</li>
+            </ol>
           </AlertDescription>
         </Alert>
       )}

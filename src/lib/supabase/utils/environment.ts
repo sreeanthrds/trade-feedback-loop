@@ -28,7 +28,7 @@ export const getSupabaseStatus = (): { configured: boolean; message: string } =>
     configured: isConfigured,
     message: isConfigured 
       ? "Connected to Supabase - Google OAuth enabled"
-      : "Running in development mode with mock authentication. To use real Google authentication, set the Supabase environment variables."
+      : "Running in development mode with mock authentication. To use real Google authentication, create a .env file with VITE_SUPABASE_ANON_KEY."
   };
 };
 
@@ -38,7 +38,16 @@ export const getSupabaseStatus = (): { configured: boolean; message: string } =>
 export const warnIfSupabaseNotConfigured = (): void => {
   try {
     if (!isSupabaseConfigured()) {
-      console.warn('Supabase not configured with anon key. To use real authentication, add VITE_SUPABASE_ANON_KEY to your .env file.');
+      console.warn(`
+        -------------------------------------------------
+        Supabase not properly configured for authentication
+        -------------------------------------------------
+        To use real Google authentication:
+        1. Create a .env file in the project root
+        2. Add VITE_SUPABASE_ANON_KEY=your_anon_key
+        3. Restart your development server
+        -------------------------------------------------
+      `);
     }
   } catch (error) {
     console.error('Error in warnIfSupabaseNotConfigured:', error);

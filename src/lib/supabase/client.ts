@@ -17,8 +17,8 @@ try {
   if (isMissingConfig) {
     // Show a more helpful warning message
     console.warn(
-      'Missing Supabase configuration. This app is running in development mode with mock authentication. ' +
-      'To use real authentication, please set VITE_SUPABASE_ANON_KEY environment variable.'
+      'Missing Supabase configuration. Using mock authentication. ' +
+      'To use real Google authentication, please create a .env file in the project root with VITE_SUPABASE_ANON_KEY.'
     );
     
     // Create mock client but modify behavior to make it more usable in dev
@@ -27,9 +27,9 @@ try {
     // Add visual toast notification about missing config
     setTimeout(() => {
       toast({
-        title: "Using Mock Authentication",
-        description: "Set VITE_SUPABASE_ANON_KEY in your .env file to use real Google authentication.",
-        variant: "default",
+        title: "Missing Supabase Configuration",
+        description: "Create a .env file with VITE_SUPABASE_ANON_KEY to use real Google authentication.",
+        variant: "destructive",
         duration: 6000,
       });
     }, 1000);
