@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,10 +9,43 @@ import { useAuth } from '@/contexts/auth';
 import { useToast } from '@/hooks/use-toast';
 
 const AuthPage = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+  // Handle possible errors with useAuth
+  const [error, setError] = useState<string | null>(null);
+  const [isAuthReady, setIsAuthReady] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+  
+  // Safely get auth context
+  let authContext;
+  try {
+    authContext = useAuth();
+    // If we get here, auth context is available
+    if (!isAuthReady) {
+      setIsAuthReady(true);
+      console.log('Auth context successfully obtained');
+    }
+  } catch (err: any) {
+    // If auth context is not available, handle it gracefully
+    if (!error) {
+      console.error('Error accessing auth context:', err.message);
+      setError(err.message);
+    }
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-lg dark:bg-gray-800">
+          <h2 className="text-xl font-semibold text-center text-red-600 dark:text-red-400 mb-4">Authentication Error</h2>
+          <p className="text-gray-600 dark:text-gray-300">
+            There was a problem initializing the authentication system. Please refresh the page or try again later.
+          </p>
+          <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">{error}</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Destructure auth context after confirming it exists
+  const { isAuthenticated, isLoading } = authContext;
   
   // Get the intended destination from state, or default to /app
   const from = location.state?.from?.pathname || '/app';
@@ -35,12 +68,12 @@ const AuthPage = () => {
   
   // Redirect if already authenticated
   useEffect(() => {
-    if (!isLoading && isAuthenticated) {
+    if (isAuthReady && !isLoading && isAuthenticated) {
       console.log('User is authenticated, redirecting to:', from);
       // Force immediate redirect
       navigate(from, { replace: true });
     }
-  }, [isAuthenticated, isLoading, navigate, from]);
+  }, [isAuthenticated, isLoading, navigate, from, isAuthReady]);
 
   // If still loading auth state, show loading indicator
   if (isLoading) {

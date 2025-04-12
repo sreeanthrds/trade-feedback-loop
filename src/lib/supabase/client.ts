@@ -29,7 +29,7 @@ try {
       toast({
         title: "Using Mock Authentication",
         description: "Set VITE_SUPABASE_ANON_KEY in your .env file to use real Google authentication.",
-        variant: "warning",
+        variant: "default",
         duration: 6000,
       });
     }, 1000);

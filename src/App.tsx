@@ -51,55 +51,64 @@ const queryClient = new QueryClient({
 // Animation and page transitions observer
 const AppObserver = () => {
   useEffect(() => {
-    return () => {};
+    console.log('App observer mounted');
+    return () => console.log('App observer unmounted');
   }, []);
   
   return null;
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <BrowserRouter>
-            <AppObserver />
-            <Routes>
-              {/* Direct auth routes */}
-              <Route path="/auth" element={<AuthPage />} />
-              <Route path="/auth/callback" element={<AuthCallback />} />
-              
-              {/* Website Routes - no longer protected */}
-              <Route path="/" element={<WebsiteLayout><Index /></WebsiteLayout>} />
-              <Route path="/features" element={<WebsiteLayout><Features /></WebsiteLayout>} />
-              <Route path="/pricing" element={<WebsiteLayout><Pricing /></WebsiteLayout>} />
-              <Route path="/blog" element={<WebsiteLayout><Blog /></WebsiteLayout>} />
-              
-              {/* Protected App Routes */}
-              <Route path="/app" element={<ProtectedRoute><AppLayout><StrategiesLanding /></AppLayout></ProtectedRoute>} />
-              <Route path="/app/strategy-builder" element={<ProtectedRoute><AppLayout><StrategyBuilder /></AppLayout></ProtectedRoute>} />
-              <Route path="/app/backtesting" element={<ProtectedRoute><AppLayout><Backtesting /></AppLayout></ProtectedRoute>} />
-              <Route path="/app/backtesting/:id" element={<ProtectedRoute><AppLayout><Backtesting /></AppLayout></ProtectedRoute>} />
-              <Route path="/app/dashboard" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
-              <Route path="/app/account" element={<ProtectedRoute><AppLayout><Account /></AppLayout></ProtectedRoute>} />
-              
-              {/* Legacy routes - redirect to app routes */}
-              <Route path="/strategy-builder" element={<Navigate to="/app/strategy-builder" replace />} />
-              <Route path="/backtesting" element={<Navigate to="/app/backtesting" replace />} />
-              <Route path="/dashboard" element={<Navigate to="/app/dashboard" replace />} />
-              
-              {/* Documentation route - accessible without auth */}
-              <Route path="/documentation" element={<Documentation />} />
-              
-              {/* Catch-all */}
-              <Route path="*" element={<WebsiteLayout><NotFound /></WebsiteLayout>} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  // Debug logging to track App rendering
+  useEffect(() => {
+    console.log('App component mounted with providers');
+    return () => console.log('App component unmounted');
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <BrowserRouter>
+              <AppObserver />
+              <Routes>
+                {/* Direct auth routes */}
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/auth/callback" element={<AuthCallback />} />
+                
+                {/* Website Routes - no longer protected */}
+                <Route path="/" element={<WebsiteLayout><Index /></WebsiteLayout>} />
+                <Route path="/features" element={<WebsiteLayout><Features /></WebsiteLayout>} />
+                <Route path="/pricing" element={<WebsiteLayout><Pricing /></WebsiteLayout>} />
+                <Route path="/blog" element={<WebsiteLayout><Blog /></WebsiteLayout>} />
+                
+                {/* Protected App Routes */}
+                <Route path="/app" element={<ProtectedRoute><AppLayout><StrategiesLanding /></AppLayout></ProtectedRoute>} />
+                <Route path="/app/strategy-builder" element={<ProtectedRoute><AppLayout><StrategyBuilder /></AppLayout></ProtectedRoute>} />
+                <Route path="/app/backtesting" element={<ProtectedRoute><AppLayout><Backtesting /></AppLayout></ProtectedRoute>} />
+                <Route path="/app/backtesting/:id" element={<ProtectedRoute><AppLayout><Backtesting /></AppLayout></ProtectedRoute>} />
+                <Route path="/app/dashboard" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
+                <Route path="/app/account" element={<ProtectedRoute><AppLayout><Account /></AppLayout></ProtectedRoute>} />
+                
+                {/* Legacy routes - redirect to app routes */}
+                <Route path="/strategy-builder" element={<Navigate to="/app/strategy-builder" replace />} />
+                <Route path="/backtesting" element={<Navigate to="/app/backtesting" replace />} />
+                <Route path="/dashboard" element={<Navigate to="/app/dashboard" replace />} />
+                
+                {/* Documentation route - accessible without auth */}
+                <Route path="/documentation" element={<Documentation />} />
+                
+                {/* Catch-all */}
+                <Route path="*" element={<WebsiteLayout><NotFound /></WebsiteLayout>} />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

@@ -92,7 +92,7 @@ const SocialLoginButtons: React.FC<SocialLoginButtonsProps> = ({ onError }) => {
       </div>
       
       {!configured && (
-        <Alert variant="warning" className="bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800">
+        <Alert variant="default" className="bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800">
           <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
           <AlertDescription className="text-amber-600 dark:text-amber-400">
             <p className="font-medium">Running with mock authentication</p>

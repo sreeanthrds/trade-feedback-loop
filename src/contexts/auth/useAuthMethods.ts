@@ -140,7 +140,7 @@ export function useAuthMethods(
           toast({
             title: "Mock Authentication",
             description: "Using mock authentication due to missing Supabase configuration.",
-            variant: "warning",
+            variant: "default"
           });
         }, 1500);
         

@@ -74,10 +74,12 @@ export function useAuthState() {
       }
     };
     
+    console.log('useAuthState hook initialized');
     checkSession();
     const unsubscribe = setupAuthListener();
     
     return () => {
+      console.log('useAuthState hook cleanup');
       unsubscribe();
     };
   }, []);
