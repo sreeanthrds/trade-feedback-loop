@@ -11,15 +11,6 @@ const AuthCallback = () => {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        // Check if we have a hash in the URL
-        const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        const accessToken = hashParams.get('access_token');
-        
-        // If we find session info in the URL, update Supabase session
-        if (accessToken) {
-          console.log('Found access token in URL, updating session');
-        }
-        
         // Get current session info
         const { data, error } = await supabase.auth.getSession();
         

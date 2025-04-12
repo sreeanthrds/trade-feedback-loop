@@ -8,7 +8,8 @@
  */
 export const isSupabaseConfigured = (): boolean => {
   try {
-    const hasConfig = !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
+    // We now only need the anon key since we're hardcoding the URL
+    const hasConfig = !!import.meta.env.VITE_SUPABASE_ANON_KEY;
     return hasConfig;
   } catch (error) {
     console.error('Error checking Supabase configuration:', error);
@@ -36,7 +37,7 @@ export const getSupabaseStatus = (): { configured: boolean; message: string } =>
 export const warnIfSupabaseNotConfigured = (): void => {
   try {
     if (!isSupabaseConfigured()) {
-      console.warn('Supabase not configured, using local storage only');
+      console.warn('Supabase not configured with anon key, using local storage only');
     }
   } catch (error) {
     console.error('Error in warnIfSupabaseNotConfigured:', error);

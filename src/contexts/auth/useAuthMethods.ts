@@ -2,6 +2,7 @@
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { User, AuthResult } from './types';
+import { isSupabaseConfigured } from '@/lib/supabase/utils/environment';
 
 export function useAuthMethods(
   user: User, 
@@ -115,7 +116,8 @@ export function useAuthMethods(
     
     try {
       // Check if we're using real or mock Supabase
-      const isMockClient = !import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY;
+      const isMockClient = !isSupabaseConfigured();
+      
       if (isMockClient) {
         console.log(`Using mock client for ${provider} login`);
         // For mock client, create a fake user session
@@ -139,7 +141,7 @@ export function useAuthMethods(
         return { success: true };
       }
       
-      // Using real Supabase client
+      // Using real Supabase client with the configured Google OAuth credentials
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
@@ -171,7 +173,7 @@ export function useAuthMethods(
     } finally {
       // Only set loading to false for mock client
       // For real client, the page will redirect
-      if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+      if (!isSupabaseConfigured()) {
         setIsLoading(false);
       }
     }
