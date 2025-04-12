@@ -114,10 +114,40 @@ export function useAuthMethods(
     console.log(`Attempting to sign in with ${provider}`);
     
     try {
+      // Check if we're using real or mock Supabase
+      const isMockClient = !import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY;
+      if (isMockClient) {
+        console.log(`Using mock client for ${provider} login`);
+        // For mock client, create a fake user session
+        setTimeout(() => {
+          const mockUser = {
+            id: `mock-${provider}-${Date.now()}`,
+            email: `${provider}-user@example.com`,
+            provider: provider
+          };
+          
+          console.log(`Created mock user:`, mockUser);
+          setUser({
+            id: mockUser.id,
+            email: mockUser.email
+          });
+          
+          localStorage.setItem('mock_current_user', JSON.stringify(mockUser));
+          setIsLoading(false);
+        }, 1500);
+        
+        return { success: true };
+      }
+      
+      // Using real Supabase client
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: window.location.origin + '/auth/callback'
+          redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
         }
       });
       
@@ -139,7 +169,11 @@ export function useAuthMethods(
       console.error(`Sign in with ${provider} error:`, error);
       return { success: false, error: error.message || `Login with ${provider} failed` };
     } finally {
-      setIsLoading(false);
+      // Only set loading to false for mock client
+      // For real client, the page will redirect
+      if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+        setIsLoading(false);
+      }
     }
   };
 

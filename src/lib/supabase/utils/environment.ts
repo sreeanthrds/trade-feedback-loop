@@ -17,6 +17,20 @@ export const isSupabaseConfigured = (): boolean => {
 };
 
 /**
+ * Get the current environment status for Supabase
+ */
+export const getSupabaseStatus = (): { configured: boolean; message: string } => {
+  const isConfigured = isSupabaseConfigured();
+  
+  return {
+    configured: isConfigured,
+    message: isConfigured 
+      ? "Connected to Supabase - Google OAuth enabled"
+      : "Running in development mode with mock authentication. To use real Google authentication, set the Supabase environment variables."
+  };
+};
+
+/**
  * Log a warning if Supabase is not configured
  */
 export const warnIfSupabaseNotConfigured = (): void => {

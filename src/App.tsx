@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -18,6 +19,7 @@ import Pricing from "./pages/Pricing";
 import Blog from "./pages/Blog";
 import NotFound from "./pages/NotFound";
 import AuthPage from "./pages/AuthPage";
+import AuthCallback from "./pages/AuthCallback";
 
 // App Pages
 import StrategiesLanding from "./pages/StrategiesLanding";
@@ -64,8 +66,9 @@ const App = () => (
           <BrowserRouter>
             <AppObserver />
             <Routes>
-              {/* Direct auth route */}
+              {/* Direct auth routes */}
               <Route path="/auth" element={<AuthPage />} />
+              <Route path="/auth/callback" element={<AuthCallback />} />
               
               {/* Website Routes - no longer protected */}
               <Route path="/" element={<WebsiteLayout><Index /></WebsiteLayout>} />

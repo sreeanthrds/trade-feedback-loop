@@ -24,7 +24,15 @@ try {
     // Create mock client but modify behavior to make it more usable in dev
     supabase = createMockClient(true); // Pass true to enable dev-friendly mock mode
   } else {
-    supabase = createClient(supabaseUrl, supabaseAnonKey);
+    // Using real Supabase client with provided credentials
+    supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        flowType: 'pkce',
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true
+      }
+    });
     console.log('Supabase client initialized successfully with URL:', supabaseUrl);
   }
 } catch (error) {
