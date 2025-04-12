@@ -13,6 +13,7 @@ export function useAuthMethods(
   // Sign in function
   const signIn = async (email: string, password: string): Promise<AuthResult> => {
     setIsLoading(true);
+    console.log('Attempting to sign in with:', email);
     
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -21,6 +22,7 @@ export function useAuthMethods(
       });
       
       if (error) {
+        console.error('Sign in error:', error);
         toast({
           title: "Login failed",
           description: error.message,
@@ -30,6 +32,7 @@ export function useAuthMethods(
       }
       
       if (data && data.user) {
+        console.log('Sign in successful:', data.user);
         setUser({
           id: data.user.id,
           email: data.user.email || ''
@@ -54,6 +57,7 @@ export function useAuthMethods(
   // Sign up function
   const signUp = async (email: string, password: string): Promise<AuthResult> => {
     setIsLoading(true);
+    console.log('Attempting to sign up with:', email);
     
     try {
       const { data, error } = await supabase.auth.signUp({
@@ -62,6 +66,7 @@ export function useAuthMethods(
       });
       
       if (error) {
+        console.error('Sign up error:', error);
         toast({
           title: "Registration failed",
           description: error.message,
@@ -72,6 +77,7 @@ export function useAuthMethods(
       
       // If data.session exists, the user is automatically confirmed (happens in development)
       if (data && data.session) {
+        console.log('Sign up successful with auto-confirmation:', data.user);
         // Set user immediately for auto-confirmed accounts
         if (data.user) {
           setUser({
@@ -84,20 +90,13 @@ export function useAuthMethods(
           title: "Registration successful",
           description: "You're now logged in!"
         });
-      } else {
+      } else if (data && data.user) {
+        console.log('Sign up successful, confirmation required:', data.user);
         // For email confirmation flow
         toast({
           title: "Registration successful",
           description: "Please check your email for verification link."
         });
-      }
-      
-      // For development purposes, we can also set mock auth
-      if (process.env.NODE_ENV === 'development' && data.user) {
-        localStorage.setItem('mock_current_user', JSON.stringify({
-          id: data.user.id,
-          email: data.user.email || ''
-        }));
       }
       
       return { success: true };
@@ -112,33 +111,9 @@ export function useAuthMethods(
   // Sign in with social provider
   const signInWithProvider = async (provider: 'google' | 'facebook'): Promise<AuthResult> => {
     setIsLoading(true);
+    console.log(`Attempting to sign in with ${provider}`);
     
     try {
-      if (process.env.NODE_ENV === 'development' || !supabase.auth.signInWithOAuth) {
-        // Mock social auth for development
-        const mockId = `mock-${provider}-${Date.now()}`;
-        const mockEmail = `${provider}-user-${Date.now()}@example.com`;
-        
-        localStorage.setItem('mock_current_user', JSON.stringify({
-          id: mockId,
-          email: mockEmail,
-          provider
-        }));
-        
-        setUser({
-          id: mockId,
-          email: mockEmail
-        });
-        
-        toast({
-          title: `Mock ${provider} login successful`,
-          description: `You are now logged in with ${mockEmail}`,
-        });
-        
-        return { success: true };
-      }
-      
-      // Real implementation for production
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
@@ -147,6 +122,7 @@ export function useAuthMethods(
       });
       
       if (error) {
+        console.error(`Sign in with ${provider} error:`, error);
         toast({
           title: `${provider} login failed`,
           description: error.message,
@@ -155,6 +131,7 @@ export function useAuthMethods(
         return { success: false, error: error.message };
       }
       
+      console.log(`Sign in with ${provider} initiated:`, data);
       // This won't complete immediately as it redirects to the provider
       return { success: true };
       
@@ -169,21 +146,25 @@ export function useAuthMethods(
   // Sign out function
   const signOut = async (): Promise<void> => {
     setIsLoading(true);
+    console.log('Attempting to sign out');
     
     try {
-      await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut();
       
-      // Also clear mock auth if it exists
-      localStorage.removeItem('mock_current_user');
+      if (error) {
+        console.error('Sign out error:', error);
+        throw error;
+      }
       
       // Explicitly set user to null after logout
       setUser(null);
+      console.log('Sign out successful');
       
       toast({
         title: "Logged out",
         description: "You have been logged out successfully."
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Sign out error:', error);
       toast({
         title: "Error signing out",

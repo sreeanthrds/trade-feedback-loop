@@ -11,85 +11,75 @@ export function useAuthState() {
   useEffect(() => {
     const checkSession = async () => {
       setIsLoading(true);
+      console.log('Checking auth session');
       
       try {
-        // First, check localStorage for mock auth in development
-        const mockUser = localStorage.getItem('mock_current_user');
-        if (mockUser) {
-          try {
-            const parsedUser = JSON.parse(mockUser);
-            setUser({
-              id: parsedUser.id,
-              email: parsedUser.email || ''
-            });
-            setIsLoading(false);
-            return; // Exit early if we found a mock user
-          } catch (e) {
-            console.error('Error parsing mock user:', e);
-            // Continue with regular auth check
-          }
+        // Get current session
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Session check error:', error);
+          throw error;
         }
         
-        // Regular Supabase auth check
-        const { data } = await supabase.auth.getSession();
-        
         if (data && data.session) {
-          const { user } = data.session;
+          console.log('Active session found:', data.session.user);
           setUser({
-            id: user.id,
-            email: user.email || ''
+            id: data.session.user.id,
+            email: data.session.user.email || ''
           });
+        } else {
+          console.log('No active session found');
+          setUser(null);
         }
       } catch (error) {
         console.error('Session check error:', error);
+        setUser(null);
       } finally {
         setIsLoading(false);
       }
     };
     
-    try {
-      checkSession();
-      
-      // Listen for auth changes
-      const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-        if (session && session.user) {
-          setUser({
-            id: session.user.id,
-            email: session.user.email || ''
-          });
-        } else {
-          // Check for mock auth
-          const mockUser = localStorage.getItem('mock_current_user');
-          if (mockUser) {
-            try {
-              const parsedUser = JSON.parse(mockUser);
-              setUser({
-                id: parsedUser.id,
-                email: parsedUser.email || ''
-              });
-              return; // Exit early if we found a mock user
-            } catch (e) {
-              console.error('Error parsing mock user:', e);
-              // Continue with setting user to null
-            }
+    // Listen for auth changes
+    const setupAuthListener = () => {
+      try {
+        console.log('Setting up auth state listener');
+        const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+          console.log('Auth state changed:', event, session ? 'Session exists' : 'No session');
+          
+          if (session && session.user) {
+            console.log('User authenticated:', session.user);
+            setUser({
+              id: session.user.id,
+              email: session.user.email || ''
+            });
+          } else {
+            console.log('User logged out or session expired');
+            setUser(null);
           }
           
-          setUser(null);
-        }
+          setIsLoading(false);
+        });
         
+        return () => {
+          console.log('Cleaning up auth listener');
+          if (authListener && authListener.subscription) {
+            authListener.subscription.unsubscribe();
+          }
+        };
+      } catch (error) {
+        console.error('Auth listener setup error:', error);
         setIsLoading(false);
-      });
-      
-      return () => {
-        if (authListener && authListener.subscription) {
-          authListener.subscription.unsubscribe();
-        }
-      };
-    } catch (error) {
-      console.error('Auth provider setup error:', error);
-      setIsLoading(false);
-      return () => {};
-    }
+        return () => {};
+      }
+    };
+    
+    checkSession();
+    const unsubscribe = setupAuthListener();
+    
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   return {

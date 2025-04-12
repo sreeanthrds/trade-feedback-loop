@@ -25,7 +25,7 @@ try {
     supabase = createMockClient(true); // Pass true to enable dev-friendly mock mode
   } else {
     supabase = createClient(supabaseUrl, supabaseAnonKey);
-    console.log('Supabase client initialized successfully.');
+    console.log('Supabase client initialized successfully with URL:', supabaseUrl);
   }
 } catch (error) {
   console.error('Failed to initialize Supabase client:', error);

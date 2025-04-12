@@ -15,11 +15,6 @@ export interface SignUpFormData {
   confirmPassword: string;
 }
 
-// Define possible error types from Supabase
-interface ErrorWithMessage {
-  message: string;
-}
-
 export const useSignUpForm = () => {
   const [formData, setFormData] = useState<SignUpFormData>({
     first_name: '',
@@ -61,11 +56,6 @@ export const useSignUpForm = () => {
     return null;
   };
 
-  const supabaseSignUp = async () => {
-    const result = await signUp(formData.email_id, formData.password);
-    return result;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -80,52 +70,46 @@ export const useSignUpForm = () => {
     setApiResponse(null);
     
     try {
-      const { confirmPassword, ...requestBody } = formData;
+      // First attempt to register with Supabase
+      console.log('Attempting Supabase registration for:', formData.email_id);
+      const supabaseResult = await signUp(formData.email_id, formData.password);
       
-      // Skip Supabase attempt and go directly to API for debugging
-      console.log("Attempting API registration call with credentials:", JSON.stringify(requestBody));
-      
-      try {
-        const response = await authService.register(requestBody);
-        console.log("API registration response:", response);
-        setApiResponse(response);
+      if (supabaseResult.success) {
+        console.log('Supabase registration successful. Now registering with API.');
         
-        toast({
-          title: "Registration Attempt",
-          description: "See console for full API response details"
-        });
-        
-        if (response.success) {
-          toast({
-            title: "Account created",
-            description: "Your account has been created successfully"
-          });
+        // If Supabase registration is successful, also register with the API
+        try {
+          const { confirmPassword, ...requestBody } = formData;
+          const response = await authService.register(requestBody);
+          console.log("API registration response:", response);
+          setApiResponse(response);
           
-          setTimeout(() => {
-            navigate('/app', { replace: true });
-          }, 2000);
-        } else {
-          setError(response.message || "Registration failed with an unknown error");
-        }
-      } catch (apiError: any) {
-        console.error("API registration error:", apiError);
-        setApiResponse({ error: apiError.message || "Failed to connect to registration API" });
-        setError(apiError.message || "Registration failed. Please try again.");
-        
-        // Fall back to mock user in development
-        if (process.env.NODE_ENV === 'development') {
-          console.log("Development mode: creating mock user as fallback");
-          authService.createMockUser(formData);
+          if (response.success) {
+            toast({
+              title: "Account created",
+              description: "Your account has been created successfully"
+            });
+            
+            setTimeout(() => {
+              navigate('/app', { replace: true });
+            }, 2000);
+          } else {
+            setError(response.message || "API registration failed with an unknown error");
+          }
+        } catch (apiError: any) {
+          console.error("API registration error:", apiError);
+          setApiResponse({ error: apiError.message || "Failed to connect to registration API" });
+          setError(apiError.message || "Registration with API failed. However, your Supabase account was created.");
           
-          toast({
-            title: "Development Mode",
-            description: "Created mock user account since API connection failed"
-          });
-          
+          // Even if API fails, we can still navigate since Supabase registration was successful
           setTimeout(() => {
             navigate('/app', { replace: true });
           }, 2000);
         }
+      } else {
+        // If Supabase registration fails, show the error
+        console.error('Supabase registration failed:', supabaseResult.error);
+        setError(supabaseResult.error || "Registration failed. Please try again.");
       }
     } catch (err: any) {
       console.error('Registration error:', err);
