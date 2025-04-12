@@ -1,9 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Facebook } from 'lucide-react';
 import { useAuth } from '@/contexts/auth';
 import { getSupabaseStatus } from '@/lib/supabase/utils/environment';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle, AlertTriangle, InfoIcon } from 'lucide-react';
 
 interface SocialLoginButtonsProps {
   onError: (error: string) => void;
@@ -14,9 +16,16 @@ const SocialLoginButtons: React.FC<SocialLoginButtonsProps> = ({ onError }) => {
   const [loadingProvider, setLoadingProvider] = useState<'google' | 'facebook' | null>(null);
   const { configured } = getSupabaseStatus();
   
+  useEffect(() => {
+    // Log authentication status on mount
+    console.log('Supabase authentication configured:', configured);
+  }, [configured]);
+  
   const handleSocialLogin = async (provider: 'google' | 'facebook') => {
     try {
       setLoadingProvider(provider);
+      console.log(`Attempting to sign in with ${provider}, using real auth:`, configured);
+      
       const result = await signInWithProvider(provider);
       
       // If we're still here and not redirected (mock client), reset loading state
@@ -83,10 +92,23 @@ const SocialLoginButtons: React.FC<SocialLoginButtonsProps> = ({ onError }) => {
       </div>
       
       {!configured && (
-        <div className="text-xs text-amber-600 bg-amber-50 dark:bg-amber-900/20 dark:text-amber-400 p-2 rounded-md">
-          <p className="font-medium">Running in development mode</p>
-          <p>Set VITE_SUPABASE_ANON_KEY in your environment to enable real authentication.</p>
-        </div>
+        <Alert variant="warning" className="bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800">
+          <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+          <AlertDescription className="text-amber-600 dark:text-amber-400">
+            <p className="font-medium">Running with mock authentication</p>
+            <p className="text-xs mt-1">Set VITE_SUPABASE_ANON_KEY in your .env file to enable real Google authentication.</p>
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      {configured && (
+        <Alert className="bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800">
+          <InfoIcon className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+          <AlertDescription className="text-emerald-600 dark:text-emerald-400">
+            <p className="font-medium">Google OAuth enabled</p>
+            <p className="text-xs mt-1">Using real authentication with your Supabase configuration.</p>
+          </AlertDescription>
+        </Alert>
       )}
     </div>
   );

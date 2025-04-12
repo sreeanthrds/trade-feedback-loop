@@ -119,7 +119,7 @@ export function useAuthMethods(
       const isMockClient = !isSupabaseConfigured();
       
       if (isMockClient) {
-        console.log(`Using mock client for ${provider} login`);
+        console.log(`Using mock client for ${provider} login (Missing VITE_SUPABASE_ANON_KEY)`);
         // For mock client, create a fake user session
         setTimeout(() => {
           const mockUser = {
@@ -136,12 +136,19 @@ export function useAuthMethods(
           
           localStorage.setItem('mock_current_user', JSON.stringify(mockUser));
           setIsLoading(false);
+          
+          toast({
+            title: "Mock Authentication",
+            description: "Using mock authentication due to missing Supabase configuration.",
+            variant: "warning",
+          });
         }, 1500);
         
         return { success: true };
       }
       
       // Using real Supabase client with the configured Google OAuth credentials
+      console.log(`Using real Supabase client for ${provider} authentication`);
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
@@ -163,7 +170,13 @@ export function useAuthMethods(
         return { success: false, error: error.message };
       }
       
-      console.log(`Sign in with ${provider} initiated:`, data);
+      console.log(`Sign in with ${provider} initiated, redirecting to:`, data?.url);
+      
+      // Actually redirect to the OAuth provider
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+      
       // This won't complete immediately as it redirects to the provider
       return { success: true };
       

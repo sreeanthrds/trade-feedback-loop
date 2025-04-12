@@ -23,6 +23,16 @@ try {
     
     // Create mock client but modify behavior to make it more usable in dev
     supabase = createMockClient(true); // Pass true to enable dev-friendly mock mode
+    
+    // Add visual toast notification about missing config
+    setTimeout(() => {
+      toast({
+        title: "Using Mock Authentication",
+        description: "Set VITE_SUPABASE_ANON_KEY in your .env file to use real Google authentication.",
+        variant: "warning",
+        duration: 6000,
+      });
+    }, 1000);
   } else {
     // Using real Supabase client with provided credentials
     supabase = createClient(supabaseUrl, supabaseAnonKey, {
@@ -34,10 +44,29 @@ try {
       }
     });
     console.log('Supabase client initialized successfully with URL:', supabaseUrl);
+    
+    // Add success toast notification
+    setTimeout(() => {
+      toast({
+        title: "Supabase Connected",
+        description: "Using real authentication with Google OAuth.",
+        duration: 4000,
+      });
+    }, 1000);
   }
 } catch (error) {
   console.error('Failed to initialize Supabase client:', error);
   supabase = createMockClient(true);
+  
+  // Add error toast notification
+  setTimeout(() => {
+    toast({
+      title: "Supabase Error",
+      description: "Failed to initialize Supabase. Using mock authentication.",
+      variant: "destructive",
+      duration: 5000,
+    });
+  }, 1000);
 }
 
 export { supabase };

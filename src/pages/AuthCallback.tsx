@@ -11,6 +11,8 @@ const AuthCallback = () => {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
+        console.log('Auth callback page loaded, processing OAuth response...');
+        
         // Get current session info
         const { data, error } = await supabase.auth.getSession();
         
@@ -28,14 +30,24 @@ const AuthCallback = () => {
         if (data?.session) {
           // Auth successful, show success message
           console.log('Authentication successful:', data.session);
+          
+          // Extract provider from user metadata if available
+          const provider = data.session.user?.app_metadata?.provider || 'OAuth';
+          
           toast({
             title: 'Authentication Successful',
-            description: 'You have been signed in successfully.',
+            description: `You have been signed in successfully with ${provider}.`,
           });
+          
           // Redirect to app dashboard
           navigate('/app');
         } else {
           console.log('No session found after OAuth callback');
+          toast({
+            title: 'Authentication Failed',
+            description: 'No session was created. Please try again.',
+            variant: 'destructive',
+          });
           navigate('/auth');
         }
       } catch (error) {
