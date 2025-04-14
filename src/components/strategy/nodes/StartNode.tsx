@@ -31,10 +31,19 @@ const StartNode = ({ data, id }: StartNodeProps) => {
     if (data.indicatorParameters[key]) {
       const params = data.indicatorParameters[key];
       
-      // Format all parameters into a single, readable string - only values
-      const paramList = Object.values(params).join(',');
+      // Create a copy without indicator_name
+      const displayParams = { ...params };
+      delete displayParams.indicator_name;
       
-      return `${baseName}(${paramList})`;
+      // Format parameters into a string - only include if there are actual values
+      const paramValues = Object.values(displayParams);
+      if (paramValues.length > 0 && paramValues.some(val => val !== undefined && val !== null && val !== '')) {
+        const paramList = paramValues.join(',');
+        return `${baseName}(${paramList})`;
+      }
+      
+      // Return just the name if no valid parameters
+      return baseName;
     }
     
     return key;

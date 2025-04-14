@@ -1,3 +1,4 @@
+
 import { Expression, Condition, GroupCondition } from './types';
 
 // Helper function to get display name for indicators (similar to StartNode.tsx)
@@ -10,10 +11,19 @@ export const getIndicatorDisplayName = (key: string, nodeData?: any): string => 
   if (nodeData.indicatorParameters[key]) {
     const params = nodeData.indicatorParameters[key];
     
-    // Format all parameters into a single, readable string - only values
-    const paramList = Object.values(params).join(',');
+    // Create a copy without indicator_name if it exists
+    const displayParams = { ...params };
+    delete displayParams.indicator_name;
     
-    return `${baseName}(${paramList})`;
+    // Only include parameters if there are valid values
+    const paramValues = Object.values(displayParams);
+    if (paramValues.length > 0 && paramValues.some(val => val !== undefined && val !== null && val !== '')) {
+      const paramList = paramValues.join(',');
+      return `${baseName}(${paramList})`;
+    }
+    
+    // Return just the base name if no valid parameters
+    return baseName;
   }
   
   return key;

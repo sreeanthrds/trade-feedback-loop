@@ -100,10 +100,15 @@ export const useIndicatorSelector = ({ expression, updateExpression }: UseIndica
       const displayParams = { ...params };
       delete displayParams.indicator_name;
       
-      // Format all parameters into a single, readable string - only values
-      const paramList = Object.values(displayParams).join(',');
+      // Only include parentheses with values if there are actual valid parameter values
+      const paramValues = Object.values(displayParams);
+      if (paramValues.length > 0 && paramValues.some(val => val !== undefined && val !== null && val !== '')) {
+        const paramList = paramValues.join(',');
+        return `${baseName}(${paramList})`;
+      }
       
-      return `${baseName}(${paramList})`;
+      // Return just the name if no valid parameters
+      return baseName;
     }
     
     return key;
