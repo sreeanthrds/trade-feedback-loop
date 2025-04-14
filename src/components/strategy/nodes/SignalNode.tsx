@@ -23,12 +23,12 @@ const SignalNode = ({ data, id }: SignalNodeProps) => {
   
   // Determine if we have any conditions to display
   const hasEntryConditions = conditions.length > 0 && 
-    conditions[0].conditions && 
-    conditions[0].conditions.length > 0;
+    conditions[0]?.conditions && 
+    conditions[0]?.conditions.length > 0;
     
   const hasExitConditions = exitConditions.length > 0 && 
-    exitConditions[0].conditions && 
-    exitConditions[0].conditions.length > 0;
+    exitConditions[0]?.conditions && 
+    exitConditions[0]?.conditions.length > 0;
   
   // Format complex conditions for display
   const entryConditionDisplay = useMemo(() => {
@@ -40,7 +40,12 @@ const SignalNode = ({ data, id }: SignalNodeProps) => {
       
       // Pass start node data to the condition formatter
       if (startNode && startNode.data) {
-        return groupConditionToString(conditions[0], startNode.data);
+        const displayString = groupConditionToString(conditions[0], startNode.data);
+        // Check for "Invalid condition" in the string to set warning style
+        if (displayString.includes('Invalid') || displayString.includes('error')) {
+          console.warn(`Potential issue with condition display: ${displayString}`);
+        }
+        return displayString;
       } else {
         console.warn("Start node data not available for formatting conditions");
         return groupConditionToString(conditions[0]);
@@ -53,7 +58,7 @@ const SignalNode = ({ data, id }: SignalNodeProps) => {
   
   // Count total condition expressions for display
   const countConditions = (group: GroupCondition): number => {
-    if (!group.conditions) return 0;
+    if (!group?.conditions) return 0;
     
     return group.conditions.reduce((total, cond) => {
       if ('groupLogic' in cond) {

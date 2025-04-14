@@ -21,8 +21,8 @@ const ExitSignalNode = ({ data, id }: ExitSignalNodeProps) => {
   
   // Determine if we have any conditions to display
   const hasExitConditions = conditions.length > 0 && 
-    conditions[0].conditions && 
-    conditions[0].conditions.length > 0;
+    conditions[0]?.conditions && 
+    conditions[0]?.conditions.length > 0;
   
   // Format complex conditions for display
   const exitConditionDisplay = useMemo(() => {
@@ -33,7 +33,17 @@ const ExitSignalNode = ({ data, id }: ExitSignalNodeProps) => {
       const startNode = strategyStore.nodes.find(node => node.type === 'startNode');
       
       // Pass start node data to the condition formatter
-      return groupConditionToString(conditions[0], startNode?.data);
+      if (startNode && startNode.data) {
+        const displayString = groupConditionToString(conditions[0], startNode.data);
+        // Check for "Invalid condition" in the string to set warning style
+        if (displayString.includes('Invalid') || displayString.includes('error')) {
+          console.warn(`Potential issue with condition display: ${displayString}`);
+        }
+        return displayString;
+      } else {
+        console.warn("Start node data not available for formatting conditions");
+        return groupConditionToString(conditions[0]);
+      }
     } catch (error) {
       console.error("Error formatting exit conditions:", error);
       return "Invalid condition structure";
@@ -42,6 +52,8 @@ const ExitSignalNode = ({ data, id }: ExitSignalNodeProps) => {
   
   // Count total condition expressions for display
   const countConditions = (group: GroupCondition): number => {
+    if (!group?.conditions) return 0;
+    
     return group.conditions.reduce((total, cond) => {
       if ('groupLogic' in cond) {
         return total + countConditions(cond as GroupCondition);
