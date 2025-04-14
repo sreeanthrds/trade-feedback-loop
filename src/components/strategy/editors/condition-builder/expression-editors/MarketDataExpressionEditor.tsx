@@ -74,7 +74,7 @@ const MarketDataExpressionEditor: React.FC<MarketDataExpressionEditorProps> = ({
   return (
     <div className="space-y-2">
       <div className="text-xs text-muted-foreground mb-1">
-        {instrumentName} Price Data
+        {instrumentName} Data
       </div>
       
       <Select 
