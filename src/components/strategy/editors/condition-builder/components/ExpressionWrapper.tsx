@@ -26,7 +26,7 @@ const ExpressionWrapper: React.FC<ExpressionWrapperProps> = ({
   const { getNodes } = useReactFlow();
   
   // Get the current instrument symbol from the start node
-  const getInstrumentName = () => {
+  const getInstrumentName = (): string => {
     const nodes = getNodes();
     const startNode = nodes.find(node => node.type === 'startNode');
     

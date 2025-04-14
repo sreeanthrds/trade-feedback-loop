@@ -12,7 +12,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { Label } from '@/components/ui/label';
 import FieldTooltip from '../../shared/FieldTooltip';
 import CandleOffsetSelector from '../components/CandleOffsetSelector';
 import { useReactFlow } from '@xyflow/react';
@@ -37,7 +36,7 @@ const MarketDataExpressionEditor: React.FC<MarketDataExpressionEditorProps> = ({
   const marketDataExpr = expression as MarketDataExpression;
   
   // Get the current instrument symbol from the start node
-  const getInstrumentName = () => {
+  const getInstrumentName = (): string => {
     const nodes = getNodes();
     const startNode = nodes.find(node => node.type === 'startNode');
     

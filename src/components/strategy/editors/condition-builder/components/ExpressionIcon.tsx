@@ -27,7 +27,7 @@ const ExpressionIcon: React.FC<ExpressionIconProps> = ({
   const iconProps = { className };
   
   // Get the current instrument from subType if available
-  const getFormattedType = () => {
+  const getFormattedType = (): string => {
     if (type === 'market_data') {
       return 'Instrument Price';
     }
