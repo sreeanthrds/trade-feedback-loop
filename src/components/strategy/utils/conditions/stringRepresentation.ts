@@ -1,4 +1,3 @@
-
 import { Expression, Condition, GroupCondition } from './types';
 
 // Helper function to get display name for indicators (similar to StartNode.tsx)
@@ -18,6 +17,14 @@ export const getIndicatorDisplayName = (key: string, nodeData?: any): string => 
   }
   
   return key;
+};
+
+// Helper function to get the instrument name from node data
+const getInstrumentName = (nodeData?: any): string => {
+  if (!nodeData) return 'Instrument';
+  
+  // Return the symbol from node data or a default if not found
+  return nodeData.symbol || 'Instrument';
 };
 
 // Convert an expression to a readable string
@@ -42,7 +49,15 @@ export const expressionToString = (expr: Expression, nodeData?: any): string => 
       return indicatorDisplay;
     
     case 'market_data':
-      let fieldDisplay = expr.sub_indicator ? `${expr.field}.${expr.sub_indicator}` : expr.field;
+      // Get instrument name from node data, defaults to "Instrument" if not found
+      const instrumentName = getInstrumentName(nodeData);
+      
+      // Create a field display with the instrument name prefix
+      let fieldDisplay = `${instrumentName}.${expr.field}`;
+      if (expr.sub_indicator) {
+        fieldDisplay = `${fieldDisplay}.${expr.sub_indicator}`;
+      }
+      
       // Add offset display if present
       if (expr.offset && expr.offset < 0) {
         if (expr.offset === -1) {

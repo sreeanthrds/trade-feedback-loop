@@ -15,6 +15,7 @@ import {
   ExecutionDataExpressionEditor,
   ExternalTriggerExpressionEditor
 } from './expression-editors';
+import { useReactFlow } from '@xyflow/react';
 
 interface ExpressionEditorProps {
   expression: Expression;
@@ -25,6 +26,17 @@ const ExpressionEditor: React.FC<ExpressionEditorProps> = ({
   expression,
   updateExpression
 }) => {
+  const { getNodes } = useReactFlow();
+  
+  // Get the current instrument symbol from the start node
+  const getInstrumentName = () => {
+    const nodes = getNodes();
+    const startNode = nodes.find(node => node.type === 'startNode');
+    
+    // Return the symbol from start node or a default if not found
+    return startNode?.data?.symbol || 'Instrument';
+  };
+  
   // Render the appropriate editor based on expression type
   const renderExpressionEditor = () => {
     switch (expression.type) {
@@ -102,6 +114,7 @@ const ExpressionEditor: React.FC<ExpressionEditorProps> = ({
         <ExpressionTypeSelector
           expression={expression}
           updateExpression={updateExpression}
+          instrumentName={getInstrumentName()}
         />
       </div>
       

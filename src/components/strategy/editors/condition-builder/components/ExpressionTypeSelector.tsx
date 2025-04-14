@@ -16,17 +16,19 @@ interface ExpressionTypeSelectorProps {
   expression: Expression;
   updateExpression: (expr: Expression) => void;
   conditionContext?: 'entry' | 'exit';
+  instrumentName?: string;
 }
 
 const ExpressionTypeSelector: React.FC<ExpressionTypeSelectorProps> = ({
   expression,
   updateExpression,
-  conditionContext = 'entry'
+  conditionContext = 'entry',
+  instrumentName = 'Instrument'
 }) => {
   // Filter expression types based on condition context
   const expressionTypes = useMemo(() => {
     const types = [
-      { value: 'market_data', label: 'Market Data', group: 'Basic' },
+      { value: 'market_data', label: `${instrumentName} Price`, group: 'Basic' },
       { value: 'indicator', label: 'Indicator', group: 'Basic' },
       { value: 'constant', label: 'Constant Value', group: 'Basic' },
       { value: 'time_function', label: 'Time', group: 'Basic' },
@@ -46,7 +48,7 @@ const ExpressionTypeSelector: React.FC<ExpressionTypeSelectorProps> = ({
     types.push({ value: 'external_trigger', label: 'External Trigger', group: 'Advanced' });
 
     return types;
-  }, [conditionContext]);
+  }, [conditionContext, instrumentName]);
 
   const handleTypeChange = (value: string) => {
     // Create a new expression of the selected type
