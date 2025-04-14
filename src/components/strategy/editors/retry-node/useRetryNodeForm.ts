@@ -1,8 +1,10 @@
 
-import { useCallback, useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Node } from '@xyflow/react';
 import { useStrategyStore } from '@/hooks/strategy-store/use-strategy-store';
-import { ExitNodeData } from '../action-node/exit-node/types';
+import { useRetryNodeEventHandlers } from './hooks/useRetryNodeEventHandlers';
+import { useRetryNodeGroupSync } from './hooks/useRetryNodeGroupSync';
+import { getNextAvailableGroupNumber } from './utils/retryGroupSync';
 
 interface RetryConfig {
   groupNumber: number;
@@ -47,166 +49,63 @@ export const useRetryNodeForm = ({ node, updateNodeData }: UseRetryNodeFormProps
     setMaxReEntries(config.maxReEntries || 1);
   }, [node.data]);
   
-  // Sync with other nodes in the same group when group number changes
+  // Initialize new retry nodes with the next available group number
   useEffect(() => {
-    if (updatingRef.current) return;
+    if (node.data?._isInitialized) return;
     
-    // Find all nodes with the same group number
-    const exitNodesInGroup = nodes.filter(n => {
-      if (n.type !== 'exitNode') return false;
-      
-      const nData = n.data as { exitNodeData?: ExitNodeData };
-      return nData.exitNodeData?.reEntryConfig?.enabled && 
-             nData.exitNodeData?.reEntryConfig?.groupNumber === groupNumber;
-    });
+    const nextGroupNumber = getNextAvailableGroupNumber(nodes);
     
-    const retryNodesInGroup = nodes.filter(n => {
-      if (n.id === node.id) return false; // Skip current node
-      if (n.type !== 'retryNode') return false;
-      
-      const nData = n.data as RetryNodeData;
-      return nData.retryConfig?.groupNumber === groupNumber;
-    });
-    
-    // If we have nodes in the same group, check if we need to sync maxReEntries
-    if (exitNodesInGroup.length > 0 || retryNodesInGroup.length > 0) {
-      let groupMaxReEntries: number | undefined;
-      
-      // First, check exit nodes
-      for (const exitNode of exitNodesInGroup) {
-        const nData = exitNode.data as { exitNodeData?: ExitNodeData };
-        if (nData.exitNodeData?.reEntryConfig?.maxReEntries !== undefined) {
-          groupMaxReEntries = nData.exitNodeData.reEntryConfig.maxReEntries;
-          break;
-        }
-      }
-      
-      // If no value from exit nodes, check other retry nodes
-      if (groupMaxReEntries === undefined && retryNodesInGroup.length > 0) {
-        for (const retryNode of retryNodesInGroup) {
-          const nData = retryNode.data as RetryNodeData;
-          if (nData.retryConfig?.maxReEntries !== undefined) {
-            groupMaxReEntries = nData.retryConfig.maxReEntries;
-            break;
-          }
-        }
-      }
-      
-      // If we found a group value and it's different from our current value, update our state
-      if (groupMaxReEntries !== undefined && groupMaxReEntries !== maxReEntries) {
-        console.log(`Retry node ${node.id} adopting maxReEntries ${groupMaxReEntries} from group ${groupNumber}`);
-        setMaxReEntries(groupMaxReEntries);
-        
-        // Also update the node data to match
-        updatingRef.current = true;
-        updateNodeData(node.id, {
-          ...nodeData,
-          retryConfig: {
-            ...(nodeData.retryConfig || {}),
-            maxReEntries: groupMaxReEntries
-          },
-          _lastUpdated: Date.now()
-        });
-        
-        setTimeout(() => {
-          updatingRef.current = false;
-        }, 100);
-      }
-    }
-  }, [node.id, nodeData, groupNumber, maxReEntries, nodes, updateNodeData]);
-  
-  // Handler for label change
-  const handleLabelChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const newLabel = e.target.value;
-    setLabel(newLabel);
-    
-    updateNodeData(node.id, {
-      ...nodeData,
-      label: newLabel,
-      _lastUpdated: Date.now()
-    });
-  }, [node.id, nodeData, updateNodeData]);
-  
-  // Handler for group number change
-  const handleGroupNumberChange = useCallback((value: number) => {
-    const newGroupNumber = value || 1;
-    setGroupNumber(newGroupNumber);
-    
-    updateNodeData(node.id, {
-      ...nodeData,
-      retryConfig: {
-        ...(nodeData.retryConfig || {}),
-        groupNumber: newGroupNumber
-      },
-      _lastUpdated: Date.now()
-    });
-  }, [node.id, nodeData, updateNodeData]);
-  
-  // Handler for max re-entries change
-  const handleMaxReEntriesChange = useCallback((value: number) => {
-    if (updatingRef.current) return;
-    updatingRef.current = true;
-    
-    const newMaxReEntries = value || 1;
-    setMaxReEntries(newMaxReEntries);
-    
-    try {
-      // Update this node
+    if (nextGroupNumber !== groupNumber) {
       updateNodeData(node.id, {
         ...nodeData,
         retryConfig: {
           ...(nodeData.retryConfig || {}),
-          maxReEntries: newMaxReEntries
+          groupNumber: nextGroupNumber
         },
+        _isInitialized: true,
         _lastUpdated: Date.now()
       });
-      
-      // Sync with other nodes in the same group (both exit nodes and retry nodes)
-      const currentGroup = nodeData.retryConfig?.groupNumber || 1;
-      
-      // For exit nodes
-      nodes.forEach(n => {
-        if (n.type === 'exitNode') {
-          const nData = n.data as { exitNodeData?: ExitNodeData };
-          if (nData.exitNodeData?.reEntryConfig?.enabled && 
-              nData.exitNodeData?.reEntryConfig?.groupNumber === currentGroup &&
-              nData.exitNodeData?.reEntryConfig?.maxReEntries !== newMaxReEntries) {
-            console.log(`Updating exit node ${n.id} maxReEntries to ${newMaxReEntries} from retry node ${node.id}`);
-            updateNodeData(n.id, {
-              ...n.data,
-              exitNodeData: {
-                ...nData.exitNodeData,
-                reEntryConfig: {
-                  ...nData.exitNodeData.reEntryConfig,
-                  maxReEntries: newMaxReEntries
-                }
-              },
-              _lastUpdated: Date.now()
-            });
-          }
-        } else if (n.type === 'retryNode' && n.id !== node.id) {
-          const nData = n.data as RetryNodeData;
-          if (nData.retryConfig?.groupNumber === currentGroup &&
-              nData.retryConfig?.maxReEntries !== newMaxReEntries) {
-            console.log(`Updating retry node ${n.id} maxReEntries to ${newMaxReEntries} from retry node ${node.id}`);
-            updateNodeData(n.id, {
-              ...n.data,
-              retryConfig: {
-                ...nData.retryConfig,
-                maxReEntries: newMaxReEntries
-              },
-              _lastUpdated: Date.now()
-            });
-          }
-        }
+    } else {
+      // Just mark as initialized
+      updateNodeData(node.id, {
+        ...nodeData,
+        _isInitialized: true
       });
-    } finally {
-      // Reset the update flag after a short delay
-      setTimeout(() => {
-        updatingRef.current = false;
-      }, 150);
     }
-  }, [node.id, nodeData, updateNodeData, nodes]);
+  }, [node.id, nodeData, updateNodeData, nodes, groupNumber]);
+  
+  // Get event handlers
+  const { 
+    handleLabelChange,
+    handleGroupNumberChange,
+    handleMaxReEntriesChange
+  } = useRetryNodeEventHandlers({
+    node,
+    updateNodeData,
+    nodeData,
+    updatingRef
+  });
+  
+  // Group synchronization
+  const { syncGroupMaxReEntries } = useRetryNodeGroupSync({
+    node,
+    nodes,
+    nodeData,
+    updateNodeData,
+    updatingRef
+  });
+  
+  // Enhanced handler for max re-entries that syncs with the group
+  const handleMaxReEntriesChangeWithSync = (value: number) => {
+    const newMaxReEntries = value || 1;
+    setMaxReEntries(newMaxReEntries);
+    
+    // First update this node
+    handleMaxReEntriesChange(newMaxReEntries);
+    
+    // Then sync with other nodes in the group
+    syncGroupMaxReEntries(newMaxReEntries);
+  };
   
   return {
     label,
@@ -214,6 +113,6 @@ export const useRetryNodeForm = ({ node, updateNodeData }: UseRetryNodeFormProps
     maxReEntries,
     handleLabelChange,
     handleGroupNumberChange,
-    handleMaxReEntriesChange
+    handleMaxReEntriesChange: handleMaxReEntriesChangeWithSync
   };
 };

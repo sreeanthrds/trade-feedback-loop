@@ -1,198 +1,163 @@
-
 import { Node } from '@xyflow/react';
-import { v4 as uuidv4 } from 'uuid';
-import { ExitNodeData } from '../types';
+import { createUpdateNodeDataHandler } from '../../../../utils/handlers';
 
 /**
- * Create a retry node when re-entry is enabled on an exit node
+ * Creates a retry node when a re-entry toggle is enabled
  */
-export function createRetryNode(
-  exitNode: Node, 
+export const createRetryNodeForReEntry = (
+  nodeId: string,
   groupNumber: number,
-  maxReEntries: number
-): Node {
-  if (!exitNode) return null;
+  maxReEntries: number,
+  data: any,
+  nodes: Node[],
+  setNodes: (nodes: Node[] | ((nds: Node[]) => Node[])) => void,
+  setEdges: (edges: any[] | ((eds: any[]) => any[])) => void,
+  syncTimeoutRef: React.MutableRefObject<number | null>
+) => {
+  // Implementation details for creating a retry node
+  console.log(`Creating retry node for exit node ${nodeId}, group ${groupNumber}`);
   
-  const exitNodePosition = exitNode.position;
+  // Clear any pending timeout to avoid race conditions
+  if (syncTimeoutRef.current !== null) {
+    clearTimeout(syncTimeoutRef.current);
+    syncTimeoutRef.current = null;
+  }
   
-  // Create a retry node floating to the left of the exit node
-  const retryNodeId = `retry-${uuidv4().substring(0, 6)}`;
+  // Find the exit node
+  const exitNode = nodes.find(n => n.id === nodeId);
+  if (!exitNode) return;
   
-  return {
+  // Generate a unique ID for the retry node
+  const retryNodeId = `retry-${nodeId}-${Date.now()}`;
+  
+  // Create the retry node
+  const retryNode = {
     id: retryNodeId,
     type: 'retryNode',
     position: {
-      x: exitNodePosition.x - 150,  // Position to the left
-      y: exitNodePosition.y + 20    // Slightly below
+      x: exitNode.position.x + 150,
+      y: exitNode.position.y + 50
     },
     data: {
       label: 'Re-entry',
-      actionType: 'retry',
+      actionType: 'entry',
+      _actionTypeInternal: 'retry',
       retryConfig: {
-        groupNumber: groupNumber || 1,
-        maxReEntries: maxReEntries || 1
-      }
+        groupNumber,
+        maxReEntries
+      },
+      _lastUpdated: Date.now()
     }
   };
-}
-
-/**
- * Create connecting edges between exit node, retry node, and entry node
- */
-export function createRetryEdges(
-  exitNodeId: string,
-  retryNodeId: string,
-  entryNodes: Node[]
-) {
-  // Create regular edge from exit node to retry node
-  const connectingEdge = {
-    id: `e-${exitNodeId}-${retryNodeId}`,
-    source: exitNodeId,
+  
+  // Create an edge from the exit node to the retry node
+  const newEdge = {
+    id: `edge-${nodeId}-${retryNodeId}`,
+    source: nodeId,
     target: retryNodeId,
-    style: { 
-      stroke: '#9b59b6', 
-      strokeWidth: 2 
-    },
-    sourceHandle: null,
-    targetHandle: null
+    type: 'default'
   };
   
-  let dashEdge = null;
+  // Update the nodes and edges
+  setNodes(nds => [...nds, retryNode]);
+  setEdges(eds => [...eds, newEdge]);
   
-  // Connect to the first entry node with a dashed animated edge if available
-  if (entryNodes.length > 0) {
-    const targetEntryNode = entryNodes[0];
-    dashEdge = {
-      id: `e-${retryNodeId}-${targetEntryNode.id}`,
-      source: retryNodeId,
-      target: targetEntryNode.id,
-      type: 'dashEdge',
-      animated: true,
-      style: { 
-        stroke: '#9b59b6', 
-        strokeWidth: 2
-      }
-    };
-  }
+  // Link the retry node to the exit node
+  const updatedExitNodeData = {
+    ...data,
+    linkedRetryNodeId: retryNodeId,
+    _lastUpdated: Date.now()
+  };
   
-  return { connectingEdge, dashEdge };
-}
+  // Update the exit node data
+  const handler = createUpdateNodeDataHandler(nodes, setNodes, { nodes, edges: [] });
+  handler(nodeId, updatedExitNodeData);
+};
 
 /**
- * Handles enabling re-entry for an exit node
+ * Removes a retry node when a re-entry toggle is disabled
  */
-export function handleReEntryEnabled(
-  node: Node,
-  id: string, 
-  data: any,
+export const removeRetryNodeForReEntry = (
+  exitNodeId: string,
+  linkedRetryNodeId: string | undefined,
   nodes: Node[],
-  updateNodeData: (id: string, data: any) => void,
-  setNodes: (nodes: Node[] | ((nds: Node[]) => Node[])) => void,
-  setEdges: (edges: any[] | ((eds: any[]) => any[])) => void,
-  addToStore: (updatedNodes: Node[], updatedEdges: any[]) => void
-): boolean {
-  // Extract re-entry configuration
-  const exitNodeData = data.exitNodeData;
-  const newConfig = exitNodeData?.reEntryConfig;
-  
-  // Verify we have valid data
-  if (!newConfig || !newConfig.enabled || !node) {
-    return false;
-  }
-  
-  console.log('Re-entry was enabled, creating retry node');
-  
-  // Create the retry node
-  const retryNode = createRetryNode(
-    node, 
-    newConfig.groupNumber || 1, 
-    newConfig.maxReEntries || 1
-  );
-  
-  if (!retryNode) return false;
-  
-  // Find any entry nodes to connect with
-  const entryNodes = nodes.filter(n => n.type === 'entryNode');
-  
-  // Create the edges
-  const { connectingEdge, dashEdge } = createRetryEdges(id, retryNode.id, entryNodes);
-  
-  // Update node data first with reference to retry node
-  updateNodeData(id, {
-    ...data,
-    linkedRetryNodeId: retryNode.id
-  });
-  
-  // Then add the retry node and edges
-  setNodes((prev: Node[]) => [...prev, retryNode]);
-  
-  // Add edges (both connecting and dashed if available)
-  if (dashEdge) {
-    setEdges((prev: any[]) => [...prev, connectingEdge, dashEdge]);
-  } else {
-    setEdges((prev: any[]) => [...prev, connectingEdge]);
-  }
-  
-  // Prepare data for store update
-  setTimeout(() => {
-    const updatedNodes = [...nodes, retryNode];
-    let updatedEdges = [...(dashEdge ? [connectingEdge, dashEdge] : [connectingEdge])];
-    
-    addToStore(updatedNodes, updatedEdges);
-  }, 100);
-  
-  return true;
-}
-
-/**
- * Handles disabling re-entry for an exit node
- */
-export function handleReEntryDisabled(
-  node: Node,
-  id: string,
-  data: any,
   edges: any[],
-  updateNodeData: (id: string, data: any) => void,
   setNodes: (nodes: Node[] | ((nds: Node[]) => Node[])) => void,
   setEdges: (edges: any[] | ((eds: any[]) => any[])) => void,
-  addToStore: (updatedNodes: Node[], updatedEdges: any[]) => void
-): boolean {
-  // Check if node has a linked retry node
-  const linkedRetryNodeId = node?.data?.linkedRetryNodeId;
+  syncTimeoutRef: React.MutableRefObject<number | null>
+) => {
+  // Implementation details for removing a retry node
+  console.log(`Removing retry node ${linkedRetryNodeId} for exit node ${exitNodeId}`);
   
-  if (!linkedRetryNodeId) {
-    return false;
+  // Clear any pending timeout to avoid race conditions
+  if (syncTimeoutRef.current !== null) {
+    clearTimeout(syncTimeoutRef.current);
+    syncTimeoutRef.current = null;
   }
   
-  console.log('Re-entry was disabled, removing retry node');
-  
-  // Find all edges connected to the retry node
-  const edgesToRemove = edges.filter(edge => 
-    edge.source === linkedRetryNodeId || edge.target === linkedRetryNodeId
-  );
-  
-  // Get edge IDs to remove
-  const edgeIdsToRemove = edgesToRemove.map(edge => edge.id);
-  
-  // First update the node data
-  updateNodeData(id, {
-    ...data,
-    linkedRetryNodeId: undefined  // Clear the reference to retry node
-  });
+  if (!linkedRetryNodeId) return;
   
   // Remove the retry node
-  setNodes((prev: Node[]) => prev.filter(n => n.id !== linkedRetryNodeId));
+  setNodes(nds => nds.filter(n => n.id !== linkedRetryNodeId));
   
-  // Remove related edges
-  setEdges((prev: any[]) => prev.filter(e => !edgeIdsToRemove.includes(e.id)));
+  // Remove any edges connected to the retry node
+  setEdges(eds => eds.filter(e => 
+    e.source !== linkedRetryNodeId && e.target !== linkedRetryNodeId
+  ));
   
-  // Update store
-  setTimeout(() => {
-    const updatedNodes = node.data.nodesRef?.current.filter(n => n.id !== linkedRetryNodeId) || [];
-    const updatedEdges = edges.filter(e => !edgeIdsToRemove.includes(e.id));
-    
-    addToStore(updatedNodes, updatedEdges);
-  }, 100);
+  // Update the exit node to remove the link
+  const exitNode = nodes.find(n => n.id === exitNodeId);
+  if (exitNode) {
+    const handler = createUpdateNodeDataHandler(nodes, setNodes, { nodes, edges });
+    const updatedData = {
+      ...exitNode.data,
+      linkedRetryNodeId: undefined,
+      _lastUpdated: Date.now()
+    };
+    handler(exitNodeId, updatedData);
+  }
+};
+
+/**
+ * Synchronizes the retry node configuration with its exit node
+ */
+export const syncRetryNodeWithExitNode = (
+  exitNodeId: string,
+  retryNodeId: string,
+  exitNodeData: any,
+  nodes: Node[],
+  updateNodeData: (id: string, data: any) => void,
+  syncTimeoutRef: React.MutableRefObject<number | null>
+) => {
+  // Implementation details for synchronizing nodes
+  console.log(`Syncing retry node ${retryNodeId} with exit node ${exitNodeId}`);
   
-  return true;
-}
+  // Clear any pending timeout to avoid race conditions
+  if (syncTimeoutRef.current !== null) {
+    clearTimeout(syncTimeoutRef.current);
+    syncTimeoutRef.current = null;
+  }
+  
+  // Find the retry node
+  const retryNode = nodes.find(n => n.id === retryNodeId);
+  if (!retryNode) return;
+  
+  // Get the re-entry configuration from the exit node
+  const reEntryConfig = exitNodeData.exitNodeData?.reEntryConfig;
+  if (!reEntryConfig) return;
+  
+  // Update the retry node with the same configuration
+  updateNodeData(retryNodeId, {
+    ...retryNode.data,
+    retryConfig: {
+      groupNumber: reEntryConfig.groupNumber,
+      maxReEntries: reEntryConfig.maxReEntries
+    },
+    _lastUpdated: Date.now()
+  });
+  
+  // Schedule a delayed sync to ensure consistency
+  syncTimeoutRef.current = window.setTimeout(() => {
+    syncTimeoutRef.current = null;
+  }, 200);
+};
