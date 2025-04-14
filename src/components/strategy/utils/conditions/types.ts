@@ -44,8 +44,8 @@ export interface ConstantExpression extends BaseExpression {
 // Time-based function (yesterday, N days ago, etc.)
 export interface TimeFunctionExpression extends BaseExpression {
   type: 'time_function';
-  function: string;
-  parameters?: any;
+  function: string; // 'today' | 'yesterday' | 'n_seconds_ago' | 'n_minutes_ago' | 'n_hours_ago' | 'n_days_ago' | 'specific_date' | 'this_week' | 'last_week' | 'this_month' | 'last_month';
+  parameters?: any; // number for n_X_ago functions, Date object for specific_date
 }
 
 // Position tracking data (P&L, MTM, etc.)

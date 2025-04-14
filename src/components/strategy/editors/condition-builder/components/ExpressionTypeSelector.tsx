@@ -28,7 +28,7 @@ const ExpressionTypeSelector: React.FC<ExpressionTypeSelectorProps> = ({
   // Filter expression types based on condition context
   const expressionTypes = useMemo(() => {
     const types = [
-      { value: 'market_data', label: `${instrumentName} Price`, group: 'Basic' },
+      { value: 'market_data', label: `${instrumentName} Data`, group: 'Basic' },
       { value: 'indicator', label: 'Indicator', group: 'Basic' },
       { value: 'constant', label: 'Constant Value', group: 'Basic' },
       { value: 'time_function', label: 'Time', group: 'Basic' },

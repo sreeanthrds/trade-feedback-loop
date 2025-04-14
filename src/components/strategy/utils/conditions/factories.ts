@@ -1,9 +1,6 @@
-
-// Import types
-import {
-  Expression,
-  Condition,
-  GroupCondition,
+import { v4 as uuid } from 'uuid';
+import { 
+  Expression, 
   ExpressionType,
   IndicatorExpression,
   MarketDataExpression,
@@ -15,141 +12,84 @@ import {
   ExternalTriggerExpression,
   ComplexExpression
 } from './types';
-import { v4 as uuidv4 } from 'uuid';
 
-// Helper to create unique IDs
-export const createUniqueId = () => uuidv4();
-
-// Factory for creating empty conditions
-export const createEmptyCondition = (): Condition => {
-  return {
-    id: createUniqueId(),
-    lhs: createDefaultExpression('indicator'),
-    operator: '>',
-    rhs: createDefaultExpression('constant')
-  };
-};
-
-// Factory for creating empty group conditions
-export const createEmptyGroupCondition = (): GroupCondition => {
-  return {
-    id: createUniqueId(),
-    groupLogic: 'AND',
-    conditions: []
-  };
-};
-
-// Alias for backwards compatibility
+// Create a default expression of the given type
 export const createDefaultExpression = (type: ExpressionType): Expression => {
+  const id = uuid();
+  
   switch (type) {
     case 'indicator':
-      return createIndicatorExpression();
+      return {
+        id,
+        type: 'indicator',
+        name: '',
+        offset: 0
+      };
+      
     case 'market_data':
-      return createMarketDataExpression();
+      return {
+        id,
+        type: 'market_data',
+        field: '',
+        offset: 0
+      };
+      
     case 'constant':
-      return createConstantExpression();
+      return {
+        id,
+        type: 'constant',
+        value: 0
+      };
+      
     case 'time_function':
-      return createTimeFunctionExpression();
+      return {
+        id,
+        type: 'time_function',
+        function: 'today'
+      };
+      
     case 'position_data':
-      return createPositionDataExpression();
+      return {
+        id,
+        type: 'position_data',
+        field: ''
+      };
+      
     case 'strategy_metric':
-      return createStrategyMetricExpression();
+      return {
+        id,
+        type: 'strategy_metric',
+        metric: ''
+      };
+      
     case 'execution_data':
-      return createExecutionDataExpression();
+      return {
+        id,
+        type: 'execution_data',
+        field: ''
+      };
+      
     case 'external_trigger':
-      return createExternalTriggerExpression();
+      return {
+        id,
+        type: 'external_trigger',
+        triggerType: ''
+      };
+      
     case 'expression':
-      return createComplexExpression();
+      return {
+        id,
+        type: 'expression',
+        operation: '+',
+        left: createDefaultExpression('constant'),
+        right: createDefaultExpression('constant')
+      };
+      
     default:
-      return createIndicatorExpression();
+      return {
+        id,
+        type: 'constant',
+        value: 0
+      };
   }
-};
-
-// Alias for createDefaultExpression for backwards compatibility
-export const createEmptyExpression = createDefaultExpression;
-
-// Factory for creating indicator expressions
-export const createIndicatorExpression = (): IndicatorExpression => {
-  return {
-    id: createUniqueId(),
-    type: 'indicator',
-    name: '',
-    parameter: undefined,
-    offset: 0
-  };
-};
-
-// Factory for creating market data expressions
-export const createMarketDataExpression = (): MarketDataExpression => {
-  return {
-    id: createUniqueId(),
-    type: 'market_data',
-    field: 'Close',
-    offset: 0
-  };
-};
-
-// Factory for creating constant expressions
-export const createConstantExpression = (): ConstantExpression => {
-  return {
-    id: createUniqueId(),
-    type: 'constant',
-    value: 0
-  };
-};
-
-// Factory for creating time function expressions
-export const createTimeFunctionExpression = (): TimeFunctionExpression => {
-  return {
-    id: createUniqueId(),
-    type: 'time_function',
-    function: 'today'
-  };
-};
-
-// Factory for creating position data expressions
-export const createPositionDataExpression = (): PositionDataExpression => {
-  return {
-    id: createUniqueId(),
-    type: 'position_data',
-    field: 'pnl'
-  };
-};
-
-// Factory for creating strategy metric expressions
-export const createStrategyMetricExpression = (): StrategyMetricExpression => {
-  return {
-    id: createUniqueId(),
-    type: 'strategy_metric',
-    metric: 'total_pnl'
-  };
-};
-
-// Factory for creating execution data expressions
-export const createExecutionDataExpression = (): ExecutionDataExpression => {
-  return {
-    id: createUniqueId(),
-    type: 'execution_data',
-    field: 'execution_price'
-  };
-};
-
-// Factory for creating external trigger expressions
-export const createExternalTriggerExpression = (): ExternalTriggerExpression => {
-  return {
-    id: createUniqueId(),
-    type: 'external_trigger',
-    triggerType: 'manual'
-  };
-};
-
-// Factory for creating complex expressions
-export const createComplexExpression = (): ComplexExpression => {
-  return {
-    id: createUniqueId(),
-    type: 'expression',
-    operation: '+',
-    left: createConstantExpression(),
-    right: createConstantExpression()
-  };
 };
