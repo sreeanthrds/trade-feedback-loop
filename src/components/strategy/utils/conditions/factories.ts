@@ -1,3 +1,4 @@
+
 import { v4 as uuid } from 'uuid';
 import { 
   Expression, 
@@ -10,7 +11,10 @@ import {
   StrategyMetricExpression,
   ExecutionDataExpression,
   ExternalTriggerExpression,
-  ComplexExpression
+  ComplexExpression,
+  Condition,
+  GroupCondition,
+  ComparisonOperator
 } from './types';
 
 // Create a default expression of the given type
@@ -92,4 +96,23 @@ export const createDefaultExpression = (type: ExpressionType): Expression => {
         value: 0
       };
   }
+};
+
+// Create an empty condition with default expressions
+export const createEmptyCondition = (): Condition => {
+  return {
+    id: uuid(),
+    lhs: createDefaultExpression('constant'),
+    operator: '>' as ComparisonOperator,
+    rhs: createDefaultExpression('constant')
+  };
+};
+
+// Create an empty group condition that contains a single empty condition
+export const createEmptyGroupCondition = (): GroupCondition => {
+  return {
+    id: uuid(),
+    groupLogic: 'AND',
+    conditions: [createEmptyCondition()]
+  };
 };
