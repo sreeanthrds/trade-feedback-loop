@@ -23,11 +23,16 @@ export const useIndicatorSelector = ({ expression, updateExpression }: UseIndica
     const startNode = strategyStore.nodes.find(node => node.type === 'startNode');
     if (startNode && startNode.data && startNode.data.indicators && 
         Array.isArray(startNode.data.indicators) && startNode.data.indicators.length > 0) {
+      
+      // Set available indicators from start node
       setAvailableIndicators(startNode.data.indicators);
       
       // Check if the current indicator still exists in the start node
-      if (indicatorExpr.name && !startNode.data.indicators.includes(indicatorExpr.name)) {
-        setMissingIndicator(true);
+      if (indicatorExpr.name) {
+        const indicatorExists = startNode.data.indicators.includes(indicatorExpr.name);
+        setMissingIndicator(!indicatorExists);
+        
+        console.log(`Indicator check: ${indicatorExpr.name}, exists: ${indicatorExists}`);
       } else {
         setMissingIndicator(false);
       }
@@ -35,6 +40,7 @@ export const useIndicatorSelector = ({ expression, updateExpression }: UseIndica
       setAvailableIndicators([]);
       if (indicatorExpr.name) {
         setMissingIndicator(true);
+        console.log(`No indicators available but using: ${indicatorExpr.name}`);
       }
     }
   }, [strategyStore.nodes, indicatorExpr.name]);

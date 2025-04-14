@@ -126,6 +126,11 @@ export const expressionToString = (expr: Expression, nodeData?: any): string => 
 
 // Convert a condition to a readable string
 export const conditionToString = (condition: Condition, nodeData?: any): string => {
+  if (!condition.lhs || !condition.rhs) {
+    console.warn("Invalid condition structure:", condition);
+    return "Invalid condition";
+  }
+  
   const lhsStr = expressionToString(condition.lhs, nodeData);
   const rhsStr = expressionToString(condition.rhs, nodeData);
   return `${lhsStr} ${condition.operator} ${rhsStr}`;
@@ -137,13 +142,18 @@ export const groupConditionToString = (group: GroupCondition, nodeData?: any): s
     return '(empty)';
   }
   
-  const conditionsStr = group.conditions.map(cond => {
-    if ('groupLogic' in cond) {
-      return `(${groupConditionToString(cond as GroupCondition, nodeData)})`;
-    } else {
-      return conditionToString(cond as Condition, nodeData);
-    }
-  }).join(` ${group.groupLogic} `);
-  
-  return conditionsStr;
+  try {
+    const conditionsStr = group.conditions.map(cond => {
+      if ('groupLogic' in cond) {
+        return `(${groupConditionToString(cond as GroupCondition, nodeData)})`;
+      } else {
+        return conditionToString(cond as Condition, nodeData);
+      }
+    }).join(` ${group.groupLogic} `);
+    
+    return conditionsStr;
+  } catch (error) {
+    console.error("Error in groupConditionToString:", error);
+    return '(error parsing conditions)';
+  }
 };

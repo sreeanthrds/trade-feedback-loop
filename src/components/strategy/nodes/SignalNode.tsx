@@ -39,7 +39,12 @@ const SignalNode = ({ data, id }: SignalNodeProps) => {
       const startNode = strategyStore.nodes.find(node => node.type === 'startNode');
       
       // Pass start node data to the condition formatter
-      return groupConditionToString(conditions[0], startNode?.data);
+      if (startNode && startNode.data) {
+        return groupConditionToString(conditions[0], startNode.data);
+      } else {
+        console.warn("Start node data not available for formatting conditions");
+        return groupConditionToString(conditions[0]);
+      }
     } catch (error) {
       console.error("Error formatting entry conditions:", error);
       return "Invalid condition structure";
@@ -48,6 +53,8 @@ const SignalNode = ({ data, id }: SignalNodeProps) => {
   
   // Count total condition expressions for display
   const countConditions = (group: GroupCondition): number => {
+    if (!group.conditions) return 0;
+    
     return group.conditions.reduce((total, cond) => {
       if ('groupLogic' in cond) {
         return total + countConditions(cond as GroupCondition);
