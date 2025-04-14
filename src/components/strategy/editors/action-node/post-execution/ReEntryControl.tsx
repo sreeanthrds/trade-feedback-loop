@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import EnhancedSwitch from '@/components/ui/form/enhanced/EnhancedSwitch';
 import { EnhancedNumberInput } from '@/components/ui/form/enhanced';
 import { useStrategyStore } from '@/hooks/strategy-store/use-strategy-store';
@@ -55,20 +55,23 @@ const ReEntryControl: React.FC<ReEntryControlProps> = ({
     return groupNumber;
   };
   
-  // Handle group number change with validation
-  const handleGroupNumberChange = (value: number) => {
-    const newGroupNumber = value || 1;
+  // Sync with existing nodes when group number changes
+  useEffect(() => {
+    if (!reEntry.enabled) return;
     
-    // Check if this is a new group or joining an existing one
+    const currentGroup = reEntry.groupNumber;
+    
+    // Find existing nodes in the same group
     const existingGroupNodes = nodes.filter(n => {
+      if (n.id === id) return false; // Skip current node
+      
       if (n.type === 'exitNode') {
         const nData = n.data as { exitNodeData?: ExitNodeData };
-        return n.id !== id && // Skip current node
-               nData.exitNodeData?.reEntryConfig?.enabled && 
-               nData.exitNodeData?.reEntryConfig?.groupNumber === newGroupNumber;
+        return nData.exitNodeData?.reEntryConfig?.enabled && 
+               nData.exitNodeData?.reEntryConfig?.groupNumber === currentGroup;
       } else if (n.type === 'retryNode') {
         const nData = n.data as { retryConfig?: { groupNumber?: number } };
-        return nData.retryConfig?.groupNumber === newGroupNumber;
+        return nData.retryConfig?.groupNumber === currentGroup;
       }
       return false;
     });
@@ -87,16 +90,18 @@ const ReEntryControl: React.FC<ReEntryControlProps> = ({
       }
       
       if (existingMaxReEntries !== undefined && existingMaxReEntries !== reEntry.maxReEntries) {
+        console.log(`Node ${id} adopting maxReEntries ${existingMaxReEntries} from group ${currentGroup}`);
         // Update both groupNumber and maxReEntries
         onReEntryUpdate({
-          groupNumber: newGroupNumber,
           maxReEntries: existingMaxReEntries
         });
-        return;
       }
     }
-    
-    // Just update the group number
+  }, [id, reEntry.enabled, reEntry.groupNumber, reEntry.maxReEntries, nodes, onReEntryUpdate]);
+  
+  // Handle group number change with validation
+  const handleGroupNumberChange = (value: number) => {
+    const newGroupNumber = value || 1;
     onReEntryUpdate({ groupNumber: newGroupNumber });
   };
   

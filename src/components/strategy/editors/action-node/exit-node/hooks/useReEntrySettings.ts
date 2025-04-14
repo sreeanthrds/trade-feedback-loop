@@ -1,5 +1,5 @@
 
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { Node } from '@xyflow/react';
 import { ExitNodeData } from '../types';
 import { useStrategyStore } from '@/hooks/strategy-store/use-strategy-store';
@@ -19,6 +19,7 @@ export const useReEntrySettings = ({
 }: UseReEntrySettingsProps) => {
   // Get all nodes to find nodes in the same group
   const nodes = useStrategyStore(state => state.nodes);
+  const updatingRef = useRef<boolean>(false);
   
   // Extract re-entry config from node data
   const exitNodeData = nodeData?.exitNodeData as ExitNodeData || defaultExitNodeData;
@@ -27,7 +28,7 @@ export const useReEntrySettings = ({
   
   // Sync with other nodes in the same group when changes are made
   useEffect(() => {
-    if (!reEntryEnabled) return;
+    if (!reEntryEnabled || updatingRef.current) return;
     
     const currentGroup = reEntryConfig.groupNumber;
     const currentMaxReEntries = reEntryConfig.maxReEntries;
@@ -79,6 +80,7 @@ export const useReEntrySettings = ({
       if (groupMaxReEntries !== undefined && groupMaxReEntries !== currentMaxReEntries) {
         console.log(`Exit node ${node.id} adopting maxReEntries ${groupMaxReEntries} from group ${currentGroup}`);
         
+        updatingRef.current = true;
         updateNodeData(node.id, {
           ...nodeData,
           exitNodeData: {
@@ -89,83 +91,96 @@ export const useReEntrySettings = ({
             }
           }
         });
+        
+        setTimeout(() => {
+          updatingRef.current = false;
+        }, 150);
       }
     }
   }, [nodes, node.id, reEntryEnabled, reEntryConfig, nodeData, exitNodeData, updateNodeData]);
   
   // Handler for toggling re-entry
   const handleReEntryToggle = useCallback((enabled: boolean) => {
-    const currentExitNodeData = (node.data?.exitNodeData as ExitNodeData) || defaultExitNodeData;
-    const currentConfig = currentExitNodeData.reEntryConfig || { 
-      enabled: false, 
-      groupNumber: 1, 
-      maxReEntries: 1 
-    };
+    if (updatingRef.current) return;
+    updatingRef.current = true;
     
-    // Update re-entry config
-    const updatedConfig = {
-      ...currentConfig,
-      enabled
-    };
-    
-    // Update node data
-    updateNodeData(node.id, {
-      ...node.data,
-      exitNodeData: {
-        ...currentExitNodeData,
-        reEntryConfig: updatedConfig
-      }
-    });
-    
-    // If enabling, sync with other nodes in the same group
-    if (enabled) {
-      const currentGroup = updatedConfig.groupNumber;
+    try {
+      const currentExitNodeData = (node.data?.exitNodeData as ExitNodeData) || defaultExitNodeData;
+      const currentConfig = currentExitNodeData.reEntryConfig || { 
+        enabled: false, 
+        groupNumber: 1, 
+        maxReEntries: 1 
+      };
       
-      // Check for existing nodes in the same group
-      const nodesInSameGroup = nodes.filter(n => {
-        if (n.id === node.id) return false;
-        
-        if (n.type === 'exitNode') {
-          const nData = n.data as { exitNodeData?: ExitNodeData };
-          return nData.exitNodeData?.reEntryConfig?.enabled && 
-                nData.exitNodeData?.reEntryConfig?.groupNumber === currentGroup;
-        } else if (n.type === 'retryNode') {
-          const nData = n.data as { retryConfig?: { groupNumber?: number } };
-          return nData.retryConfig?.groupNumber === currentGroup;
+      // Update re-entry config
+      const updatedConfig = {
+        ...currentConfig,
+        enabled
+      };
+      
+      // Update node data
+      updateNodeData(node.id, {
+        ...node.data,
+        exitNodeData: {
+          ...currentExitNodeData,
+          reEntryConfig: updatedConfig
         }
-        
-        return false;
       });
       
-      // If we found nodes in the same group, adopt their maxReEntries
-      if (nodesInSameGroup.length > 0) {
-        const firstNode = nodesInSameGroup[0];
-        let groupMaxReEntries: number | undefined;
+      // If enabling, sync with other nodes in the same group
+      if (enabled) {
+        const currentGroup = updatedConfig.groupNumber;
         
-        if (firstNode.type === 'exitNode') {
-          const nData = firstNode.data as { exitNodeData?: ExitNodeData };
-          groupMaxReEntries = nData.exitNodeData?.reEntryConfig?.maxReEntries;
-        } else if (firstNode.type === 'retryNode') {
-          const nData = firstNode.data as { retryConfig?: { maxReEntries?: number } };
-          groupMaxReEntries = nData.retryConfig?.maxReEntries;
-        }
-        
-        if (groupMaxReEntries !== undefined && groupMaxReEntries !== updatedConfig.maxReEntries) {
-          console.log(`New exit node ${node.id} adopting maxReEntries ${groupMaxReEntries} from group ${currentGroup}`);
+        // Check for existing nodes in the same group
+        const nodesInSameGroup = nodes.filter(n => {
+          if (n.id === node.id) return false;
           
-          // Update with the group's maxReEntries
-          updateNodeData(node.id, {
-            ...node.data,
-            exitNodeData: {
-              ...currentExitNodeData,
-              reEntryConfig: {
-                ...updatedConfig,
-                maxReEntries: groupMaxReEntries
+          if (n.type === 'exitNode') {
+            const nData = n.data as { exitNodeData?: ExitNodeData };
+            return nData.exitNodeData?.reEntryConfig?.enabled && 
+                  nData.exitNodeData?.reEntryConfig?.groupNumber === currentGroup;
+          } else if (n.type === 'retryNode') {
+            const nData = n.data as { retryConfig?: { groupNumber?: number } };
+            return nData.retryConfig?.groupNumber === currentGroup;
+          }
+          
+          return false;
+        });
+        
+        // If we found nodes in the same group, adopt their maxReEntries
+        if (nodesInSameGroup.length > 0) {
+          const firstNode = nodesInSameGroup[0];
+          let groupMaxReEntries: number | undefined;
+          
+          if (firstNode.type === 'exitNode') {
+            const nData = firstNode.data as { exitNodeData?: ExitNodeData };
+            groupMaxReEntries = nData.exitNodeData?.reEntryConfig?.maxReEntries;
+          } else if (firstNode.type === 'retryNode') {
+            const nData = firstNode.data as { retryConfig?: { maxReEntries?: number } };
+            groupMaxReEntries = nData.retryConfig?.maxReEntries;
+          }
+          
+          if (groupMaxReEntries !== undefined && groupMaxReEntries !== updatedConfig.maxReEntries) {
+            console.log(`New exit node ${node.id} adopting maxReEntries ${groupMaxReEntries} from group ${currentGroup}`);
+            
+            // Update with the group's maxReEntries
+            updateNodeData(node.id, {
+              ...node.data,
+              exitNodeData: {
+                ...currentExitNodeData,
+                reEntryConfig: {
+                  ...updatedConfig,
+                  maxReEntries: groupMaxReEntries
+                }
               }
-            }
-          });
+            });
+          }
         }
       }
+    } finally {
+      setTimeout(() => {
+        updatingRef.current = false;
+      }, 150);
     }
   }, [node, defaultExitNodeData, updateNodeData, nodes]);
   

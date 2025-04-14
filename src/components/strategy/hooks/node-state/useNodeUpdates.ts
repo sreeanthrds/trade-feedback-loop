@@ -29,6 +29,7 @@ export function useNodeUpdates(strategyStore: any) {
   
   // Track consecutive updates to detect potential infinite loops
   const consecutiveUpdatesRef = useRef({ count: 0, time: 0 });
+  const cycleBreakRef = useRef(false);
   
   // Add update cycle detection
   useEffect(() => {
@@ -38,13 +39,15 @@ export function useNodeUpdates(strategyStore: any) {
         consecutiveUpdatesRef.current.count++;
         
         // If too many updates in a short time, might be an infinite loop
-        if (consecutiveUpdatesRef.current.count > 30) {
+        if (consecutiveUpdatesRef.current.count > 20 && !cycleBreakRef.current) {
           console.warn('Potential infinite render cycle detected, breaking cycle');
           updateCycleRef.current = true;
+          cycleBreakRef.current = true;
           
-          // Reset after a short delay
+          // Reset after a longer delay to ensure the cycle is truly broken
           setTimeout(() => {
             updateCycleRef.current = false;
+            cycleBreakRef.current = false;
             consecutiveUpdatesRef.current.count = 0;
           }, 2000);
         }
@@ -65,6 +68,7 @@ export function useNodeUpdates(strategyStore: any) {
       cleanupNodeUpdateStore();
       cleanupUpdateProcessing();
       consecutiveUpdatesRef.current.count = 0;
+      cycleBreakRef.current = false;
     };
   }, [cleanupNodeUpdateStore, cleanupUpdateProcessing]);
   

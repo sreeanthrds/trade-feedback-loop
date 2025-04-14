@@ -1,5 +1,5 @@
 
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { createUpdateNodeDataHandler } from '../../../utils/handlers';
 import { v4 as uuidv4 } from 'uuid';
 import { Node } from '@xyflow/react';
@@ -12,11 +12,20 @@ export const useUpdateNodeHandler = ({
   updateHandlingRef,
   setEdges
 }: UseUpdateNodeHandlerProps) => {
+  // Add a debounce mechanism for synchronization updates
+  const syncTimeoutRef = useRef<number | null>(null);
+  
   // Create stable handler for updating node data
   return useCallback((id: string, data: any) => {
     // Prevent recursive update loops
     if (updateHandlingRef.current) return;
     updateHandlingRef.current = true;
+    
+    // Clear any pending sync timeout
+    if (syncTimeoutRef.current) {
+      clearTimeout(syncTimeoutRef.current);
+      syncTimeoutRef.current = null;
+    }
     
     setTimeout(() => {
       try {
@@ -105,7 +114,10 @@ export const useUpdateNodeHandler = ({
                 }
                 
                 // Update node data first
-                handler(id, data);
+                handler(id, {
+                  ...data,
+                  linkedRetryNodeId: retryNodeId
+                });
                 
                 // Then add the retry node and edges
                 setNodes((prev: Node[]) => [...prev, retryNode]);
@@ -117,22 +129,8 @@ export const useUpdateNodeHandler = ({
                   setEdges((prev: any[]) => [...prev, connectingEdge]);
                 }
                 
-                // Store exit node's connection to retry node
-                setNodes((prev: Node[]) => prev.map(node => {
-                  if (node.id === id) {
-                    return {
-                      ...node,
-                      data: {
-                        ...node.data,
-                        linkedRetryNodeId: retryNodeId
-                      }
-                    };
-                  }
-                  return node;
-                }));
-                
                 // Update store
-                setTimeout(() => {
+                syncTimeoutRef.current = window.setTimeout(() => {
                   const updatedNodes = [...nodesRef.current, retryNode];
                   let updatedEdges = [...strategyStore.current.edges, connectingEdge];
                   if (dashEdge) {
@@ -176,7 +174,7 @@ export const useUpdateNodeHandler = ({
                 setEdges((prev: any[]) => prev.filter(e => !edgeIdsToRemove.includes(e.id)));
                 
                 // Update store
-                setTimeout(() => {
+                syncTimeoutRef.current = window.setTimeout(() => {
                   const updatedNodes = nodesRef.current.filter(n => n.id !== linkedRetryNodeId);
                   const updatedEdges = strategyStore.current.edges.filter(e => !edgeIdsToRemove.includes(e.id));
                   
@@ -197,7 +195,7 @@ export const useUpdateNodeHandler = ({
         // Reset the flag after a short delay
         setTimeout(() => {
           updateHandlingRef.current = false;
-        }, 100);
+        }, 150);
       }
     }, 0);
   }, [setNodes, setEdges, updateHandlingRef, nodesRef, strategyStore]);
