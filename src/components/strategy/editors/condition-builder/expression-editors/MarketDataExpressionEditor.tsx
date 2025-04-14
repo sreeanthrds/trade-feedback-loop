@@ -40,8 +40,8 @@ const MarketDataExpressionEditor: React.FC<MarketDataExpressionEditorProps> = ({
     const nodes = getNodes();
     const startNode = nodes.find(node => node.type === 'startNode');
     
-    // Return the symbol from start node or a default if not found
-    return startNode?.data?.symbol || 'Instrument';
+    // Explicitly cast to string with type assertion to guarantee a string return
+    return (startNode?.data?.symbol as string) || 'Instrument';
   };
   
   // Update the field (Open, High, Low, Close, etc.)
