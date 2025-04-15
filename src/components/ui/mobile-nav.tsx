@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, FileText, LogIn } from 'lucide-react';
+import { Menu, X, FileText, LogIn, Code2 } from 'lucide-react';
 import { useAuth } from '@/contexts/auth';
 
 interface MobileNavProps {
@@ -54,6 +55,16 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, toggleMenu }) => {
               onClick={toggleMenu}
             >
               Features
+            </Link>
+            <Link 
+              to="/app/strategy-builder" 
+              className={`py-2 flex items-center space-x-2 ${isActive('/app/strategy-builder') 
+                ? 'text-primary font-medium' 
+                : 'text-foreground/80'}`}
+              onClick={toggleMenu}
+            >
+              <Code2 className="h-4 w-4" />
+              <span>Strategy Builder</span>
             </Link>
             <Link 
               to="/pricing" 

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FileText, LogIn } from 'lucide-react';
+import { FileText, LogIn, Code2 } from 'lucide-react';
 import { Button } from './button';
 import { useAuth } from '@/contexts/auth';
 import UserProfileDropdown from '@/components/auth/UserProfileDropdown';
@@ -35,6 +35,15 @@ const DesktopNav: React.FC = () => {
           : 'text-foreground/80 hover:text-foreground'}`}
       >
         Features
+      </Link>
+      <Link 
+        to="/app/strategy-builder" 
+        className={`smooth-transition flex items-center ${isActive('/app/strategy-builder') 
+          ? 'text-primary font-medium' 
+          : 'text-foreground/80 hover:text-foreground'}`}
+      >
+        <Code2 className="h-4 w-4 mr-1" />
+        Strategy Builder
       </Link>
       <Link 
         to="/pricing" 
