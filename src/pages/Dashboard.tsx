@@ -6,6 +6,8 @@ import NoResultsView from '@/components/dashboard/NoResultsView';
 import MetricsCards from '@/components/dashboard/MetricsCards';
 import EquityChart from '@/components/dashboard/EquityChart';
 import ReportsGrid from '@/components/dashboard/ReportsGrid';
+import MarketConditionAnalysis from '@/components/dashboard/MarketConditionAnalysis';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Dashboard = () => {
   const { results, resetResults } = useBacktestingStore();
@@ -22,7 +24,21 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 gap-6 mb-8">
         <EquityChart equityCurve={results.equityCurve} />
       </div>
-      <ReportsGrid results={results} />
+      
+      <Tabs defaultValue="reports" className="mb-8">
+        <TabsList className="mb-4">
+          <TabsTrigger value="reports">Performance Reports</TabsTrigger>
+          <TabsTrigger value="market-conditions">Market Condition Analysis</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="reports">
+          <ReportsGrid results={results} />
+        </TabsContent>
+        
+        <TabsContent value="market-conditions">
+          <MarketConditionAnalysis results={results} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
