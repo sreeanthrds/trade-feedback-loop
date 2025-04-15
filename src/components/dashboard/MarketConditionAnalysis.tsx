@@ -14,6 +14,27 @@ interface MarketConditionAnalysisProps {
 }
 
 const MarketConditionAnalysis: React.FC<MarketConditionAnalysisProps> = ({ results }) => {
+  // Ensure that marketConditionAnalysis exists in results
+  if (!results.marketConditionAnalysis) {
+    return (
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold">Market Condition Analysis</h2>
+        <p className="text-muted-foreground mb-6">
+          No market condition data available for this backtest.
+        </p>
+        <Card>
+          <CardHeader>
+            <CardTitle>Missing Data</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>Market condition analysis requires detailed market data which is not available for this backtest run.</p>
+            <p className="mt-2">Try running a new backtest with market condition analysis enabled.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+  
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Market Condition Analysis</h2>

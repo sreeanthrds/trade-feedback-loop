@@ -2,7 +2,11 @@
 import { create } from 'zustand';
 import { defaultConfig } from '../constants';
 import { BacktestingStore } from './types';
-import { generateMockTransactions, generateMonthlyReturns } from '../utils/mockDataGenerators';
+import { 
+  generateMockTransactions, 
+  generateMonthlyReturns, 
+  generateMarketConditionAnalysis 
+} from '../utils/mockDataGenerators';
 
 export const useBacktestingStore = create<BacktestingStore>((set, get) => ({
   config: defaultConfig,
@@ -27,6 +31,7 @@ export const useBacktestingStore = create<BacktestingStore>((set, get) => ({
       if (get().isRunning) {
         const mockTransactions = generateMockTransactions();
         const monthlyReturns = generateMonthlyReturns(mockTransactions);
+        const marketConditionAnalysis = generateMarketConditionAnalysis();
         
         set({
           isRunning: false,
@@ -42,7 +47,8 @@ export const useBacktestingStore = create<BacktestingStore>((set, get) => ({
               equity: 10000 * (1 + 0.15 * (i / 180)) * (1 + Math.sin(i / 10) * 0.03)
             })),
             transactions: mockTransactions,
-            monthlyReturns
+            monthlyReturns,
+            marketConditionAnalysis
           }
         });
       }
