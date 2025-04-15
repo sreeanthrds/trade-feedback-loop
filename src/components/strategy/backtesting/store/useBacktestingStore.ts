@@ -24,6 +24,7 @@ export const useBacktestingStore = create<BacktestingStore>((set, get) => ({
   
   startBacktest: () => {
     set({ isRunning: true });
+    const config = get().config;
     
     // In a real implementation, this would trigger the actual backtesting process
     // For now, just simulate it with a timeout and mock results
@@ -48,7 +49,15 @@ export const useBacktestingStore = create<BacktestingStore>((set, get) => ({
             })),
             transactions: mockTransactions,
             monthlyReturns,
-            marketConditionAnalysis
+            marketConditionAnalysis,
+            // Additional properties
+            initialCapital: config.initialCapital,
+            commission: config.commissionPercentage + '%',
+            slippage: config.slippagePercentage + '%',
+            symbol: 'AAPL',
+            timeframe: config.timeframe,
+            startDate: config.startDate,
+            endDate: config.endDate
           }
         });
       }

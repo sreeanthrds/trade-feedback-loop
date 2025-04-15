@@ -5,6 +5,7 @@ import { useBacktestingStore } from './store/useBacktestingStore';
 import BacktestTabHeader from './components/BacktestTabHeader';
 import ConfigurationTab from './components/ConfigurationTab';
 import ResultsTab from './components/ResultsTab';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 
 const BacktestConfigPanel = () => {
   const [activeTab, setActiveTab] = useState('settings');
@@ -16,24 +17,29 @@ const BacktestConfigPanel = () => {
   };
 
   return (
-    <div className="p-4 border-t border-border max-h-[calc(100vh-10rem)] overflow-y-auto">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <BacktestTabHeader activeTab={activeTab} />
-        
-        <ConfigurationTab 
-          config={config}
-          updateConfig={updateConfig}
-          startBacktest={handleStartBacktest}
-          isRunning={isRunning}
-        />
-        
-        <ResultsTab 
-          results={results}
-          resetResults={resetResults}
-          setActiveTab={setActiveTab}
-        />
-      </Tabs>
-    </div>
+    <Card className="border-border">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-xl">Strategy Backtest Configuration</CardTitle>
+      </CardHeader>
+      <div className="p-4 max-h-[calc(100vh-15rem)] overflow-y-auto">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <BacktestTabHeader activeTab={activeTab} />
+          
+          <ConfigurationTab 
+            config={config}
+            updateConfig={updateConfig}
+            startBacktest={handleStartBacktest}
+            isRunning={isRunning}
+          />
+          
+          <ResultsTab 
+            results={results}
+            resetResults={resetResults}
+            setActiveTab={setActiveTab}
+          />
+        </Tabs>
+      </div>
+    </Card>
   );
 };
 

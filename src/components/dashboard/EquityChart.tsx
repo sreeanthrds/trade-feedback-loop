@@ -10,7 +10,10 @@ import {
   CartesianGrid, 
   Tooltip, 
   Legend, 
-  ResponsiveContainer 
+  ResponsiveContainer,
+  Area,
+  AreaChart,
+  ReferenceLine,
 } from 'recharts';
 
 interface EquityChartProps {
@@ -18,36 +21,77 @@ interface EquityChartProps {
 }
 
 const EquityChart = ({ equityCurve }: EquityChartProps) => {
+  // Find the maximum and minimum values for reference lines
+  const maxEquity = Math.max(...equityCurve.map(point => point.equity));
+  const minEquity = Math.min(...equityCurve.map(point => point.equity));
+  
+  // Calculate start and current equity
+  const startEquity = equityCurve[0]?.equity || 10000;
+  const currentEquity = equityCurve[equityCurve.length - 1]?.equity || startEquity;
+  
+  // Format currency
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
+  };
+  
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Equity Curve</CardTitle>
-        <CardDescription>Growth of capital over time</CardDescription>
+      <CardHeader className="pb-2">
+        <div className="flex justify-between items-start">
+          <div>
+            <CardTitle>Equity Curve</CardTitle>
+            <CardDescription>Capital growth over time</CardDescription>
+          </div>
+          <div className="text-right">
+            <div className="text-muted-foreground text-sm">Current Equity</div>
+            <div className="text-xl font-bold">{formatCurrency(currentEquity)}</div>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="h-80 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={equityCurve}>
-              <CartesianGrid strokeDasharray="3 3" />
+            <AreaChart data={equityCurve}>
+              <defs>
+                <linearGradient id="equityGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor="#8884d8" stopOpacity={0.1}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
               <XAxis 
                 dataKey="timestamp" 
                 tickFormatter={(timestamp) => new Date(timestamp).toLocaleDateString()}
+                tick={{ fontSize: 12 }}
               />
-              <YAxis />
+              <YAxis 
+                tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                tick={{ fontSize: 12 }}
+              />
               <Tooltip 
                 formatter={(value: any) => {
-                  return typeof value === 'number' ? [`$${value.toFixed(2)}`, 'Equity'] : [value, 'Equity'];
+                  return typeof value === 'number' ? [formatCurrency(value), 'Equity'] : [value, 'Equity'];
                 }}
                 labelFormatter={(label) => new Date(label).toLocaleDateString()}
+                contentStyle={{ backgroundColor: 'rgba(12, 12, 14, 0.9)', borderColor: 'rgba(63, 63, 70, 0.5)' }}
               />
               <Legend />
-              <Line 
+              <ReferenceLine y={startEquity} stroke="#666" strokeDasharray="3 3" />
+              <ReferenceLine y={maxEquity} stroke="green" strokeDasharray="3 3" label={{ value: "Max", position: "left", fill: "green", fontSize: 10 }} />
+              <ReferenceLine y={minEquity} stroke="red" strokeDasharray="3 3" label={{ value: "Min", position: "left", fill: "red", fontSize: 10 }} />
+              <Area 
                 type="monotone" 
                 dataKey="equity" 
                 stroke="#8884d8" 
-                activeDot={{ r: 8 }} 
+                fill="url(#equityGradient)" 
+                activeDot={{ r: 6 }} 
               />
-            </LineChart>
+            </AreaChart>
           </ResponsiveContainer>
         </div>
       </CardContent>

@@ -88,4 +88,11 @@ export interface BacktestResult {
     return: number;
   }[];
   marketConditionAnalysis?: MarketRegimeAnalysis;
+  initialCapital?: number;
+  commission?: string;
+  slippage?: string;
+  symbol?: string;
+  timeframe?: string;
+  startDate?: Date;
+  endDate?: Date;
 }

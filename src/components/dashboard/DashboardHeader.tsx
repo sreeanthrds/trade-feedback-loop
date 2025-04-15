@@ -1,7 +1,9 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import { Share2, Download, Save } from 'lucide-react';
 
 interface DashboardHeaderProps {
   onClearResults: () => void;
@@ -11,19 +13,40 @@ const DashboardHeader = ({ onClearResults }: DashboardHeaderProps) => {
   const navigate = useNavigate();
   
   return (
-    <div className="flex justify-between items-center mb-6 pt-4">
+    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pt-4">
       <div>
-        <h1 className="text-3xl font-bold mb-2">Results Dashboard</h1>
+        <h1 className="text-3xl font-bold mb-2">Strategy Results</h1>
         <p className="text-foreground/70">
-          Analysis and performance metrics from your backtest
+          AAPL Options Strategy • Jan 2023 - Dec 2023 • 42 Trades
         </p>
       </div>
-      <div className="space-x-2">
-        <Button variant="outline" onClick={onClearResults}>Clear Results</Button>
-        <Button onClick={() => navigate('/app/backtesting')}>New Backtest</Button>
-        <Link to="/documentation" className="text-sm font-medium">
-          Documentation
-        </Link>
+      <div className="flex items-center gap-2">
+        <Button variant="outline" size="sm" className="flex items-center gap-1">
+          <Share2 className="h-4 w-4" />
+          <span className="hidden sm:inline">Share</span>
+        </Button>
+        <Button variant="outline" size="sm" className="flex items-center gap-1">
+          <Save className="h-4 w-4" />
+          <span className="hidden sm:inline">Save</span>
+        </Button>
+        <Button variant="outline" size="sm" className="flex items-center gap-1">
+          <Download className="h-4 w-4" />
+          <span className="hidden sm:inline">Export</span>
+        </Button>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={onClearResults}
+          className="ml-2"
+        >
+          Clear
+        </Button>
+        <Button 
+          size="sm" 
+          onClick={() => navigate('/app/backtesting')}
+        >
+          New Backtest
+        </Button>
       </div>
     </div>
   );
