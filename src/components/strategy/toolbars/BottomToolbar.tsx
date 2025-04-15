@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Panel } from '@xyflow/react';
 import { useStrategyStore } from '@/hooks/use-strategy-store';
-import { useBacktestingStore } from '../backtesting/useBacktestingStore';
+import { useBacktestingStore } from '../backtesting/store/useBacktestingStore';
 import SaveButton from './bottom-toolbar/SaveButton';
 import ExportButton from './bottom-toolbar/ExportButton';
 import ImportButton from './bottom-toolbar/ImportButton';
