@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { BarChart, LineChart } from 'lucide-react';
-import { useBacktestingStore } from './useBacktestingStore';
+import { useBacktestingStore } from './store/useBacktestingStore';
 import { Link } from 'react-router-dom';
 
 interface BacktestingToggleProps {

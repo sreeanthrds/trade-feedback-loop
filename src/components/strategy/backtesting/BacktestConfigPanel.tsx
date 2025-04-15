@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Tabs } from '@/components/ui/tabs';
-import { useBacktestingStore } from './useBacktestingStore';
+import { useBacktestingStore } from './store/useBacktestingStore';
 import BacktestTabHeader from './components/BacktestTabHeader';
 import ConfigurationTab from './components/ConfigurationTab';
 import ResultsTab from './components/ResultsTab';
