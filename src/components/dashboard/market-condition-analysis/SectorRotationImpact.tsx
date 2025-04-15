@@ -107,7 +107,7 @@ const SectorRotationImpact: React.FC<SectorRotationImpactProps> = ({ results }) 
           <Treemap
             data={sectorData}
             dataKey="size"
-            ratio={4/3}
+            // Removed the 'ratio' prop as it's not supported by the Treemap component
             stroke="#fff"
             fill="#8884d8"
             content={<CustomizedContent />}
