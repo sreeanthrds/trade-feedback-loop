@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Expression, 
@@ -36,10 +35,20 @@ const TimeSelector: React.FC<TimeSelectorProps> = ({
 
   const timeExpr = expression as TimeFunctionExpression;
   
-  // State for the specific time input
+  // State for the specific date and time inputs
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     timeExpr.function === 'specific_date' && timeExpr.parameters?.date ? 
     new Date(timeExpr.parameters.date) : undefined
+  );
+  
+  const [selectedDatetime, setSelectedDatetime] = useState<Date | undefined>(
+    timeExpr.function === 'specific_datetime' && timeExpr.parameters?.datetime ? 
+    new Date(timeExpr.parameters.datetime) : undefined
+  );
+  
+  const [selectedTime, setSelectedTime] = useState<string>(
+    timeExpr.function === 'specific_time' && timeExpr.parameters?.time ? 
+    timeExpr.parameters.time : ''
   );
   
   // Update the time function
@@ -56,6 +65,12 @@ const TimeSelector: React.FC<TimeSelectorProps> = ({
         break;
       case 'specific_date':
         newParams = selectedDate ? { date: selectedDate.toISOString() } : { date: new Date().toISOString() };
+        break;
+      case 'specific_datetime':
+        newParams = selectedDatetime ? { datetime: selectedDatetime.toISOString() } : { datetime: new Date().toISOString() };
+        break;
+      case 'specific_time':
+        newParams = selectedTime ? { time: selectedTime } : { time: format(new Date(), 'HH:mm:ss') };
         break;
       default:
         newParams = undefined;
@@ -85,6 +100,53 @@ const TimeSelector: React.FC<TimeSelectorProps> = ({
     updateExpression({
       ...timeExpr,
       parameters: { date: date.toISOString() }
+    });
+  };
+  
+  // Update datetime parameter (for 'specific_datetime' function)
+  const updateDatetimeParameter = (date: Date | undefined) => {
+    if (!date) return;
+    
+    // Keep the time component when updating just the date part
+    const newDatetime = selectedDatetime ? 
+      new Date(
+        date.getFullYear(), 
+        date.getMonth(), 
+        date.getDate(),
+        selectedDatetime.getHours(),
+        selectedDatetime.getMinutes(),
+        selectedDatetime.getSeconds()
+      ) : 
+      date;
+    
+    setSelectedDatetime(newDatetime);
+    updateExpression({
+      ...timeExpr,
+      parameters: { datetime: newDatetime.toISOString() }
+    });
+  };
+  
+  // Update time part of datetime
+  const updateDatetimeTimeParameter = (timeStr: string) => {
+    if (!timeStr) return;
+    
+    const [hours, minutes, seconds = '00'] = timeStr.split(':').map(Number);
+    const newDatetime = selectedDatetime || new Date();
+    newDatetime.setHours(hours || 0, minutes || 0, seconds || 0);
+    
+    setSelectedDatetime(new Date(newDatetime));
+    updateExpression({
+      ...timeExpr,
+      parameters: { datetime: newDatetime.toISOString() }
+    });
+  };
+  
+  // Update time parameter (for 'specific_time' function)
+  const updateTimeParameter = (timeStr: string) => {
+    setSelectedTime(timeStr);
+    updateExpression({
+      ...timeExpr,
+      parameters: { time: timeStr }
     });
   };
   
@@ -121,6 +183,8 @@ const TimeSelector: React.FC<TimeSelectorProps> = ({
           <SelectItem value="n_hours_ago">Hours ago</SelectItem>
           <SelectItem value="n_days_ago">Days ago</SelectItem>
           <SelectItem value="specific_date">Specific date</SelectItem>
+          <SelectItem value="specific_datetime">Specific date & time</SelectItem>
+          <SelectItem value="specific_time">Specific time</SelectItem>
           <SelectItem value="this_week">This week</SelectItem>
           <SelectItem value="last_week">Last week</SelectItem>
           <SelectItem value="this_month">This month</SelectItem>
@@ -172,6 +236,62 @@ const TimeSelector: React.FC<TimeSelectorProps> = ({
               />
             </PopoverContent>
           </Popover>
+        </div>
+      )}
+      
+      {timeExpr.function === 'specific_datetime' && (
+        <div className="space-y-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full h-8 px-3 justify-start text-left font-normal",
+                  !selectedDatetime && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {selectedDatetime ? format(selectedDatetime, 'PP') : <span>Pick a date</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={selectedDatetime}
+                onSelect={updateDatetimeParameter}
+                initialFocus
+                className="p-3 pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+          
+          <div className="flex items-center space-x-2">
+            <Clock className="h-4 w-4 text-muted-foreground" />
+            <Input
+              type="time" 
+              step="1"
+              className="h-8 max-w-[200px]"
+              value={
+                selectedDatetime ? 
+                format(selectedDatetime, 'HH:mm:ss') : 
+                format(new Date(), 'HH:mm:ss')
+              }
+              onChange={(e) => updateDatetimeTimeParameter(e.target.value)}
+            />
+          </div>
+        </div>
+      )}
+      
+      {timeExpr.function === 'specific_time' && (
+        <div className="flex items-center space-x-2">
+          <Clock className="h-4 w-4 text-muted-foreground" />
+          <Input
+            type="time" 
+            step="1"
+            className="h-8 max-w-[200px]"
+            value={selectedTime || format(new Date(), 'HH:mm:ss')}
+            onChange={(e) => updateTimeParameter(e.target.value)}
+          />
         </div>
       )}
     </div>
