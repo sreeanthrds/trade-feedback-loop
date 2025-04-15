@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import BacktestConfigPanel from '@/components/strategy/backtesting/BacktestConfigPanel';
-import { useBacktestingStore } from '@/components/strategy/backtesting/store/useBacktestingStore';
+import { useBacktestingStore } from '@/components/strategy/backtesting/store';
 
 const BacktestingPage = () => {
   const { startBacktest, isRunning, results } = useBacktestingStore();
