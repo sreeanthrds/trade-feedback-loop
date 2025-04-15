@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   Expression, 
@@ -130,9 +131,14 @@ const TimeSelector: React.FC<TimeSelectorProps> = ({
   const updateDatetimeTimeParameter = (timeStr: string) => {
     if (!timeStr) return;
     
-    const [hours, minutes, seconds = '00'] = timeStr.split(':').map(Number);
+    // Fixed: Ensure we convert string parts to numbers before using them
+    const [hoursStr, minutesStr, secondsStr = '00'] = timeStr.split(':');
+    const hours = parseInt(hoursStr, 10) || 0;
+    const minutes = parseInt(minutesStr, 10) || 0;
+    const seconds = parseInt(secondsStr, 10) || 0;
+    
     const newDatetime = selectedDatetime || new Date();
-    newDatetime.setHours(hours || 0, minutes || 0, seconds || 0);
+    newDatetime.setHours(hours, minutes, seconds);
     
     setSelectedDatetime(new Date(newDatetime));
     updateExpression({
@@ -299,3 +305,4 @@ const TimeSelector: React.FC<TimeSelectorProps> = ({
 };
 
 export default TimeSelector;
+
