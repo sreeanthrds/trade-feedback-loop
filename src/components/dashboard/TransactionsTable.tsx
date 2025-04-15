@@ -98,7 +98,7 @@ const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
   );
   
   return (
-    <Card className="col-span-2">
+    <Card className="col-span-2 border-border bg-card/60">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
@@ -133,9 +133,9 @@ const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="relative overflow-x-auto rounded-md border">
+        <div className="relative overflow-x-auto rounded-md border border-border">
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-muted/30">
               <TableRow>
                 <TableHead 
                   className="cursor-pointer"

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { BarChart2, LineChart, ArrowRightCircle, BarChart, PieChart } from 'lucide-react';
@@ -12,10 +12,10 @@ const BacktestingPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="container max-w-7xl mx-auto px-4 py-6 overflow-y-auto h-[calc(100vh-4rem)]">
+    <div className="container max-w-7xl mx-auto px-4 py-6 overflow-y-auto h-[calc(100vh-4rem)] bg-background">
       <div className="mb-6 pt-4">
         <h1 className="text-3xl font-bold mb-2">Options Backtesting Analytics</h1>
-        <p className="text-foreground/70 mb-6">
+        <p className="text-muted-foreground mb-6">
           Test your strategy against historical data to analyze performance and optimize returns
         </p>
         
@@ -32,7 +32,7 @@ const BacktestingPage = () => {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card className="bg-card hover:bg-card/90 transition-colors">
+        <Card className="bg-card/60 hover:bg-card/80 transition-colors border-border">
           <CardHeader>
             <CardTitle className="flex items-center">
               <BarChart2 className="mr-2 h-5 w-5 text-primary" />
@@ -46,7 +46,7 @@ const BacktestingPage = () => {
           </CardContent>
         </Card>
         
-        <Card className="bg-card hover:bg-card/90 transition-colors">
+        <Card className="bg-card/60 hover:bg-card/80 transition-colors border-border">
           <CardHeader>
             <CardTitle className="flex items-center">
               <LineChart className="mr-2 h-5 w-5 text-primary" />
@@ -60,7 +60,7 @@ const BacktestingPage = () => {
           </CardContent>
         </Card>
         
-        <Card className="bg-card hover:bg-card/90 transition-colors">
+        <Card className="bg-card/60 hover:bg-card/80 transition-colors border-border">
           <CardHeader>
             <CardTitle className="flex items-center">
               <PieChart className="mr-2 h-5 w-5 text-primary" />
@@ -76,7 +76,7 @@ const BacktestingPage = () => {
       </div>
       
       <div className="grid grid-cols-1 gap-6">
-        <div className="border border-border rounded-xl p-4">
+        <div className="border border-border rounded-xl p-4 bg-card/30">
           <BacktestConfigPanel />
         </div>
       </div>

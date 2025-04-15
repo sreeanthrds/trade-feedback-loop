@@ -11,7 +11,7 @@ interface MetricsCardsProps {
 const MetricsCards = ({ results }: MetricsCardsProps) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      <Card className="border-l-4 border-l-green-500">
+      <Card className="border-l-4 border-l-green-500 border-border bg-card/60">
         <CardHeader className="p-4 flex flex-row justify-between items-center">
           <div>
             <CardDescription className="font-medium mb-1 text-muted-foreground">Total Return</CardDescription>
@@ -21,7 +21,7 @@ const MetricsCards = ({ results }: MetricsCardsProps) => {
         </CardHeader>
       </Card>
       
-      <Card className="border-l-4 border-l-blue-500">
+      <Card className="border-l-4 border-l-blue-500 border-border bg-card/60">
         <CardHeader className="p-4 flex flex-row justify-between items-center">
           <div>
             <CardDescription className="font-medium mb-1 text-muted-foreground">Win Rate</CardDescription>
@@ -31,7 +31,7 @@ const MetricsCards = ({ results }: MetricsCardsProps) => {
         </CardHeader>
       </Card>
       
-      <Card className="border-l-4 border-l-red-500">
+      <Card className="border-l-4 border-l-red-500 border-border bg-card/60">
         <CardHeader className="p-4 flex flex-row justify-between items-center">
           <div>
             <CardDescription className="font-medium mb-1 text-muted-foreground">Max Drawdown</CardDescription>
@@ -41,7 +41,7 @@ const MetricsCards = ({ results }: MetricsCardsProps) => {
         </CardHeader>
       </Card>
       
-      <Card className="border-l-4 border-l-purple-500">
+      <Card className="border-l-4 border-l-purple-500 border-border bg-card/60">
         <CardHeader className="p-4 flex flex-row justify-between items-center">
           <div>
             <CardDescription className="font-medium mb-1 text-muted-foreground">Sharpe Ratio</CardDescription>

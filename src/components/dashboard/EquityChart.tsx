@@ -40,7 +40,7 @@ const EquityChart = ({ equityCurve }: EquityChartProps) => {
   };
   
   return (
-    <Card>
+    <Card className="border-border bg-card/60">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <div>
@@ -68,10 +68,12 @@ const EquityChart = ({ equityCurve }: EquityChartProps) => {
                 dataKey="timestamp" 
                 tickFormatter={(timestamp) => new Date(timestamp).toLocaleDateString()}
                 tick={{ fontSize: 12 }}
+                stroke="#666"
               />
               <YAxis 
                 tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
                 tick={{ fontSize: 12 }}
+                stroke="#666"
               />
               <Tooltip 
                 formatter={(value: any) => {

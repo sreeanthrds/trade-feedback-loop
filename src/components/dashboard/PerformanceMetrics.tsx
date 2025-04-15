@@ -10,7 +10,7 @@ interface PerformanceMetricsProps {
 
 const PerformanceMetrics = ({ results }: PerformanceMetricsProps) => {
   return (
-    <Card>
+    <Card className="border-border bg-card/60">
       <CardHeader>
         <CardTitle>Performance Metrics</CardTitle>
       </CardHeader>
@@ -18,16 +18,16 @@ const PerformanceMetrics = ({ results }: PerformanceMetricsProps) => {
         <Table>
           <TableBody>
             <TableRow>
-              <TableCell>Sharpe Ratio</TableCell>
-              <TableCell className="text-right">{results.sharpeRatio.toFixed(2)}</TableCell>
+              <TableCell className="text-muted-foreground">Sharpe Ratio</TableCell>
+              <TableCell className="text-right font-medium">{results.sharpeRatio.toFixed(2)}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>Profit Factor</TableCell>
-              <TableCell className="text-right">{results.profitFactor.toFixed(2)}</TableCell>
+              <TableCell className="text-muted-foreground">Profit Factor</TableCell>
+              <TableCell className="text-right font-medium">{results.profitFactor.toFixed(2)}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>Total Trades</TableCell>
-              <TableCell className="text-right">{results.tradesCount}</TableCell>
+              <TableCell className="text-muted-foreground">Total Trades</TableCell>
+              <TableCell className="text-right font-medium">{results.tradesCount}</TableCell>
             </TableRow>
           </TableBody>
         </Table>

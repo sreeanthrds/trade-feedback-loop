@@ -32,7 +32,7 @@ const MonthlyReturnsChart = ({ monthlyReturns }: MonthlyReturnsChartProps) => {
   }));
   
   return (
-    <Card>
+    <Card className="border-border bg-card/60">
       <CardHeader>
         <CardTitle>Monthly Returns</CardTitle>
       </CardHeader>
@@ -40,13 +40,22 @@ const MonthlyReturnsChart = ({ monthlyReturns }: MonthlyReturnsChartProps) => {
         <div className="h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis tickFormatter={(value) => `${value}%`} />
+              <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+              <XAxis 
+                dataKey="month" 
+                stroke="#666"
+                tick={{ fill: "#ccc", fontSize: 12 }}
+              />
+              <YAxis 
+                tickFormatter={(value) => `${value}%`} 
+                stroke="#666"
+                tick={{ fill: "#ccc", fontSize: 12 }}
+              />
               <Tooltip 
                 formatter={(value: any) => {
                   return typeof value === 'number' ? [`${value.toFixed(2)}%`, 'Return'] : [value, 'Return'];
                 }} 
+                contentStyle={{ backgroundColor: 'rgba(12, 12, 14, 0.9)', borderColor: 'rgba(63, 63, 70, 0.5)' }}
               />
               <Bar 
                 dataKey="return" 

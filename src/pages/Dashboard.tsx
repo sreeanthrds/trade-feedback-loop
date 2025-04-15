@@ -21,11 +21,11 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="container max-w-7xl mx-auto px-4 py-6">
+    <div className="container max-w-7xl mx-auto px-4 py-6 bg-background">
       <DashboardHeader onClearResults={resetResults} />
       <MetricsCards results={results} />
       
-      <Card className="mb-6">
+      <Card className="mb-6 border-border bg-card/60">
         <CardHeader className="py-3 cursor-pointer" onClick={() => setShowParameters(!showParameters)}>
           <div className="flex justify-between items-center">
             <CardTitle className="text-lg font-medium">Backtest Parameters</CardTitle>
@@ -64,7 +64,7 @@ const Dashboard = () => {
       </div>
       
       <Tabs defaultValue="overview" className="mb-8">
-        <TabsList className="mb-4 w-full justify-start border-b pb-0 overflow-x-auto">
+        <TabsList className="mb-4 w-full justify-start border-b pb-0 overflow-x-auto bg-muted/30">
           <TabsTrigger value="overview" className="rounded-b-none rounded-t-md">Overview</TabsTrigger>
           <TabsTrigger value="performance" className="rounded-b-none rounded-t-md">Performance</TabsTrigger>
           <TabsTrigger value="trades" className="rounded-b-none rounded-t-md">Trades</TabsTrigger>
@@ -74,7 +74,7 @@ const Dashboard = () => {
         
         <TabsContent value="overview">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <Card>
+            <Card className="border-border bg-card/60">
               <CardHeader>
                 <CardTitle>Strategy Summary</CardTitle>
               </CardHeader>
@@ -95,7 +95,7 @@ const Dashboard = () => {
                 </div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="border-border bg-card/60">
               <CardHeader>
                 <CardTitle>Monthly Performance</CardTitle>
               </CardHeader>
@@ -116,7 +116,7 @@ const Dashboard = () => {
         
         <TabsContent value="trades">
           {results.transactions && results.transactions.length > 0 ? (
-            <Card>
+            <Card className="border-border bg-card/60">
               <CardHeader>
                 <CardTitle>Trade History</CardTitle>
                 <CardDescription>
@@ -128,7 +128,7 @@ const Dashboard = () => {
               </CardContent>
             </Card>
           ) : (
-            <Card>
+            <Card className="border-border bg-card/60">
               <CardContent className="py-8 text-center">
                 <p className="text-muted-foreground">No trade data available</p>
               </CardContent>
@@ -142,7 +142,7 @@ const Dashboard = () => {
         
         <TabsContent value="risk">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
+            <Card className="border-border bg-card/60">
               <CardHeader>
                 <CardTitle>Drawdown Analysis</CardTitle>
               </CardHeader>
@@ -153,7 +153,7 @@ const Dashboard = () => {
                 </div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="border-border bg-card/60">
               <CardHeader>
                 <CardTitle>Risk Metrics</CardTitle>
               </CardHeader>

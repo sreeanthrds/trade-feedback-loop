@@ -17,7 +17,7 @@ const BacktestConfigPanel = () => {
   };
 
   return (
-    <Card className="border-border">
+    <Card className="border-border bg-card/60">
       <CardHeader className="pb-2">
         <CardTitle className="text-xl">Strategy Backtest Configuration</CardTitle>
       </CardHeader>

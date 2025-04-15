@@ -21,15 +21,15 @@ const DashboardHeader = ({ onClearResults }: DashboardHeaderProps) => {
         </p>
       </div>
       <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" className="flex items-center gap-1">
+        <Button variant="outline" size="sm" className="flex items-center gap-1 border-border">
           <Share2 className="h-4 w-4" />
           <span className="hidden sm:inline">Share</span>
         </Button>
-        <Button variant="outline" size="sm" className="flex items-center gap-1">
+        <Button variant="outline" size="sm" className="flex items-center gap-1 border-border">
           <Save className="h-4 w-4" />
           <span className="hidden sm:inline">Save</span>
         </Button>
-        <Button variant="outline" size="sm" className="flex items-center gap-1">
+        <Button variant="outline" size="sm" className="flex items-center gap-1 border-border">
           <Download className="h-4 w-4" />
           <span className="hidden sm:inline">Export</span>
         </Button>
@@ -37,13 +37,14 @@ const DashboardHeader = ({ onClearResults }: DashboardHeaderProps) => {
           variant="outline" 
           size="sm" 
           onClick={onClearResults}
-          className="ml-2"
+          className="ml-2 border-border"
         >
           Clear
         </Button>
         <Button 
           size="sm" 
           onClick={() => navigate('/app/backtesting')}
+          className="bg-primary text-primary-foreground hover:bg-primary/90"
         >
           New Backtest
         </Button>
