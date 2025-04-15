@@ -8,7 +8,7 @@ const BacktestingPage = () => {
   const { startBacktest, isRunning, results } = useBacktestingStore();
 
   return (
-    <div className="container max-w-7xl mx-auto px-4 py-6">
+    <div className="container max-w-7xl mx-auto px-4 py-6 overflow-y-auto h-[calc(100vh-4rem)]">
       <div className="mb-6 pt-4">
         <h1 className="text-3xl font-bold mb-2">Backtesting</h1>
         <p className="text-foreground/70">

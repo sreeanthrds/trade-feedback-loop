@@ -74,6 +74,17 @@
   height: calc(100% - 300px);
 }
 
+/* Add scrollability to content areas */
+.strategy-flow-container .content-scrollable {
+  overflow-y: auto;
+  max-height: 100%;
+}
+
+/* Make sure panels are scrollable */
+.strategy-flow-container [data-panel-id] {
+  overflow-y: auto;
+}
+
 /* Media queries for responsive design */
 @media (max-width: 768px) {
   .strategy-flow-container [data-panel-resize-handle-id] {

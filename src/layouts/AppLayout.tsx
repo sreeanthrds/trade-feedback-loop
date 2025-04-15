@@ -21,7 +21,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col">
       {!isStrategyBuilder && (
-        <header className="border-b">
+        <header className="border-b sticky top-0 z-50 bg-background">
           <div className="container flex items-center justify-between h-14 px-4">
             <div className="flex items-center gap-6">
               <Link to="/" className="font-semibold text-lg">Trady</Link>
@@ -58,7 +58,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         </header>
       )}
       
-      <main className="flex-1">
+      <main className="flex-1 overflow-auto">
         {children}
       </main>
     </div>

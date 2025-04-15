@@ -55,9 +55,9 @@ const BacktestConfigPanel = () => {
   };
 
   return (
-    <div className="p-4 border-t border-border">
+    <div className="p-4 border-t border-border max-h-[calc(100vh-10rem)] overflow-y-auto">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center mb-4 sticky top-0 bg-background pt-2 pb-4 z-10">
           <h3 className="text-lg font-medium">Backtest Configuration</h3>
           <TabsList>
             <TabsTrigger value="settings" className="flex items-center gap-1">
