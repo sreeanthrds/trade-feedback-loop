@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { useBacktestingStore } from '@/components/strategy/backtesting/store/useBacktestingStore';
+import { useBacktestingStore } from '@/components/strategy/backtesting/store';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import NoResultsView from '@/components/dashboard/NoResultsView';
 import MetricsCards from '@/components/dashboard/MetricsCards';
