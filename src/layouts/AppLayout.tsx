@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { useTheme } from '@/hooks/use-theme';
 import { Button } from '@/components/ui/button';
-import { MoonIcon, SunIcon, HomeIcon } from 'lucide-react';
+import { MoonIcon, SunIcon, HomeIcon, Code2Icon } from 'lucide-react';
 import UserProfileDropdown from '@/components/auth/UserProfileDropdown';
 
 interface AppLayoutProps {
@@ -28,6 +28,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               <nav className="hidden md:flex items-center gap-4">
                 <Link to="/app" className={`text-sm ${location.pathname === '/app' ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
                   Strategies
+                </Link>
+                <Link to="/app/strategy-builder" className={`text-sm ${location.pathname.includes('/strategy-builder') ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
+                  Strategy Builder
                 </Link>
                 <Link to="/app/backtesting" className={`text-sm ${location.pathname.includes('/backtesting') ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
                   Backtesting
