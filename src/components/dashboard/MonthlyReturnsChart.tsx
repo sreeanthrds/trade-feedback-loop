@@ -18,7 +18,7 @@ interface MonthlyReturnsChartProps {
 // CustomBar component to apply conditional colors based on value
 const CustomBar = (props: any) => {
   const { fill, x, y, width, height, value } = props;
-  const barColor = value >= 0 ? "#4ade80" : "#f87171";
+  const barColor = value >= 0 ? "#4ADE80" : "#F87171";
   
   // Using rx and ry attributes instead of radius array
   return <rect x={x} y={y} width={width} height={height} fill={barColor} rx={4} ry={4} />;
@@ -32,30 +32,30 @@ const MonthlyReturnsChart = ({ monthlyReturns }: MonthlyReturnsChartProps) => {
   }));
   
   return (
-    <Card className="border-border bg-card/60">
+    <Card className="border-[#2A2F3C] bg-[#161923]/60 backdrop-blur-sm">
       <CardHeader>
-        <CardTitle>Monthly Returns</CardTitle>
+        <CardTitle className="text-white">Monthly Returns</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#2A2F3C" opacity={0.4} />
               <XAxis 
                 dataKey="month" 
-                stroke="#666"
-                tick={{ fill: "#ccc", fontSize: 12 }}
+                stroke="#2A2F3C"
+                tick={{ fill: "#94A3B8", fontSize: 12 }}
               />
               <YAxis 
                 tickFormatter={(value) => `${value}%`} 
-                stroke="#666"
-                tick={{ fill: "#ccc", fontSize: 12 }}
+                stroke="#2A2F3C"
+                tick={{ fill: "#94A3B8", fontSize: 12 }}
               />
               <Tooltip 
                 formatter={(value: any) => {
                   return typeof value === 'number' ? [`${value.toFixed(2)}%`, 'Return'] : [value, 'Return'];
                 }} 
-                contentStyle={{ backgroundColor: 'rgba(12, 12, 14, 0.9)', borderColor: 'rgba(63, 63, 70, 0.5)' }}
+                contentStyle={{ backgroundColor: 'rgba(22, 25, 35, 0.9)', borderColor: '#2A2F3C', color: '#fff' }}
               />
               <Bar 
                 dataKey="return" 

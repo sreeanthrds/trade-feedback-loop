@@ -12,72 +12,74 @@ const BacktestingPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="container max-w-7xl mx-auto px-4 py-6 overflow-y-auto h-[calc(100vh-4rem)] bg-background">
-      <div className="mb-6 pt-4">
-        <h1 className="text-3xl font-bold mb-2">Options Backtesting Analytics</h1>
-        <p className="text-muted-foreground mb-6">
-          Test your strategy against historical data to analyze performance and optimize returns
-        </p>
+    <div className="min-h-screen bg-[#0F1117] text-white">
+      <div className="container max-w-7xl mx-auto px-4 py-6 overflow-y-auto h-[calc(100vh-4rem)]">
+        <div className="mb-6 pt-4">
+          <h1 className="text-3xl font-bold mb-2 text-white">Options Backtesting Analytics</h1>
+          <p className="text-gray-400 mb-6">
+            Test your strategy against historical data to analyze performance and optimize returns
+          </p>
+          
+          {results && (
+            <Button 
+              className="mb-8 bg-blue-600 hover:bg-blue-700 text-white" 
+              size="lg" 
+              onClick={() => navigate('/app/dashboard')}
+            >
+              View Backtest Results
+              <ArrowRightCircle className="ml-2 h-5 w-5" />
+            </Button>
+          )}
+        </div>
         
-        {results && (
-          <Button 
-            className="mb-8" 
-            size="lg" 
-            onClick={() => navigate('/app/dashboard')}
-          >
-            View Backtest Results
-            <ArrowRightCircle className="ml-2 h-5 w-5" />
-          </Button>
-        )}
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card className="bg-card/60 hover:bg-card/80 transition-colors border-border">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <BarChart2 className="mr-2 h-5 w-5 text-primary" />
-              Performance Analysis
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Analyze returns, drawdowns, and key performance metrics to evaluate your strategy
-            </p>
-          </CardContent>
-        </Card>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Card className="bg-[#161923]/60 backdrop-blur-sm hover:bg-[#1C202C]/60 transition-colors border-[#2A2F3C]">
+            <CardHeader>
+              <CardTitle className="flex items-center text-white">
+                <BarChart2 className="mr-2 h-5 w-5 text-blue-500" />
+                Performance Analysis
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-400">
+                Analyze returns, drawdowns, and key performance metrics to evaluate your strategy
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-[#161923]/60 backdrop-blur-sm hover:bg-[#1C202C]/60 transition-colors border-[#2A2F3C]">
+            <CardHeader>
+              <CardTitle className="flex items-center text-white">
+                <LineChart className="mr-2 h-5 w-5 text-blue-500" />
+                Trade History
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-400">
+                Review individual trades with entry/exit points and performance metrics
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-[#161923]/60 backdrop-blur-sm hover:bg-[#1C202C]/60 transition-colors border-[#2A2F3C]">
+            <CardHeader>
+              <CardTitle className="flex items-center text-white">
+                <PieChart className="mr-2 h-5 w-5 text-blue-500" />
+                Strategy Comparison
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-400">
+                Compare multiple strategy variations to identify the most effective approach
+              </p>
+            </CardContent>
+          </Card>
+        </div>
         
-        <Card className="bg-card/60 hover:bg-card/80 transition-colors border-border">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <LineChart className="mr-2 h-5 w-5 text-primary" />
-              Trade History
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Review individual trades with entry/exit points and performance metrics
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-card/60 hover:bg-card/80 transition-colors border-border">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <PieChart className="mr-2 h-5 w-5 text-primary" />
-              Strategy Comparison
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Compare multiple strategy variations to identify the most effective approach
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-      
-      <div className="grid grid-cols-1 gap-6">
-        <div className="border border-border rounded-xl p-4 bg-card/30">
-          <BacktestConfigPanel />
+        <div className="grid grid-cols-1 gap-6">
+          <div className="border border-[#2A2F3C] rounded-xl p-4 bg-[#161923]/30 backdrop-blur-sm">
+            <BacktestConfigPanel />
+          </div>
         </div>
       </div>
     </div>

@@ -40,16 +40,16 @@ const EquityChart = ({ equityCurve }: EquityChartProps) => {
   };
   
   return (
-    <Card className="border-border bg-card/60">
+    <Card className="border-[#2A2F3C] bg-[#161923]/60 backdrop-blur-sm">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <div>
-            <CardTitle>Equity Curve</CardTitle>
-            <CardDescription>Capital growth over time</CardDescription>
+            <CardTitle className="text-white">Equity Curve</CardTitle>
+            <CardDescription className="text-gray-400">Capital growth over time</CardDescription>
           </div>
           <div className="text-right">
-            <div className="text-muted-foreground text-sm">Current Equity</div>
-            <div className="text-xl font-bold">{formatCurrency(currentEquity)}</div>
+            <div className="text-gray-400 text-sm">Current Equity</div>
+            <div className="text-xl font-bold text-white">{formatCurrency(currentEquity)}</div>
           </div>
         </div>
       </CardHeader>
@@ -59,39 +59,39 @@ const EquityChart = ({ equityCurve }: EquityChartProps) => {
             <AreaChart data={equityCurve}>
               <defs>
                 <linearGradient id="equityGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#8884d8" stopOpacity={0.1}/>
+                  <stop offset="5%" stopColor="#6366F1" stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor="#6366F1" stopOpacity={0.1}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#2A2F3C" />
               <XAxis 
                 dataKey="timestamp" 
                 tickFormatter={(timestamp) => new Date(timestamp).toLocaleDateString()}
-                tick={{ fontSize: 12 }}
-                stroke="#666"
+                tick={{ fontSize: 12, fill: "#94A3B8" }}
+                stroke="#2A2F3C"
               />
               <YAxis 
                 tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-                tick={{ fontSize: 12 }}
-                stroke="#666"
+                tick={{ fontSize: 12, fill: "#94A3B8" }}
+                stroke="#2A2F3C"
               />
               <Tooltip 
                 formatter={(value: any) => {
                   return typeof value === 'number' ? [formatCurrency(value), 'Equity'] : [value, 'Equity'];
                 }}
                 labelFormatter={(label) => new Date(label).toLocaleDateString()}
-                contentStyle={{ backgroundColor: 'rgba(12, 12, 14, 0.9)', borderColor: 'rgba(63, 63, 70, 0.5)' }}
+                contentStyle={{ backgroundColor: 'rgba(22, 25, 35, 0.9)', borderColor: '#2A2F3C', color: '#fff' }}
               />
               <Legend />
-              <ReferenceLine y={startEquity} stroke="#666" strokeDasharray="3 3" />
-              <ReferenceLine y={maxEquity} stroke="green" strokeDasharray="3 3" label={{ value: "Max", position: "left", fill: "green", fontSize: 10 }} />
-              <ReferenceLine y={minEquity} stroke="red" strokeDasharray="3 3" label={{ value: "Min", position: "left", fill: "red", fontSize: 10 }} />
+              <ReferenceLine y={startEquity} stroke="#6B7280" strokeDasharray="3 3" />
+              <ReferenceLine y={maxEquity} stroke="#10B981" strokeDasharray="3 3" label={{ value: "Max", position: "left", fill: "#10B981", fontSize: 10 }} />
+              <ReferenceLine y={minEquity} stroke="#EF4444" strokeDasharray="3 3" label={{ value: "Min", position: "left", fill: "#EF4444", fontSize: 10 }} />
               <Area 
                 type="monotone" 
                 dataKey="equity" 
-                stroke="#8884d8" 
+                stroke="#6366F1" 
                 fill="url(#equityGradient)" 
-                activeDot={{ r: 6 }} 
+                activeDot={{ r: 6, fill: "#818CF8" }} 
               />
             </AreaChart>
           </ResponsiveContainer>

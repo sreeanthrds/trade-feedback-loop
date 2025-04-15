@@ -62,8 +62,14 @@ export default {
         },
         success: '#10B981',
         danger: '#FF5252',
-        dark: '#1A1A1A',
-        'dark-subtle': '#2A2A2A',
+        dark: {
+          background: '#0F1117',
+          card: '#161923',
+          cardHover: '#1C202C',
+          border: '#2A2F3C',
+          text: '#FFFFFF',
+          textMuted: '#94A3B8',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',

@@ -43,11 +43,11 @@ const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
     if (!reason) return null;
     
     const colors: Record<string, string> = {
-      take_profit: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-      stop_loss: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
-      trailing_stop: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-      manual: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-      strategy_end: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+      take_profit: 'bg-green-900/40 text-green-300 border-green-700',
+      stop_loss: 'bg-red-900/40 text-red-300 border-red-700',
+      trailing_stop: 'bg-blue-900/40 text-blue-300 border-blue-700',
+      manual: 'bg-yellow-900/40 text-yellow-300 border-yellow-700',
+      strategy_end: 'bg-gray-700/40 text-gray-300 border-gray-600'
     };
     
     const labels: Record<string, string> = {
@@ -89,42 +89,42 @@ const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
     <>
       {sortField === field && (
         sortDirection === 'asc' ? (
-          <ChevronUp className="ml-1 h-4 w-4 inline" />
+          <ChevronUp className="ml-1 h-4 w-4 inline text-gray-400" />
         ) : (
-          <ChevronDown className="ml-1 h-4 w-4 inline" />
+          <ChevronDown className="ml-1 h-4 w-4 inline text-gray-400" />
         )
       )}
     </>
   );
   
   return (
-    <Card className="col-span-2 border-border bg-card/60">
+    <Card className="col-span-2 border-[#2A2F3C] bg-[#161923]/60 backdrop-blur-sm">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Transaction History</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-white">Transaction History</CardTitle>
+            <CardDescription className="text-gray-400">
               All trades executed during the backtest period
             </CardDescription>
           </div>
           <div className="flex gap-2">
             <Badge 
               variant={filter === 'all' ? 'default' : 'outline'} 
-              className="cursor-pointer"
+              className={`cursor-pointer ${filter === 'all' ? 'bg-blue-600 hover:bg-blue-700' : 'border-[#2A2F3C] text-gray-400 hover:bg-[#1C202C]/60'}`}
               onClick={() => setFilter('all')}
             >
               All
             </Badge>
             <Badge 
               variant={filter === 'entry' ? 'default' : 'outline'} 
-              className="cursor-pointer"
+              className={`cursor-pointer ${filter === 'entry' ? 'bg-blue-600 hover:bg-blue-700' : 'border-[#2A2F3C] text-gray-400 hover:bg-[#1C202C]/60'}`}
               onClick={() => setFilter('entry')}
             >
               Entries
             </Badge>
             <Badge 
               variant={filter === 'exit' ? 'default' : 'outline'} 
-              className="cursor-pointer"
+              className={`cursor-pointer ${filter === 'exit' ? 'bg-blue-600 hover:bg-blue-700' : 'border-[#2A2F3C] text-gray-400 hover:bg-[#1C202C]/60'}`}
               onClick={() => setFilter('exit')}
             >
               Exits
@@ -133,44 +133,44 @@ const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="relative overflow-x-auto rounded-md border border-border">
+        <div className="relative overflow-x-auto rounded-md border border-[#2A2F3C]">
           <Table>
-            <TableHeader className="bg-muted/30">
-              <TableRow>
+            <TableHeader className="bg-[#1C202C]/60">
+              <TableRow className="border-[#2A2F3C] hover:bg-[#20242F]/80">
                 <TableHead 
-                  className="cursor-pointer"
+                  className="cursor-pointer text-gray-400"
                   onClick={() => handleSort('timestamp')}
                 >
                   Date <SortIcon field="timestamp" />
                 </TableHead>
                 <TableHead 
-                  className="cursor-pointer"
+                  className="cursor-pointer text-gray-400"
                   onClick={() => handleSort('type')}
                 >
                   Type <SortIcon field="type" />
                 </TableHead>
                 <TableHead 
-                  className="cursor-pointer"
+                  className="cursor-pointer text-gray-400"
                   onClick={() => handleSort('symbol')}
                 >
                   Symbol <SortIcon field="symbol" />
                 </TableHead>
                 <TableHead 
-                  className="cursor-pointer"
+                  className="cursor-pointer text-gray-400"
                   onClick={() => handleSort('side')}
                 >
                   Side <SortIcon field="side" />
                 </TableHead>
                 <TableHead 
-                  className="cursor-pointer"
+                  className="cursor-pointer text-gray-400"
                   onClick={() => handleSort('price')}
                 >
                   Price <SortIcon field="price" />
                 </TableHead>
-                <TableHead>Quantity</TableHead>
-                <TableHead>Total</TableHead>
+                <TableHead className="text-gray-400">Quantity</TableHead>
+                <TableHead className="text-gray-400">Total</TableHead>
                 <TableHead 
-                  className="cursor-pointer"
+                  className="cursor-pointer text-gray-400"
                   onClick={() => handleSort('pnl')}
                 >
                   P/L <SortIcon field="pnl" />
@@ -179,28 +179,28 @@ const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
             </TableHeader>
             <TableBody>
               {filteredTransactions.map((transaction) => (
-                <TableRow key={transaction.id}>
-                  <TableCell>
+                <TableRow key={transaction.id} className="border-[#2A2F3C] hover:bg-[#20242F]/80">
+                  <TableCell className="text-gray-300">
                     {format(new Date(transaction.timestamp), 'MMM dd, yyyy')}
                   </TableCell>
                   <TableCell>
-                    <Badge variant={transaction.type === 'entry' ? 'secondary' : 'default'}>
+                    <Badge variant={transaction.type === 'entry' ? 'secondary' : 'default'} className={transaction.type === 'entry' ? 'bg-indigo-900/40 text-indigo-300 border-indigo-700' : 'bg-blue-900/40 text-blue-300 border-blue-700'}>
                       {transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}
                     </Badge>
                   </TableCell>
-                  <TableCell>{transaction.symbol}</TableCell>
+                  <TableCell className="text-gray-300">{transaction.symbol}</TableCell>
                   <TableCell>
-                    <span className={transaction.side === 'buy' ? 'text-green-600' : 'text-red-600'}>
+                    <span className={transaction.side === 'buy' ? 'text-green-500' : 'text-red-500'}>
                       {transaction.side.toUpperCase()}
                     </span>
                   </TableCell>
-                  <TableCell>{formatCurrency(transaction.price)}</TableCell>
-                  <TableCell>{transaction.quantity}</TableCell>
-                  <TableCell>{formatCurrency(transaction.amount)}</TableCell>
+                  <TableCell className="text-gray-300">{formatCurrency(transaction.price)}</TableCell>
+                  <TableCell className="text-gray-300">{transaction.quantity}</TableCell>
+                  <TableCell className="text-gray-300">{formatCurrency(transaction.amount)}</TableCell>
                   <TableCell>
                     {transaction.type === 'exit' ? (
                       <div className="space-y-1">
-                        <div className={transaction.pnl && transaction.pnl >= 0 ? 'text-green-600' : 'text-red-600'}>
+                        <div className={transaction.pnl && transaction.pnl >= 0 ? 'text-green-500' : 'text-red-500'}>
                           {transaction.pnl !== undefined ? formatCurrency(transaction.pnl) : '-'}
                           {transaction.pnlPercentage !== undefined && 
                             ` (${transaction.pnlPercentage >= 0 ? '+' : ''}${transaction.pnlPercentage.toFixed(2)}%)`
@@ -211,14 +211,14 @@ const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
                         )}
                       </div>
                     ) : (
-                      '-'
+                      <span className="text-gray-500">-</span>
                     )}
                   </TableCell>
                 </TableRow>
               ))}
               {filteredTransactions.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={8} className="text-center py-6 text-muted-foreground">
+                <TableRow className="border-[#2A2F3C]">
+                  <TableCell colSpan={8} className="text-center py-6 text-gray-400">
                     No transactions found
                   </TableCell>
                 </TableRow>

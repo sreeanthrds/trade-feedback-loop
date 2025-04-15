@@ -15,21 +15,21 @@ const DashboardHeader = ({ onClearResults }: DashboardHeaderProps) => {
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pt-4">
       <div>
-        <h1 className="text-3xl font-bold mb-2">Strategy Results</h1>
-        <p className="text-foreground/70">
+        <h1 className="text-3xl font-bold mb-2 text-white">Strategy Results</h1>
+        <p className="text-gray-400">
           AAPL Options Strategy • Jan 2023 - Dec 2023 • 42 Trades
         </p>
       </div>
       <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" className="flex items-center gap-1 border-border">
+        <Button variant="outline" size="sm" className="flex items-center gap-1 border-[#2A2F3C] bg-[#161923]/60 hover:bg-[#1C202C]/60 text-gray-300">
           <Share2 className="h-4 w-4" />
           <span className="hidden sm:inline">Share</span>
         </Button>
-        <Button variant="outline" size="sm" className="flex items-center gap-1 border-border">
+        <Button variant="outline" size="sm" className="flex items-center gap-1 border-[#2A2F3C] bg-[#161923]/60 hover:bg-[#1C202C]/60 text-gray-300">
           <Save className="h-4 w-4" />
           <span className="hidden sm:inline">Save</span>
         </Button>
-        <Button variant="outline" size="sm" className="flex items-center gap-1 border-border">
+        <Button variant="outline" size="sm" className="flex items-center gap-1 border-[#2A2F3C] bg-[#161923]/60 hover:bg-[#1C202C]/60 text-gray-300">
           <Download className="h-4 w-4" />
           <span className="hidden sm:inline">Export</span>
         </Button>
@@ -37,14 +37,14 @@ const DashboardHeader = ({ onClearResults }: DashboardHeaderProps) => {
           variant="outline" 
           size="sm" 
           onClick={onClearResults}
-          className="ml-2 border-border"
+          className="ml-2 border-[#2A2F3C] bg-[#161923]/60 hover:bg-[#1C202C]/60 text-gray-300"
         >
           Clear
         </Button>
         <Button 
           size="sm" 
           onClick={() => navigate('/app/backtesting')}
-          className="bg-primary text-primary-foreground hover:bg-primary/90"
+          className="bg-blue-600 hover:bg-blue-700 text-white"
         >
           New Backtest
         </Button>
