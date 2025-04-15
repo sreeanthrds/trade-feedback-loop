@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { BacktestResult } from '@/components/strategy/backtesting/types';
 import { 
   LineChart, 
@@ -41,22 +41,22 @@ const EquityChart = ({ equityCurve }: EquityChartProps) => {
   
   return (
     <Card className="border-[#2A2F3C] bg-[#161923]/60 backdrop-blur-sm">
-      <CardHeader className="pb-2">
+      <div className="p-6 pb-4">
         <div className="flex justify-between items-start">
           <div>
-            <CardTitle className="text-white">Equity Curve</CardTitle>
-            <CardDescription className="text-gray-400">Capital growth over time</CardDescription>
+            <h3 className="text-lg font-medium text-white">Equity Curve</h3>
+            <p className="text-gray-400 text-sm">Capital growth over time</p>
           </div>
           <div className="text-right">
             <div className="text-gray-400 text-sm">Current Equity</div>
             <div className="text-xl font-bold text-white">{formatCurrency(currentEquity)}</div>
           </div>
         </div>
-      </CardHeader>
-      <CardContent>
+      </div>
+      <CardContent className="pt-0">
         <div className="h-80 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={equityCurve}>
+            <AreaChart data={equityCurve} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="equityGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#6366F1" stopOpacity={0.8}/>

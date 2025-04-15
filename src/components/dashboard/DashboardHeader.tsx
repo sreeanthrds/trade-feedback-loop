@@ -2,8 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
-import { Share2, Download, Save } from 'lucide-react';
+import { Share2, Download, Save, BarChart2 } from 'lucide-react';
 
 interface DashboardHeaderProps {
   onClearResults: () => void;
@@ -13,11 +12,11 @@ const DashboardHeader = ({ onClearResults }: DashboardHeaderProps) => {
   const navigate = useNavigate();
   
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pt-4">
+    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
       <div>
-        <h1 className="text-3xl font-bold mb-2 text-white">Strategy Results</h1>
+        <h1 className="text-3xl font-bold mb-2 text-white">Options Strategy Backtest</h1>
         <p className="text-gray-400">
-          AAPL Options Strategy • Jan 2023 - Dec 2023 • 42 Trades
+          AAPL Bull Put Spread • Jan 2023 - Dec 2023 • 42 Trades
         </p>
       </div>
       <div className="flex items-center gap-2">
@@ -44,9 +43,10 @@ const DashboardHeader = ({ onClearResults }: DashboardHeaderProps) => {
         <Button 
           size="sm" 
           onClick={() => navigate('/app/backtesting')}
-          className="bg-blue-600 hover:bg-blue-700 text-white"
+          className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
         >
-          New Backtest
+          <BarChart2 className="h-4 w-4" />
+          <span>New Backtest</span>
         </Button>
       </div>
     </div>

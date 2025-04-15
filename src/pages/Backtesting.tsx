@@ -1,11 +1,11 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { BarChart2, LineChart, ArrowRightCircle, BarChart, PieChart } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { BarChart2, LineChart, ArrowRightCircle, PieChart, Zap } from 'lucide-react';
 import BacktestConfigPanel from '@/components/strategy/backtesting/BacktestConfigPanel';
 import { useBacktestingStore } from '@/components/strategy/backtesting/store';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 const BacktestingPage = () => {
   const { startBacktest, isRunning, results } = useBacktestingStore();
@@ -32,45 +32,57 @@ const BacktestingPage = () => {
           )}
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="bg-[#161923]/60 backdrop-blur-sm hover:bg-[#1C202C]/60 transition-colors border-[#2A2F3C]">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <Card className="bg-[#161923]/60 backdrop-blur-sm hover:bg-[#1C202C]/60 transition-colors border-[#2A2F3C] relative overflow-hidden md:col-span-2">
+            <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500"></div>
             <CardHeader>
               <CardTitle className="flex items-center text-white">
                 <BarChart2 className="mr-2 h-5 w-5 text-blue-500" />
                 Performance Analysis
               </CardTitle>
+              <CardDescription className="text-gray-400">
+                Analyze returns, drawdowns, and key performance metrics to evaluate your strategy effectiveness
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-400">
-                Analyze returns, drawdowns, and key performance metrics to evaluate your strategy
+                Track historical performance with detailed equity curves, profit analytics, and risk-adjusted return metrics
               </p>
             </CardContent>
           </Card>
           
-          <Card className="bg-[#161923]/60 backdrop-blur-sm hover:bg-[#1C202C]/60 transition-colors border-[#2A2F3C]">
+          <Card className="bg-[#161923]/60 backdrop-blur-sm hover:bg-[#1C202C]/60 transition-colors border-[#2A2F3C] relative overflow-hidden">
+            <div className="absolute left-0 top-0 bottom-0 w-1 bg-green-500"></div>
             <CardHeader>
               <CardTitle className="flex items-center text-white">
-                <LineChart className="mr-2 h-5 w-5 text-blue-500" />
-                Trade History
+                <LineChart className="mr-2 h-5 w-5 text-green-500" />
+                Trade Analysis
               </CardTitle>
+              <CardDescription className="text-gray-400">
+                Detailed trade-by-trade review
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-400">
-                Review individual trades with entry/exit points and performance metrics
+                Examine entry/exit points, P&L per trade, and win/loss statistics
               </p>
             </CardContent>
           </Card>
           
-          <Card className="bg-[#161923]/60 backdrop-blur-sm hover:bg-[#1C202C]/60 transition-colors border-[#2A2F3C]">
+          <Card className="bg-[#161923]/60 backdrop-blur-sm hover:bg-[#1C202C]/60 transition-colors border-[#2A2F3C] relative overflow-hidden">
+            <div className="absolute left-0 top-0 bottom-0 w-1 bg-purple-500"></div>
             <CardHeader>
               <CardTitle className="flex items-center text-white">
-                <PieChart className="mr-2 h-5 w-5 text-blue-500" />
-                Strategy Comparison
+                <PieChart className="mr-2 h-5 w-5 text-purple-500" />
+                Risk Analysis
               </CardTitle>
+              <CardDescription className="text-gray-400">
+                Comprehensive risk assessment
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-400">
-                Compare multiple strategy variations to identify the most effective approach
+                Measure drawdowns, volatility, and risk-adjusted metrics
               </p>
             </CardContent>
           </Card>

@@ -19,7 +19,7 @@ const BacktestConfigPanel = () => {
   return (
     <Card className="border-[#2A2F3C] bg-[#161923]/60 backdrop-blur-sm">
       <CardHeader className="pb-2">
-        <CardTitle className="text-xl text-white">Strategy Backtest Configuration</CardTitle>
+        <CardTitle className="text-xl text-white">Strategy Configuration</CardTitle>
       </CardHeader>
       <div className="p-4 max-h-[calc(100vh-15rem)] overflow-y-auto">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

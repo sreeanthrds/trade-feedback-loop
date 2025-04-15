@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { 
   Table, 
   TableHeader, 
@@ -98,15 +98,10 @@ const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
   );
   
   return (
-    <Card className="col-span-2 border-[#2A2F3C] bg-[#161923]/60 backdrop-blur-sm">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-white">Transaction History</CardTitle>
-            <CardDescription className="text-gray-400">
-              All trades executed during the backtest period
-            </CardDescription>
-          </div>
+    <Card className="border-[#2A2F3C] bg-[#161923]/60 backdrop-blur-sm">
+      <div className="p-6 pb-2">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-medium text-white">Transaction History</h3>
           <div className="flex gap-2">
             <Badge 
               variant={filter === 'all' ? 'default' : 'outline'} 
@@ -131,8 +126,8 @@ const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
             </Badge>
           </div>
         </div>
-      </CardHeader>
-      <CardContent>
+      </div>
+      <div className="p-4">
         <div className="relative overflow-x-auto rounded-md border border-[#2A2F3C]">
           <Table>
             <TableHeader className="bg-[#1C202C]/60">
@@ -226,7 +221,7 @@ const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
             </TableBody>
           </Table>
         </div>
-      </CardContent>
+      </div>
     </Card>
   );
 };
