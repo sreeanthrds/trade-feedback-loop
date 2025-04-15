@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { useTheme } from '@/hooks/use-theme';
 import { Button } from '@/components/ui/button';
-import { MoonIcon, SunIcon, HomeIcon, Code2Icon } from 'lucide-react';
+import { MoonIcon, SunIcon, Code2Icon } from 'lucide-react';
 import UserProfileDropdown from '@/components/auth/UserProfileDropdown';
 
 interface AppLayoutProps {
@@ -29,7 +29,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 <Link to="/app" className={`text-sm ${location.pathname === '/app' ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
                   Strategies
                 </Link>
-                <Link to="/app/strategy-builder" className={`text-sm ${location.pathname.includes('/strategy-builder') ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
+                <Link to="/app/strategy-builder" className={`text-sm ${location.pathname.includes('/app/strategy-builder') ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
+                  <Code2Icon className="h-4 w-4 mr-2 inline" />
                   Strategy Builder
                 </Link>
                 <Link to="/app/backtesting" className={`text-sm ${location.pathname.includes('/backtesting') ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
@@ -69,3 +70,4 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 };
 
 export default AppLayout;
+
