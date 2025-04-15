@@ -9,7 +9,7 @@ const Index = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background">
       <div className="container mx-auto px-4 py-12">
         <div className="text-center mb-16">
           <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-4">
@@ -108,6 +108,11 @@ const Index = () => {
                 <p className="text-muted-foreground">
                   Use our strategy builder to create custom trading strategies with various signals, indicators, and conditions.
                 </p>
+                <div className="mt-4">
+                  <Button variant="outline" onClick={() => navigate('/app/strategy-builder')}>
+                    Try Strategy Builder
+                  </Button>
+                </div>
               </div>
             </div>
             
@@ -120,6 +125,11 @@ const Index = () => {
                 <p className="text-muted-foreground">
                   Test your strategies against historical market data across different instruments and timeframes.
                 </p>
+                <div className="mt-4">
+                  <Button variant="outline" onClick={() => navigate('/app/backtesting')}>
+                    Go to Backtesting
+                  </Button>
+                </div>
               </div>
             </div>
             
@@ -132,6 +142,11 @@ const Index = () => {
                 <p className="text-muted-foreground">
                   Examine performance across market regimes, volatility conditions, and sectors using our advanced dashboards.
                 </p>
+                <div className="mt-4">
+                  <Button variant="outline" onClick={() => navigate('/app/dashboard')}>
+                    View Dashboard
+                  </Button>
+                </div>
               </div>
             </div>
             
@@ -152,8 +167,9 @@ const Index = () => {
             <Button 
               size="lg" 
               onClick={() => navigate('/app/strategy-builder')}
+              className="gap-2"
             >
-              Get Started
+              Get Started with Strategy Builder <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         </div>
