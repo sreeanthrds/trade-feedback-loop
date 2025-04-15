@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { BacktestResult } from '@/components/strategy/backtesting/types';
 import { 
   ResponsiveContainer, 
-  TreeMap, 
+  Treemap, 
   Tooltip
 } from 'recharts';
 
@@ -104,7 +104,7 @@ const SectorRotationImpact: React.FC<SectorRotationImpactProps> = ({ results }) 
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
-          <TreeMap
+          <Treemap
             data={sectorData}
             dataKey="size"
             ratio={4/3}
@@ -122,7 +122,7 @@ const SectorRotationImpact: React.FC<SectorRotationImpactProps> = ({ results }) 
               }}
               labelStyle={{ fontWeight: 'bold', color: 'var(--foreground)' }}
             />
-          </TreeMap>
+          </Treemap>
         </ResponsiveContainer>
       </CardContent>
     </Card>

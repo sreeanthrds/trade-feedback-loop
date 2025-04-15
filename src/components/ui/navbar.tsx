@@ -5,7 +5,6 @@ import Logo from './logo';
 import DesktopNav from './desktop-nav';
 import MobileNav from './mobile-nav';
 import ThemeToggle from './theme-toggle';
-import { useTheme } from '@/hooks/use-theme';
 import { Button } from './button';
 import { FileText } from 'lucide-react';
 
@@ -13,15 +12,9 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
-  const { theme, setTheme } = useTheme();
   
   // Toggle mobile menu
   const toggleMenu = () => setIsOpen(!isOpen);
-  
-  // Toggle dark/light mode
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
   
   // Handle scroll event for navbar background
   useEffect(() => {
@@ -70,7 +63,7 @@ const Navbar = () => {
           
           {/* Theme Toggle & Mobile Menu Button */}
           <div className="flex items-center space-x-4 ml-auto">
-            <ThemeToggle isDarkMode={theme === 'dark'} toggleTheme={toggleTheme} />
+            <ThemeToggle />
             <MobileNav isOpen={isOpen} toggleMenu={toggleMenu} />
           </div>
         </div>
