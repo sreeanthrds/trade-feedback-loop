@@ -25,50 +25,6 @@ export interface Transaction {
   pnl?: number; // Only for exit transactions
   pnlPercentage?: number; // Only for exit transactions
   exitReason?: 'take_profit' | 'stop_loss' | 'trailing_stop' | 'manual' | 'strategy_end';
-  marketCondition?: MarketCondition; // Market condition at the time of transaction
-  volatilityRegime?: string; // Volatility regime at the time of transaction
-  sector?: string; // Sector of the traded instrument
-}
-
-export interface MarketCondition {
-  regime: 'bull' | 'bear' | 'sideways' | 'high_volatility' | 'low_volatility';
-  vix: number;
-  marketTrend: number; // Percentage of market trend
-  sectorRotation: {
-    leadingSectors: string[];
-    laggingSectors: string[];
-  };
-}
-
-export interface MarketRegimeAnalysis {
-  regimes: {
-    [regime: string]: {
-      return: number;
-      winRate: number;
-      trades: number;
-      sharpeRatio: number;
-      maxDrawdown: number;
-      avgDuration: number;
-    }
-  };
-  volatility: {
-    [regime: string]: {
-      return: number;
-      winRate: number;
-      sharpeRatio: number;
-      maxDrawdown: number;
-    }
-  };
-  sectorPerformance: {
-    [sector: string]: {
-      return: number;
-      winRate: number;
-      allocation: number;
-    }
-  };
-  correlations: {
-    [benchmark: string]: number;
-  };
 }
 
 export interface BacktestResult {
@@ -87,12 +43,4 @@ export interface BacktestResult {
     month: string;
     return: number;
   }[];
-  marketConditionAnalysis?: MarketRegimeAnalysis;
-  initialCapital?: number;
-  commission?: string;
-  slippage?: string;
-  symbol?: string;
-  timeframe?: string;
-  startDate?: Date;
-  endDate?: Date;
 }

@@ -1,110 +1,144 @@
 
 import { useEffect } from 'react';
+import { Node } from '@xyflow/react';
 import { useStrategyStore } from '@/hooks/strategy-store/use-strategy-store';
-import { UseReEntryGroupSyncProps, NodeWithReEntryConfig } from './types/reEntryTypes';
-import { 
-  findGroupLeader,
-  getNodeGroupNumber, 
-  getNodeMaxReEntries 
-} from './utils/reEntrySyncUtils';
-import { 
-  syncGroupMaxReEntries, 
-  adoptGroupMaxReEntries,
-  getMaxReEntriesForGroup
-} from './utils/reEntrySyncOperations';
+import { ExitNodeData } from '../types';
 
-/**
- * Hook to synchronize maxReEntries across all nodes with the same reEntry group
- */
+interface UseReEntryGroupSyncProps {
+  node?: Node;
+  updateNodeData?: (id: string, data: any) => void;
+  defaultExitNodeData?: ExitNodeData;
+}
+
 export const useReEntryGroupSync = (props?: UseReEntryGroupSyncProps) => {
   // Safe access to props with defaults
   const node = props?.node;
   const updateNodeData = props?.updateNodeData;
+  const defaultExitNodeData = props?.defaultExitNodeData;
+  
   const nodes = useStrategyStore(state => state.nodes);
   
-  // Effect for synchronizing maxReEntries when an exit node changes
+  // Sync all nodes with the same reEntry group when one node changes
   useEffect(() => {
-    // Skip if missing required props
+    // Only run if we have all required props
     if (!node || !updateNodeData) return;
-    
-    // Only for exit nodes with enabled re-entry
-    if (node.type === 'exitNode') {
-      const typedNode = node as NodeWithReEntryConfig;
-      const exitNodeData = typedNode.data.exitNodeData;
-      
-      if (exitNodeData?.reEntryConfig?.enabled) {
-        const groupNumber = exitNodeData.reEntryConfig.groupNumber;
-        const maxReEntries = exitNodeData.reEntryConfig.maxReEntries;
+
+    // Safe access to exitNodeData with proper type casting and validation
+    const nodeData = node.data as { exitNodeData?: ExitNodeData };
+    const exitNodeData = nodeData?.exitNodeData;
+
+    // Only run sync if re-entry is enabled
+    if (exitNodeData?.reEntryConfig?.enabled) {
+      const currentGroup = exitNodeData?.reEntryConfig?.groupNumber;
+      const maxReEntries = exitNodeData?.reEntryConfig?.maxReEntries;
+
+      if (currentGroup !== undefined && maxReEntries !== undefined) {
+        // Find all exit nodes with the same group number
+        const groupNodes = nodes.filter(n => {
+          if (n.id === node.id) return false; // Skip current node
+          if (n.type !== 'exitNode') return false;
+          
+          const nData = n.data as { exitNodeData?: ExitNodeData };
+          return nData.exitNodeData?.reEntryConfig?.enabled && 
+                 nData.exitNodeData?.reEntryConfig?.groupNumber === currentGroup;
+        });
         
-        if (groupNumber !== undefined && maxReEntries !== undefined) {
-          // Synchronize maxReEntries with all nodes in the same group
-          syncGroupMaxReEntries(nodes, groupNumber, maxReEntries, node.id, updateNodeData);
-        }
+        // Update maxReEntries for all nodes in the group
+        groupNodes.forEach(n => {
+          const nData = n.data as { exitNodeData?: ExitNodeData };
+          if (nData.exitNodeData?.reEntryConfig?.maxReEntries !== maxReEntries) {
+            updateNodeData(n.id, {
+              ...n.data,
+              exitNodeData: {
+                ...nData.exitNodeData,
+                reEntryConfig: {
+                  ...nData.exitNodeData?.reEntryConfig,
+                  maxReEntries
+                }
+              }
+            });
+          }
+        });
       }
     }
   }, [node?.data, nodes, updateNodeData]);
   
-  // Effect for adopting maxReEntries when joining a group
+  // Update existing node config when a new node joins a group
   useEffect(() => {
+    // Only run if we have all required props
     if (!node || !updateNodeData) return;
+
+    // Safe access to exitNodeData with proper type casting and validation
+    const nodeData = node.data as { exitNodeData?: ExitNodeData };
+    const exitNodeData = nodeData?.exitNodeData;
     
-    const typedNode = node as NodeWithReEntryConfig;
-    let groupNumber: number | undefined;
-    
-    // Get group number based on node type
-    if (node.type === 'exitNode') {
-      const exitNodeData = typedNode.data.exitNodeData;
-      if (!exitNodeData?.reEntryConfig?.enabled) return;
-      groupNumber = exitNodeData.reEntryConfig.groupNumber;
-    } else if (node.type === 'retryNode') {
-      groupNumber = typedNode.data.retryConfig?.groupNumber;
-    }
-    
-    if (groupNumber === undefined) return;
-    
-    // Find a leader node in the group to adopt maxReEntries from
-    const groupLeader = findGroupLeader(nodes, groupNumber, node.id);
-    
-    if (groupLeader) {
-      const currentMaxReEntries = getNodeMaxReEntries(typedNode);
+    // Only run if re-entry is enabled and we have a valid group number
+    if (exitNodeData?.reEntryConfig?.enabled && 
+        exitNodeData?.reEntryConfig?.groupNumber !== undefined) {
+      const currentGroup = exitNodeData.reEntryConfig.groupNumber;
       
-      // If this node's maxReEntries differs from the group leader, adopt the leader's value
-      if (currentMaxReEntries !== groupLeader.maxReEntries) {
-        adoptGroupMaxReEntries(typedNode, groupNumber, groupLeader.maxReEntries, updateNodeData);
+      // Find other nodes in the same group
+      const groupLeader = nodes.find(n => {
+        if (n.id === node.id) return false; // Skip current node
+        if (n.type !== 'exitNode') return false;
+        
+        const nData = n.data as { exitNodeData?: ExitNodeData };
+        return nData.exitNodeData?.reEntryConfig?.enabled && 
+               nData.exitNodeData?.reEntryConfig?.groupNumber === currentGroup;
+      });
+      
+      // If a group leader is found, adopt its maxReEntries value
+      if (groupLeader) {
+        const leaderData = groupLeader.data as { exitNodeData?: ExitNodeData };
+        const leaderMaxReEntries = leaderData.exitNodeData?.reEntryConfig?.maxReEntries;
+        
+        if (leaderMaxReEntries !== undefined && 
+            exitNodeData.reEntryConfig.maxReEntries !== leaderMaxReEntries) {
+          updateNodeData(node.id, {
+            ...node.data,
+            exitNodeData: {
+              ...exitNodeData,
+              reEntryConfig: {
+                ...exitNodeData.reEntryConfig,
+                maxReEntries: leaderMaxReEntries
+              }
+            }
+          });
+        }
       }
     }
-  }, [nodes, node?.id, node?.data, node?.type, updateNodeData]);
-  
-  // Effect for handling retry node updates
-  useEffect(() => {
-    if (!node || !updateNodeData || node.type !== 'retryNode') return;
-    
-    const typedNode = node as NodeWithReEntryConfig;
-    const groupNumber = getNodeGroupNumber(typedNode);
-    const maxReEntries = getNodeMaxReEntries(typedNode);
-    
-    if (groupNumber === undefined) return;
-    
-    // Find nodes in the same group
-    const exitNodesInGroup = findGroupLeader(nodes, groupNumber, node.id);
-    
-    // If this node has a value and other nodes exist in the group
-    if (maxReEntries !== undefined && exitNodesInGroup) {
-      // Propagate this node's maxReEntries to the group
-      syncGroupMaxReEntries(nodes, groupNumber, maxReEntries, node.id, updateNodeData);
-    }
-  }, [node?.type, node?.data, node?.id, nodes, updateNodeData]);
-  
+  }, [nodes, node?.id, node?.data, updateNodeData]);
+
   // Helper utility to get the appropriate max re-entries for a group
   const getLatestGroupMaxReEntries = (defaultValue = 1): number => {
+    // If no node provided, return the default
     if (!node) return defaultValue;
+
+    // Get the current group number from the node
+    const nodeData = node.data as { exitNodeData?: ExitNodeData };
+    const currentGroup = nodeData?.exitNodeData?.reEntryConfig?.groupNumber;
     
-    const typedNode = node as NodeWithReEntryConfig;
-    const groupNumber = getNodeGroupNumber(typedNode);
+    if (currentGroup === undefined) return defaultValue;
+
+    // Find other nodes in the same group
+    const groupNodes = nodes.filter(n => {
+      if (n.id === node?.id) return false;
+      if (n.type !== 'exitNode') return false;
+      
+      const nData = n.data as { exitNodeData?: ExitNodeData };
+      return nData.exitNodeData?.reEntryConfig?.enabled && 
+             nData.exitNodeData?.reEntryConfig?.groupNumber === currentGroup;
+    });
     
-    if (groupNumber === undefined) return defaultValue;
+    if (groupNodes.length === 0) return defaultValue;
     
-    return getMaxReEntriesForGroup(nodes, groupNumber, defaultValue);
+    // Find the max re-entries value used in the group
+    const groupMaxEntries = Math.max(...groupNodes.map(n => {
+      const nData = n.data as { exitNodeData?: ExitNodeData };
+      return nData.exitNodeData?.reEntryConfig?.maxReEntries || defaultValue;
+    }));
+    
+    return groupMaxEntries;
   };
   
   return {

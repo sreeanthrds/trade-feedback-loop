@@ -1,9 +1,7 @@
 
-import { useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Node } from '@xyflow/react';
-import { ExitNodeData } from '../types';
-import { useReEntryStateManagement } from './reEntry/useReEntryStateManagement';
-import { useReEntryGroupManagement } from './reEntry/useReEntryGroupManagement';
+import { ExitNodeData, ReEntryConfig } from '../types';
 
 interface UseReEntrySettingsProps {
   node: Node;
@@ -18,58 +16,53 @@ export const useReEntrySettings = ({
   nodeData,
   defaultExitNodeData
 }: UseReEntrySettingsProps) => {
-  // Extract re-entry config from node data
-  const exitNodeData = nodeData?.exitNodeData as ExitNodeData || defaultExitNodeData;
-  const reEntryConfig = exitNodeData.reEntryConfig || { enabled: false, groupNumber: 1, maxReEntries: 1 };
-  const reEntryEnabled = reEntryConfig.enabled || false;
+  const exitNodeData = nodeData?.exitNodeData || defaultExitNodeData;
+  const reEntryConfig = exitNodeData?.reEntryConfig;
   
-  // Use state management hook
-  const { updatingRef } = useReEntryStateManagement();
-  
-  // Use group management hook
-  useReEntryGroupManagement({
-    node,
-    reEntryEnabled,
-    reEntryConfig,
-    nodeData,
-    exitNodeData,
-    updateNodeData,
-    updatingRef
-  });
-  
-  // Handler for toggling re-entry
-  const handleReEntryToggle = useCallback((enabled: boolean) => {
-    if (updatingRef.current) return;
-    updatingRef.current = true;
-    
-    try {
-      const currentExitNodeData = (node.data?.exitNodeData as ExitNodeData) || defaultExitNodeData;
-      const currentConfig = currentExitNodeData.reEntryConfig || { 
-        enabled: false, 
-        groupNumber: 1, 
-        maxReEntries: 1 
-      };
-      
-      // Update re-entry config
-      const updatedConfig = {
-        ...currentConfig,
-        enabled
-      };
-      
-      // Update node data
-      updateNodeData(node.id, {
-        ...node.data,
-        exitNodeData: {
-          ...currentExitNodeData,
-          reEntryConfig: updatedConfig
-        }
-      });
-    } finally {
-      setTimeout(() => {
-        updatingRef.current = false;
-      }, 150);
+  // Local state
+  const [reEntryEnabled, setReEntryEnabled] = useState(
+    reEntryConfig?.enabled || false
+  );
+
+  // Sync state with node data
+  useEffect(() => {
+    if (reEntryConfig) {
+      setReEntryEnabled(reEntryConfig.enabled || false);
     }
-  }, [node, updateNodeData, defaultExitNodeData, updatingRef]);
+  }, [reEntryConfig]);
+
+  // Function to find connected retry node and edges
+  const findRetryNodeAndEdges = useCallback(() => {
+    // This function needs access to the entire flow state
+    // It would typically be passed down from a parent component
+    // For now, we'll assume it's handled in the node update handler
+    return { 
+      retryNodeId: null, 
+      edgesToRemove: [] 
+    };
+  }, []);
+
+  // Handle toggle of re-entry functionality
+  const handleReEntryToggle = useCallback((checked: boolean) => {
+    setReEntryEnabled(checked);
+    
+    // Update the node data
+    const updatedExitNodeData = {
+      ...exitNodeData,
+      reEntryConfig: {
+        enabled: checked,
+        groupNumber: reEntryConfig?.groupNumber || 1, // Preserve existing or use default
+        maxReEntries: reEntryConfig?.maxReEntries || 1  // Preserve existing or use default
+      }
+    };
+    
+    updateNodeData(node.id, {
+      ...nodeData,
+      exitNodeData: updatedExitNodeData,
+      _lastToggleReEntry: checked, // Special flag for node handler to detect toggle state
+      _lastUpdated: Date.now()
+    });
+  }, [node.id, nodeData, exitNodeData, updateNodeData, reEntryConfig]);
   
   return {
     reEntryEnabled,

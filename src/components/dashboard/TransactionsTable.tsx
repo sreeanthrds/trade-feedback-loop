@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Card } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { 
   Table, 
   TableHeader, 
@@ -43,11 +43,11 @@ const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
     if (!reason) return null;
     
     const colors: Record<string, string> = {
-      take_profit: 'bg-green-900/40 text-green-300 border-green-700',
-      stop_loss: 'bg-red-900/40 text-red-300 border-red-700',
-      trailing_stop: 'bg-blue-900/40 text-blue-300 border-blue-700',
-      manual: 'bg-yellow-900/40 text-yellow-300 border-yellow-700',
-      strategy_end: 'bg-gray-700/40 text-gray-300 border-gray-600'
+      take_profit: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+      stop_loss: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+      trailing_stop: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
+      manual: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+      strategy_end: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
     };
     
     const labels: Record<string, string> = {
@@ -89,83 +89,88 @@ const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
     <>
       {sortField === field && (
         sortDirection === 'asc' ? (
-          <ChevronUp className="ml-1 h-4 w-4 inline text-gray-400" />
+          <ChevronUp className="ml-1 h-4 w-4 inline" />
         ) : (
-          <ChevronDown className="ml-1 h-4 w-4 inline text-gray-400" />
+          <ChevronDown className="ml-1 h-4 w-4 inline" />
         )
       )}
     </>
   );
   
   return (
-    <Card className="border-[#2A2F3C] bg-[#161923]/60 backdrop-blur-sm">
-      <div className="p-6 pb-2">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-medium text-white">Transaction History</h3>
+    <Card className="col-span-2">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Transaction History</CardTitle>
+            <CardDescription>
+              All trades executed during the backtest period
+            </CardDescription>
+          </div>
           <div className="flex gap-2">
             <Badge 
               variant={filter === 'all' ? 'default' : 'outline'} 
-              className={`cursor-pointer ${filter === 'all' ? 'bg-blue-600 hover:bg-blue-700' : 'border-[#2A2F3C] text-gray-400 hover:bg-[#1C202C]/60'}`}
+              className="cursor-pointer"
               onClick={() => setFilter('all')}
             >
               All
             </Badge>
             <Badge 
               variant={filter === 'entry' ? 'default' : 'outline'} 
-              className={`cursor-pointer ${filter === 'entry' ? 'bg-blue-600 hover:bg-blue-700' : 'border-[#2A2F3C] text-gray-400 hover:bg-[#1C202C]/60'}`}
+              className="cursor-pointer"
               onClick={() => setFilter('entry')}
             >
               Entries
             </Badge>
             <Badge 
               variant={filter === 'exit' ? 'default' : 'outline'} 
-              className={`cursor-pointer ${filter === 'exit' ? 'bg-blue-600 hover:bg-blue-700' : 'border-[#2A2F3C] text-gray-400 hover:bg-[#1C202C]/60'}`}
+              className="cursor-pointer"
               onClick={() => setFilter('exit')}
             >
               Exits
             </Badge>
           </div>
         </div>
-      </div>
-      <div className="p-4">
-        <div className="relative overflow-x-auto rounded-md border border-[#2A2F3C]">
+      </CardHeader>
+      <CardContent>
+        <div className="relative overflow-x-auto rounded-md border">
           <Table>
-            <TableHeader className="bg-[#1C202C]/60">
-              <TableRow className="border-[#2A2F3C] hover:bg-[#20242F]/80">
+            <TableHeader>
+              <TableRow>
                 <TableHead 
-                  className="cursor-pointer text-gray-400"
+                  className="cursor-pointer"
                   onClick={() => handleSort('timestamp')}
                 >
                   Date <SortIcon field="timestamp" />
                 </TableHead>
                 <TableHead 
-                  className="cursor-pointer text-gray-400"
+                  className="cursor-pointer"
                   onClick={() => handleSort('type')}
                 >
                   Type <SortIcon field="type" />
                 </TableHead>
                 <TableHead 
-                  className="cursor-pointer text-gray-400"
+                  className="cursor-pointer"
                   onClick={() => handleSort('symbol')}
                 >
                   Symbol <SortIcon field="symbol" />
                 </TableHead>
                 <TableHead 
-                  className="cursor-pointer text-gray-400"
+                  className="cursor-pointer"
                   onClick={() => handleSort('side')}
                 >
                   Side <SortIcon field="side" />
                 </TableHead>
                 <TableHead 
-                  className="cursor-pointer text-gray-400"
+                  className="cursor-pointer"
                   onClick={() => handleSort('price')}
                 >
                   Price <SortIcon field="price" />
                 </TableHead>
-                <TableHead className="text-gray-400">Quantity</TableHead>
-                <TableHead className="text-gray-400">Total</TableHead>
+                <TableHead>Quantity</TableHead>
+                <TableHead>Total</TableHead>
                 <TableHead 
-                  className="cursor-pointer text-gray-400"
+                  className="cursor-pointer"
                   onClick={() => handleSort('pnl')}
                 >
                   P/L <SortIcon field="pnl" />
@@ -174,28 +179,28 @@ const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
             </TableHeader>
             <TableBody>
               {filteredTransactions.map((transaction) => (
-                <TableRow key={transaction.id} className="border-[#2A2F3C] hover:bg-[#20242F]/80">
-                  <TableCell className="text-gray-300">
+                <TableRow key={transaction.id}>
+                  <TableCell>
                     {format(new Date(transaction.timestamp), 'MMM dd, yyyy')}
                   </TableCell>
                   <TableCell>
-                    <Badge variant={transaction.type === 'entry' ? 'secondary' : 'default'} className={transaction.type === 'entry' ? 'bg-indigo-900/40 text-indigo-300 border-indigo-700' : 'bg-blue-900/40 text-blue-300 border-blue-700'}>
+                    <Badge variant={transaction.type === 'entry' ? 'secondary' : 'default'}>
                       {transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-gray-300">{transaction.symbol}</TableCell>
+                  <TableCell>{transaction.symbol}</TableCell>
                   <TableCell>
-                    <span className={transaction.side === 'buy' ? 'text-green-500' : 'text-red-500'}>
+                    <span className={transaction.side === 'buy' ? 'text-green-600' : 'text-red-600'}>
                       {transaction.side.toUpperCase()}
                     </span>
                   </TableCell>
-                  <TableCell className="text-gray-300">{formatCurrency(transaction.price)}</TableCell>
-                  <TableCell className="text-gray-300">{transaction.quantity}</TableCell>
-                  <TableCell className="text-gray-300">{formatCurrency(transaction.amount)}</TableCell>
+                  <TableCell>{formatCurrency(transaction.price)}</TableCell>
+                  <TableCell>{transaction.quantity}</TableCell>
+                  <TableCell>{formatCurrency(transaction.amount)}</TableCell>
                   <TableCell>
                     {transaction.type === 'exit' ? (
                       <div className="space-y-1">
-                        <div className={transaction.pnl && transaction.pnl >= 0 ? 'text-green-500' : 'text-red-500'}>
+                        <div className={transaction.pnl && transaction.pnl >= 0 ? 'text-green-600' : 'text-red-600'}>
                           {transaction.pnl !== undefined ? formatCurrency(transaction.pnl) : '-'}
                           {transaction.pnlPercentage !== undefined && 
                             ` (${transaction.pnlPercentage >= 0 ? '+' : ''}${transaction.pnlPercentage.toFixed(2)}%)`
@@ -206,14 +211,14 @@ const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
                         )}
                       </div>
                     ) : (
-                      <span className="text-gray-500">-</span>
+                      '-'
                     )}
                   </TableCell>
                 </TableRow>
               ))}
               {filteredTransactions.length === 0 && (
-                <TableRow className="border-[#2A2F3C]">
-                  <TableCell colSpan={8} className="text-center py-6 text-gray-400">
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center py-6 text-muted-foreground">
                     No transactions found
                   </TableCell>
                 </TableRow>
@@ -221,7 +226,7 @@ const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
             </TableBody>
           </Table>
         </div>
-      </div>
+      </CardContent>
     </Card>
   );
 };

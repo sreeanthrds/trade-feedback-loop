@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Expression, 
   MarketDataExpression
@@ -12,9 +12,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { Label } from '@/components/ui/label';
 import FieldTooltip from '../../shared/FieldTooltip';
 import CandleOffsetSelector from '../components/CandleOffsetSelector';
-import { useReactFlow } from '@xyflow/react';
 
 interface MarketDataExpressionEditorProps {
   expression: Expression;
@@ -27,22 +27,11 @@ const MarketDataExpressionEditor: React.FC<MarketDataExpressionEditorProps> = ({
   updateExpression,
   required = false
 }) => {
-  const { getNodes } = useReactFlow();
-  
   if (expression.type !== 'market_data') {
     return null;
   }
 
   const marketDataExpr = expression as MarketDataExpression;
-  
-  // Get the current instrument symbol from the start node
-  const getInstrumentName = (): string => {
-    const nodes = getNodes();
-    const startNode = nodes.find(node => node.type === 'startNode');
-    
-    // Explicitly cast to string with type assertion to guarantee a string return
-    return (startNode?.data?.symbol as string) || 'Instrument';
-  };
   
   // Update the field (Open, High, Low, Close, etc.)
   const updateField = (value: string) => {
@@ -69,14 +58,8 @@ const MarketDataExpressionEditor: React.FC<MarketDataExpressionEditorProps> = ({
     { value: 'LTP', label: 'LTP', description: 'Last Traded Price - the most recent price at which the asset was traded' }
   ];
   
-  const instrumentName = getInstrumentName();
-  
   return (
     <div className="space-y-2">
-      <div className="text-xs text-muted-foreground mb-1">
-        {instrumentName} Data
-      </div>
-      
       <Select 
         value={marketDataExpr.field} 
         onValueChange={updateField}

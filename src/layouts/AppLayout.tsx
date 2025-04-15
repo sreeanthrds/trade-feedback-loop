@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { useTheme } from '@/hooks/use-theme';
 import { Button } from '@/components/ui/button';
-import { MoonIcon, SunIcon, Code2Icon } from 'lucide-react';
+import { MoonIcon, SunIcon, HomeIcon } from 'lucide-react';
 import UserProfileDropdown from '@/components/auth/UserProfileDropdown';
 
 interface AppLayoutProps {
@@ -21,17 +21,13 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col">
       {!isStrategyBuilder && (
-        <header className="border-b sticky top-0 z-50 bg-background">
+        <header className="border-b">
           <div className="container flex items-center justify-between h-14 px-4">
             <div className="flex items-center gap-6">
               <Link to="/" className="font-semibold text-lg">Trady</Link>
               <nav className="hidden md:flex items-center gap-4">
                 <Link to="/app" className={`text-sm ${location.pathname === '/app' ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
                   Strategies
-                </Link>
-                <Link to="/app/strategy-builder" className={`text-sm flex items-center ${location.pathname.includes('/app/strategy-builder') ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
-                  <Code2Icon className="h-4 w-4 mr-2" />
-                  Strategy Builder
                 </Link>
                 <Link to="/app/backtesting" className={`text-sm ${location.pathname.includes('/backtesting') ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
                   Backtesting
@@ -62,7 +58,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         </header>
       )}
       
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1">
         {children}
       </main>
     </div>

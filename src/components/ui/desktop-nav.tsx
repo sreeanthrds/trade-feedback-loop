@@ -1,11 +1,10 @@
 
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LogIn } from 'lucide-react';
+import { FileText, LogIn } from 'lucide-react';
 import { Button } from './button';
 import { useAuth } from '@/contexts/auth';
 import UserProfileDropdown from '@/components/auth/UserProfileDropdown';
-import { navigationItems } from './navigation-config';
 
 const DesktopNav: React.FC = () => {
   const location = useLocation();
@@ -21,21 +20,47 @@ const DesktopNav: React.FC = () => {
   
   return (
     <nav className="hidden md:flex items-center space-x-8 ml-auto mr-auto">
-      {navigationItems.map((item) => (
-        <Link 
-          key={item.path}
-          to={item.path} 
-          className={`smooth-transition ${item.showIcon ? 'flex items-center' : ''} ${
-            isActive(item.path) 
-              ? 'text-primary font-medium' 
-              : 'text-foreground/80 hover:text-foreground'
-          }`}
-        >
-          {item.showIcon && item.icon && <span className="mr-1">{item.icon}</span>}
-          {item.label}
-        </Link>
-      ))}
-      
+      <Link 
+        to="/" 
+        className={`smooth-transition ${isActive('/') 
+          ? 'text-primary font-medium' 
+          : 'text-foreground/80 hover:text-foreground'}`}
+      >
+        Home
+      </Link>
+      <Link 
+        to="/features" 
+        className={`smooth-transition ${isActive('/features') 
+          ? 'text-primary font-medium' 
+          : 'text-foreground/80 hover:text-foreground'}`}
+      >
+        Features
+      </Link>
+      <Link 
+        to="/pricing" 
+        className={`smooth-transition ${isActive('/pricing') 
+          ? 'text-primary font-medium' 
+          : 'text-foreground/80 hover:text-foreground'}`}
+      >
+        Pricing
+      </Link>
+      <Link 
+        to="/blog" 
+        className={`smooth-transition ${isActive('/blog') 
+          ? 'text-primary font-medium' 
+          : 'text-foreground/80 hover:text-foreground'}`}
+      >
+        Blog
+      </Link>
+      <Link 
+        to="/documentation" 
+        className={`smooth-transition flex items-center ${isActive('/documentation') 
+          ? 'text-primary font-medium' 
+          : 'text-foreground/80 hover:text-foreground'}`}
+      >
+        <FileText className="h-4 w-4 mr-1" />
+        Documentation
+      </Link>
       <div className="flex items-center space-x-3">
         {isAuthenticated ? (
           <UserProfileDropdown />

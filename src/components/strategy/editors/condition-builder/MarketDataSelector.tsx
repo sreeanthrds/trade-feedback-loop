@@ -12,7 +12,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import CandleOffsetSelector from './components/CandleOffsetSelector';
-import { useReactFlow } from '@xyflow/react';
 
 interface MarketDataSelectorProps {
   expression: Expression;
@@ -23,22 +22,11 @@ const MarketDataSelector: React.FC<MarketDataSelectorProps> = ({
   expression,
   updateExpression
 }) => {
-  const { getNodes } = useReactFlow();
-  
   if (expression.type !== 'market_data') {
     return null;
   }
 
   const marketDataExpr = expression as MarketDataExpression;
-  
-  // Get the current instrument symbol from the start node
-  const getInstrumentName = () => {
-    const nodes = getNodes();
-    const startNode = nodes.find(node => node.type === 'startNode');
-    
-    // Return the symbol from start node or a default if not found
-    return startNode?.data?.symbol || 'Instrument';
-  };
   
   // Update the field (Open, High, Low, Close, etc.)
   const updateField = (value: string) => {

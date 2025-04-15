@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { BacktestResult } from '@/components/strategy/backtesting/types';
 import { 
   LineChart, 
@@ -10,10 +10,7 @@ import {
   CartesianGrid, 
   Tooltip, 
   Legend, 
-  ResponsiveContainer,
-  Area,
-  AreaChart,
-  ReferenceLine,
+  ResponsiveContainer 
 } from 'recharts';
 
 interface EquityChartProps {
@@ -21,79 +18,36 @@ interface EquityChartProps {
 }
 
 const EquityChart = ({ equityCurve }: EquityChartProps) => {
-  // Find the maximum and minimum values for reference lines
-  const maxEquity = Math.max(...equityCurve.map(point => point.equity));
-  const minEquity = Math.min(...equityCurve.map(point => point.equity));
-  
-  // Calculate start and current equity
-  const startEquity = equityCurve[0]?.equity || 10000;
-  const currentEquity = equityCurve[equityCurve.length - 1]?.equity || startEquity;
-  
-  // Format currency
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
-  
   return (
-    <Card className="border-[#2A2F3C] bg-[#161923]/60 backdrop-blur-sm">
-      <div className="p-6 pb-4">
-        <div className="flex justify-between items-start">
-          <div>
-            <h3 className="text-lg font-medium text-white">Equity Curve</h3>
-            <p className="text-gray-400 text-sm">Capital growth over time</p>
-          </div>
-          <div className="text-right">
-            <div className="text-gray-400 text-sm">Current Equity</div>
-            <div className="text-xl font-bold text-white">{formatCurrency(currentEquity)}</div>
-          </div>
-        </div>
-      </div>
-      <CardContent className="pt-0">
+    <Card>
+      <CardHeader>
+        <CardTitle>Equity Curve</CardTitle>
+        <CardDescription>Growth of capital over time</CardDescription>
+      </CardHeader>
+      <CardContent>
         <div className="h-80 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={equityCurve} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-              <defs>
-                <linearGradient id="equityGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#6366F1" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#6366F1" stopOpacity={0.1}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#2A2F3C" />
+            <LineChart data={equityCurve}>
+              <CartesianGrid strokeDasharray="3 3" />
               <XAxis 
                 dataKey="timestamp" 
                 tickFormatter={(timestamp) => new Date(timestamp).toLocaleDateString()}
-                tick={{ fontSize: 12, fill: "#94A3B8" }}
-                stroke="#2A2F3C"
               />
-              <YAxis 
-                tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-                tick={{ fontSize: 12, fill: "#94A3B8" }}
-                stroke="#2A2F3C"
-              />
+              <YAxis />
               <Tooltip 
                 formatter={(value: any) => {
-                  return typeof value === 'number' ? [formatCurrency(value), 'Equity'] : [value, 'Equity'];
+                  return typeof value === 'number' ? [`$${value.toFixed(2)}`, 'Equity'] : [value, 'Equity'];
                 }}
                 labelFormatter={(label) => new Date(label).toLocaleDateString()}
-                contentStyle={{ backgroundColor: 'rgba(22, 25, 35, 0.9)', borderColor: '#2A2F3C', color: '#fff' }}
               />
               <Legend />
-              <ReferenceLine y={startEquity} stroke="#6B7280" strokeDasharray="3 3" />
-              <ReferenceLine y={maxEquity} stroke="#10B981" strokeDasharray="3 3" label={{ value: "Max", position: "left", fill: "#10B981", fontSize: 10 }} />
-              <ReferenceLine y={minEquity} stroke="#EF4444" strokeDasharray="3 3" label={{ value: "Min", position: "left", fill: "#EF4444", fontSize: 10 }} />
-              <Area 
+              <Line 
                 type="monotone" 
                 dataKey="equity" 
-                stroke="#6366F1" 
-                fill="url(#equityGradient)" 
-                activeDot={{ r: 6, fill: "#818CF8" }} 
+                stroke="#8884d8" 
+                activeDot={{ r: 8 }} 
               />
-            </AreaChart>
+            </LineChart>
           </ResponsiveContainer>
         </div>
       </CardContent>

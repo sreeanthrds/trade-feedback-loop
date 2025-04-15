@@ -1,60 +1,39 @@
 
 import React from 'react';
-import { 
-  LineChart, 
-  Gauge, 
-  DollarSign, 
-  Clock, 
-  CodeXml,
-  Briefcase,
-  BarChart,
-  ShoppingCart,
-  Bell
-} from 'lucide-react';
-import { ExpressionType } from '../../../utils/conditions';
+import { ExpressionType } from '../../../utils/conditionTypes';
+import { Activity, Calculator, Clock, LineChart, Hash, ArrowUpDown } from 'lucide-react';
 
 interface ExpressionIconProps {
   type: ExpressionType;
-  subType?: string;
   className?: string;
+  subType?: string;
 }
 
-const ExpressionIcon: React.FC<ExpressionIconProps> = ({ 
-  type, 
-  subType,
-  className = 'h-3.5 w-3.5 text-muted-foreground' 
+const ExpressionIcon: React.FC<ExpressionIconProps> = ({
+  type,
+  className = "h-4 w-4",
+  subType
 }) => {
-  const iconProps = { className };
-  
-  // Get the current instrument from subType if available
-  const getFormattedType = (): string => {
-    if (type === 'market_data') {
-      return 'Instrument Price';
+  // Special case for multi-output indicators
+  if (type === 'indicator' && subType) {
+    if (subType.includes('Band') || subType.includes('UpperBand') || subType.includes('LowerBand') || subType.includes('MiddleBand')) {
+      return <ArrowUpDown className={`${className} text-indigo-600 dark:text-indigo-400`} />;
     }
-    return type.replace('_', ' ');
-  };
+  }
   
   switch (type) {
-    case 'market_data':
-      return <LineChart {...iconProps} />;
     case 'indicator':
-      return <Gauge {...iconProps} />;
+      return <Activity className={`${className} text-blue-600 dark:text-blue-400`} />;
+    case 'market_data':
+      return <LineChart className={`${className} text-green-600 dark:text-green-400`} />;
     case 'constant':
-      return <DollarSign {...iconProps} />;
+      return <Hash className={`${className} text-amber-600 dark:text-amber-400`} />;
     case 'time_function':
-      return <Clock {...iconProps} />;
-    case 'position_data':
-      return <Briefcase {...iconProps} />;
-    case 'strategy_metric':
-      return <BarChart {...iconProps} />;
-    case 'execution_data':
-      return <ShoppingCart {...iconProps} />;
-    case 'external_trigger':
-      return <Bell {...iconProps} />;
+      return <Clock className={`${className} text-purple-600 dark:text-purple-400`} />;
     case 'expression':
-      return <CodeXml {...iconProps} />;
+      return <Calculator className={`${className} text-rose-600 dark:text-rose-400`} />;
     default:
-      return <LineChart {...iconProps} />;
+      return null;
   }
 };
 

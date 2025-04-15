@@ -4,7 +4,6 @@ import { Expression } from '../../../utils/conditions';
 import { expressionEditorMap } from '../expression-editors';
 import { Label } from '@/components/ui/label';
 import ExpressionTypeSelector from './ExpressionTypeSelector';
-import { useReactFlow } from '@xyflow/react';
 
 interface ExpressionWrapperProps {
   label: string;
@@ -23,17 +22,6 @@ const ExpressionWrapper: React.FC<ExpressionWrapperProps> = ({
   showLabels = true,
   conditionContext = 'entry'
 }) => {
-  const { getNodes } = useReactFlow();
-  
-  // Get the current instrument symbol from the start node
-  const getInstrumentName = (): string => {
-    const nodes = getNodes();
-    const startNode = nodes.find(node => node.type === 'startNode');
-    
-    // Explicitly cast to string with type assertion to guarantee a string return
-    return (startNode?.data?.symbol as string) || 'Instrument';
-  };
-  
   // Get the appropriate editor component for this expression type
   const EditorComponent = expression ? expressionEditorMap[expression.type] : null;
 
@@ -56,7 +44,6 @@ const ExpressionWrapper: React.FC<ExpressionWrapperProps> = ({
             expression={expression} 
             updateExpression={updateExpression}
             conditionContext={conditionContext}
-            instrumentName={getInstrumentName()}
           />
         </div>
       )}
@@ -67,7 +54,6 @@ const ExpressionWrapper: React.FC<ExpressionWrapperProps> = ({
             expression={expression} 
             updateExpression={updateExpression}
             conditionContext={conditionContext}
-            instrumentName={getInstrumentName()}
           />
         </div>
       )}

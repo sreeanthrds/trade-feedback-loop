@@ -23,16 +23,11 @@ export const useIndicatorSelector = ({ expression, updateExpression }: UseIndica
     const startNode = strategyStore.nodes.find(node => node.type === 'startNode');
     if (startNode && startNode.data && startNode.data.indicators && 
         Array.isArray(startNode.data.indicators) && startNode.data.indicators.length > 0) {
-      
-      // Set available indicators from start node
       setAvailableIndicators(startNode.data.indicators);
       
       // Check if the current indicator still exists in the start node
-      if (indicatorExpr.name) {
-        const indicatorExists = startNode.data.indicators.includes(indicatorExpr.name);
-        setMissingIndicator(!indicatorExists);
-        
-        console.log(`Indicator check: ${indicatorExpr.name}, exists: ${indicatorExists}`);
+      if (indicatorExpr.name && !startNode.data.indicators.includes(indicatorExpr.name)) {
+        setMissingIndicator(true);
       } else {
         setMissingIndicator(false);
       }
@@ -40,7 +35,6 @@ export const useIndicatorSelector = ({ expression, updateExpression }: UseIndica
       setAvailableIndicators([]);
       if (indicatorExpr.name) {
         setMissingIndicator(true);
-        console.log(`No indicators available but using: ${indicatorExpr.name}`);
       }
     }
   }, [strategyStore.nodes, indicatorExpr.name]);
@@ -106,15 +100,10 @@ export const useIndicatorSelector = ({ expression, updateExpression }: UseIndica
       const displayParams = { ...params };
       delete displayParams.indicator_name;
       
-      // Only include parentheses with values if there are actual valid parameter values
-      const paramValues = Object.values(displayParams);
-      if (paramValues.length > 0 && paramValues.some(val => val !== undefined && val !== null && val !== '')) {
-        const paramList = paramValues.join(',');
-        return `${baseName}(${paramList})`;
-      }
+      // Format all parameters into a single, readable string - only values
+      const paramList = Object.values(displayParams).join(',');
       
-      // Return just the name if no valid parameters
-      return baseName;
+      return `${baseName}(${paramList})`;
     }
     
     return key;
